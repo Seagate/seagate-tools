@@ -1,0 +1,15 @@
+---
+# handlers file for autoPerf
+#
+ - name: Restart Telegraf
+   service: 
+     name: telegraf
+     enabled: yes
+     state: restarted
+
+ - name: Stop Monitoring 
+   service:
+      name: telegraf
+      state: stopped
+
+   

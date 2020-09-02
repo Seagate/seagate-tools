@@ -57,7 +57,7 @@
    with_items: "{{ groups['s3server'] }}"
 
  - name: cloning scripts for pre-requisite steps to configure s3 cluster 
-   shell: curl {{ AUDO_DEPLOY_URL }} -o auto-deploy-eos; chmod a+x auto-deploy-eos; curl {{ PREREQ_URL }} -o cortx-prereqs.sh; chmod a+x cortx-prereqs.sh;
+   shell: curl {{ AUTO_DEPLOY_URL }} -o auto-deploy-eos; chmod a+x auto-deploy-eos; curl {{ PREREQ_URL }} -o cortx-prereqs.sh; chmod a+x cortx-prereqs.sh;
    delegate_to: "{{ item }}"
    with_items: "{{ groups['s3server'] }}"
 

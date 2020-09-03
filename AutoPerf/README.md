@@ -1,1 +1,1 @@
-# autoperf-v1.0
+# autoperf-v1.1

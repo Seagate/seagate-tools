@@ -1,0 +1,127 @@
+---
+# tasks file for autoPerf
+#
+ - debug:
+     msg: echo {{ PRIMARY }}
+
+ - name: Updating hosts files
+   script: files/update_hosts.sh {{ CLIENT }} {{ PRIMARY }} {{ SECONDARY }}
+   delegate_to: localhost
+
+ - meta: refresh_inventory
+ 
+ - name: Refreshing "known hosts"
+   command: sed -i "/{{ hostvars[item]['ansible_host'] }}/d" /root/.ssh/known_hosts
+   delegate_to: localhost
+   with_items: "{{ groups['allserver'] }}"
+
+ - name: Enabled passwordless authentication
+   script: files/automatePasswordless.sh {{ hostvars[item]['ansible_user'] }} {{ hostvars[item]['ansible_host'] }} {{ KEY }}
+   delegate_to: localhost
+   with_items: "{{ groups['allserver'] }}"
+
+ - name: Add Telegraf repository
+   yum_repository:
+     name: influxdb
+     description: InfluxDB Repository - RHEL \$releasever
+     baseurl: https://repos.influxdata.com/rhel/\$releasever/\$basearch/stable
+     gpgcheck: yes
+     enabled: yes
+     gpgkey: https://repos.influxdata.com/influxdb.key
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['allserver'] }}"
+
+ - name: Pre-requisites packages for autoperf deployment
+   yum:
+     name: "{{ item }}"
+     state: latest
+     update_cache: yes
+   with_items:
+       - go
+       - git
+       - bc
+  
+ - name: Installation of telegarf on s3server
+   yum:
+     name: telegraf
+     state: latest
+     update_cache: yes
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['allserver'] }}"
+ 
+ - name: Copying benchmark script to {{ ansible_host }}
+   unarchive: 
+      src: files/cortx-benchmark.tar.gz
+      dest: /root/ 
+
+
+# - name: Clone a public git repository
+#   git:
+#     repo: https://github.com/Seagate/cortx-benchmark.git
+#     dest: /root/cortx-benchmark
+#     refspec: '+refs/pull/*:refs/heads/*'
+#   delegate_to: "{{ item }}"
+#   with_items: "{{ groups['S3-Client'] }}"
+
+ - name: Uncomment configuration file telegraf "inputs.net"
+   replace:
+     path: /etc/telegraf/telegraf.conf
+     regexp: '# \[\[inputs.net\]\]'
+     replace: '[[inputs.net]]'
+     backup: yes
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['allserver'] }}"
+
+ - name: Uncomment configuration file telegraf "inputs.netstat"
+   replace:
+     path: /etc/telegraf/telegraf.conf
+     regexp: '# \[\[inputs.netstat\]\]'
+     replace: '[[inputs.netstat]]'
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['allserver'] }}"
+ 
+ - name: Added influxdb details "outputs.influxdb"
+   blockinfile:
+     path: /etc/telegraf/telegraf.conf
+     marker: "# {mark} ANSIBLE MANAGED BLOCK "
+     insertafter: '^\[\[outputs.influxdb\]\]'
+     block: |
+       urls = ["http://{{ url }}:8086"]
+       database = "{{ database }}"
+       username = "{{ username }}"
+       password = "{{ password }}"
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['allserver'] }}"
+
+ - name: Include yml file for {{ CONFIGURATION }} configuration
+   include_vars: "roles/autoPerf/vars/{{ CONFIGURATION }}.yml"
+
+ - name: Telegraf monitoring start
+   service:
+      name: telegraf
+      state: started
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['allserver'] }}"
+
+ - name: s3benchmark Running
+   shell: cd /root/cortx-benchmark/s3bench_basic; ./run_s3benchmark.sh -nc {{ CLIENTS }} -ns {{ NUMSAMPLES}} -s {{ IOSIZE }} -sm {{ SAMPLE }} -cl {{ SKIPCLEANUP }}
+   when: BENCHMARK == "s3bench_basic"
+
+ - name: HSbenchmark Running
+   shell: cd /root/cortx-benchmark/hsbench; ./run_benchmark.sh -b {{ BUCKETS }} -o {{ NUMSAMPLES }} -s {{ IOSIZE }} -t {{ CLIENTS }} -d {{ DURATION }} -sm {{ SAMPLE }}
+   when: BENCHMARK == "hsbench"
+
+ - name: Cosbench Running
+   shell: cd /root/cortx-benchmark/cosbench; ./s3cosbench_benchmark.sh -nc {{ CLIENTS }} -ns {{ NUMSAMPLES }} -s {{ IOSIZE }} -b {{ BUCKETS }} -w {{ OPERATION }} -t {{ DURATION }} -sm {{ SAMPLE }}
+   when: BENCHMARK == "cosbench"
+
+ - name: Fio Running
+   shell: cd /root/cortx-benchmark/fio; ./run_fio.sh {{ PRIMARY }} {{ DURATION }} {{ IOSIZE }} {{ NUMJOBS }} {{ SAMPLE }} {{ TEMPLATE }}
+   when: BENCHMARK == "fio"
+   
+ - name: Telegraf monitoring stop
+   service:
+      name: telegraf
+      state: stopped
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['allserver'] }}"

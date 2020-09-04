@@ -4,8 +4,6 @@ host1=$1
 host2=$2
 while $flag
 do
-       
-
        flag1=`curl --user srvcqa1:Y2ecGgVJsK57dYdm -k -H "Content-Type:application/json" -H "Accept:application/json" https://ssc-satellite1.colo.seagate.com/api/v2/hosts/$host1 | jq -r '.build'`
        if $flag1    
        then
@@ -22,7 +20,7 @@ do
            echo -e "$flag2: \t Reimage successful $host2"
        fi
        
-       if [ ! $flag1 == 'true' ] & [ ! $flag2 == 'true' ]
+       if [ $flag1 == 'false' ] & [ $flag2 == 'false' ]
        then
            echo "Both are reimaged"
            flag=false

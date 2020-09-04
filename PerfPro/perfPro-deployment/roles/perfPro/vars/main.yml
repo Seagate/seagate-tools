@@ -1,0 +1,12 @@
+---
+# vars file for perfPro
+build_url: http://cortx-storage.colo.seagate.com/releases/eos/Cortx-1.0.0-34-rc13/
+benchmarks: s3bench;hsbench;cosbench
+db_server: cftic1.pun.seagate.com
+db_port: 27017 
+db_name: PerfPro
+db_collection: results
+db_user: 
+db_passwd: 
+db_database: performance_db
+db_url: 'mongodb://{{ db_user }}:{{ db_passwd }}@cftic1.pun.seagate.com:{{ db_port }},cftic2.pun.seagate.com:{{ db_port }},apollojenkins.pun.seagate.com:{{ db_port }}/test?authSource={{ db_database }}&replicaSet=rs0&readPreference=primary&appname=MongoDB%20Compass%20Community&ssl=false'

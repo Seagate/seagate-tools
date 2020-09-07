@@ -1,0 +1,11 @@
+Pre-requisite step to perform AutoPerf s3 performance testing:
+1.	S3Cluster should be configured with latest build.
+2.	S3Cluster is stable and in running state.
+3.	It must require root access to the S3 client and S3 server.
+4.	To enable Passwordless authentication, AutoPerf Dashboard will ask you for the password.
+5. 	S3client must be pre-configured. User must be able to perform S3 bucket Operations. (# aws s3 ls)
+
+ Note: -
+  1.	AutoPerf will take care of all configuration like Benchmark tools, autoperf  and pre-requisites packages on S3 Client and S3 Server
+  2.	While running fio benchmark, you will observe the S3 performance graph (Grafana Dashboard) only on the primary and secondary node of S3 Server respectively. It will not be reflected on your Client server.
+  3.	For the remaining benchmark, you can observe the s3 performance graph (Grafana Dashboard) only on the S3 Client server.

@@ -1,0 +1,44 @@
+---
+CLIENT: iu09-r21.pun.seagate.com
+NODE1: sm20-r22.pun.seagate.com
+NODE2: sm21-r22.pun.seagate.com
+USER: root
+CLUSTER_PASS: seagate1
+CLUSTER_IP: 172.19.222.20 
+MGMT_VIP: 10.237.65.69
+PUB_NIC: enp175s0f0
+PRIVATE_NIC: enp175s0f1
+DATA_IP_NODE1: 172.19.22.20
+DATA_IP_NODE2: 172.19.22.21
+CONTROLLER_A_IP: 10.237.65.202
+CONTROLLER_B_IP: 10.237.66.1
+CONTROLLER_USER: manage
+CONTROLLER_PASS: 'Seagate123$'
+BMC_USER: ADMIN
+BMC_PASS: ADMIN
+BUILD_URL: http://cortx-storage.colo.seagate.com/releases/eos/Cortx-1.0.0-35-rc14/
+PREREQ_URL: http://gitlab.mero.colo.seagate.com/eos/provisioner/ees-prvsnr/raw/Cortx-v1.0.0_Beta/cli/src/cortx-prereqs.sh
+AUDO_DEPLOY_URL: http://gitlab.mero.colo.seagate.com/eos/provisioner/ees-prvsnr/raw/Cortx-v1.0.0_Beta/cli/src/auto-deploy-eos
+
+Restcall:
+  ip : "10.237.65.69"
+  port : 28100
+  jsonfile : 'rest_call.json'
+  csm_admin_user :
+    username: "admin"
+    password: "Seagate@1"
+  csm_user_manage:
+    username: "csm_user_manage"
+    password: "Testuser@123"
+  csm_user_monitor:
+    username: "csm_user_monitor"
+    password: "Testuser@123"
+  s3account_user:
+    username: "s3user3"
+    password: "Seagate@123"
+    email: "accounts323.admin@seagate.com"
+  Login_headers:
+    Content-Type: 'application/json'
+  rest_login_endpoint : "/api/v1/login"
+  alerts_endpoint : "/api/v1/alerts"
+  s3accounts_endpoint : "/api/v1/s3_accounts"

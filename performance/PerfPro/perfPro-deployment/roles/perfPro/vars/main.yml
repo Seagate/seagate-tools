@@ -1,6 +1,5 @@
 ---
 # vars file for perfPro
-build_url: http://cortx-storage.colo.seagate.com/releases/eos/Cortx-1.0.0-34-rc13/
 benchmarks: s3bench;hsbench;cosbench
 db_server: cftic1.pun.seagate.com
 db_port: 27017 

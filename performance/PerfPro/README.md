@@ -14,22 +14,17 @@ pip3 install pymongo==3.11.0
 
 ## Running Scripts
 ```
--S3bench : For inserting all log file data into MongoDb Database
+For inserting all s3bench log file data into MongoDb Database
 
 python3 s3bench_DBupdate.py [dir path] [main.yml path] [config.yml path]
 ```
 ```
--Cosbench : For inserting all csv file data into MongoDb Database
+For inserting all cosbench csv file data into MongoDb Database
 
 python3 cosbench_DBupdate.py [dir path] [main.yml path] [config.yml path]
 ```
 ```
--Cosbench : For inserting all csv file data into MongoDb Database
-
-python3 cosbench_DBupdate.py [dir path] [main.yml path] [config.yml path]
-```
-```
--hsbench : For inserting all json file data into MongoDb Database
+For inserting all hsbench json file data into MongoDb Database
 
 python3 hsbench_DBupdate.py [dir path] [main.yml path] [config.yml path]
 ```

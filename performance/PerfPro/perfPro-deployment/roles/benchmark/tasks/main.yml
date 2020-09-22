@@ -87,7 +87,7 @@
    delegate_to: "{{ groups['clientserver'][0] }}"
 
  - name: Cosbench running
-   shell: cd /root/PerfProBenchmark/cosbench; ./s3cosbench_benchmark.sh -nc "100" -ns "1000" -s "1Mb,5Mb,36Mb,64Mb,128Mb,256Mb" -b 1 -w mixed -t 600; ./s3cosbench_benchmark.sh -nc "100" -ns "100" -s "1Mb,5Mb,36Mb,64Mb,128Mb,256Mb" -b 10,50 -w mixed -t 600
+   shell: cd /root/PerfProBenchmark/cosbench; ./s3cosbench_benchmark.sh -nc "100" -ns "100" -s "1Mb,5Mb,36Mb,64Mb,128Mb,256Mb" -b 10,50 -w mixed -t 600; ./s3cosbench_benchmark.sh -nc "100" -ns "1000" -s "1Mb,5Mb,36Mb,64Mb,128Mb,256Mb" -b 1 -w mixed -t 600
    delegate_to: "{{ groups['clientserver'][0] }}"   
 
  - name: HSbench running

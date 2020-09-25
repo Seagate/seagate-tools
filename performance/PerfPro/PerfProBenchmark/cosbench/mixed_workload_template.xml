@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<workload name="_SIZE_ MB, _BUCKETS_ buckets, _OBJECTS_ objects, _WORKERS_ workers, MIXED Workloadtype" description="_SIZE_ MB S3 Benchmark">
+<workload name="_SIZE_ _TYPE_, _BUCKETS_ buckets, _OBJECTS_ objects, _WORKERS_ workers, MIXED Workloadtype" description="_SIZE_ _TYPE_ S3 Benchmark">
   <storage type="s3" config="accesskey=_ACCESSKEY_;secretkey=_SECRETKEY_;endpoint=_S3ENDPOINT_;path_style_access=true" />
   <workflow>
     <!-- Init Stages -->
@@ -7,14 +7,14 @@
       <work type="init" workers="1" config="cprefix=_SIZE_mb-;containers=r(1,_BUCKETS_)" />
     </workstage>
     <workstage name="prepare">
-      <work type="prepare" workers="_WORKERS_" config="cprefix=_SIZE_mb-;containers=r(1,_BUCKETS_);oprefix=r-_HASH_;objects=r(1,_OBJECTS_);sizes=c(_SIZE_)MB;" />
+      <work type="prepare" workers="_WORKERS_" config="cprefix=_SIZE_mb-;containers=r(1,_BUCKETS_);oprefix=r-_HASH_;objects=r(1,_OBJECTS_);sizes=c(_SIZE_) _TYPE_;" />
     </workstage>
 
     <!-- 50/50 Read/Write -->
     <workstage name="5050rw">
       <work name="5050rw" workers="_WORKERS_" runtime="_RUNTIME_" division="object">
         <operation type="read" ratio="50" config="cprefix=_SIZE_mb-;containers=u(1,_BUCKETS_);oprefix=r-_HASH_;objects=u(1,_OBJECTS_)" />
-        <operation type="write" ratio="50" config="cprefix=_SIZE_mb-;containers=u(1,_BUCKETS_);oprefix=50w-_HASH_;objects=u(1,_OBJECTS_);sizes=c(_SIZE_)MB" />
+        <operation type="write" ratio="50" config="cprefix=_SIZE_mb-;containers=u(1,_BUCKETS_);oprefix=50w-_HASH_;objects=u(1,_OBJECTS_);sizes=c(_SIZE_)_TYPE_" />
       </work>
     </workstage>
     <workstage name="cleanup-5050rw">

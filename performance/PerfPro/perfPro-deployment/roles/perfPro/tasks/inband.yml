@@ -7,38 +7,37 @@
        group: root
        mode: '0754'
    delegate_to: "{{ item }}"
-   with_items: "{{ groups['s3server'] }}"
+   with_items: "{{ groups['perfpros3server'] }}"
 
- - name: create /etc/scsi-network-relay.conf on "{{ groups['s3server'][1] }}"
+ - name: create /etc/scsi-network-relay.conf on "{{ groups['perfpros3server'][1] }}"
    copy:
        src: files/srvnode1
        dest: /etc/scsi-network-relay.conf
        owner: root
        group: root
        mode: '0754'
-   delegate_to: "{{ groups['s3server'][1] }}"
+   delegate_to: "{{ groups['perfpros3server'][1] }}"
 
- - name: create /etc/scsi-network-relay.conf on "{{ groups['s3server'][0] }}"
+ - name: create /etc/scsi-network-relay.conf on "{{ groups['perfpros3server'][0] }}"
    copy:
        src: files/srvnode2
        dest: /etc/scsi-network-relay.conf
        owner: root
        group: root
        mode: '0754'
-   delegate_to: "{{ groups['s3server'][0] }}"
+   delegate_to: "{{ groups['perfpros3server'][0] }}"
 
  - name: Installing scsi rpm packages
    yum: 
       name: /root/scsi-network-relay-1.1.0-47.x86_64.rpm
       state: present
-#   shell: rpm -ivh scsi-network-relay-1.1.0-47.x86_64.rpm
    delegate_to: "{{ item }}"
-   with_items: "{{ groups['s3server'] }}"
+   with_items: "{{ groups['perfpros3server'] }}"
 
  - name: start and enable scsi-network-relay service
    service:
        name: scsi-network-relay
        state: started
    delegate_to: "{{ item }}"
-   with_items: "{{ groups['s3server'] }}"
+   with_items: "{{ groups['perfpros3server'] }}"
 

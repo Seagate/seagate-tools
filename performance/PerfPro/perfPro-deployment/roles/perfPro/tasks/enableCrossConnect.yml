@@ -1,7 +1,7 @@
 ---
  - name: Enable lsiutil on primary node
    shell: cd /root/lsiutil/; sh ./lsiutil.sh enable
-   delegate_to: "{{ groups['s3server'][1] }}"
+   delegate_to: "{{ groups['perfpros3server'][1] }}"
 
 # - name: Disbale lsiutil on secondary node
 #   shell: cd /root/lsiutil/; sh ./lsiutil.sh disable

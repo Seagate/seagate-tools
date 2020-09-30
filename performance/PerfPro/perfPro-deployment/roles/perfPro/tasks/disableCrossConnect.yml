@@ -5,11 +5,11 @@
         src: files/lsiutil.tar
         dest: /root/
    delegate_to: "{{ item }}"
-   with_items: "{{ groups['s3server'] }}"
+   with_items: "{{ groups['perfpros3server'] }}"
 
  - name: Disable lsiutil on primary node
    shell: cd /root/lsiutil/; sh lsiutil.sh disable
-   delegate_to: "{{ groups['s3server'][1] }}"
+   delegate_to: "{{ groups['perfpros3server'][1] }}"
 
 # - name: Enable lsiutil on secondary node
 #   shell: cd /root/lsiutil/; sh lsiutil.sh enable

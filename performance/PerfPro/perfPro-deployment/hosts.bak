@@ -1,9 +1,9 @@
-[clientserver]
+[perfproclientserver]
 
 
-[s3server]
+[perfpros3server]
 
 
-[allserver]
+[perfproallserver]
 
 

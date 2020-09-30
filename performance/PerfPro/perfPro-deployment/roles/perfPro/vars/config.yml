@@ -19,9 +19,10 @@ CONTROLLER_USER: manage
 CONTROLLER_PASS: '!manage'
 BMC_USER: ADMIN
 BMC_PASS: 'ADMIN'
-BUILD_URL: http://cortx-storage.colo.seagate.com/releases/cortx/github/Cortx-1.0.0-RC3/ 
-PREREQ_URL: https://raw.githubusercontent.com/Seagate/cortx-prvsnr/release/cli/src/cortx-prereqs.sh?token=AP6ZCCUEZW25TNIML6GGAS27NHMGM
-AUTO_DEPLOY_URL: https://raw.githubusercontent.com/Seagate/cortx-prvsnr/release/cli/src/auto-deploy?token=AP6ZCCVJOIT36UO4XWJZ2US7NHMME
+BUILD_URL: http://cortx-storage.colo.seagate.com/releases/cortx/github/cortx-1.0/rhel-7.7.1908/120/prod/
+RELEASE_TAG: cortx-1.0-120
+PREREQ_URL: https://raw.githubusercontent.com/Seagate/cortx-prvsnr/release/cli/src/cortx-prereqs.sh
+AUTO_DEPLOY_URL: https://raw.githubusercontent.com/Seagate/cortx-prvsnr/release/cli/src/auto-deploy 
 
 # please change below ip as same as MGMT_VIP and rest of things will remain same
 Restcall:

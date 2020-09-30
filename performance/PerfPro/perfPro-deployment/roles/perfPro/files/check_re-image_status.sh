@@ -20,7 +20,7 @@ do
            echo -e "$flag2: \t Reimage successful $host2"
        fi
        
-       if [ $flag1 == 'false' ] & [ $flag2 == 'false' ]
+       if [ $flag1 == "false" -a  $flag2 == "false" ] 
        then
            echo "Both are reimaged"
            flag=false

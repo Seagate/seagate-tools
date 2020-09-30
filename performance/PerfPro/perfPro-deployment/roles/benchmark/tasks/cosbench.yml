@@ -1,0 +1,18 @@
+---
+ - name: Cosbench running ( size="4Kb,100Kb,1Mb,5Mb,36Mb,64Mb" clients=100 samples=1000 bucket=1 )
+   shell: cd /root/PerfProBenchmark/cosbench; ./s3cosbench_benchmark.sh -nc "100" -ns "1000" -s "4Kb,100Kb,1Mb,5Mb,36Mb,64Mb" -b 1 -w mixed -t 600
+   delegate_to: "{{ groups['perfproclientserver'][0] }}"
+
+ - name: Cosbench running ( size="128Mb,256Mb" clients=100 samples=1000 bucket=1 )
+   shell: cd /root/PerfProBenchmark/cosbench; ./s3cosbench_benchmark.sh -nc "100" -ns "1000" -s "128Mb,256Mb" -b 1 -w mixed -t 600
+   delegate_to: "{{ groups['perfproclientserver'][0] }}"
+
+ - name: Cosbench running ( size="4Kb,100Kb,1Mb,5Mb,36Mb" clients=100 samples=100 bucket=10,50 )
+   shell: cd /root/PerfProBenchmark/cosbench; ./s3cosbench_benchmark.sh -nc "100" -ns "100" -s "4Kb,100Kb,1Mb,5Mb,36Mb" -b 10,50 -w mixed -t 600
+   delegate_to: "{{ groups['perfproclientserver'][0] }}"
+
+ - name: Cosbench running ( size="64Mb,128Mb,256Mb" clients=100 samples=100 bucket=10,50 )
+   shell: cd /root/PerfProBenchmark/cosbench; ./s3cosbench_benchmark.sh -nc "100" -ns "100" -s "64Mb,128Mb,256Mb" -b 10,50 -w mixed -t 600
+   delegate_to: "{{ groups['perfproclientserver'][0] }}"
+
+

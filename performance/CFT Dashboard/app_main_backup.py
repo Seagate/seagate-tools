@@ -1,20 +1,7 @@
 '''
-CFT webpage improvement Task for CORTX CFT Report
+CORTX CFT dashboard script
 @ Seagate Pune
-Modified on : 5 August 2020
-             19 August 2020
-             24 August 2020 with CSS
-Created by : Sampada Petkar 
 Version: 7
-Updates:
-- web page for report generations for eng and exe reports
-- local csv file reads and updates on sending dummy build number
-- updates both tables
-- access through URL for build report data
-- in sync with database
-- all entries are fetched from database
-- with CSS and coloured cells
-- shows previous build, performance data and detailed report
 '''
 ### ======================================================
 import concurrent.futures
@@ -186,7 +173,7 @@ t5r1 = html.Tr([html.Td("Update",id="update"),html.Td(None, id="update_min_1"),h
 t5r2 = html.Tr([html.Td("Deployment",id="deploy"),html.Td(None, id="deploy_min_1"),html.Td(None, id="deploy_min_2"),html.Td(None, id="deploy_min_3"),html.Td(None, id="deploy_min_4"),html.Td(None, id="deploy_min_5")])
 t5r3 = html.Tr([html.Td("Boxing",id="box"),html.Td(None, id="box_min_1"),html.Td(None, id="box_min_2"),html.Td(None, id="box_min_3"),html.Td(None, id="box_min_4"),html.Td(None, id="box_min_5")])
 t5r4 = html.Tr([html.Td("Unboxing",id="unbox"),html.Td(None, id="unbox_min_1"),html.Td(None, id="unbox_min_2"),html.Td(None, id="unbox_min_3"),html.Td(None, id="unbox_min_4"),html.Td(None, id="unbox_min_5")])
-t5r5 = html.Tr([html.Td("Onboaring",id="onboard"),html.Td(None, id="onboard_min_1"),html.Td(None, id="onboard_min_2"),html.Td(None, id="onboard_min_3"),html.Td(None, id="onboard_min_4"),html.Td(None, id="onboard_min_5")])
+t5r5 = html.Tr([html.Td("Onboarding",id="onboard"),html.Td(None, id="onboard_min_1"),html.Td(None, id="onboard_min_2"),html.Td(None, id="onboard_min_3"),html.Td(None, id="onboard_min_4"),html.Td(None, id="onboard_min_5")])
 t5r6 = html.Tr([html.Td("Firmware Update",id="firm"),html.Td(None, id="firm_min_1"),html.Td(None, id="firm_min_2"),html.Td(None, id="firm_min_3"),html.Td(None, id="firm_min_4"),html.Td(None, id="firm_min_5")])
 t5r7 = html.Tr([html.Td("Reboot Node",id="NReboot"),html.Td(None, id="NReboot_min_1"),html.Td(None, id="NReboot_min_2"),html.Td(None, id="NReboot_min_3"),html.Td(None, id="NReboot_min_4"),html.Td(None, id="NReboot_min_5")])
 t5r8 = html.Tr([html.Td("Start Node",id="Nstart"),html.Td(None, id="Nstart_min_1"),html.Td(None, id="Nstart_min_2"),html.Td(None, id="Nstart_min_3"),html.Td(None, id="Nstart_min_4"),html.Td(None, id="Nstart_min_5")])
@@ -563,12 +550,7 @@ tab3_content = dbc.Card(
 )
 
 ### =====================================================
-build_options_beta = [
-            {'label' : build, 'value' : build} for build in dd.get_chain('beta')
-        ]
-build_options_release = [
-            {'label' : build, 'value' : build} for build in dd.get_chain('release')
-        ]
+
 versions = [
         {'label' : 'Beta', 'value' : 'beta'},
         {'label' : 'Release', 'value' : 'release'},
@@ -671,25 +653,25 @@ versions = [
 input_options = dbc.Row(
     [
         dcc.Dropdown(
-            id = "Version_Dropdown",
+            id = "version_main_dropdown",
             options = versions,
             placeholder="select version",
             style = {'width': '200px', 'verticalAlign': 'middle',"margin-right": "15px"}, #,'align-items': 'center', 'justify-content': 'center'
         ),
 
         dcc.Dropdown(
-            id = 'Build1_Dropdown',
+            id = 'table_build_input',
             placeholder="select 1st build",
             style = {'width': '200px', 'verticalAlign': 'middle',"margin-right": "15px"}, #,'align-items': 'center', 'justify-content': 'center'
         ),
-        dbc.Button("Get!", id="get_graph_button", color="success",style={'height': '35px'}),
+        dbc.Button("Get!", id="table_submit_button", color="success",style={'height': '35px'}),
     ],
     justify='center')
 
 app.layout = html.Div([
     navbar,
-    build_input_group,
-    #input_options,
+    # build_input_group,
+    input_options,
     build_report_header,
     tabs,
     
@@ -703,9 +685,37 @@ app.layout = html.Div([
 
 ### =====================================================
 # call back for eng report aka first tab
-def get_from_dropdown(current_build):
-    if not current_build:
+@app.callback(
+    #dash.dependencies.Output('dd-output-container', 'children'),
+    [dash.dependencies.Output('table_build_input', 'options')],
+    [dash.dependencies.Input('version_main_dropdown', 'value')],
+)
+def fetch_build_for_dropdown(value):
+    if not value:
         raise PreventUpdate
+    if value == 'beta':
+        version = 'beta'
+    elif value == 'release':
+        version = 'release'
+    else:
+        return None
+    if version:
+        cursor = mapi.find({'info' : 'build sequence'})
+        builds = cursor[0][version]
+        list1 = builds
+        list2 = dd.get_chain(version)
+
+        in_first = set(list1)
+        in_second = set(list2)
+        in_second_but_not_in_first = in_second - in_first
+        result = list1 + list(in_second_but_not_in_first)   
+        result = [ele for ele in reversed(result)]
+        another = [
+                {'label' : build, 'value' : build} for build in result
+        ]
+        return [another]
+         
+    return None
 
 def roundoff(x, base=25):
     if x <26:
@@ -724,15 +734,20 @@ def get_previous_build(current_build, version):
                 current_index = i
                 found = True
                 break
-    #print(doc[version][current_index - 1])
+
     if found and current_index > 0: 
         prev = doc[version][current_index - 1]
-        return prev if version == 'beta' else 'release_'+prev
+        if version == 'beta':
+            return prev
+        try:
+            int(prev) 
+            return 'release_'+prev
+        except:
+            return prev
     else:
         return None
 
 def get_input(table_type, ctx, clicks, input_value, enter_input, pathname):
-    previous_exists = False
     found_current = False
     current_build = ''
     previous_build = ''
@@ -767,17 +782,6 @@ def get_input(table_type, ctx, clicks, input_value, enter_input, pathname):
     else:
         return [None, None, None]
     
-    # if current_build.lower().startswith("release"):
-    #     version = 'release'
-    # else:
-    #     try:
-    #         _ = int(current_build)
-    #         version = 'release'
-    #     except:
-    #         version = 'beta'
-
-    
-    #print(version)
     if table_type == 'cft':
         item = mapi.find({'info' : 'build sequence'})
         for doc in item :
@@ -787,17 +791,14 @@ def get_input(table_type, ctx, clicks, input_value, enter_input, pathname):
                 version = 'beta'
             elif current_build in doc['release']:
                 version = 'release'
-                print("herrrrrrrrrrrr")
         if found_current:
             previous_build = get_previous_build(current_build, version)
             try:
                 int(current_build)
                 current_build = 'release_' + current_build
                 previous_build = 'release_' + previous_build
-            except:
-                print("reeeeeeeeeeeeeeeeeeeeee")
-                print(current_build)
-                pass
+            except Exception as exe:
+                print(exe)
 
     if table_type == 'perf':
         item = perfDb.results.find({'Title' : 'Main Chain'})
@@ -830,13 +831,10 @@ def getDefectListFromTe(te):
     response = requests.get(jiraLink, auth=(username, password))
     test_execution_data = response.json()
     defects_list = {}
-    found = False
     finalDefectL = []
     for value in test_execution_data:
         try:		
             numDefectLinked = len(value['defects'])
-            # print(numDefectLinked)
-
             for defectNum in range(numDefectLinked):
                 defects_list = {}
                 defects_list['defects_item'] = value['defects'][defectNum]['key']
@@ -849,10 +847,9 @@ def getDefectListFromTe(te):
                 defects_list['TestPlan_ID'] = TEID
                 defects_list['testExecutionLabels'] = te_label
                 finalDefectL.append(defects_list)
-                found = True
                 #print(defect_list['defect_item']," defect found ", found, " for TE ", te, " for test ", value['key'], " defect " , defects_list['defects_item'])
-        except:
-            found = False
+        except Exception as exe:
+            print(exe)
     return finalDefectL
 
 
@@ -861,11 +858,8 @@ def getDefectList(finalTeList):
     with concurrent.futures.ProcessPoolExecutor() as executor:
         defectList = {executor.submit(getDefectListFromTe, teJira): teJira for teJira in finalTeList}
         for future in concurrent.futures.as_completed(defectList):
-            # dList = defectList[future]
-            # print(dList)
             try:
                 data = future.result()
-                # print(data)
                 finalDefectList.extend(data)
             except Exception as exc:
                 print(exc)
@@ -882,6 +876,14 @@ def getDefectList(finalTeList):
 def versionCallback(value):
     if not value:
         raise PreventUpdate
+    beta_chain = [ele for ele in reversed(dd.get_chain('beta'))]
+    release_chain = [ele for ele in reversed(dd.get_chain('release'))]
+    build_options_beta = [
+            {'label' : build, 'value' : build} for build in beta_chain
+        ]
+    build_options_release = [
+            {'label' : build, 'value' : build} for build in release_chain
+        ]
     if value == 'beta':
         return [build_options_beta, build_options_beta]
     elif value == 'release':
@@ -1323,7 +1325,6 @@ def update_tab3(clicks, input_value):
     defectList = None   
     try:
         if found:
-            print(2)
             tpList = testPlanList.split(",")
             finalTpList = []
             for tp in tpList:
@@ -1520,7 +1521,6 @@ def update_eng_table_1(clicks, pathname, input_value, enter_input):
 def update_eng_table_2(clicks, pathname, input_value, enter_input):
 
     build, pre_build, _ = get_input('cft',dash.callback_context, clicks, input_value, enter_input, pathname)
-    print(build)
     if build:
         try:
             current_pass = mapi.count_documents({'build':build,'deleted':False, "testResult" : 'PASS'}) 
@@ -1608,7 +1608,6 @@ def update_eng_table_2(clicks, pathname, input_value, enter_input):
     )
 def update_eng_table_3(clicks, pathname, input_value, enter_input):
     build, pre_build, _ = get_input('cft',dash.callback_context, clicks, input_value, enter_input, pathname)
-    # print(build)
     S3_count_pass = 0
     S3_count_fail=0
     pro_count_pass=0
@@ -1726,7 +1725,6 @@ def update_eng_table_3(clicks, pathname, input_value, enter_input):
                         loc_count_pass+=1
                     elif doc['testResult'] == 'FAIL':
                         loc_count_fail+=1
-                        #print(doc['testID'])
                     continue
             except:
                 loc_count_pass = "-"
@@ -1825,7 +1823,6 @@ def update_eng_table_3(clicks, pathname, input_value, enter_input):
                             pre_loc_count_pass+=1
                         elif doc['testResult'] == 'FAIL':
                             pre_loc_count_fail+=1
-                            #print(doc['testID'])
                         continue
                 except:
                     pre_loc_count_pass = "-"
@@ -1989,9 +1986,6 @@ def update_eng_table_4(clicks, pathname, input_value, enter_input):
     )
 def update_timing_table(clicks, pathname, input_value, enter_input):
     build, pre_build, version = get_input('cft',dash.callback_context, clicks, input_value, enter_input, pathname)
-    
-    print("=========")
-    print(pre_build)
     data = []
     build_name = "Current Build"
     pre_build_name = "Prev Build"
@@ -3572,7 +3566,6 @@ def update_rest(clicks, pathname, input_value, enter_input):
     else:
         pre_name = pre_build.capitalize()
     if build:
-        #print(build)
         try:
             date = cftdbRead.results.find({'build':build,'deleted':False}).sort([("dateOfExecution" , 1)]).limit(1)
             date1 = date[0]['dateOfExecution'].split("T")[0] + date[0]['dateOfExecution'][19::]
@@ -3621,8 +3614,7 @@ def update_perf1(clicks, pathname, input_value, enter_input):
     build, _, _ = get_input('perf',dash.callback_context, clicks, input_value, enter_input, pathname)
     #'Build':build,
    
-    if build:   
-        print(build)     
+    if build:     
         try:
             write_data_4 = perfDb.results.find({'Build':build,'Name': 'S3bench','Object_Size': '4Kb', 'Operation': 'Write'})
             WTH4 = roundoff(write_data_4[0]['Throughput'])
@@ -3820,7 +3812,6 @@ def update_perf1(clicks, pathname, input_value, enter_input):
 def update_perf2(clicks, pathname, input_value, enter_input):
     build, _, _ = get_input('perf',dash.callback_context, clicks, input_value, enter_input, pathname)
     if build:
-        print(build)
         try:
             data = perfDb.results.find({'Name':'S3bench','Build':build,'Object_Size': '1Kb', 'Operation': 'PutObjTag'})
             pv = data[0]['Latency']['Avg']*1000
@@ -3859,7 +3850,6 @@ def update_perf2(clicks, pathname, input_value, enter_input):
 def update_hsbench1(clicks, pathname, input_value, enter_input):
     build, _, _ = get_input('perf',dash.callback_context, clicks, input_value, enter_input, pathname)
     if build:
-        print(build)
         try:
             HS1 = perfDb.results.find({'Build':build,'Name': 'Hsbench','Operation':'write','Object_Size':'4Kb','Buckets':1,'Objects':1000,'Sessions':100}) 
             WTH41 = roundoff(HS1[0]['Throughput'])
@@ -4028,7 +4018,7 @@ def update_hsbench1(clicks, pathname, input_value, enter_input):
 def update_hsbench2(clicks, pathname, input_value, enter_input):
     build, _, _ = get_input('perf',dash.callback_context, clicks, input_value, enter_input, pathname)
     if build:
-        print(build)
+
         try:
             HS2 = perfDb.results.find({'Build':build,'Name': 'Hsbench','Operation':'write','Object_Size':'4Kb','Buckets':10,'Objects':1000,'Sessions':100}) 
             WTH41 = roundoff(HS2[0]['Throughput'])
@@ -4196,7 +4186,6 @@ def update_hsbench2(clicks, pathname, input_value, enter_input):
 def update_hsbench3(clicks, pathname, input_value, enter_input):
     build, _, _ = get_input('perf',dash.callback_context, clicks, input_value, enter_input, pathname)
     if build:
-        print(build)
         try:
             HS3 = perfDb.results.find({'Build':build,'Name': 'Hsbench','Operation':'write','Object_Size':'4Kb','Buckets':50,'Objects':5000,'Sessions':100}) 
             WTH41 = roundoff(HS3[0]['Throughput'])
@@ -4365,7 +4354,6 @@ def update_hsbench3(clicks, pathname, input_value, enter_input):
 def update_cosbench1(clicks, pathname, input_value, enter_input):
     build, _, _ = get_input('perf',dash.callback_context, clicks, input_value, enter_input, pathname)
     if build:
-        print(build)
         try:
             COS1 = perfDb.results.find({'Build':build,'Name': 'Cosbench','Operation':'write','Object_Size':'4 KB','Buckets':1,'Objects':1000,'Sessions':100}) 
             WTH41 = roundoff(COS1[0]['Throughput'])
@@ -4534,7 +4522,7 @@ def update_cosbench1(clicks, pathname, input_value, enter_input):
 def update_cosbench2(clicks, pathname, input_value, enter_input):
     build, _, _ = get_input('perf',dash.callback_context, clicks, input_value, enter_input, pathname)
     if build:
-        print(build)
+
         try:
             COS2 = perfDb.results.find({'Build':build,'Name': 'Cosbench','Operation':'write','Object_Size':'4 KB','Buckets':10,'Objects':100,'Sessions':100}) 
             WTH41 = roundoff(COS2[0]['Throughput'])
@@ -4702,7 +4690,6 @@ def update_cosbench2(clicks, pathname, input_value, enter_input):
 def update_cosbench3(clicks, pathname, input_value, enter_input):
     build, _, _ = get_input('perf',dash.callback_context, clicks, input_value, enter_input, pathname)
     if build:
-        print(build)
         try:
             COS3 = perfDb.results.find({'Build':build,'Name': 'Cosbench','Operation':'write','Object_Size':'4 KB','Buckets':50,'Objects':100,'Sessions':100}) 
             WTH41 = roundoff(COS3[0]['Throughput'])

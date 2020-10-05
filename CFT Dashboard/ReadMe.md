@@ -57,3 +57,13 @@ User must choose *pip3 or pip* according to compiler specifications.
 To install packages use `pip3 install -r requirements.txt` command.
 To run the python script use `python3 Main_app.py` command in the parent directory.
 
+## Folder structure
+- requirements.txt - Initial document to install third-party libraries
+- Main_app.py - Core file of webapp structure and callbacks
+- mongodbAPIs.py - MongoDB APIs file for quick calls and fetches from database
+- timingAPIs.py - MOngoDB APIs file for timings related quick database fetches
+- db_details.py - database details and support functions
+- support.py - Callback support function file
+- environments.yml - environment related details file
+- /assets - a folder for frontend help
+- /assets/topography.css - CSS script for frontend colouration and structure

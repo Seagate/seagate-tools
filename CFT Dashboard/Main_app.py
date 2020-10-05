@@ -39,8 +39,8 @@ app.title = "CORTX Test Status"
 server = app.server
 perfDb = dd.get_database()
 
-username = '752263' # input("JIRA username: ")
-password = 'seaSAM@369' # #getpass.getpass("JIRA password: ")
+username = input("JIRA username: ")
+password = getpass.getpass("JIRA password: ")
 
 __version__ = "5.27"
 ### ====================================================================================

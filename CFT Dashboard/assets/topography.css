@@ -298,8 +298,8 @@ thead
     background-color: #C0C0C0;
 }
 
-#S3, #Provisioner, #CSM, #SSPL, #HA, #Motr, #Locust, #Cosbench, #Total,#exe_total4,#exe_pass, #exe_fail, #exe_aborted, #exe_blocked,
-#update, #deploy, #box, #unbox, #onboard, #firm, #NReboot, #Nstart, #Nstop, #Nfail, #stopA, #startA, #bcre, #bdel {
+#S3, #Provisioner, #CSM, #SSPL, #HA, #Motr, #Locust, #Cosbench,#data_recovery, #node_recovery, #Total,#exe_total4,#exe_pass, #exe_fail, #exe_aborted, #exe_blocked,
+#update, #deploy, #box, #unbox, #onboard, #firm, #NReboot, #Nstart, #Nstop, #Nfail, #Nfback, #stopA, #startA, #bcre, #bdel {
     font-weight: bold;
     color : #1C2833;
     background-color: #B2BABB;
@@ -309,15 +309,15 @@ thead
     color : #641E16;
 }
 
-#S3_1_pass, #provision_1_pass, #csm_1_pass, #sspl_1_pass, #motr_1_pass, #ha_1_pass, #loc_1_pass, #cos_1_pass,
-#S3_2_pass, #provision_2_pass, #csm_2_pass, #sspl_2_pass, #motr_2_pass, #ha_2_pass, #loc_2_pass, #cos_2_pass
+#S3_1_pass, #provision_1_pass, #csm_1_pass, #sspl_1_pass, #motr_1_pass, #ha_1_pass, #loc_1_pass, #cos_1_pass, #dr_1_pass, #nr_1_pass,
+#S3_2_pass, #provision_2_pass, #csm_2_pass, #sspl_2_pass, #motr_2_pass, #ha_2_pass, #loc_2_pass, #cos_2_pass, #dr_2_pass, #nr_2_pass
 {
     color : #239B56;
     font-weight: bolder;
 }
 
-#S3_1_fail, #provision_1_fail, #csm_1_fail, #sspl_1_fail, #motr_1_fail, #ha_1_fail, #loc_1_fail, #cos_1_fail,
-#S3_2_fail, #provision_2_fail, #csm_2_fail, #sspl_2_fail, #motr_2_fail, #ha_2_fail, #loc_2_fail, #cos_2_fail
+#S3_1_fail, #provision_1_fail, #csm_1_fail, #sspl_1_fail, #motr_1_fail, #ha_1_fail, #loc_1_fail, #cos_1_fail, #dr_1_fail, #nr_1_fail,
+#S3_2_fail, #provision_2_fail, #csm_2_fail, #sspl_2_fail, #motr_2_fail, #ha_2_fail, #loc_2_fail, #cos_2_fail, #dr_2_fail, #nr_2_fail
 {
     color : #E74C3C;
     font-weight: bolder;

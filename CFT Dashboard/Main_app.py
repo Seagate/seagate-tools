@@ -42,7 +42,7 @@ perfDb = dd.get_database()
 username = # <insert your JIRA Username here > # input("JIRA username: ")
 password = # <insert your JIRA password here > # getpass.getpass("JIRA password: ")
 
-__version__ = "5.27"
+__version__ = "5.28"
 ### ====================================================================================
 
 @server.route('/favicon.ico')

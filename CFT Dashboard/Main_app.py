@@ -1,7 +1,7 @@
 '''
 CORTX CFT Dashboard Script
 @ Seagate Pune
-last Modification: 5 October 2020
+last Modification: 20 October 2020
 Version: 5
 '''
 ### ====================================================================================
@@ -39,8 +39,8 @@ app.title = "CORTX Test Status"
 server = app.server
 perfDb = dd.get_database()
 
-username = input("JIRA username: ")
-password = getpass.getpass("JIRA password: ")
+username = # <insert your JIRA Username here > # input("JIRA username: ")
+password = # <insert your JIRA password here > # getpass.getpass("JIRA password: ")
 
 __version__ = "5.27"
 ### ====================================================================================
@@ -152,6 +152,9 @@ t3r5 = html.Tr([html.Td("Motr",id="Motr"),html.Td(None, id="motr_1_pass"),html.T
 t3r6 = html.Tr([html.Td("HA",id="HA"),html.Td(None, id="ha_1_pass"),html.Td(None, id="ha_1_fail"),html.Td(None, id="ha_2_pass"),html.Td(None, id="ha_2_fail")])
 t3r7 = html.Tr([html.Td("Locust",id="Locust"),html.Td(None, id="loc_1_pass"),html.Td(None, id="loc_1_fail"),html.Td(None, id="loc_2_pass"),html.Td(None, id="loc_2_fail")])
 t3r8 = html.Tr([html.Td("Cosbench",id="Cosbench"),html.Td(None, id="cos_1_pass"),html.Td(None, id="cos_1_fail"),html.Td(None, id="cos_2_pass"),html.Td(None, id="cos_2_fail")])
+t3r10 = html.Tr([html.Td("Data Recovery",id="data_recovery"),html.Td(None, id="dr_1_pass"),html.Td(None, id="dr_1_fail"),html.Td(None, id="dr_2_pass"),html.Td(None, id="dr_2_fail")])
+t3r11 = html.Tr([html.Td("Node Recovery",id="node_recovery"),html.Td(None, id="nr_1_pass"),html.Td(None, id="nr_1_fail"),html.Td(None, id="nr_2_pass"),html.Td(None, id="nr_2_fail")])
+
 t3r9 = html.Tr([html.Td("Total",id="Total"),html.Td(None, id="total_1_pass"),html.Td(None, id="total_1_fail"),html.Td(None, id="total_2_pass"),html.Td(None, id="total_2_fail")])
 
 ### ====================================================================================
@@ -174,6 +177,7 @@ t5r7 = html.Tr([html.Td("Reboot Node",id="NReboot"),html.Td(None, id="NReboot_mi
 t5r8 = html.Tr([html.Td("Start Node",id="Nstart"),html.Td(None, id="Nstart_min_1"),html.Td(None, id="Nstart_min_2"),html.Td(None, id="Nstart_min_3"),html.Td(None, id="Nstart_min_4"),html.Td(None, id="Nstart_min_5")])
 t5r9 = html.Tr([html.Td("Stop Node",id="Nstop"),html.Td(None, id="Nstop_min_1"),html.Td(None, id="Nstop_min_2"),html.Td(None, id="Nstop_min_3"),html.Td(None, id="Nstop_min_4"),html.Td(None, id="Nstop_min_5")])
 t5r10 = html.Tr([html.Td("Node Failover",id="Nfail"),html.Td(None, id="Nfail_min_1"),html.Td(None, id="Nfail_min_2"),html.Td(None, id="Nfail_min_3"),html.Td(None, id="Nfail_min_4"),html.Td(None, id="Nfail_min_5")])
+t5r15 = html.Tr([html.Td("Node Failback",id="Nfback"),html.Td(None, id="Nfback_min_1"),html.Td(None, id="Nfback_min_2"),html.Td(None, id="Nfback_min_3"),html.Td(None, id="Nfback_min_4"),html.Td(None, id="Nfback_min_5")])
 t5r11 = html.Tr([html.Td("Stop All Services",id="stopA"),html.Td(None, id="stopA_min_1"),html.Td(None, id="stopA_min_2"),html.Td(None, id="stopA_min_3"),html.Td(None, id="stopA_min_4"),html.Td(None, id="stopA_min_5")])
 t5r12 = html.Tr([html.Td("Start All Services",id="startA"),html.Td(None, id="startA_min_1"),html.Td(None, id="startA_min_2"),html.Td(None, id="startA_min_3"),html.Td(None, id="startA_min_4"),html.Td(None, id="startA_min_5")])
 t5r13 = html.Tr([html.Td("Bucket Creation",id="bcre"),html.Td(None, id="bcre_min_1"),html.Td(None, id="bcre_min_2"),html.Td(None, id="bcre_min_3"),html.Td(None, id="bcre_min_4"),html.Td(None, id="bcre_min_5")])
@@ -268,8 +272,30 @@ eng_perf3_head = [
 ### ====================================================================================
 # Eng report page - Table 7 : HS bench bucket ops performance statistics
 ### ====================================================================================
+
+bucketOps = [
+    {'label': 'Average Latency', 'value':'AvgLat'},
+    {'label': 'Minimum Latency', 'value':'MinLat'},
+    {'label': 'Maximum Latency', 'value':'MaxLat'},
+    {'label': 'IOPS', 'value':'Iops'},
+    {'label': 'Throughput', 'value':'Mbps'},
+    {'label': 'Operations', 'value':'Ops'},
+    {'label': 'Execution Time', 'value':'Seconds'},
+]
+#### -------------------------------------------------------------------------------------------
 bucketops_caption = [
-    html.Caption(html.Tr([html.Th("Bucket Operations")])),
+    html.Caption(dbc.Row([html.Tr([html.Th("Bucket Operations for")]),
+                dcc.Dropdown(
+                    id = "Bucket_Ops_Dropdown",
+                    options = bucketOps,
+                    placeholder="Select Bucket Operation",
+                    style = {'width': '300px', 'verticalAlign': 'middle',"margin-right": "15px"}, #,'align-items': 'center', 'justify-content': 'center'
+                ),
+            html.P(html.Em("⟽ Select one of the bucket operations to view statistics."),className="card-text",),
+    
+            ],justify="center", align="center"
+            ),
+        ),
 ]
 
 b1 = html.Tr([html.Td(["1 Bucket",html.Br(),"1000 Objects",html.Br(),"100 Sessions"], rowSpan=9, id = "bops1"),html.Td("INIT BCLR", id="IBCLR"),html.Td(None, id="IBCLR4"),html.Td(None, id="IBCLR100"),html.Td(None, id="IBCLR1"),html.Td(None, id="IBCLR5"),html.Td(None, id="IBCLR36"),html.Td(None, id="IBCLR64"),html.Td(None, id="IBCLR128"),html.Td(None, id="IBCLR256")])
@@ -305,16 +331,7 @@ b27 = html.Tr([html.Td("BDEL", id="BDEL2"),html.Td(None, id="BDEL42"),html.Td(No
 bucketops_head = [
     html.Thead(html.Tr([html.Th("Buckets"),html.Th("Operations"),html.Th("4KB"),html.Th("100KB"),html.Th("1MB"),html.Th("5MB"),html.Th("36MB"),html.Th("64MB"),html.Th("128MB"),html.Th("256MB")]))
 ]
-#### -------------------------------------------------------------------------------------------
-bucketOps = [
-    {'label': 'Average Latency', 'value':'AvgLat'},
-    {'label': 'Minimum Latency', 'value':'MinLat'},
-    {'label': 'Maximum Latency', 'value':'MaxLat'},
-    {'label': 'IOPS', 'value':'Iops'},
-    {'label': 'Throughput', 'value':'Mbps'},
-    {'label': 'Operations', 'value':'Ops'},
-    {'label': 'Execution Time', 'value':'Seconds'},
-]
+
 #### -------------------------------------------------------------------------------------------
 tab1_content = dbc.Card(
     dbc.CardBody(
@@ -342,7 +359,7 @@ tab1_content = dbc.Card(
             id = "ET2",
             ),
 
-            dbc.Table(t3_caption + t3_head + [html.Tbody([t3r1,t3r2,t3r3,t3r4,t3r5,t3r6,t3r7,t3r8,t3r9])],
+            dbc.Table(t3_caption + t3_head + [html.Tbody([t3r1,t3r2,t3r3,t3r4,t3r5,t3r6,t3r7,t3r8,t3r10,t3r11,t3r9])],
             className = "caption-Top col-xs-6",
             hover=True,
             responsive=True,
@@ -351,7 +368,7 @@ tab1_content = dbc.Card(
             id = "ET3",
             ),
 
-            dbc.Table(t5_caption + t5_head + [html.Tbody([t5r1,t5r2,t5r3,t5r4,t5r5,t5r6,t5r7,t5r8,t5r9,t5r11,t5r10,t5r12,t5r13,t5r14])],
+            dbc.Table(t5_caption + t5_head + [html.Tbody([t5r1,t5r2,t5r3,t5r4,t5r5,t5r6,t5r7,t5r8,t5r9,t5r11,t5r10,t5r15,t5r12,t5r13,t5r14])],
             className = "caption-Top col-xs-6",
             hover=True,
             responsive=True,
@@ -389,16 +406,16 @@ tab1_content = dbc.Card(
             id = "ET6",
             ),
 
-            dbc.Row([dcc.Dropdown(
-                    id = "Bucket_Ops_Dropdown",
-                    options = bucketOps,
-                    placeholder="Select Bucket Operation",
-                    style = {'width': '250px', 'verticalAlign': 'middle',"margin-right": "15px"}, #,'align-items': 'center', 'justify-content': 'center'
-                ),
-            html.P(html.Em("⟽ Select one of the bucket operations to view statistics."),className="card-text",),
+            # dbc.Row([dcc.Dropdown(
+            #         id = "Bucket_Ops_Dropdown",
+            #         options = bucketOps,
+            #         placeholder="Select Bucket Operation",
+            #         style = {'width': '250px', 'verticalAlign': 'middle',"margin-right": "15px"}, #,'align-items': 'center', 'justify-content': 'center'
+            #     ),
+            # html.P(html.Em("⟽ Select one of the bucket operations to view statistics."),className="card-text",),
     
-            ],justify="center", align="center"
-            ),
+            # ],justify="center", align="center"
+            # ),
             
 
             dbc.Table(bucketops_caption + bucketops_head + [html.Tbody([b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,b14,b15,b16,b17,b18,\
@@ -735,29 +752,31 @@ def roundoff(x, base=25):
     return (base * round(x/base))
 #### ----------------------------------------------------------------------------------------------
 def get_previous_build(current_build, version):
-    if version == 'release' and current_build.startswith("release"):
-        current_build = current_build[8::]
-    found = False
-    cursor = mapi.find({'info' : 'build sequence'})
-    current_index = 999999
-    for doc in cursor:
-        for i in range(0, len(doc[version])):
-            if doc[version][i] == current_build:
-                current_index = i
-                found = True
-                break
+	if version == 'release' and current_build.startswith("release"):
+		current_build = current_build[8::]
+	found = False
+	cursor = mapi.find({'info' : 'build sequence'})
+	current_index = 999999
+	for doc in cursor:
+		for i in range(0, len(doc[version])):
+			if doc[version][i] == current_build:
+				current_index = i
+				found = True
+				break
 
-    if found and current_index > 0: 
-        prev = doc[version][current_index - 1]
-        if version == 'beta':
-            return prev
-        try:
-            int(prev) 
-            return 'release_'+prev
-        except:
-            return prev
-    else:
-        return None
+	if found and current_index > 0: 
+		prev = doc[version][current_index - 1]
+		if version == 'beta':
+			return prev
+		try:
+			int(prev)
+			if current_index < 7:
+				return 'release_'+prev
+			return prev
+		except:
+			return prev
+	else:
+		return None
 #### ----------------------------------------------------------------------------------------------
 def get_input(table_type, ctx, clicks, input_value, enter_input, pathname):
     found_current = False
@@ -1385,8 +1404,9 @@ def update_tab3(clicks, input_value):
     if prop_id == 'test_plan_submit_button':
         found = True
         testPlanList = input_value.lower()
+        print("Attempt for TE IDs {}".format(testPlanList))
     defectList = None   
-    print("Attempt for TE IDs {}".format(testPlanList))
+    
     try:
         if found:
             tpList = testPlanList.split(",")
@@ -1751,10 +1771,13 @@ def update_exe_table_4(clicks, pathname, input_value, enter_input):
 )
 def update_rest(clicks, pathname, input_value, enter_input):
     build, pre_build, _ = get_input('cft',dash.callback_context, clicks, input_value, enter_input, pathname)
+    if not build:
+        build, _ , _ = get_input('perf',dash.callback_context, clicks, input_value, enter_input, pathname)
     pre_name = ''
     build_name = ''
     if not build:
         build_name = "Current Build"
+
     else:
         build_name = build.capitalize()
     if not pre_build:
@@ -1961,13 +1984,14 @@ def update_eng_table_2(clicks, pathname, input_value, enter_input):
     Output('S3_1_pass', 'children'), Output('S3_1_fail', 'children'),Output('provision_1_pass', 'children'), Output('provision_1_fail', 'children'),Output('csm_1_pass', 'children'), 
     Output('csm_1_fail', 'children'), Output('sspl_1_pass', 'children'), Output('sspl_1_fail', 'children'), Output('motr_1_pass', 'children'), Output('motr_1_fail', 'children'),
     Output('ha_1_pass', 'children'), Output('ha_1_fail', 'children'), Output('loc_1_pass', 'children'), Output('loc_1_fail', 'children'),Output('cos_1_pass', 'children'), 
-    Output('cos_1_fail', 'children'), Output('total_1_pass', 'children'), Output('total_1_fail', 'children'),
+    Output('cos_1_fail', 'children'), Output('dr_1_pass', 'children'), Output('dr_1_fail', 'children'), Output('nr_1_pass', 'children'), Output('nr_1_fail', 'children'),Output('total_1_pass', 'children'), Output('total_1_fail', 'children'),
     
     Output('S3_2_pass', 'children'), Output('S3_2_fail', 'children'),Output('provision_2_pass', 'children'), Output('provision_2_fail', 'children'),
     Output('csm_2_pass', 'children'), Output('csm_2_fail', 'children'),Output('sspl_2_pass', 'children'), Output('sspl_2_fail', 'children'),
     Output('motr_2_pass', 'children'), Output('motr_2_fail', 'children'),Output('ha_2_pass', 'children'), Output('ha_2_fail', 'children'),
     Output('loc_2_pass', 'children'), Output('loc_2_fail', 'children'),Output('cos_2_pass', 'children'), Output('cos_2_fail', 'children'),
-    Output('total_2_pass', 'children'), Output('total_2_fail', 'children'), #36 T3
+    Output('dr_2_pass', 'children'), Output('dr_2_fail', 'children'), Output('nr_2_pass', 'children'), Output('nr_2_fail', 'children'),
+    Output('total_2_pass', 'children'), Output('total_2_fail', 'children'), #44 T3
     ],
     [Input('table_submit_button', 'n_clicks'),
     dash.dependencies.Input('url', 'pathname'),
@@ -2012,11 +2036,19 @@ def update_eng_table_3(clicks, pathname, input_value, enter_input):
     pre_cos_count_fail=0
     pre_current_total_pass=0
     pre_current_total_fail=0
+    data_recovery_pass = 0
+    data_recovery_fail = 0
+    node_recovery_pass = 0
+    node_recovery_fail = 0
+    pre_data_recovery_pass = 0
+    pre_data_recovery_fail = 0
+    pre_node_recovery_pass = 0
+    pre_node_recovery_fail = 0	
     if build:
         try:
             cursor = mapi.find({'build':build,'deleted':False})
         except:
-            return ['-'] * 36
+            return ['-'] * 44
 
         for doc in cursor:  
             try:                
@@ -2108,14 +2140,36 @@ def update_eng_table_3(clicks, pathname, input_value, enter_input):
             except:
                 cos_count_pass = "-"
                 cos_count_fail = "-"
+            try: 
+                match = any(re.search('data_recovery', label.lower()) for label in doc['testExecutionLabels'])
+                if match:
+                    if doc['testResult'] == 'PASS':
+                        data_recovery_pass+=1
+                    elif doc['testResult'] == 'FAIL':
+                        data_recovery_fail+=1
+                    continue
+            except:
+                data_recovery_pass = "-"
+                data_recovery_fail = "-"
+            try: 
+                match = any(re.search('node_recovery', label.lower()) for label in doc['testExecutionLabels'])
+                if match:
+                    if doc['testResult'] == 'PASS':
+                        node_recovery_pass+=1
+                    elif doc['testResult'] == 'FAIL':
+                        node_recovery_fail+=1
+                    continue
+            except:
+                node_recovery_pass = "-"
+                node_recovery_fail = "-"
         try:
             current_total_pass = mapi.count_documents({'build':build,'deleted':False,"testResult" : 'PASS'})
             current_total_fail = mapi.count_documents({'build':build,'deleted':False,"testResult" : 'FAIL'})
         except:
             current_total_pass = "-"
             current_total_fail = "-"
+        
         if pre_build:
-            
             cursorp = mapi.find({'build':pre_build,'deleted':False,})
             for doc in cursorp:  
                 try:                
@@ -2206,124 +2260,67 @@ def update_eng_table_3(clicks, pathname, input_value, enter_input):
                 except:
                     pre_cos_count_pass = "-"
                     pre_cos_count_fail = "-"
+                try: 
+                    match = any(re.search('data_recovery', label.lower()) for label in doc['testExecutionLabels'])
+                    if match:
+                        if doc['testResult'] == 'PASS':
+                            pre_data_recovery_pass+=1
+                        elif doc['testResult'] == 'FAIL':
+                            pre_data_recovery_fail+=1
+                        continue
+                except:
+                    pre_data_recovery_pass = "-"
+                    pre_data_recovery_fail = "-"
+                try: 
+                    match = any(re.search('node_recovery', label.lower()) for label in doc['testExecutionLabels'])
+                    if match:
+                        if doc['testResult'] == 'PASS':
+                            pre_node_recovery_pass+=1
+                        elif doc['testResult'] == 'FAIL':
+                            pre_node_recovery_fail+=1
+                        continue
+                except:
+                    pre_node_recovery_pass = "-"
+                    pre_node_recovery_fail = "-"
             try:
                 pre_current_total_pass = mapi.count_documents({'build':pre_build,'deleted':False,"testResult" : 'PASS'})
                 pre_current_total_fail = mapi.count_documents({'build':pre_build,'deleted':False,"testResult" : 'FAIL'})
             except:
                 pre_current_total_pass = "-"
                 pre_current_total_fail = "-"
-
+            
         return [S3_count_pass,S3_count_fail,pro_count_pass,pro_count_fail,csm_count_pass,csm_count_fail,ras_count_pass,ras_count_fail,\
-            motr_count_pass,motr_count_fail,HA_count_pass,HA_count_fail,loc_count_pass,loc_count_fail,cos_count_pass,cos_count_fail,current_total_pass,current_total_fail,\
-            pre_S3_count_pass,pre_S3_count_fail,pre_pro_count_pass,pre_pro_count_fail,pre_csm_count_pass,pre_csm_count_fail,pre_ras_count_pass,pre_ras_count_fail,\
-            pre_motr_count_pass,pre_motr_count_fail,pre_HA_count_pass,pre_HA_count_fail,pre_loc_count_pass,pre_loc_count_fail,pre_cos_count_pass,pre_cos_count_fail,pre_current_total_pass,pre_current_total_fail]
+            motr_count_pass,motr_count_fail,HA_count_pass,HA_count_fail,loc_count_pass,loc_count_fail,cos_count_pass,cos_count_fail,data_recovery_pass,\
+            data_recovery_fail,node_recovery_pass,node_recovery_fail,current_total_pass,current_total_fail,pre_S3_count_pass,pre_S3_count_fail,\
+            pre_pro_count_pass,pre_pro_count_fail,pre_csm_count_pass,pre_csm_count_fail,pre_ras_count_pass,pre_ras_count_fail,pre_motr_count_pass,\
+            pre_motr_count_fail,pre_HA_count_pass,pre_HA_count_fail,pre_loc_count_pass,pre_loc_count_fail,pre_cos_count_pass,pre_cos_count_fail,\
+            pre_data_recovery_pass,pre_data_recovery_fail,pre_node_recovery_pass,pre_node_recovery_fail,pre_current_total_pass,pre_current_total_fail]
     
-    return [None] * 36
-#### ----------------------------------------------------------------------------------------------
-# Eng report page - Table 4 : Detailed report
-@app.callback(Output('build_report_div','children'),
-    [Input('table_submit_button', 'n_clicks'),
-        dash.dependencies.Input('url', 'pathname'),
-        Input('table_build_input', 'value')],
-        [State('table_build_input', 'value')],
-)
-def update_eng_table_4(clicks, pathname, input_value, enter_input):
-    build, _, _ = get_input('cft', dash.callback_context, clicks, input_value, enter_input, pathname)
-    jiraURL = "https://jts.seagate.com/"
-    options = {'server': jiraURL}
-    auth_jira = JIRA(options, basic_auth=(username, password))
-
-    while build:
-        try:
-            defectsList = mapi.find_distinct("defectID",{'build':build})
-            if len(defectsList) == 0:
-                return ["No Bugs."]
-            data = []
-            for defect in defectsList:
-                result = mapi.find({'build':build,'defectID':defect})
-                issue = auth_jira.issue(defect)
-                entryy = result[0]
-                entryy['status']=str(issue.fields.status)
-                data.append(entryy)
-
-            df = pd.DataFrame(list(data))
-            df.drop(columns=['_id','testPlanID','build','testExecution','testLabels','feature','testResult','dateOfExecution','defectLabels',],inplace=True)
-            detailed_report = dash_table.DataTable(
-    
-                id="detailed_report_table",
-                columns = [{'name':'Component','id':'testExecutionLabels'},{'name':'Test ID','id':'testID'},{'name':'Priority','id':'defectPriority'},
-                        {'name':'JIRA ID','id':'defectID'},{'name':'Status','id':'status'}, {'name':'Description','id':'defectSummary'}],
-                data=df.to_dict('records'),
-                sort_action="native",
-                page_size=15,
-                style_cell={'padding':'5px','fontSize': 18,'background-color' : '#E0E0E0',
-                            'font-family': 'sans-serif','text-align':'center'},
-                style_data = {'whitespace':'normal','height': 'auto','lineHeight': '15px'},
-                style_header={
-                    'backgroundColor': '#7F8C8D',
-                    'fontWeight': 'bold',
-                    'textAlign': 'center'
-                },
-                style_table={'overflowX': 'auto'},
-                style_data_conditional=[{
-                    'if': {'column_id': 'defectSummary'},
-                    'backgroundColor': '#FFFFFF',
-                    'text-align':'left'
-                },
-                {'if': {
-                        'column_id': 'defectPriority',
-                        'filter_query': '{{defectPriority}} = {}'.format("Blocker"),
-                    },
-                        'color' : '#ff6262',},
-                {'if': {
-                        'column_id': 'defectPriority',
-                        'filter_query': '{{defectPriority}} = {}'.format("Critical"),                        
-                    },
-                        'color'  :'#DC7633',},
-                {'if': {
-                        'column_id': 'defectPriority',
-                        'filter_query': '{{defectPriority}} = {}'.format("Major"),                        
-                    },
-                        'color' : '#504de4',},
-                {'if': {
-                        'column_id': 'defectPriority',
-                        'filter_query': '{{defectPriority}} = {}'.format("Minor"),
-                    },
-                        'color' : '#343a40',},
-                {'if': {
-                        'column_id': 'defectPriority',
-                        'filter_query': '{{defectPriority}} = {}'.format("Trivial"),                        
-                    },
-                        'color' : '#3cba3c',},     
-            ],)
-            return [detailed_report]
-        except:
-            return [None]
-    return [None]
+    return [None] * 44
 #### ----------------------------------------------------------------------------------------------
 # Eng report page - Table 5 : Timing Table
 @app.callback([
     Output('update_min_1','children'),Output('deploy_min_1','children'),Output('box_min_1','children'),
     Output('unbox_min_1','children'),Output('onboard_min_1','children'),Output('firm_min_1','children'),Output('NReboot_min_1','children'),
-    Output('Nstart_min_1','children'),Output('Nstop_min_1','children'),Output('Nfail_min_1','children'),Output('stopA_min_1','children'),
-    Output('startA_min_1','children'),Output('bcre_min_1','children'),Output('bdel_min_1','children'),
-    Output('update_min_2','children'), Output('deploy_min_2','children'),Output('box_min_2','children'),Output('unbox_min_2','children'),
-    Output('onboard_min_2','children'),Output('firm_min_2','children'),Output('NReboot_min_2','children'),
-    Output('Nstart_min_2','children'),Output('Nstop_min_2','children'),Output('Nfail_min_2','children'),Output('stopA_min_2','children'),
-    Output('startA_min_2','children'),Output('bcre_min_2','children'),Output('bdel_min_2','children'),
-    Output('update_min_3','children'),Output('deploy_min_3','children'),Output('box_min_3','children'),Output('unbox_min_3','children'),
-    Output('onboard_min_3','children'),Output('firm_min_3','children'),Output('NReboot_min_3','children'),
-    Output('Nstart_min_3','children'),Output('Nstop_min_3','children'),Output('Nfail_min_3','children'),Output('stopA_min_3','children'),
+    Output('Nstart_min_1','children'),Output('Nstop_min_1','children'),Output('Nfail_min_1','children'),Output('Nfback_min_1','children'),Output('stopA_min_1','children'),
+    Output('startA_min_1','children'),Output('bcre_min_1','children'),Output('bdel_min_1','children'),Output('update_min_2','children'), 
+    Output('deploy_min_2','children'),Output('box_min_2','children'),Output('unbox_min_2','children'),
+    Output('onboard_min_2','children'),Output('firm_min_2','children'),Output('NReboot_min_2','children'),Output('Nstart_min_2','children'),
+    Output('Nstop_min_2','children'),Output('Nfail_min_2','children'),Output('Nfback_min_2','children'),Output('stopA_min_2','children'),
+    Output('startA_min_2','children'),Output('bcre_min_2','children'),Output('bdel_min_2','children'),Output('update_min_3','children'),
+    Output('deploy_min_3','children'),Output('box_min_3','children'),Output('unbox_min_3','children'),
+    Output('onboard_min_3','children'),Output('firm_min_3','children'),Output('NReboot_min_3','children'),Output('Nstart_min_3','children'),
+    Output('Nstop_min_3','children'),Output('Nfail_min_3','children'),Output('Nfback_min_3','children'),Output('stopA_min_3','children'),
     Output('startA_min_3','children'),Output('bcre_min_3','children'),Output('bdel_min_3','children'),
     Output('update_min_4','children'),Output('deploy_min_4','children'),Output('box_min_4','children'),Output('unbox_min_4','children'),
-    Output('onboard_min_4','children'),Output('firm_min_4','children'),Output('NReboot_min_4','children'),
-    Output('Nstart_min_4','children'),Output('Nstop_min_4','children'),Output('Nfail_min_4','children'),Output('stopA_min_4','children'),
+    Output('onboard_min_4','children'),Output('firm_min_4','children'),Output('NReboot_min_4','children'),Output('Nstart_min_4','children'),
+    Output('Nstop_min_4','children'),Output('Nfail_min_4','children'),Output('Nfback_min_4','children'),Output('stopA_min_4','children'),
     Output('startA_min_4','children'),Output('bcre_min_4','children'),Output('bdel_min_4','children'),
     Output('update_min_5','children'),Output('deploy_min_5','children'),Output('box_min_5','children'),Output('unbox_min_5','children'),
-    Output('onboard_min_5','children'),Output('firm_min_5','children'),Output('NReboot_min_5','children'),
-    Output('Nstart_min_5','children'),Output('Nstop_min_5','children'),Output('Nfail_min_5','children'),Output('stopA_min_5','children'),
-    Output('startA_min_5','children'),Output('bcre_min_5','children'),Output('bdel_min_5','children'),
-    Output('timing_build_current','children'),Output('timing_build_prev_2','children'),Output('timing_build_prev_3','children'),Output('timing_build_prev_4','children'),Output('timing_build_prev_5','children'),
+    Output('onboard_min_5','children'),Output('firm_min_5','children'),Output('NReboot_min_5','children'),Output('Nstart_min_5','children'),
+    Output('Nstop_min_5','children'),Output('Nfail_min_5','children'),Output('Nfback_min_5','children'),Output('stopA_min_5','children'),
+    Output('startA_min_5','children'),Output('bcre_min_5','children'),Output('bdel_min_5','children'),Output('timing_build_current','children'),
+    Output('timing_build_prev_2','children'),Output('timing_build_prev_3','children'),Output('timing_build_prev_4','children'),Output('timing_build_prev_5','children'),
     ],
     [Input('table_submit_button', 'n_clicks'),
     dash.dependencies.Input('url', 'pathname'),
@@ -2453,6 +2450,17 @@ def update_timing_table(clicks, pathname, input_value, enter_input):
             except:
                 fail_avg_1 = '-'
             try:
+                cursor = timingAPIs.find_distinct('nodeFailbackTime',{'build':build})
+                if cursor[-1] == 'NA':
+                    cursor.pop()
+                cursor = sorted(cursor)
+                try:
+                    fb_avg_1 = sum(cursor)/len(cursor)
+                except:
+                    fb_avg_1 = 'NA'
+            except:
+                fb_avg_1 = '-'
+            try:
                 cursor = timingAPIs.find_distinct('allServiceStopTime',{'build':build})
                 if cursor[-1] == 'NA':
                     cursor.pop()
@@ -2499,11 +2507,11 @@ def update_timing_table(clicks, pathname, input_value, enter_input):
                 bdel_avg_1 = '-'
             
             data.extend([update_avg_1,deploy_avg_1,box_avg_1,unbox_avg_1,onboard_avg_1,firm_avg_1,\
-                reboot_avg_1,nstart_avg_1,nstop_avg_1,fail_avg_1,allstop_avg_1,allstart_avg_1,bcrea_avg_1,bdel_avg_1])
+                reboot_avg_1,nstart_avg_1,nstop_avg_1,fail_avg_1,fb_avg_1,allstop_avg_1,allstart_avg_1,bcrea_avg_1,bdel_avg_1])
         else:
-            data.extend(["-"]*14)
+            data.extend(["-"]*15)
     except:
-        data.extend(["-"]*14)
+        data.extend(["-"]*15)
     try:
         if pre_build:
             pre_build_name = pre_build.capitalize()
@@ -2618,6 +2626,17 @@ def update_timing_table(clicks, pathname, input_value, enter_input):
             except:
                 fail_avg_2 = '-'
             try:
+                cursor = timingAPIs.find_distinct('nodeFailbackTime',{'build':pre_build})
+                if cursor[-1] == 'NA':
+                    cursor.pop()
+                cursor = sorted(cursor)
+                try:
+                    fb_avg_2 = sum(cursor)/len(cursor)
+                except:
+                    fb_avg_2 = 'NA'
+            except:
+                fb_avg_2 = '-'
+            try:
                 cursor = timingAPIs.find_distinct('allServiceStopTime',{'build':pre_build})
                 if cursor[-1] == 'NA':
                     cursor.pop()
@@ -2663,11 +2682,11 @@ def update_timing_table(clicks, pathname, input_value, enter_input):
                 bdel_avg_2 = '-'
             
             data.extend([update_avg_2,deploy_avg_2,box_avg_2,unbox_avg_2,onboard_avg_2,firm_avg_2,\
-                reboot_avg_2,nstart_avg_2,nstop_avg_2,fail_avg_2,allstop_avg_2,allstart_avg_2,bcrea_avg_2,bdel_avg_2])
+                reboot_avg_2,nstart_avg_2,nstop_avg_2,fail_avg_2,fb_avg_2,allstop_avg_2,allstart_avg_2,bcrea_avg_2,bdel_avg_2])
         else:
-            data.extend(["-"]*14)
+            data.extend(["-"]*15)
     except:
-        data.extend(["-"]*14)
+        data.extend(["-"]*15)
     try:
         pre_pre_build = get_previous_build(pre_build, version)
         if pre_pre_build:
@@ -2783,6 +2802,17 @@ def update_timing_table(clicks, pathname, input_value, enter_input):
             except:
                 fail_avg_3 = '-'
             try:
+                cursor = timingAPIs.find_distinct('nodeFailbackTime',{'build':pre_pre_build})
+                if cursor[-1] == 'NA':
+                    cursor.pop()
+                cursor = sorted(cursor)
+                try:
+                    fb_avg_3 = sum(cursor)/len(cursor)
+                except:
+                    fb_avg_3 = 'NA'
+            except:
+                fb_avg_3 = '-'
+            try:
                 cursor = timingAPIs.find_distinct('allServiceStopTime',{'build':pre_pre_build})
                 if cursor[-1] == 'NA':
                     cursor.pop()
@@ -2827,11 +2857,11 @@ def update_timing_table(clicks, pathname, input_value, enter_input):
             except:
                 bdel_avg_3 = '-'
             data.extend([update_avg_3,deploy_avg_3,box_avg_3,unbox_avg_3,onboard_avg_3,firm_avg_3,\
-                reboot_avg_3,nstart_avg_3,nstop_avg_3,fail_avg_3,allstop_avg_3,allstart_avg_3,bcrea_avg_3,bdel_avg_3])
+                reboot_avg_3,nstart_avg_3,nstop_avg_3,fail_avg_3,fb_avg_3,allstop_avg_3,allstart_avg_3,bcrea_avg_3,bdel_avg_3])
         else:
-            data.extend(["-"]*14)
+            data.extend(["-"]*15)
     except:
-        data.extend(["-"]*14)
+        data.extend(["-"]*15)
     try:
         pre_pre_pre_build = get_previous_build(pre_pre_build, version)
         if pre_pre_pre_build:
@@ -2947,6 +2977,17 @@ def update_timing_table(clicks, pathname, input_value, enter_input):
             except:
                 fail_avg_4 = '-'
             try:
+                cursor = timingAPIs.find_distinct('nodeFailbackTime',{'build':pre_pre_pre_build})
+                if cursor[-1] == 'NA':
+                    cursor.pop()
+                cursor = sorted(cursor)
+                try:
+                    fb_avg_4 = sum(cursor)/len(cursor)
+                except:
+                    fb_avg_4 = 'NA'
+            except:
+                fb_avg_4 = '-'
+            try:
                 cursor = timingAPIs.find_distinct('allServiceStopTime',{'build':pre_pre_pre_build})
                 if cursor[-1] == 'NA':
                     cursor.pop()
@@ -2992,11 +3033,11 @@ def update_timing_table(clicks, pathname, input_value, enter_input):
                 bdel_avg_4 = '-'
             
             data.extend([update_avg_4,deploy_avg_4,box_avg_4,unbox_avg_4,onboard_avg_4,firm_avg_4,\
-                reboot_avg_4,nstart_avg_4,nstop_avg_4,fail_avg_4,allstop_avg_4,allstart_avg_4,bcrea_avg_4,bdel_avg_4])
+                reboot_avg_4,nstart_avg_4,nstop_avg_4,fail_avg_4,fb_avg_4,allstop_avg_4,allstart_avg_4,bcrea_avg_4,bdel_avg_4])
         else:
-            data.extend(["-"]*14)
+            data.extend(["-"]*15)
     except:
-        data.extend(["-"]*14)
+        data.extend(["-"]*15)
     try:
         pre_pre_pre_pre_build = get_previous_build(pre_pre_pre_build, version)
         if pre_pre_pre_pre_build:
@@ -3112,6 +3153,17 @@ def update_timing_table(clicks, pathname, input_value, enter_input):
             except:
                 fail_avg_5 = '-'
             try:
+                cursor = timingAPIs.find_distinct('nodeFailbackTime',{'build':pre_pre_pre_pre_build})
+                if cursor[-1] == 'NA':
+                    cursor.pop()
+                cursor = sorted(cursor)
+                try:
+                    fb_avg_5 = sum(cursor)/len(cursor)
+                except:
+                    fb_avg_5 = 'NA'
+            except:
+                fb_avg_5 = '-'
+            try:
                 cursor = timingAPIs.find_distinct('allServiceStopTime',{'build':pre_pre_pre_pre_build})
                 if cursor[-1] == 'NA':
                     cursor.pop()
@@ -3156,14 +3208,95 @@ def update_timing_table(clicks, pathname, input_value, enter_input):
             except:
                 bdel_avg_5 = '-'
             data.extend([update_avg_5,deploy_avg_5,box_avg_5,unbox_avg_5,onboard_avg_5,firm_avg_5,\
-                reboot_avg_5,nstart_avg_5,nstop_avg_5,fail_avg_5,allstop_avg_5,allstart_avg_5,bcrea_avg_5,bdel_avg_5])
+                reboot_avg_5,nstart_avg_5,nstop_avg_5,fail_avg_5,fb_avg_5,allstop_avg_5,allstart_avg_5,bcrea_avg_5,bdel_avg_5])
         else:
-            data.extend(["-"]*14)
+            data.extend(["-"]*15)
     except:
-        data.extend(["-"]*14)
+        data.extend(["-"]*15)
     
     data.extend([build_name,pre_build_name, pre_pre_build_name, pre_pre_pre_build_name, pre_pre_pre_pre_build_name])
     return data
+#### ----------------------------------------------------------------------------------------------
+# Eng report page - Table 4 : Detailed report
+@app.callback(Output('build_report_div','children'),
+    [Input('table_submit_button', 'n_clicks'),
+        dash.dependencies.Input('url', 'pathname'),
+        Input('table_build_input', 'value')],
+        [State('table_build_input', 'value')],
+)
+def update_eng_table_4(clicks, pathname, input_value, enter_input):
+    build, _, _ = get_input('cft', dash.callback_context, clicks, input_value, enter_input, pathname)
+    jiraURL = "https://jts.seagate.com/"
+    options = {'server': jiraURL}
+    auth_jira = JIRA(options, basic_auth=(username, password))
+
+    while build:
+        try:
+            defectsList = mapi.find_distinct("defectID",{'build':build})
+            if len(defectsList) == 0:
+                return ["No Bugs."]
+            data = []
+            for defect in defectsList:
+                result = mapi.find({'build':build,'defectID':defect})
+                issue = auth_jira.issue(defect)
+                entryy = result[0]
+                entryy['status']=str(issue.fields.status)
+                data.append(entryy)
+
+            df = pd.DataFrame(list(data))
+            df.drop(columns=['_id','testPlanID','build','testExecution','testLabels','feature','testResult','dateOfExecution','defectLabels',],inplace=True)
+            detailed_report = dash_table.DataTable(
+    
+                id="detailed_report_table",
+                columns = [{'name':'Component','id':'testExecutionLabels'},{'name':'Test ID','id':'testID'},{'name':'Priority','id':'defectPriority'},
+                        {'name':'JIRA ID','id':'defectID'},{'name':'Status','id':'status'}, {'name':'Description','id':'defectSummary'}],
+                data=df.to_dict('records'),
+                sort_action="native",
+                page_size=15,
+                style_cell={'padding':'5px','fontSize': 18,'background-color' : '#E0E0E0',
+                            'font-family': 'sans-serif','text-align':'center'},
+                style_data = {'whitespace':'normal','height': 'auto','lineHeight': '15px'},
+                style_header={
+                    'backgroundColor': '#7F8C8D',
+                    'fontWeight': 'bold',
+                    'textAlign': 'center'
+                },
+                style_table={'overflowX': 'auto'},
+                style_data_conditional=[{
+                    'if': {'column_id': 'defectSummary'},
+                    'backgroundColor': '#FFFFFF',
+                    'text-align':'left'
+                },
+                {'if': {
+                        'column_id': 'defectPriority',
+                        'filter_query': '{{defectPriority}} = {}'.format("Blocker"),
+                    },
+                        'color' : '#ff6262',},
+                {'if': {
+                        'column_id': 'defectPriority',
+                        'filter_query': '{{defectPriority}} = {}'.format("Critical"),                        
+                    },
+                        'color'  :'#DC7633',},
+                {'if': {
+                        'column_id': 'defectPriority',
+                        'filter_query': '{{defectPriority}} = {}'.format("Major"),                        
+                    },
+                        'color' : '#504de4',},
+                {'if': {
+                        'column_id': 'defectPriority',
+                        'filter_query': '{{defectPriority}} = {}'.format("Minor"),
+                    },
+                        'color' : '#343a40',},
+                {'if': {
+                        'column_id': 'defectPriority',
+                        'filter_query': '{{defectPriority}} = {}'.format("Trivial"),                        
+                    },
+                        'color' : '#3cba3c',},     
+            ],)
+            return [detailed_report]
+        except:
+            return [None]
+    return [None]
 #### ----------------------------------------------------------------------------------------------
 # Eng report page - Table 6 : S3 bench statistics table
 @app.callback([

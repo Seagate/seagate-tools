@@ -1,12 +1,12 @@
 ---
- - name: HSbench running ( Size="4Kb,100Kb,1Mb,5Mb,36Mb,64Mb,128Mb,256Mb" sample=1000 session= 100 bucket=1 )
+ - name: "[HSbench-1-Bucket]: HSbench running ( Size='4Kb,100Kb,1Mb,5Mb,36Mb,64Mb,128Mb,256Mb' sample=1000 session= 100 bucket=1 )"
    shell: cd /root/PerfProBenchmark/hsbench; ./run_benchmark.sh -b 1 -o 1000 -s "4Kb,100Kb,1Mb,5Mb,36Mb,64Mb,128Mb,256Mb" -t 100 -d 600
-   delegate_to: "{{ groups['perfproclientserver'][0] }}"
+   delegate_to: "client-1"
 
- - name: HSbench running ( Size="4Kb,100Kb,1Mb,5Mb,36Mb,64Mb,128Mb,256Mb" sample=1000 session=100 bucket=10 )
-   shell: cd /root/PerfProBenchmark/hsbench; ./run_benchmark.sh -b 10 -o 1000 -s "4Kb,100Kb,1Mb,5Mb,36Mb,64Mb,128Mb,256Mb" -t 100 -d 600; ./run_benchmark.sh -b 50 -o 5000 -s "4Kb,100Kb,1Mb,5Mb,36Mb,64Mb,128Mb,256Mb" -t 100 -d 600
-   delegate_to: "{{ groups['perfproclientserver'][0] }}"
+ - name: "[HSbench-10-Buckets]: HSbench running ( Size='4Kb,100Kb,1Mb,5Mb,36Mb,64Mb,128Mb,256Mb' sample=1000 session=100 bucket=10 )"
+   shell: cd /root/PerfProBenchmark/hsbench; ./run_benchmark.sh -b 10 -o 1000 -s "4Kb,100Kb,1Mb,5Mb,36Mb,64Mb,128Mb,256Mb" -t 100 -d 600; 
+   delegate_to: "client-1"
 
- - name: HSbench running ( Size="4Kb,100Kb,1Mb,5Mb,36Mb,64Mb,128Mb,256Mb" sample=5000 session=100 bucket=50 )
+ - name: "[HSbench-50-Buckets]: HSbench running ( Size='4Kb,100Kb,1Mb,5Mb,36Mb,64Mb,128Mb,256Mb' sample=5000 session=100 bucket=50 )"
    shell: cd /root/PerfProBenchmark/hsbench; ./run_benchmark.sh -b 50 -o 5000 -s "4Kb,100Kb,1Mb,5Mb,36Mb,64Mb,128Mb,256Mb" -t 100 -d 600
-   delegate_to: "{{ groups['perfproclientserver'][0] }}"
+   delegate_to: "client-1"

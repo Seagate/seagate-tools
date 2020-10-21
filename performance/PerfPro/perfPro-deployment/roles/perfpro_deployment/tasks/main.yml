@@ -1,0 +1,150 @@
+---
+
+- name: "[local-pre-req] : Validate Required Variables"
+  fail: msg="Variable '{{ item }}' is not defined"
+  when: item not in vars
+  with_items: "{{required_vars}}"
+
+- name: "[local-pre-req] : Update Host Files"
+  script: files/update_hosts.sh {{ NODE1 }} {{ NODE2 }} {{ CLIENT }}
+
+- meta: refresh_inventory
+
+- name: "[local-pre-req] : Install Pre-requisites on localhost"
+  yum:
+    name: 
+      - expect
+      - ipmitool
+      - curl
+      - bc
+      - jq
+    state: latest
+    update_cache: yes
+
+- include: change_pass.yml
+  when: CHANGE_PASS == "yes"
+
+- meta: refresh_inventory
+
+- name: "[local-pre-req] : Refreshing 'known hosts'"
+  command: sed -i "/{{ hostvars[item]['ansible_host'] }}/d" /root/.ssh/known_hosts
+  with_items: "{{ groups['all'] }}"
+
+- name: "[local-pre-req] : Enable Passwordless SSH"
+  script: files/passwordless_ssh.sh {{ hostvars[item]['ansible_user'] }} {{ hostvars[item]['ansible_host'] }} {{ CLUSTER_PASS }}
+  ignore_errors: true
+  with_items: "{{ groups['all'] }}"
+
+- include: storage.yml
+
+- name: "[reimage] : Re-Image Node {{ NODE1 }} , {{ NODE2 }} Using Satellite API" 
+  command: python3 -u {{ role_path }}/files/autoreimage.py -p {{ NODE1 }} -s {{ NODE2 }} -un {{ SATELLITE_UN }} -pw {{ SATELLITE_PW }}
+  when: REIMAGE == "yes"
+ 
+- name: "[reimage] : Wait for Server to Restart"
+  wait_for:
+      host={{ hostvars[item]['ansible_host'] }}
+      port=22
+      delay=15
+      timeout=900
+  become: false
+  ignore_errors: true
+  with_items: "{{ groups['nodes'] }}"
+  when: REIMAGE == "yes"
+
+- include: change_pass.yml
+  when: CHANGE_PASS == "yes" and REIMAGE == "yes"
+  
+- meta: refresh_inventory
+
+- name: "[reimage] : Refresh 'known hosts'"
+  command: sed -i "/{{ hostvars[item]['ansible_host'] }}/d" /root/.ssh/known_hosts 
+  with_items: "{{ groups['all'] }}"
+  when: REIMAGE == "yes"
+
+- name: "[reimage] : Enable Passwordless SSH"
+  script: files/passwordless_ssh.sh {{ hostvars[item]['ansible_user'] }} {{ hostvars[item]['ansible_host'] }} {{ CLUSTER_PASS }}
+  with_items: "{{ groups['all'] }}"
+
+- name: "[issue-fix] : Remove volume_groups and Reboot" 
+  script: files/storage_fix.sh
+  ignore_errors: true
+  become: true
+  delegate_to: "srvnode-1"
+
+- name: "[issue-fix] : Wait for Server to Restart"
+  wait_for:
+      host={{ hostvars[item]['ansible_host'] }}
+      port=22
+      delay=30
+      timeout=900
+  become: false
+  ignore_errors: true
+  with_items: "{{ groups['nodes'] }}"
+
+- name: "[prov-prereq] : Clone Scripts for Pre-requisite Steps to Deploy Cluster" 
+  shell: curl {{ PREREQ_URL }} -o cortx-prereqs.sh; chmod a+x cortx-prereqs.sh;
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['nodes'] }}"
+
+- name: "[prov-prereq] : Run cortx-prereqs.sh on Primary and Reboot" 
+  command: ./cortx-prereqs.sh --disable-sub-mgr
+  async: 1200
+  poll: 0
+  ignore_errors: true
+  become: true
+  delegate_to: "srvnode-1"
+
+- name: "[prov-prereq] : Run cortx-prereqs.sh on Secondary Node and Reboot" 
+  command: ./cortx-prereqs.sh --disable-sub-mgr
+  ignore_errors: true
+  become: true
+  delegate_to: "srvnode-2"
+
+- name: "[prov-prereq] : Wait for Nodes to Restart"
+  wait_for:
+      host={{ hostvars[item]['ansible_host'] }}
+      port=22
+      delay=30
+      timeout=900
+  become: false
+  ignore_errors: true
+  with_items: "{{ groups['nodes'] }}"
+
+- include: inband.yml
+
+- include: disable_cross_connect.yml   
+
+- name: "[prov-prereq] : Install Git, Python3 on Primary Node"
+  yum:
+    name: 
+      - git
+      - python3
+      - expect
+    state: latest
+    update_cache: yes   
+  delegate_to: "srvnode-1"
+
+- name: "[prov-prereq] : Install Provisioner CLI on Primary Node"
+  shell: pip3 install -U git+{{ PRVSNR_CLI_REPO }}
+  delegate_to: "srvnode-1"
+
+- name: "[prov-prereq] : Verfiy Provisioner CLI on Primary Node"
+  shell: provisioner --version
+  delegate_to: "srvnode-1"  
+
+#- name: "[deploy-config] : Download Config File on Primary Node"
+#  shell: curl {{ CONFIG_URL }} -o /root/config.ini;
+#  delegate_to: "srvnode-1"
+
+- name: "[deploy-config] : copy Config File on Primary Node"
+  copy:
+     src: vars/config.ini
+     dest: /root/
+  delegate_to: "srvnode-1"
+
+- name: "[deploy] : Deploy Cluster on Primary Node"
+  script: files/deploy.sh {{ BUILD_URL }} {{ NODE1 }}  {{ NODE2 }}  {{ CLUSTER_PASS }}
+  delegate_to: "srvnode-1"
+
+- include: enable_cross_connect.yml

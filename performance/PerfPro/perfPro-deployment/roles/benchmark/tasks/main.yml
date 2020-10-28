@@ -1,6 +1,7 @@
 ---
+ - include: hostconfig.yml
 
- - name: Pre-requisites packages for regression test cases
+ - name: "[pre-requisites]: Required for regression test cases"
    yum:
      name:
        - sysstat
@@ -8,13 +9,13 @@
        - python3-pip
      state: present
    delegate_to: "{{ item }}"
-   with_items: "{{ groups['allserver'] }}"
+   with_items: "{{ groups['all'] }}"
 
  - name: Installation of golang on client server
    yum:
      name: go
      state: present
-   delegate_to: "{{ groups['clientserver'][0] }}"
+   delegate_to: "client-1"
  
  - name: Pre-requisites python3 library
    pip:
@@ -23,51 +24,63 @@
        - requests==2.24.0
        - jsonschema==3.2.0
        - pymongo==3.11.0
+       - pandas==1.0.5
+       - datetime==4.3
      executable: pip3
    delegate_to: "{{ item }}"
-   with_items: "{{ groups['allserver'] }}"
+   with_items: "{{ groups['all'] }}"
 
- - name: Copying PerfProBenchmark tar file to client server
+ - name: Copying PerfProBenchmark tar file 
    unarchive:
       src: files/PerfProBenchmark.tar.gz
       dest: /root/
    delegate_to: "{{ item }}"
-   with_items: "{{ groups['allserver'] }}"
+   with_items: "{{ groups['all'] }}"
 
- - name: copy config.yml file to client server
+ - name: copying config.yml file 
    copy:
-     src: roles/perfPro/vars/config.yml
+     src: roles/perfpro_deployment/vars/config.yml
      dest: /root/PerfProBenchmark/
      owner: root
      group: root
      mode: '0644' 
    delegate_to: "{{ item }}"
-   with_items: "{{ groups['allserver'] }}"
+   with_items: "{{ groups['all'] }}"
  
- - name: copy main.yml file to client server
+ - name: copying s3account.yml file 
    copy:
-     src: roles/perfPro/vars/main.yml
+      src: vars/s3account.yml
+      dest: /root/PerfProBenchmark/
+      owner: root
+      group: root
+      mode: '0644' 
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['all'] }}"
+
+ - name: copying main.yml file 
+   copy:
+     src: vars/main.yml
      dest: /root/PerfProBenchmark/
      owner: root
      group: root
      mode: '0644'
    delegate_to: "{{ item }}"
-   with_items: "{{ groups['allserver'] }}"
+   with_items: "{{ groups['all'] }}"
 
  - name: Create S3 account
-   command: python3 /root/PerfProBenchmark/S3UserCreation/main_createusers.py /root/PerfProBenchmark/config.yml 
-   delegate_to: "{{ groups['clientserver'][0] }}"
+   command: python3 /root/PerfProBenchmark/S3UserCreation/main_createusers.py /root/PerfProBenchmark/s3account.yml 
+   delegate_to: "client-1"
 
  - name: System monitoring started
    command: python3 /root/PerfProBenchmark/system_monitoring/systemMonitoring.py /root/PerfProBenchmark/main.yml 
    async: 21600
    poll: 0
    delegate_to: "{{ item }}"
-   with_items: "{{ groups['allserver'] }}"
+   with_items: "{{ groups['all'] }}"
 
  - name: Configuration of s3bench benchmark tools  
    command: go get github.com/igneous-systems/s3bench
-   delegate_to: "{{ groups['clientserver'][0] }}"
+   delegate_to: "client-1"
 
  - name: copying s3bench_meta binaries file to client server
    copy:
@@ -76,26 +89,20 @@
        owner: root
        group: root
        mode: '0754'
-   delegate_to: "{{ groups['clientserver'][0] }}"
+   delegate_to: "client-1"
 
  - name: Make an entry for config.yml on a database
    command: python3 /root/PerfProBenchmark/addconfiguration.py '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'
-   delegate_to: "{{ groups['clientserver'][0] }}" 
+   delegate_to: "client-1" 
 
- - name: S3benchmark running
-   shell: cd /root/PerfProBenchmark/s3bench_meta; ./run_s3benchmark.sh -nc 50 -ns 2000 -s "1Kb";  ./run_s3benchmark.sh -nc 100 -ns 5000 -s "4Kb,100Kb,1Mb,5Mb";  ./run_s3benchmark.sh -nc 100 -ns 2000 -s "36Mb,64Mb,128Mb,256Mb"
-   delegate_to: "{{ groups['clientserver'][0] }}"
+ - include: s3bench.yml
 
- - name: Cosbench running
-   shell: cd /root/PerfProBenchmark/cosbench; ./s3cosbench_benchmark.sh -nc "100" -ns "100" -s "1Mb,5Mb,36Mb,64Mb,128Mb,256Mb" -b 10,50 -w mixed -t 600; ./s3cosbench_benchmark.sh -nc "100" -ns "1000" -s "1Mb,5Mb,36Mb,64Mb,128Mb,256Mb" -b 1 -w mixed -t 600
-   delegate_to: "{{ groups['clientserver'][0] }}"   
+ - include: cosbench.yml
 
- - name: HSbench running
-   shell: cd /root/PerfProBenchmark/hsbench; ./run_benchmark.sh -b 1 -o 1000 -s "4Kb,100Kb,1Mb,5Mb,36Mb,64Mb,128Mb,256Mb" -t 100 -d 600; ./run_benchmark.sh -b 10 -o 1000 -s "4Kb,100Kb,1Mb,5Mb,36Mb,64Mb,128Mb,256Mb" -t 100 -d 600; ./run_benchmark.sh -b 50 -o 5000 -s "4Kb,100Kb,1Mb,5Mb,36Mb,64Mb,128Mb,256Mb" -t 100 -d 600
-   delegate_to: "{{ groups['clientserver'][0] }}"
+ - include: hsbench.yml
 
  - name: Stop system monitoring
    command: python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py
    delegate_to: "{{ item }}"
-   with_items: "{{ groups['allserver'] }}"
+   with_items: "{{ groups['nodes'] }}"
 

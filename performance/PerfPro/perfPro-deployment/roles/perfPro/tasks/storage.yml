@@ -1,4 +1,0 @@
----
- - name: Remove storage and multipath from cluster
-   shell: salt '*' state.apply components.system.storage.multipath.teardown; salt '*' state.apply components.system.teardown
-   delegate_to: "{{ groups['s3server'][1] }}"

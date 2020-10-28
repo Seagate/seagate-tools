@@ -1,0 +1,12 @@
+---
+ 
+- name: "[cross-connect] : Added lsiutil"
+  unarchive:
+      src: files/lsiutil.tar
+      dest: /root/
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['nodes'] }}"
+
+- name: "[cross-connect] : Disable lsiutil on Primary Node"
+  shell: cd /root/lsiutil/; sh lsiutil.sh disable
+  delegate_to: "srvnode-1"

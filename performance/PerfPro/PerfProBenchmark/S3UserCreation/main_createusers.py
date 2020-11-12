@@ -46,14 +46,14 @@ def s3create():
             secretkey = cred["secret_key"]
             str1 = "[default]\naws_access_key_id = {}\naws_secret_access_key = {}".format(access,secretkey)
             try:
-              f1 = open("/root/.aws/credentials1",'w')
+              f1 = open("/root/.aws/credentials",'w')
               f1.write(str1)
             except Exception as e:
               print(e)
             else:
               f1.close()
             try:
-              f1 = open("credentials1",'w')
+              f1 = open("credentials",'w')
               f1.write(str1)
             except Exception as e:
               print(e)

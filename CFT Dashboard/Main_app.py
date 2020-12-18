@@ -39,8 +39,8 @@ app.title = "CORTX Test Status"
 server = app.server
 perfDb = dd.get_database()
 
-username = # <insert your JIRA Username here > # input("JIRA username: ")
-password = # <insert your JIRA password here > # getpass.getpass("JIRA password: ")
+username = '752263' # <insert your JIRA Username here > # input("JIRA username: ")
+password = 'seaSAM@369' # <insert your JIRA password here > # getpass.getpass("JIRA password: ")
 
 __version__ = "5.28"
 ### ====================================================================================
@@ -288,7 +288,7 @@ bucketops_caption = [
                 dcc.Dropdown(
                     id = "Bucket_Ops_Dropdown",
                     options = bucketOps,
-                    placeholder="Select Bucket Operation",
+                    placeholder="Average Latency",
                     style = {'width': '300px', 'verticalAlign': 'middle',"margin-right": "15px"}, #,'align-items': 'center', 'justify-content': 'center'
                 ),
             html.P(html.Em("⟽ Select one of the bucket operations to view statistics."),className="card-text",),
@@ -418,8 +418,8 @@ tab1_content = dbc.Card(
             # ),
             
 
-            dbc.Table(bucketops_caption + bucketops_head + [html.Tbody([b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,b14,b15,b16,b17,b18,\
-                    b19,b20,b21,b22,b23,b24,b25,b26,b27])],
+            dbc.Table(bucketops_caption + bucketops_head + [html.Tbody([b1,b2,b3,b4,b5,b6,b7,b9,b8,b10,b11,b12,b13,b14,b15,b16,b18,b17,\
+                    b19,b20,b21,b22,b23,b24,b25,b27,b26])],
             className = "caption-Top col-xs-6",
             hover=True,
             responsive=True,
@@ -746,7 +746,9 @@ app.layout = html.Div([
 
 ### ===============================================================================================
 # Supplimentary functions 
-def roundoff(x, base=25):
+def roundoff(x, base=1):
+    if x < 1:
+        return round(x, 2)
     if x <26:
         return (int(x))
     return (base * round(x/base))
@@ -791,11 +793,11 @@ def get_input(table_type, ctx, clicks, input_value, enter_input, pathname):
         prop_id = ctx.triggered[0]['prop_id'].split('.')[0]
     if prop_id == 'table_submit_button':
         found_current = True
-        current_build = input_value.lower()
+        current_build = input_value
     elif prop_id == 'table_build_input':
         if enter_input:            
             found_current = True
-            current_build = enter_input.lower()
+            current_build = enter_input
             
         else:
             return [None, None, None]
@@ -807,7 +809,7 @@ def get_input(table_type, ctx, clicks, input_value, enter_input, pathname):
             build_number = build_search.group(1).strip()
             print('build number is', build_number)
             found_current = True
-            current_build = build_number.lower()
+            current_build = build_number
         else:
             return [None, None, None]
     else:
@@ -816,7 +818,7 @@ def get_input(table_type, ctx, clicks, input_value, enter_input, pathname):
     if table_type == 'cft':
         item = mapi.find({'info' : 'build sequence'})
         for doc in item :
-            if current_build not in doc['beta'] and current_build not in doc['release']:
+            if current_build not in doc['beta'] and current_build not in doc['release'] and current_build not in doc['cortx1']:
                 return [None, None, None]
             elif current_build in doc['beta']:
                 version = 'beta'
@@ -835,7 +837,7 @@ def get_input(table_type, ctx, clicks, input_value, enter_input, pathname):
     if table_type == 'perf':
         item = perfDb.results.find({'Title' : 'Main Chain'})
         for doc in item:
-            if current_build not in doc['beta'] and current_build not in doc['release']:
+            if current_build not in doc['beta'] and current_build not in doc['release'] and current_build not in doc['cortx1']:
                 return [None, None, None]
         if found_current:
             previous_build = None    
@@ -4554,20 +4556,22 @@ def update_cosbench3(clicks, pathname, input_value, enter_input):
     [Input('Bucket_Ops_Dropdown','value'),Input('table_submit_button', 'n_clicks'),dash.dependencies.Input('url', 'pathname'),Input('table_build_input', 'value')],[State('table_build_input', 'value')])
 def update_bucketops1(parameter,clicks, pathname, input_value, enter_input):
     #Build = '120'
+    if not parameter:
+        parameter = 'AvgLat'
     if parameter:
         Build = input_value
         try:
             cursor = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'4Kb','Buckets':1,'Objects':1000,'Sessions':100}) 
             doc = cursor[0]
-            IBCLR4 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL4 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT4 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT4 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST4 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET4 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL4 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR4 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL4 = roundoff(doc['Bucket_Ops'][8][parameter],10)
+            IBCLR4 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL4 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT4 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT4 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST4 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET4 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL4 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR4 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL4 = roundoff(doc['Bucket_Ops'][8][parameter])
         except:
             IBCLR4 = '-'
             IBDEL4 = '-'
@@ -4581,15 +4585,15 @@ def update_bucketops1(parameter,clicks, pathname, input_value, enter_input):
         try:
             cursor1 = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'100Kb','Buckets':1,'Objects':1000,'Sessions':100}) 
             doc = cursor1[0]
-            IBCLR100 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL100 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT100 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT100 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST100 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET100 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL100 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR100 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL100 = roundoff(doc['Bucket_Ops'][8][parameter],10)
+            IBCLR100 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL100 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT100 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT100 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST100 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET100 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL100 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR100 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL100 = roundoff(doc['Bucket_Ops'][8][parameter])
         except:
             IBCLR100 = '-'
             IBDEL100 = '-'
@@ -4603,15 +4607,15 @@ def update_bucketops1(parameter,clicks, pathname, input_value, enter_input):
         try:
             cursor2 = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'1Mb','Buckets':1,'Objects':1000,'Sessions':100}) 
             doc = cursor2[0]
-            IBCLR1 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL1 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT1 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT1 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST1 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET1 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL1 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR1 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL1 = roundoff(doc['Bucket_Ops'][8][parameter],10)
+            IBCLR1 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL1 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT1 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT1 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST1 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET1 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL1 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR1 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL1 = roundoff(doc['Bucket_Ops'][8][parameter])
         except:
             IBCLR1 = '-'
             IBDEL1 = '-'
@@ -4625,15 +4629,15 @@ def update_bucketops1(parameter,clicks, pathname, input_value, enter_input):
         try:
             cursor3 = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'5Mb','Buckets':1,'Objects':1000,'Sessions':100}) 
             doc = cursor3[0]
-            IBCLR5 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL5 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT5 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT5 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST5 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET5 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL5 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR5 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL5 = roundoff(doc['Bucket_Ops'][8][parameter],10)
+            IBCLR5 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL5 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT5 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT5 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST5 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET5 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL5 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR5 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL5 = roundoff(doc['Bucket_Ops'][8][parameter])
         except:
             IBCLR5 = '-'
             IBDEL5 = '-'
@@ -4647,15 +4651,15 @@ def update_bucketops1(parameter,clicks, pathname, input_value, enter_input):
         try:
             cursor5 = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'36Mb','Buckets':1,'Objects':1000,'Sessions':100}) 
             doc = cursor5[0]
-            IBCLR36 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL36 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT36 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT36 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST36 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET36 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL36 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR36 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL36 = roundoff(doc['Bucket_Ops'][8][parameter],10)
+            IBCLR36 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL36 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT36 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT36 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST36 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET36 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL36 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR36 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL36 = roundoff(doc['Bucket_Ops'][8][parameter])
         except:
             IBCLR36 = '-'
             IBDEL36 = '-'
@@ -4669,15 +4673,15 @@ def update_bucketops1(parameter,clicks, pathname, input_value, enter_input):
         try:
             cursor6 = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'64Mb','Buckets':1,'Objects':1000,'Sessions':100}) 
             doc = cursor6[0]
-            IBCLR64 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL64 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT64 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT64 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST64 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET64 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL64 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR64 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL64 = roundoff(doc['Bucket_Ops'][8][parameter],10)   
+            IBCLR64 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL64 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT64 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT64 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST64 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET64 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL64 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR64 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL64 = roundoff(doc['Bucket_Ops'][8][parameter])   
         except:
             IBCLR64 = '-'
             IBDEL64 = '-'
@@ -4691,15 +4695,15 @@ def update_bucketops1(parameter,clicks, pathname, input_value, enter_input):
         try:
             cursor7 = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'128Mb','Buckets':1,'Objects':1000,'Sessions':100}) 
             doc = cursor7[0]
-            IBCLR128 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL128 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT128 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT128 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST128 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET128 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL128 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR128 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL128 = roundoff(doc['Bucket_Ops'][8][parameter],10) 
+            IBCLR128 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL128 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT128 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT128 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST128 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET128 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL128 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR128 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL128 = roundoff(doc['Bucket_Ops'][8][parameter]) 
         except:
             IBCLR128 = '-'
             IBDEL128 = '-'
@@ -4713,15 +4717,15 @@ def update_bucketops1(parameter,clicks, pathname, input_value, enter_input):
         try:
             cursor8 = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'256Mb','Buckets':1,'Objects':1000,'Sessions':100}) 
             doc = cursor8[0]
-            IBCLR256 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL256 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT256 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT256 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST256 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET256 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL256 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR256 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL256 = roundoff(doc['Bucket_Ops'][8][parameter],10)
+            IBCLR256 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL256 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT256 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT256 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST256 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET256 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL256 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR256 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL256 = roundoff(doc['Bucket_Ops'][8][parameter])
         except:
             IBCLR256 = '-'
             IBDEL256 = '-'
@@ -4756,21 +4760,23 @@ def update_bucketops1(parameter,clicks, pathname, input_value, enter_input):
     Output('IBCLR2561', 'children'),Output('IBDEL2561', 'children'),Output('BINIT2561', 'children'),Output('PUT2561', 'children'),Output('LIST2561', 'children'),Output('GET2561', 'children'),Output('DEL2561', 'children'),Output('BCLR2561', 'children'),Output('BDEL2561', 'children')],
     [Input('Bucket_Ops_Dropdown','value'),Input('table_submit_button', 'n_clicks'),dash.dependencies.Input('url', 'pathname'),Input('table_build_input', 'value')],[State('table_build_input', 'value')])
 def update_bucketops2(parameter,clicks, pathname, input_value, enter_input):
-    #Build = '120'        
+    #Build = '120'      
+    if not parameter:
+        parameter = 'AvgLat'  
     if parameter:
         Build = input_value
         try:
             cursor = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'4Kb','Buckets':10,'Objects':1000,'Sessions':100}) 
             doc = cursor[0]
-            IBCLR4 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL4 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT4 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT4 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST4 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET4 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL4 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR4 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL4 = roundoff(doc['Bucket_Ops'][8][parameter],10)
+            IBCLR4 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL4 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT4 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT4 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST4 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET4 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL4 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR4 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL4 = roundoff(doc['Bucket_Ops'][8][parameter])
         except:
             IBCLR4 = '-'
             IBDEL4 = '-'
@@ -4784,15 +4790,15 @@ def update_bucketops2(parameter,clicks, pathname, input_value, enter_input):
         try:
             cursor1 = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'100Kb','Buckets':10,'Objects':1000,'Sessions':100}) 
             doc = cursor1[0]
-            IBCLR100 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL100 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT100 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT100 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST100 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET100 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL100 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR100 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL100 = roundoff(doc['Bucket_Ops'][8][parameter],10)
+            IBCLR100 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL100 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT100 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT100 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST100 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET100 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL100 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR100 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL100 = roundoff(doc['Bucket_Ops'][8][parameter])
         except:
             IBCLR100 = '-'
             IBDEL100 = '-'
@@ -4806,15 +4812,15 @@ def update_bucketops2(parameter,clicks, pathname, input_value, enter_input):
         try:
             cursor2 = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'1Mb','Buckets':10,'Objects':1000,'Sessions':100}) 
             doc = cursor2[0]
-            IBCLR1 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL1 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT1 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT1 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST1 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET1 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL1 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR1 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL1 = roundoff(doc['Bucket_Ops'][8][parameter],10)
+            IBCLR1 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL1 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT1 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT1 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST1 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET1 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL1 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR1 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL1 = roundoff(doc['Bucket_Ops'][8][parameter])
         except:
             IBCLR1 = '-'
             IBDEL1 = '-'
@@ -4828,15 +4834,15 @@ def update_bucketops2(parameter,clicks, pathname, input_value, enter_input):
         try:
             cursor3 = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'5Mb','Buckets':10,'Objects':1000,'Sessions':100}) 
             doc = cursor3[0]
-            IBCLR5 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL5 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT5 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT5 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST5 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET5 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL5 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR5 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL5 = roundoff(doc['Bucket_Ops'][8][parameter],10)
+            IBCLR5 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL5 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT5 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT5 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST5 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET5 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL5 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR5 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL5 = roundoff(doc['Bucket_Ops'][8][parameter])
         except:
             IBCLR5 = '-'
             IBDEL5 = '-'
@@ -4850,15 +4856,15 @@ def update_bucketops2(parameter,clicks, pathname, input_value, enter_input):
         try:
             cursor5 = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'36Mb','Buckets':10,'Objects':1000,'Sessions':100}) 
             doc = cursor5[0]
-            IBCLR36 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL36 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT36 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT36 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST36 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET36 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL36 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR36 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL36 = roundoff(doc['Bucket_Ops'][8][parameter],10)
+            IBCLR36 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL36 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT36 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT36 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST36 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET36 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL36 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR36 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL36 = roundoff(doc['Bucket_Ops'][8][parameter])
         except:
             IBCLR36 = '-'
             IBDEL36 = '-'
@@ -4872,15 +4878,15 @@ def update_bucketops2(parameter,clicks, pathname, input_value, enter_input):
         try:
             cursor6 = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'64Mb','Buckets':10,'Objects':1000,'Sessions':100}) 
             doc = cursor6[0]
-            IBCLR64 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL64 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT64 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT64 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST64 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET64 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL64 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR64 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL64 = roundoff(doc['Bucket_Ops'][8][parameter],10)   
+            IBCLR64 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL64 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT64 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT64 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST64 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET64 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL64 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR64 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL64 = roundoff(doc['Bucket_Ops'][8][parameter])   
         except:
             IBCLR64 = '-'
             IBDEL64 = '-'
@@ -4894,15 +4900,15 @@ def update_bucketops2(parameter,clicks, pathname, input_value, enter_input):
         try:
             cursor7 = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'128Mb','Buckets':10,'Objects':1000,'Sessions':100}) 
             doc = cursor7[0]
-            IBCLR128 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL128 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT128 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT128 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST128 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET128 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL128 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR128 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL128 = roundoff(doc['Bucket_Ops'][8][parameter],10) 
+            IBCLR128 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL128 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT128 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT128 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST128 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET128 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL128 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR128 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL128 = roundoff(doc['Bucket_Ops'][8][parameter]) 
         except:
             IBCLR128 = '-'
             IBDEL128 = '-'
@@ -4916,15 +4922,15 @@ def update_bucketops2(parameter,clicks, pathname, input_value, enter_input):
         try:
             cursor8 = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'256Mb','Buckets':10,'Objects':1000,'Sessions':100}) 
             doc = cursor8[0]
-            IBCLR256 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL256 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT256 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT256 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST256 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET256 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL256 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR256 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL256 = roundoff(doc['Bucket_Ops'][8][parameter],10)
+            IBCLR256 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL256 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT256 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT256 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST256 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET256 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL256 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR256 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL256 = roundoff(doc['Bucket_Ops'][8][parameter])
         except:
             IBCLR256 = '-'
             IBDEL256 = '-'
@@ -4958,20 +4964,22 @@ def update_bucketops2(parameter,clicks, pathname, input_value, enter_input):
     Output('IBCLR2562', 'children'),Output('IBDEL2562', 'children'),Output('BINIT2562', 'children'),Output('PUT2562', 'children'),Output('LIST2562', 'children'),Output('GET2562', 'children'),Output('DEL2562', 'children'),Output('BCLR2562', 'children'),Output('BDEL2562', 'children')],
     [Input('Bucket_Ops_Dropdown','value'),Input('table_submit_button', 'n_clicks'),dash.dependencies.Input('url', 'pathname'),Input('table_build_input', 'value')],[State('table_build_input', 'value')])
 def update_bucketops3(parameter,clicks, pathname, input_value, enter_input):
+    if not parameter:
+        parameter = 'AvgLat'
     if parameter:
         Build = input_value
         try:
             cursor = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'4Kb','Buckets':50,'Objects':5000,'Sessions':100}) 
             doc = cursor[0]
-            IBCLR4 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL4 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT4 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT4 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST4 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET4 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL4 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR4 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL4 = roundoff(doc['Bucket_Ops'][8][parameter],10)
+            IBCLR4 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL4 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT4 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT4 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST4 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET4 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL4 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR4 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL4 = roundoff(doc['Bucket_Ops'][8][parameter])
         except:
             IBCLR4 = '-'
             IBDEL4 = '-'
@@ -4985,15 +4993,15 @@ def update_bucketops3(parameter,clicks, pathname, input_value, enter_input):
         try:
             cursor1 = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'100Kb','Buckets':50,'Objects':5000,'Sessions':100}) 
             doc = cursor1[0]
-            IBCLR100 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL100 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT100 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT100 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST100 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET100 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL100 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR100 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL100 = roundoff(doc['Bucket_Ops'][8][parameter],10)
+            IBCLR100 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL100 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT100 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT100 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST100 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET100 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL100 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR100 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL100 = roundoff(doc['Bucket_Ops'][8][parameter])
         except:
             IBCLR100 = '-'
             IBDEL100 = '-'
@@ -5007,15 +5015,15 @@ def update_bucketops3(parameter,clicks, pathname, input_value, enter_input):
         try:
             cursor2 = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'1Mb','Buckets':50,'Objects':5000,'Sessions':100}) 
             doc = cursor2[0]
-            IBCLR1 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL1 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT1 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT1 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST1 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET1 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL1 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR1 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL1 = roundoff(doc['Bucket_Ops'][8][parameter],10)
+            IBCLR1 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL1 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT1 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT1 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST1 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET1 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL1 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR1 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL1 = roundoff(doc['Bucket_Ops'][8][parameter])
         except:
             IBCLR1 = '-'
             IBDEL1 = '-'
@@ -5029,15 +5037,15 @@ def update_bucketops3(parameter,clicks, pathname, input_value, enter_input):
         try:
             cursor3 = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'5Mb','Buckets':50,'Objects':5000,'Sessions':100}) 
             doc = cursor3[0]
-            IBCLR5 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL5 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT5 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT5 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST5 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET5 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL5 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR5 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL5 = roundoff(doc['Bucket_Ops'][8][parameter],10)
+            IBCLR5 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL5 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT5 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT5 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST5 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET5 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL5 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR5 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL5 = roundoff(doc['Bucket_Ops'][8][parameter])
         except:
             IBCLR5 = '-'
             IBDEL5 = '-'
@@ -5051,15 +5059,15 @@ def update_bucketops3(parameter,clicks, pathname, input_value, enter_input):
         try:
             cursor5 = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'36Mb','Buckets':50,'Objects':5000,'Sessions':100}) 
             doc = cursor5[0]
-            IBCLR36 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL36 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT36 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT36 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST36 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET36 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL36 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR36 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL36 = roundoff(doc['Bucket_Ops'][8][parameter],10)
+            IBCLR36 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL36 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT36 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT36 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST36 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET36 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL36 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR36 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL36 = roundoff(doc['Bucket_Ops'][8][parameter])
         except:
             IBCLR36 = '-'
             IBDEL36 = '-'
@@ -5073,15 +5081,15 @@ def update_bucketops3(parameter,clicks, pathname, input_value, enter_input):
         try:
             cursor6 = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'64Mb','Buckets':50,'Objects':5000,'Sessions':100}) 
             doc = cursor6[0]
-            IBCLR64 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL64 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT64 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT64 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST64 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET64 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL64 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR64 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL64 = roundoff(doc['Bucket_Ops'][8][parameter],10)   
+            IBCLR64 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL64 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT64 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT64 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST64 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET64 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL64 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR64 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL64 = roundoff(doc['Bucket_Ops'][8][parameter])   
         except:
             IBCLR64 = '-'
             IBDEL64 = '-'
@@ -5095,15 +5103,15 @@ def update_bucketops3(parameter,clicks, pathname, input_value, enter_input):
         try:
             cursor7 = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'128Mb','Buckets':50,'Objects':5000,'Sessions':100}) 
             doc = cursor7[0]
-            IBCLR128 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL128 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT128 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT128 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST128 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET128 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL128 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR128 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL128 = roundoff(doc['Bucket_Ops'][8][parameter],10) 
+            IBCLR128 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL128 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT128 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT128 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST128 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET128 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL128 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR128 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL128 = roundoff(doc['Bucket_Ops'][8][parameter]) 
         except:
             IBCLR128 = '-'
             IBDEL128 = '-'
@@ -5117,15 +5125,15 @@ def update_bucketops3(parameter,clicks, pathname, input_value, enter_input):
         try:
             cursor8 = perfDb.results.find({'Build':Build,'Name':'Hsbench','Object_Size':'256Mb','Buckets':50,'Objects':5000,'Sessions':100}) 
             doc = cursor8[0]
-            IBCLR256 = roundoff(doc['Bucket_Ops'][0][parameter],10)
-            IBDEL256 = roundoff(doc['Bucket_Ops'][1][parameter],10)
-            BINIT256 = roundoff(doc['Bucket_Ops'][2][parameter],10)
-            PUT256 = roundoff(doc['Bucket_Ops'][3][parameter],10)
-            LIST256 = roundoff(doc['Bucket_Ops'][4][parameter],10)
-            GET256 = roundoff(doc['Bucket_Ops'][5][parameter],10)
-            DEL256 = roundoff(doc['Bucket_Ops'][6][parameter],10)
-            BCLR256 = roundoff(doc['Bucket_Ops'][7][parameter],10)
-            BDEL256 = roundoff(doc['Bucket_Ops'][8][parameter],10)
+            IBCLR256 = roundoff(doc['Bucket_Ops'][0][parameter])
+            IBDEL256 = roundoff(doc['Bucket_Ops'][1][parameter])
+            BINIT256 = roundoff(doc['Bucket_Ops'][2][parameter])
+            PUT256 = roundoff(doc['Bucket_Ops'][3][parameter])
+            LIST256 = roundoff(doc['Bucket_Ops'][4][parameter])
+            GET256 = roundoff(doc['Bucket_Ops'][5][parameter])
+            DEL256 = roundoff(doc['Bucket_Ops'][6][parameter])
+            BCLR256 = roundoff(doc['Bucket_Ops'][7][parameter])
+            BDEL256 = roundoff(doc['Bucket_Ops'][8][parameter])
         except:
             IBCLR256 = '-'
             IBDEL256 = '-'

@@ -29,7 +29,7 @@ import plotly.graph_objs as go
 import mongodbAPIs as mapi
 import timingAPIs
 import db_details as dd
-from support import get_DB_details, get_Data
+from support import get_DB_details, get_Data, get_Data
 
 ### ====================================================================================
 # global declarations
@@ -40,7 +40,7 @@ server = app.server
 perfDb = dd.get_database()
 
 username = '752263' # <insert your JIRA Username here > # input("JIRA username: ")
-password = 'seaSAM@369' # <insert your JIRA password here > # getpass.getpass("JIRA password: ")
+password = 'seaSAM!369' # <insert your JIRA password here > # getpass.getpass("JIRA password: ")
 
 __version__ = "5.28"
 ### ====================================================================================
@@ -617,41 +617,56 @@ versions = [
 ]
 #### -------------------------------------------------------------------------------------------
 operations = [
-    {'label': 'Read', 'value':'Read'},
-    {'label': 'Write', 'value':'Write'},
+    {'label': 'Read', 'value':'read'},
+    {'label': 'Write', 'value':'write'},
     {'label': 'Both', 'value':'Both'},
+]
+benchmarks = [
+    {'label': 'S3bench', 'value':'S3bench'},
+    {'label': 'COSbench', 'value':'Cosbench'},
+    {'label': 'HSbench', 'value':'Hsbench'},
+]
+config_list = [
+        {'label' : '1 Bucket, 1000 Objects, 100 Sessions', 'value' : 'option1'},
+        {'label' : '10 Buckets, 100 Objects, 100 Sessions', 'value' : 'option2'},
+        {'label' : '50 Buckets, 100 Objects, 100 Sessions', 'value' : 'option3'}
 ]
 tab4_content = dbc.Card(
     dbc.CardBody(
         [ 
         html.Th("Graphical representation of S3bench Performance data", id= 'perf_graphs_heading',style={'text-align':'center'}),
-        dbc.Row(
+        html.Div([dbc.Row(
             [
                 
                 dcc.Dropdown(
                     id = "Version_Dropdown",
                     options = versions,
-                    placeholder="select version",
-                    style = {'width': '200px', 'verticalAlign': 'middle',"margin-right": "15px"},
+                    placeholder="Select Version",
                 ),
 
                 dcc.Dropdown(
                     id = 'Build1_Dropdown',
-                    placeholder="select 1st build",
-                    style = {'width': '200px', 'verticalAlign': 'middle',"margin-right": "15px"},
+                    placeholder="Select Build",
                 ),
             
                 dcc.Dropdown(
                     id = 'Build2_Dropdown',
-                    placeholder="Select 2nd build",
-                    style = {'width': '200px', 'verticalAlign': 'middle',"margin-right": "20px"},
+                    placeholder="Compare Build with",
                 ),
-
+                dcc.Dropdown(
+                    id = "Benchmark_Dropdown",
+                    options = benchmarks,
+                    placeholder="Choose Benchmark",
+                ),
+                dcc.Dropdown(
+                    id = 'configs_Dropdown',
+                    options = config_list,
+                    placeholder="Choose Configurations",
+                    ),
                 dcc.Dropdown(
                     id = "Operations_Dropdown",
                     options = operations,
-                    placeholder="Choose filter",
-                    style = {'width': '200px', 'verticalAlign': 'middle',"margin-right": "15px"},
+                    placeholder="Choose Filter",
                 ),
                 dbc.Button("Get!", id="get_graph_button", color="success",style={'height': '35px'}),
 
@@ -662,6 +677,7 @@ tab4_content = dbc.Card(
                 dcc.Graph(id='plot'),
             ],
             justify='center',style={'padding':'10px'})
+        ])
         ]
     ))
 #### Performance report defination ends ==============================================================
@@ -978,35 +994,74 @@ def versionCallback(value):
     return [None, None]
 #### ----------------------------------------------------------------------------------------------
 @app.callback(
+    [dash.dependencies.Output('configs_Dropdown', 'style'),
+    dash.dependencies.Output('plot_TTFB', 'style'),
+    dash.dependencies.Output('perf_graphs_heading', 'children')],
+    [dash.dependencies.Input('Benchmark_Dropdown', 'value')]
+)
+def update_configs(bench):
+    if bench != 'S3bench':
+        state = {'display': 'block'}
+        graph_state = {'display': 'none'}
+    else:
+        state = {'display': 'none'}
+        graph_state = {'display': 'block'}
+    heading_String = html.Th("Graphical representation of {} Performance data".format(bench), style={'text-align':'center'})
+    return [state,graph_state,heading_String]
+
+@app.callback(
     dash.dependencies.Output('plot', 'figure'),
     [dash.dependencies.Input('Build1_Dropdown', 'value'),
     dash.dependencies.Input('Build2_Dropdown', 'value'),
+    dash.dependencies.Input('Benchmark_Dropdown', 'value'),
+    dash.dependencies.Input('configs_Dropdown', 'value'),
     dash.dependencies.Input('Operations_Dropdown', 'value')],
 )
-def update_graph1(build1, build2, operation):
-    objects = ['4Kb','100Kb','1Mb','5Mb','36Mb','64Mb','128Mb','256Mb']
+def update_all(build1, build2, bench, configs, operation):
+    objects = ['4KB','100KB','1MB','5MB','36MB','64MB','128MB','256MB']
     if not (build1 and operation):
         raise PreventUpdate
     if build1 and operation and (build2 == None):
         build2 = build1
+    if not bench:
+        bench = 'S3bench'
+    if (bench != 'S3bench') and not configs:
+        raise PreventUpdate
     
+    if bench == 'S3bench':
+        operation = operation.capitalize()
+
     from support import get_all_traces
-    return get_all_traces(build1, build2, objects, operation)
+    return get_all_traces(build1, build2, objects, bench, configs, operation)
 #### ----------------------------------------------------------------------------------------------
 @app.callback(
     dash.dependencies.Output('plot_Throughput', 'figure'),
     [dash.dependencies.Input('Build1_Dropdown', 'value'),
     dash.dependencies.Input('Build2_Dropdown', 'value'),
+    dash.dependencies.Input('Benchmark_Dropdown', 'value'),
+    dash.dependencies.Input('configs_Dropdown', 'value'),
     dash.dependencies.Input('Operations_Dropdown', 'value')],
 )
-def update_graph2(build1, build2, operation):
-    objects = ['4Kb','100Kb','1Mb','5Mb','36Mb','64Mb','128Mb','256Mb']
+def update_throughput(build1, build2, bench, configs, operation):
+    objects = ['4KB','100KB','1MB','5MB','36MB','64MB','128MB','256MB']
     print("Attempt for build {} {}".format(build1, build2))
     param = 'Throughput'
+    
     if not (build1 and operation):
         raise PreventUpdate
     if build1 and operation and (build2 == None):
         build2 = build1
+    if not bench:
+        bench = 'S3bench'
+    if (bench != 'S3bench') and not configs:
+        raise PreventUpdate
+    
+    operation_read = 'read'
+    operation_write = 'write'
+    if bench == 'S3bench':
+        operation_read = 'Read'
+        operation_write = 'Write'
+        operation = operation.capitalize()
 
     fig = go.Figure()
     data_read_B1 = []    
@@ -1015,8 +1070,8 @@ def update_graph2(build1, build2, operation):
     data_write_B2 = []
     
     if operation != 'Both':
-        data_B1 = get_Data(build1,operation,param)
-        data_B2 = get_Data(build2,operation,param)
+        data_B1 = get_Data(build1,bench,configs,operation,param)
+        data_B2 = get_Data(build2,bench,configs,operation,param)
 
         trace1 = go.Scatter(
             name = '{} {} - {}'.format(operation, param, build1),
@@ -1037,10 +1092,10 @@ def update_graph2(build1, build2, operation):
         fig.add_trace(trace2)
 
     else:
-        data_read_B1 = get_Data(build1,'Read',param)    
-        data_write_B1 = get_Data(build1,'Write',param)
-        data_read_B2 = get_Data(build2,'Read',param)
-        data_write_B2 = get_Data(build2,'Write',param)
+        data_read_B1 = get_Data(build1,bench,configs,operation_read,param)    
+        data_write_B1 = get_Data(build1,bench,configs,operation_write,param)
+        data_read_B2 = get_Data(build2,bench,configs,operation_read,param)
+        data_write_B2 = get_Data(build2,bench,configs,operation_write,param)
 
         trace1 = go.Scatter(
             name = 'Read {} - {}'.format(param, build1),
@@ -1096,15 +1151,28 @@ def update_graph2(build1, build2, operation):
     dash.dependencies.Output('plot_Latency', 'figure'),
     [dash.dependencies.Input('Build1_Dropdown', 'value'),
     dash.dependencies.Input('Build2_Dropdown', 'value'),
+    dash.dependencies.Input('Benchmark_Dropdown', 'value'),
+    dash.dependencies.Input('configs_Dropdown', 'value'),
     dash.dependencies.Input('Operations_Dropdown', 'value')],
 )
-def update_graph3(build1, build2, operation):
-    objects = ['4Kb','100Kb','1Mb','5Mb','36Mb','64Mb','128Mb','256Mb']
+def update_latency(build1, build2, bench, configs, operation):
+    objects = ['4KB','100KB','1MB','5MB','36MB','64MB','128MB','256MB']
     param = 'Latency'
     if not (build1 and operation):
         raise PreventUpdate
     if build1 and operation and (build2 == None):
         build2 = build1
+    if not bench:
+        bench = 'S3bench'
+    if (bench != 'S3bench') and not configs:
+        raise PreventUpdate
+
+    operation_read = 'read'
+    operation_write = 'write'
+    if bench == 'S3bench':
+        operation_read = 'Read'
+        operation_write = 'Write'
+        operation = operation.capitalize()
 
     fig = go.Figure()    
     data_read_B1 = []    
@@ -1112,8 +1180,12 @@ def update_graph3(build1, build2, operation):
     data_read_B2 = []
     data_write_B2 = []
     if operation != 'Both':
-        data_B1 = get_Data(build1,operation,param,'Avg')
-        data_B2 = get_Data(build2,operation,param,'Avg')
+        if bench != 'Hsbench':
+            data_B1 = get_Data(build1,bench,configs,operation,param,'Avg')
+            data_B2 = get_Data(build2,bench,configs,operation,param,'Avg')
+        else:
+            data_B1 = get_Data(build1,bench,configs,operation,param)
+            data_B2 = get_Data(build2,bench,configs,operation,param)
 
         trace1 = go.Scatter(
             name = '{} {} - {}'.format(operation, param, build1),
@@ -1134,10 +1206,16 @@ def update_graph3(build1, build2, operation):
         fig.add_trace(trace2)
 
     else:
-        data_read_B1 = get_Data(build1,'Read',param,'Avg')    
-        data_write_B1 = get_Data(build1,'Write',param,'Avg')
-        data_read_B2 = get_Data(build2,'Read',param,'Avg')
-        data_write_B2 = get_Data(build2,'Write',param,'Avg')
+        if bench != 'Hsbech':
+            data_read_B1 = get_Data(build1,bench,configs,operation_read,param,'Avg')    
+            data_write_B1 = get_Data(build1,bench,configs,operation_write,param,'Avg')
+            data_read_B2 = get_Data(build2,bench,configs,operation_read,param,'Avg')
+            data_write_B2 = get_Data(build2,bench,configs,operation_write,param,'Avg')
+        else:
+            data_read_B1 = get_Data(build1,bench,configs,operation_read,param)    
+            data_write_B1 = get_Data(build1,bench,configs,operation_write,param)
+            data_read_B2 = get_Data(build2,bench,configs,operation_read,param)
+            data_write_B2 = get_Data(build2,bench,configs,operation_write,param)
 
         trace1 = go.Scatter(
             name = 'Read {} - {}'.format(param, build1),
@@ -1196,15 +1274,28 @@ def update_graph3(build1, build2, operation):
     dash.dependencies.Output('plot_IOPS', 'figure'),
     [dash.dependencies.Input('Build1_Dropdown', 'value'),
     dash.dependencies.Input('Build2_Dropdown', 'value'),
+    dash.dependencies.Input('Benchmark_Dropdown', 'value'),
+    dash.dependencies.Input('configs_Dropdown', 'value'),
     dash.dependencies.Input('Operations_Dropdown', 'value')],
 )
-def update_graph4(build1, build2, operation):
-    objects = ['4Kb','100Kb','1Mb','5Mb','36Mb','64Mb','128Mb','256Mb']
+def update_IOPS(build1, build2, bench, configs, operation):
+    objects = ['4KB','100KB','1MB','5MB','36MB','64MB','128MB','256MB']
+    param = 'IOPS'
     if not (build1 and operation):
         raise PreventUpdate
     if build1 and operation and (build2 == None):
         build2 = build1
-    param = 'IOPS'
+    if not bench:
+        bench = 'S3bench'
+    if (bench != 'S3bench') and not configs:
+        raise PreventUpdate
+
+    operation_read = 'read'
+    operation_write = 'write'
+    if bench == 'S3bench':
+        operation_read = 'Read'
+        operation_write = 'Write'
+        operation = operation.capitalize()
 
     fig = go.Figure()    
     data_read_B1 = []    
@@ -1212,8 +1303,8 @@ def update_graph4(build1, build2, operation):
     data_read_B2 = []
     data_write_B2 = []
     if operation != 'Both':
-        data_B1 = get_Data(build1,operation,param)
-        data_B2 = get_Data(build2,operation,param)
+        data_B1 = get_Data(build1,bench,configs,operation,param)
+        data_B2 = get_Data(build2,bench,configs,operation,param)
 
         trace1 = go.Scatter(
             name = '{} {} - {}'.format(operation, param, build1),
@@ -1234,10 +1325,10 @@ def update_graph4(build1, build2, operation):
 
     else:
   
-        data_read_B1 = get_Data(build1,'Read',param)    
-        data_write_B1 = get_Data(build1,'Write',param)
-        data_read_B2 = get_Data(build2,'Read',param)
-        data_write_B2 = get_Data(build2,'Write',param)
+        data_read_B1 = get_Data(build1,bench,configs,operation_read,param)    
+        data_write_B1 = get_Data(build1,bench,configs,operation_write,param)
+        data_read_B2 = get_Data(build2,bench,configs,operation_read,param)
+        data_write_B2 = get_Data(build2,bench,configs,operation_write,param)
 
         trace1 = go.Scatter(
             name = 'Read {} - {}'.format(param, build1),
@@ -1295,19 +1386,34 @@ def update_graph4(build1, build2, operation):
     dash.dependencies.Output('plot_TTFB', 'figure'),
     [dash.dependencies.Input('Build1_Dropdown', 'value'),
     dash.dependencies.Input('Build2_Dropdown', 'value'),
+    dash.dependencies.Input('Benchmark_Dropdown', 'value'),
+    dash.dependencies.Input('configs_Dropdown', 'value'),
     dash.dependencies.Input('Operations_Dropdown', 'value')],
 )
-def update_graph5(build1, build2, operation):
-    objects = ['4Kb','100Kb','1Mb','5Mb','36Mb','64Mb','128Mb','256Mb']
+def update_graph5(build1, build2, bench, configs, operation):
+    objects = ['4KB','100KB','1MB','5MB','36MB','64MB','128MB','256MB']
     param = 'TTFB'
     if not (build1 and operation):
         raise PreventUpdate
     if build1 and operation and (build2 == None):
         build2 = build1
+    if not bench:
+        bench = 'S3bench'
+    
     fig = go.Figure()    
+    if bench != 'S3bench':
+        return fig
+
+    operation_read = 'read'
+    operation_write = 'write'
+    if bench == 'S3bench':
+        operation_read = 'Read'
+        operation_write = 'Write'
+        operation = operation.capitalize()
+
     if operation != 'Both':
-        data_B1 = get_Data(build1,operation,param,'Avg')
-        data_B2 = get_Data(build2,operation,param,'Avg')
+        data_B1 = get_Data(build1,bench,configs,operation,param,'Avg')
+        data_B2 = get_Data(build2,bench,configs,operation,param,'Avg')
 
         trace1 = go.Scatter(
             name = '{} {} - {}'.format(operation, param, build1),
@@ -1328,10 +1434,10 @@ def update_graph5(build1, build2, operation):
         fig.add_trace(trace2)
 
     else:
-        data_read_B1 = get_Data(build1,'Read',param,'Avg')    
-        data_write_B1 = get_Data(build1,'Write',param,'Avg')
-        data_read_B2 = get_Data(build2,'Read',param,'Avg')
-        data_write_B2 = get_Data(build2,'Write',param,'Avg')
+        data_read_B1 = get_Data(build1,bench,configs,operation_read,param,'Avg')    
+        data_write_B1 = get_Data(build1,bench,configs,operation_write,param,'Avg')
+        data_read_B2 = get_Data(build2,bench,configs,operation_read,param,'Avg')
+        data_write_B2 = get_Data(build2,bench,configs,operation_write,param,'Avg')
 
         trace1 = go.Scatter(
             name = 'Read {} - {}'.format(param, build1),
@@ -3222,15 +3328,16 @@ def update_timing_table(clicks, pathname, input_value, enter_input):
 # Eng report page - Table 4 : Detailed report
 @app.callback(Output('build_report_div','children'),
     [Input('table_submit_button', 'n_clicks'),
-        dash.dependencies.Input('url', 'pathname'),
-        Input('table_build_input', 'value')],
-        [State('table_build_input', 'value')],
+    dash.dependencies.Input('url', 'pathname'),
+    Input('table_build_input', 'value')],
+    [State('table_build_input', 'value')],
 )
 def update_eng_table_4(clicks, pathname, input_value, enter_input):
     build, _, _ = get_input('cft', dash.callback_context, clicks, input_value, enter_input, pathname)
-    jiraURL = "https://jts.seagate.com/"
-    options = {'server': jiraURL}
-    auth_jira = JIRA(options, basic_auth=(username, password))
+    if clicks:
+        jiraURL = "https://jts.seagate.com/"
+        options = {'server': jiraURL}
+        auth_jira = JIRA(options, basic_auth=(username, password))
 
     while build:
         try:
@@ -5160,6 +5267,6 @@ def update_bucketops3(parameter,clicks, pathname, input_value, enter_input):
 
 if __name__ == '__main__':
     # run on port 5002
-    app.run_server(host='0.0.0.0', port=5002, threaded=True, debug=False)
+    app.run_server(host='0.0.0.0', port=5002, threaded=True, debug=True)
 
 #### Application ends ==============================================================================

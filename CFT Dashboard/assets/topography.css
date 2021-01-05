@@ -402,5 +402,17 @@ H4, H6{
 
 Td {
     border: 1px solid black;
-        border-collapse: collapse;
+    border-collapse: collapse;
+}
+
+#configs_Dropdown{
+    width: 300px;
+    text-align: center;
+    margin-right: 15px;
+}
+
+#Version_Dropdown, #Build1_Dropdown, #Build2_Dropdown, #Benchmark_Dropdown, #Operations_Dropdown{
+    width: 200px;
+    text-align: center;
+    margin-right: 15px;
 }

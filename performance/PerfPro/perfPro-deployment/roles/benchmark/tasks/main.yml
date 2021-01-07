@@ -1,0 +1,108 @@
+---
+ - include: hostconfig.yml
+
+ - name: "[pre-requisites]: Required for regression test cases"
+   yum:
+     name:
+       - sysstat
+       - python3
+       - python3-pip
+     state: present
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['all'] }}"
+
+ - name: Installation of golang on client server
+   yum:
+     name: go
+     state: present
+   delegate_to: "client-1"
+ 
+ - name: Pre-requisites python3 library
+   pip:
+     name: 
+       - PyYAML==5.3.1
+       - requests==2.24.0
+       - jsonschema==3.2.0
+       - pymongo==3.11.0
+       - pandas==1.0.5
+       - datetime==4.3
+     executable: pip3
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['all'] }}"
+
+ - name: Copying PerfProBenchmark tar file 
+   unarchive:
+      src: files/PerfProBenchmark.tar.gz
+      dest: /root/
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['all'] }}"
+
+ - name: copying config.yml file 
+   copy:
+     src: roles/perfpro_deployment/vars/config.yml
+     dest: /root/PerfProBenchmark/
+     owner: root
+     group: root
+     mode: '0644' 
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['all'] }}"
+ 
+ - name: copying s3account.yml file 
+   copy:
+      src: vars/s3account.yml
+      dest: /root/PerfProBenchmark/
+      owner: root
+      group: root
+      mode: '0644' 
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['all'] }}"
+
+ - name: copying main.yml file 
+   copy:
+     src: vars/main.yml
+     dest: /root/PerfProBenchmark/
+     owner: root
+     group: root
+     mode: '0644'
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['all'] }}"
+
+ - name: Create S3 account
+   command: python3 /root/PerfProBenchmark/S3UserCreation/main_createusers.py /root/PerfProBenchmark/s3account.yml 
+   delegate_to: "client-1"
+
+ - name: System monitoring started
+   command: python3 /root/PerfProBenchmark/system_monitoring/systemMonitoring.py /root/PerfProBenchmark/main.yml 
+   async: 21600
+   poll: 0
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['all'] }}"
+
+ - name: Configuration of s3bench benchmark tools  
+   command: go get github.com/igneous-systems/s3bench
+   delegate_to: "client-1"
+
+ - name: copying s3bench_meta binaries file to client server
+   copy:
+       src: files/s3bench_meta
+       dest: /root/go/bin/
+       owner: root
+       group: root
+       mode: '0754'
+   delegate_to: "client-1"
+
+ - name: Make an entry for config.yml on a database
+   command: python3 /root/PerfProBenchmark/addconfiguration.py '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'
+   delegate_to: "client-1" 
+
+ - include: s3bench.yml
+
+ - include: cosbench.yml
+
+ - include: hsbench.yml
+
+ - name: Stop system monitoring
+   command: python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['nodes'] }}"
+

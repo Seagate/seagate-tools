@@ -1,0 +1,21 @@
+{
+  "missing": "missing",
+  "not_installed": "Not Installed",
+  "fault": "fault",
+  "error": "error",
+  "insertion": "insertion",
+  "fault_resolved": "fault resolved",
+  "up": "Up",
+  "ok": "Ok",
+  "desc": "desc",
+  "asc": "asc",
+  "critical": "critical",
+  "warning": "warning",
+  "informational": "informational",
+  "access_token": "access-token",
+  "username": "username",
+  "gid": "gid",
+  "throughput": "throughput",
+  "latency": "latency",
+  "iops": "iops"
+}

@@ -1,0 +1,15 @@
+---
+
+ - name: "[S3bench-1Kb]: S3benchmark running ( size='1Kb' clients=50 samples=2000 )"
+   shell: cd /root/PerfProBenchmark/s3bench_meta; ./run_s3benchmark.sh -nc 50 -ns 2000 -s "1Kb"
+   delegate_to: "client-1"
+
+ - name: "[S3bench-small-objects]: S3benchmark running ( size='4Kb,100Kb,1Mb,5Mb' clients=100 samples=5000 )"
+   shell: cd /root/PerfProBenchmark/s3bench_meta; ./run_s3benchmark.sh -nc 100 -ns 5000 -s "4Kb,100Kb,1Mb,5Mb"
+   delegate_to: "client-1"
+
+ - name: "[S3bench-large-objects]: S3benchmark running ( size='36Mb,64Mb,128Mb,256Mb' clients=100 samples=2000 )"
+   shell: cd /root/PerfProBenchmark/s3bench_meta;  ./run_s3benchmark.sh -nc 100 -ns 2000 -s "36Mb,64Mb,128Mb,256Mb"
+   delegate_to: "client-1"
+
+

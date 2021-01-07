@@ -1,0 +1,14 @@
+---
+ - name: Updating hosts files
+   script: files/update_hosts.sh {{ NODE1 }} {{ NODE2 }} {{ CLIENT }}
+
+ - meta: refresh_inventory
+
+ - name: Refreshing "known hosts"
+   command: sed -i "/{{ hostvars[item]['ansible_host'] }}/d" /root/.ssh/known_hosts
+   with_items: "{{ groups['nodes'] }}"
+
+ - name: Enabled passwordless authentication
+   script: files/automatePasswordless.sh {{ hostvars[item]['ansible_user'] }} {{ hostvars[item]['ansible_host'] }} {{ CLUSTER_PASS }}
+   with_items: "{{ groups['nodes'] }}"
+

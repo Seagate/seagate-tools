@@ -16,7 +16,7 @@ def makeconfig(name):  #function for connecting with configuration file
 conf = makeconfig(sys.argv[1])
 
 def createcsmadmin():
-    url = 'https://'+conf["Restcall"]["ip"]+':28100/api/v1/preboarding/user'
+    url = 'https://'+conf["MGMT_VIP"]+':28100/api/v1/preboarding/user'
     p = Popen([
     'curl',
     '-k','-X'

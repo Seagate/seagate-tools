@@ -1,4 +1,0 @@
-db_user: perfpro 
-db_passwd: PerfPro
-db_url: mongodb://perfpro:PerfPro@cftic1.pun.seagate.com:27017,cftic2.pun.seagate.com:27017,apollojenkins.pun.seagate.com:27017/test?authSource=performance_db&replicaSet=rs0&readPreference=primary&appname=MongoDB%20Compass%20Community&ssl=false
-

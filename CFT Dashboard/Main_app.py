@@ -39,8 +39,8 @@ app.title = "CORTX Test Status"
 server = app.server
 perfDb = dd.get_database()
 
-username = '752263' # <insert your JIRA Username here > # input("JIRA username: ")
-password = 'seaSAM!369' # <insert your JIRA password here > # getpass.getpass("JIRA password: ")
+username = # <insert your JIRA Username here > # input("JIRA username: ")
+password = # <insert your JIRA password here > # getpass.getpass("JIRA password: ")
 
 __version__ = "5.28"
 ### ====================================================================================
@@ -1029,6 +1029,7 @@ def update_all(build1, build2, bench, configs, operation):
         raise PreventUpdate
     
     if bench == 'S3bench':
+        configs = None
         operation = operation.capitalize()
 
     from support import get_all_traces
@@ -1061,6 +1062,7 @@ def update_throughput(build1, build2, bench, configs, operation):
     if bench == 'S3bench':
         operation_read = 'Read'
         operation_write = 'Write'
+        configs = None
         operation = operation.capitalize()
 
     fig = go.Figure()
@@ -1172,6 +1174,7 @@ def update_latency(build1, build2, bench, configs, operation):
     if bench == 'S3bench':
         operation_read = 'Read'
         operation_write = 'Write'
+        configs = None
         operation = operation.capitalize()
 
     fig = go.Figure()    
@@ -1295,6 +1298,7 @@ def update_IOPS(build1, build2, bench, configs, operation):
     if bench == 'S3bench':
         operation_read = 'Read'
         operation_write = 'Write'
+        configs = None
         operation = operation.capitalize()
 
     fig = go.Figure()    
@@ -1390,7 +1394,7 @@ def update_IOPS(build1, build2, bench, configs, operation):
     dash.dependencies.Input('configs_Dropdown', 'value'),
     dash.dependencies.Input('Operations_Dropdown', 'value')],
 )
-def update_graph5(build1, build2, bench, configs, operation):
+def update_TTFB(build1, build2, bench, configs, operation):
     objects = ['4KB','100KB','1MB','5MB','36MB','64MB','128MB','256MB']
     param = 'TTFB'
     if not (build1 and operation):
@@ -1409,6 +1413,7 @@ def update_graph5(build1, build2, bench, configs, operation):
     if bench == 'S3bench':
         operation_read = 'Read'
         operation_write = 'Write'
+        configs = None
         operation = operation.capitalize()
 
     if operation != 'Both':
@@ -5267,6 +5272,6 @@ def update_bucketops3(parameter,clicks, pathname, input_value, enter_input):
 
 if __name__ == '__main__':
     # run on port 5002
-    app.run_server(host='0.0.0.0', port=5002, threaded=True, debug=True)
+    app.run_server(host='0.0.0.0', port=5002, threaded=True, debug=False)
 
 #### Application ends ==============================================================================

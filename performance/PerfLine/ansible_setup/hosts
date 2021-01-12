@@ -1,0 +1,9 @@
+[master_node]
+smc51-m08.colo.seagate.com
+
+[secondary_node]
+smc52-m08.colo.seagate.com
+
+[cluster:children]
+master_node
+secondary_node

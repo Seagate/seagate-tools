@@ -8,111 +8,79 @@ def get_DB_details():
    from db_details import makeconnection
    return makeconnection()
 
-# @dispatch(str,str,str)
-# def get_Data(build,bench,operation,param):
+def get_x_axis(options,version=None):
+    if options == 'IOsize':
+        objects = ['4KB','100KB','1MB','5MB','36MB','64MB','128MB','256MB']
+        return objects
+    else:
+        col = get_DB_details()
+        cursor = col.find({'Title': 'Main Chain'})
+        builds = cursor[0][version]
+        return builds
 
-def getObjectUnit(unit,bench):
+def get_IO_size(IOsize,bench):
     if bench == 'Cosbench':
-        return ' ' + unit.upper()
+        return IOsize[:-2] + ' ' + IOsize[-2::].upper()
     else:
-        return unit
+        return IOsize[:-2]+IOsize[-2::].lower().capitalize()
 
-def get_non_configs_data(build,bench,operation,param,subparam=None):
+def get_non_configs_IOsize_data(build,bench,operation,param,subparam=None):
+    IOsize_list = get_x_axis('IOsize')
     print("nc",build,bench,operation,param,subparam)
+
+    data = []
+    col = get_DB_details()
+
     if subparam==None:
-        data = []
-        col = get_DB_details()
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '4'+getObjectUnit('Kb',bench)})
-        data.append(cursor[0][param])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '100'+getObjectUnit('Kb',bench)})
-        data.append(cursor[0][param])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '1'+getObjectUnit('Mb',bench)})
-        data.append(cursor[0][param])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '5'+getObjectUnit('Mb',bench)})
-        data.append(cursor[0][param])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '36'+getObjectUnit('Mb',bench)})
-        data.append(cursor[0][param])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '64'+getObjectUnit('Mb',bench)})
-        data.append(cursor[0][param])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '128'+getObjectUnit('Mb',bench)})
-        data.append(cursor[0][param])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '256'+getObjectUnit('Mb',bench)})
-        data.append(cursor[0][param])
-        
-        return data
+        for IOsize in IOsize_list:
+            try: 
+                cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': get_IO_size(IOsize,bench)})
+                data.append(cursor[0][param])
+            except:
+               data.append(None)
 
     else:
-        data = []
-        col = get_DB_details()
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '4'+getObjectUnit('Kb',bench)})
-        data.append(cursor[0][param][subparam])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '100'+getObjectUnit('Kb',bench)})
-        data.append(cursor[0][param][subparam])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '1'+getObjectUnit('Mb',bench)})
-        data.append(cursor[0][param][subparam])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '5'+getObjectUnit('Mb',bench)})
-        data.append(cursor[0][param][subparam])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '36'+getObjectUnit('Mb',bench)})
-        data.append(cursor[0][param][subparam])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '64'+getObjectUnit('Mb',bench)})
-        data.append(cursor[0][param][subparam])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '128'+getObjectUnit('Mb',bench)})
-        data.append(cursor[0][param][subparam])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '256'+getObjectUnit('Mb',bench)})
-        data.append(cursor[0][param][subparam])
-        
-        return (pd.Series(data) * 1000).tolist()
+        for IOsize in IOsize_list:
+            try:
+                cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': get_IO_size(IOsize,bench)})
+                data.append(cursor[0][param][subparam])
+            except:
+               data.append(None)
 
-def get_configs_data(build,bench,operation,buckets,objects,sessions,param,subparam=None):
+        data = (pd.Series(data) * 1000).tolist()
+
+    return IOsize_list, data
+
+def get_configs_IOsize_data(build,bench,operation,buckets,objects,sessions,param,subparam=None):
     print("c",build,bench,operation,buckets,objects,sessions,param,subparam)
+    data = []
+    col = get_DB_details()
+    IOsize_list = get_x_axis('IOsize')
+
     if subparam==None:
-        data = []
-        col = get_DB_details()
         operation = operation.lower()
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '4'+getObjectUnit('Kb',bench),'Buckets':buckets,'Objects':objects,'Sessions':sessions})
-        data.append(cursor[0][param])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '100'+getObjectUnit('Kb',bench),'Buckets':buckets,'Objects':objects,'Sessions':sessions})
-        data.append(cursor[0][param])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '1'+getObjectUnit('Mb',bench),'Buckets':buckets,'Objects':objects,'Sessions':sessions})
-        data.append(cursor[0][param])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '5'+getObjectUnit('Mb',bench),'Buckets':buckets,'Objects':objects,'Sessions':sessions})
-        data.append(cursor[0][param])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '36'+getObjectUnit('Mb',bench),'Buckets':buckets,'Objects':objects,'Sessions':sessions})
-        data.append(cursor[0][param])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '64'+getObjectUnit('Mb',bench),'Buckets':buckets,'Objects':objects,'Sessions':sessions})
-        data.append(cursor[0][param])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '128'+getObjectUnit('Mb',bench),'Buckets':buckets,'Objects':objects,'Sessions':sessions})
-        data.append(cursor[0][param])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '256'+getObjectUnit('Mb',bench),'Buckets':buckets,'Objects':objects,'Sessions':sessions})
-        data.append(cursor[0][param])
-        
-        return data
-
+        for IOsize in IOsize_list:
+            try:
+                cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': get_IO_size(IOsize,bench),'Buckets':buckets,'Objects':objects,'Sessions':sessions})
+                data.append(cursor[0][param])
+            except:
+               data.append(None)
     else:
-        data = []
-        col = get_DB_details()
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '4'+getObjectUnit('Kb',bench),'Buckets':buckets,'Objects':objects,'Sessions':sessions})
-        data.append(cursor[0][param][subparam])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '100'+getObjectUnit('Kb',bench),'Buckets':buckets,'Objects':objects,'Sessions':sessions})
-        data.append(cursor[0][param][subparam])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '1'+getObjectUnit('Mb',bench),'Buckets':buckets,'Objects':objects,'Sessions':sessions})
-        data.append(cursor[0][param][subparam])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '5'+getObjectUnit('Mb',bench),'Buckets':buckets,'Objects':objects,'Sessions':sessions})
-        data.append(cursor[0][param][subparam])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '36'+getObjectUnit('Mb',bench),'Buckets':buckets,'Objects':objects,'Sessions':sessions})
-        data.append(cursor[0][param][subparam])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '64'+getObjectUnit('Mb',bench),'Buckets':buckets,'Objects':objects,'Sessions':sessions})
-        data.append(cursor[0][param][subparam])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '128'+getObjectUnit('Mb',bench),'Buckets':buckets,'Objects':objects,'Sessions':sessions})
-        data.append(cursor[0][param][subparam])
-        cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': '256'+getObjectUnit('Mb',bench),'Buckets':buckets,'Objects':objects,'Sessions':sessions})
-        data.append(cursor[0][param][subparam])
-        
-        return (pd.Series(data) * 1000).tolist()
+        for IOsize in IOsize_list:
+            try:
+                cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': get_IO_size(IOsize,bench),'Buckets':buckets,'Objects':objects,'Sessions':sessions})
+                data.append(cursor[0][param][subparam])
+            except:
+               data.append(None)
 
-# @dispatch(str,str,str,str)
-def get_Data(build,bench,configs,operation,param,subparam=None):
+        data = (pd.Series(data) * 1000).tolist()
+
+    return IOsize_list, data
+
+def get_benchmark_configs(configs, bench):
     Sessions = 100
+    Buckets = 1
+    Objects = 1000
     if bench == 'Cosbench':
         if configs == 'option1':
             Buckets = 1
@@ -136,18 +104,91 @@ def get_Data(build,bench,configs,operation,param,subparam=None):
         elif configs == 'option3':
             Buckets = 50
             Objects = 5000
-        else:
-            Buckets = 1
-            Objects = 1000
+    else:
+        Buckets = 1
+        Objects = 1000
+
+    return Buckets, Objects, Sessions
+
+def get_IOsizewise_data(build,bench,configs,operation,param,subparam=None):
+    Buckets, Objects, Sessions = get_benchmark_configs(configs, bench)
 
     if configs == None:
-        return get_non_configs_data(build,bench,operation,param,subparam)
+        return get_non_configs_IOsize_data(build,bench,operation,param,subparam)
 
     else:
-        return get_configs_data(build,bench,operation,Buckets,Objects,Sessions,param,subparam)
-    
+        return get_configs_IOsize_data(build,bench,operation,Buckets,Objects,Sessions,param,subparam)
 
-def get_all_traces(build1, build2, objects, bench, configs, operation):
+def get_non_config_builds_data(version,IOsize,bench,configs,operation,param,subparam):
+    print("nc",version,IOsize,bench,configs,operation,param,subparam)
+    build_list = get_x_axis('builds',version)
+    # print(build_list)
+    data = []
+    col = get_DB_details()
+
+    if subparam==None:
+        for build in build_list:
+            #print(IOsize,bench,configs,operation,param,subparam,build)
+            try:
+                cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': get_IO_size(IOsize,bench)})
+                data.append(cursor[0][param])
+            except:
+                # build_list.remove(build)
+                data.append(None)
+
+        return build_list, data
+    else:
+        for build in build_list:
+            #print(IOsize,bench,configs,operation,param,subparam,build)
+            try:
+                cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': get_IO_size(IOsize,bench)})
+                data.append(cursor[0][param][subparam])
+            except:
+                # build_list.remove(build)
+                data.append(None)
+
+        return build_list, (pd.Series(data) * 1000).tolist()
+
+def get_config_builds_data(version,IOsize,bench,operation,buckets,objects,sessions,param,subparam=None):
+    print("c",version,IOsize,bench,operation,buckets,objects,sessions,param,subparam)
+    data = []
+    col = get_DB_details()
+    build_list = get_x_axis('builds',version)
+
+    if subparam==None:
+        operation = operation.lower()
+        for build in build_list:
+            try:
+                cursor = col.find({'Build':build,'Name': bench,'Operation':operation,'Object_Size': get_IO_size(IOsize,bench),'Buckets':buckets,'Objects':objects,'Sessions':sessions})
+                data.append(cursor[0][param])
+            except:
+                # build_list.remove(build)
+                data.append(None)
+        return build_list, data
+
+    else:
+        operation = operation.lower()
+        for build in build_list:
+            try:
+                cursor = col.find({'Build':build,'Name': bench,'Operation':operation,'Object_Size': get_IO_size(IOsize,bench),'Buckets':buckets,'Objects':objects,'Sessions':sessions})
+                data.append(cursor[0][param][subparam])
+            except:
+                # build_list.remove(build)
+                data.append(None)
+        return build_list, data
+
+def get_buildwise_data(version,IOsize,bench,configs,operation,param,subparam=None):
+    if bench == 'S3bench':
+        builds, datapoints = get_non_config_builds_data(version,IOsize,bench,configs,operation,param,subparam)
+    
+    else:
+        Buckets, Objects, Sessions = get_benchmark_configs(configs, bench)
+        builds, datapoints = get_config_builds_data(version,IOsize,bench,operation,Buckets,Objects,Sessions,param,subparam)
+    
+    # print(builds,datapoints)
+    return builds, datapoints
+
+def get_all_traces(xfilter, version, build1, build2, bench, configs, operation):
     fig = go.Figure() 
     print("get all traces",configs,operation)   
     operation_read = 'read'
@@ -157,31 +198,56 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
         operation_write = 'Write'
 
     if operation != 'Both':
-        data_throughput_B1 = get_Data(build1,bench,configs,operation,'Throughput')
 
-        if bench != 'Hsbench':
-            data_latency_B1 = get_Data(build1,bench,configs,operation,'Latency','Avg')
-        else:
-            data_latency_B1 = get_Data(build1,bench,configs,operation,'Latency')
+        if xfilter == 'build':            
+            x_axis, data_throughput_B1 = get_IOsizewise_data(build1,bench,configs,operation,'Throughput')
 
-        data_IOPS_B1 = get_Data(build1,bench,configs,operation,'IOPS')
-        if bench == 'S3bench':
-            data_TTFB_B1 = get_Data(build1,bench,configs,operation,'TTFB','Avg')
+            if bench != 'Hsbench':
+                x_axis, data_latency_B1 = get_IOsizewise_data(build1,bench,configs,operation,'Latency','Avg')
+            else:
+                x_axis, data_latency_B1 = get_IOsizewise_data(build1,bench,configs,operation,'Latency')
 
-        data_throughput_B2 = get_Data(build2,bench,configs,operation,'Throughput')
+            x_axis, data_IOPS_B1 = get_IOsizewise_data(build1,bench,configs,operation,'IOPS')
+            if bench == 'S3bench':
+                x_axis, data_TTFB_B1 = get_IOsizewise_data(build1,bench,configs,operation,'TTFB','Avg')
 
-        if bench != 'Hsbench':
-            data_latency_B2 = get_Data(build2,bench,configs,operation,'Latency','Avg')
-        else:
-            data_latency_B2 = get_Data(build2,bench,configs,operation,'Latency')
+            x_axis, data_throughput_B2 = get_IOsizewise_data(build2,bench,configs,operation,'Throughput')
 
-        data_IOPS_B2 = get_Data(build2,bench,configs,operation,'IOPS')
-        if bench == 'S3bench':
-            data_TTFB_B2 = get_Data(build2,bench,configs,operation,'TTFB','Avg')
+            if bench != 'Hsbench':
+                x_axis, data_latency_B2 = get_IOsizewise_data(build2,bench,configs,operation,'Latency','Avg')
+            else:
+                data_latency_B2 = get_IOsizewise_data(build2,bench,configs,operation,'Latency')
+
+            x_axis, data_IOPS_B2 = get_IOsizewise_data(build2,bench,configs,operation,'IOPS')
+            if bench == 'S3bench':
+                x_axis, data_TTFB_B2 = get_IOsizewise_data(build2,bench,configs,operation,'TTFB','Avg')
+        
+        else:          
+            x_axis, data_throughput_B1 = get_buildwise_data(version,build1,bench,configs,operation,'Throughput')
+
+            if bench != 'Hsbench':
+                x_axis, data_latency_B1 = get_buildwise_data(version,build1,bench,configs,operation,'Latency','Avg')
+            else:
+                x_axis, data_latency_B1 = get_buildwise_data(version,build1,bench,configs,operation,'Latency')
+
+            x_axis, data_IOPS_B1 = get_buildwise_data(version,build1,bench,configs,operation,'IOPS')
+            if bench == 'S3bench':
+                x_axis, data_TTFB_B1 = get_buildwise_data(version,build1,bench,configs,operation,'TTFB','Avg')
+
+            x_axis, data_throughput_B2 = get_buildwise_data(version,build2,bench,configs,operation,'Throughput')
+
+            if bench != 'Hsbench':
+                x_axis, data_latency_B2 = get_buildwise_data(version,build2,bench,configs,operation,'Latency','Avg')
+            else:
+                data_latency_B2 = get_buildwise_data(version,build2,bench,configs,operation,'Latency')
+
+            x_axis, data_IOPS_B2 = get_buildwise_data(version,build2,bench,configs,operation,'IOPS')
+            if bench == 'S3bench':
+                x_axis, data_TTFB_B2 = get_buildwise_data(version,build2,bench,configs,operation,'TTFB','Avg')
 
         trace1 = go.Scatter(
             name = '{} Throughput - {}'.format(operation, build1),
-            x = objects,
+            x = x_axis,
             y = data_throughput_B1,
             hovertemplate = '<br>%{y} MBps<br>'+
                             '<b>Throughput - {}</b><extra></extra>'.format(build1),
@@ -190,7 +256,7 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
 
         trace3 = go.Scatter(
             name = '{} Latency - {}'.format(operation, build1),
-            x = objects,
+            x = x_axis,
             y = data_latency_B1,
             hovertemplate = '<br>%{y} ms<br>'+
                             '<b>Latency - {}</b><extra></extra>'.format(build1),
@@ -198,7 +264,7 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
         fig.add_trace(trace3)
         trace5 = go.Scatter(
             name = '{} IOPS - {}'.format(operation, build1),
-            x = objects,
+            x = x_axis,
             y = data_IOPS_B1,
             hovertemplate = '<br>%{y}<br>'+
                             '<b>IOPS - {}</b><extra></extra>'.format(build1),
@@ -208,7 +274,7 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
         if bench == 'S3bench':
             trace7 = go.Scatter(
                 name = '{} TTFB - {}'.format(operation, build1),
-                x = objects,
+                x = x_axis,
                 y = data_TTFB_B1,
                 hovertemplate = '<br>%{y} ms<br>'+
                                     '<b>TTFB - {}</b><extra></extra>'.format(build1),     
@@ -217,7 +283,7 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
 
         trace9 = go.Scatter(
             name = '{} Throughput - {}'.format(operation, build2),
-            x = objects,
+            x = x_axis,
             y = data_throughput_B2,
             hovertemplate = '<br>%{y} MBps<br>'+
                             '<b>Throughput - {}</b><extra></extra>'.format(build2),
@@ -226,7 +292,7 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
 
         trace11 = go.Scatter(
             name = '{} Latency - {}'.format(operation, build2),
-            x = objects,
+            x = x_axis,
             y = data_latency_B2,
             hovertemplate = '<br>%{y} ms<br>'+
                             '<b>Latency - {}</b><extra></extra>'.format(build2),
@@ -234,7 +300,7 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
         fig.add_trace(trace11)
         trace13 = go.Scatter(
             name = '{} IOPS - {}'.format(operation, build2),
-            x = objects,
+            x = x_axis,
             y = data_IOPS_B2,
             hovertemplate = '<br>%{y}<br>'+
                             '<b>IOPS - {}</b><extra></extra>'.format(build2),
@@ -244,7 +310,7 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
         if bench == 'S3bench':
             trace15 = go.Scatter(
                 name = '{} TTFB - {}'.format(operation, build2),
-                x = objects,
+                x = x_axis,
                 y = data_TTFB_B2,
             hovertemplate = '<br>%{y} ms<br>'+
                                 '<b>TTFB - {}</b><extra></extra>'.format(build2),     
@@ -252,39 +318,71 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
             fig.add_trace(trace15)       
 
     else:
-        data_read_throughput_B1 = get_Data(build1,bench,configs,operation_read,'Throughput')    
-        data_write_throughput_B1 = get_Data(build1,bench,configs,operation_write,'Throughput')
-        if bench != 'Hsbench':
-            data_read_latency_B1 = get_Data(build1,bench,configs,operation_read,'Latency','Avg')
-            data_write_latency_B1 = get_Data(build1,bench,configs,operation_write,'Latency','Avg')
+        if xfilter == 'build':
+            x_axis, data_read_throughput_B1 = get_IOsizewise_data(build1,bench,configs,operation_read,'Throughput')    
+            x_axis, data_write_throughput_B1 = get_IOsizewise_data(build1,bench,configs,operation_write,'Throughput')
+            if bench != 'Hsbench':
+                x_axis, data_read_latency_B1 = get_IOsizewise_data(build1,bench,configs,operation_read,'Latency','Avg')
+                x_axis, data_write_latency_B1 = get_IOsizewise_data(build1,bench,configs,operation_write,'Latency','Avg')
+            else:
+                x_axis, data_read_latency_B1 = get_IOsizewise_data(build1,bench,configs,operation_read,'Latency')
+                x_axis, data_write_latency_B1 = get_IOsizewise_data(build1,bench,configs,operation_write,'Latency')
+
+            x_axis, data_read_IOPS_B1 = get_IOsizewise_data(build1,bench,configs,operation_read,'IOPS')
+            x_axis, data_write_IOPS_B1 = get_IOsizewise_data(build1,bench,configs,operation_write,'IOPS')
+            if bench == 'S3bench':
+                x_axis, data_read_TTFB_B1 = get_IOsizewise_data(build1,bench,configs,operation_read,'TTFB','Avg')
+                x_axis, data_write_TTFB_B1 = get_IOsizewise_data(build1,bench,configs,operation_write,'TTFB','Avg')
+
+            x_axis, data_read_throughput_B2 = get_IOsizewise_data(build2,bench,configs,operation_read,'Throughput')    
+            x_axis, data_write_throughput_B2 = get_IOsizewise_data(build2,bench,configs,operation_write,'Throughput')
+            if bench != 'Hsbench':
+                x_axis, data_read_latency_B2 = get_IOsizewise_data(build2,bench,configs,operation_read,'Latency','Avg')
+                x_axis, data_write_latency_B2 = get_IOsizewise_data(build2,bench,configs,operation_write,'Latency','Avg')
+            else:
+                x_axis, data_read_latency_B2 = get_IOsizewise_data(build2,bench,configs,operation_read,'Latency')
+                x_axis, data_write_latency_B2 = get_IOsizewise_data(build2,bench,configs,operation_write,'Latency')
+
+            x_axis, data_read_IOPS_B2 = get_IOsizewise_data(build2,bench,configs,operation_read,'IOPS')
+            x_axis, data_write_IOPS_B2 = get_IOsizewise_data(build2,bench,configs,operation_write,'IOPS')
+            if bench == 'S3bench':
+                x_axis, data_read_TTFB_B2 = get_IOsizewise_data(build2,bench,configs,operation_read,'TTFB','Avg')
+                x_axis, data_write_TTFB_B2 = get_IOsizewise_data(build2,bench,configs,operation_write,'TTFB','Avg')
+        
         else:
-            data_read_latency_B1 = get_Data(build1,bench,configs,operation_read,'Latency')
-            data_write_latency_B1 = get_Data(build1,bench,configs,operation_write,'Latency')
+            x_axis, data_read_throughput_B1 = get_buildwise_data(version,build1,bench,configs,operation_read,'Throughput')    
+            x_axis, data_write_throughput_B1 = get_buildwise_data(version,build1,bench,configs,operation_write,'Throughput')
+            if bench != 'Hsbench':
+                x_axis, data_read_latency_B1 = get_buildwise_data(version,build1,bench,configs,operation_read,'Latency','Avg')
+                x_axis, data_write_latency_B1 = get_buildwise_data(version,build1,bench,configs,operation_write,'Latency','Avg')
+            else:
+                x_axis, data_read_latency_B1 = get_buildwise_data(version,build1,bench,configs,operation_read,'Latency')
+                x_axis, data_write_latency_B1 = get_buildwise_data(version,build1,bench,configs,operation_write,'Latency')
 
-        data_read_IOPS_B1 = get_Data(build1,bench,configs,operation_read,'IOPS')
-        data_write_IOPS_B1 = get_Data(build1,bench,configs,operation_write,'IOPS')
-        if bench == 'S3bench':
-            data_read_TTFB_B1 = get_Data(build1,bench,configs,operation_read,'TTFB','Avg')
-            data_write_TTFB_B1 = get_Data(build1,bench,configs,operation_write,'TTFB','Avg')
+            x_axis, data_read_IOPS_B1 = get_buildwise_data(version,build1,bench,configs,operation_read,'IOPS')
+            x_axis, data_write_IOPS_B1 = get_buildwise_data(version,build1,bench,configs,operation_write,'IOPS')
+            if bench == 'S3bench':
+                x_axis, data_read_TTFB_B1 = get_buildwise_data(version,build1,bench,configs,operation_read,'TTFB','Avg')
+                x_axis, data_write_TTFB_B1 = get_buildwise_data(version,build1,bench,configs,operation_write,'TTFB','Avg')
 
-        data_read_throughput_B2 = get_Data(build2,bench,configs,operation_read,'Throughput')    
-        data_write_throughput_B2 = get_Data(build2,bench,configs,operation_write,'Throughput')
-        if bench != 'Hsbench':
-            data_read_latency_B2 = get_Data(build2,bench,configs,operation_read,'Latency','Avg')
-            data_write_latency_B2 = get_Data(build2,bench,configs,operation_write,'Latency','Avg')
-        else:
-            data_read_latency_B2 = get_Data(build2,bench,configs,operation_read,'Latency')
-            data_write_latency_B2 = get_Data(build2,bench,configs,operation_write,'Latency')
+            x_axis, data_read_throughput_B2 = get_buildwise_data(version,build2,bench,configs,operation_read,'Throughput')    
+            x_axis, data_write_throughput_B2 = get_buildwise_data(version,build2,bench,configs,operation_write,'Throughput')
+            if bench != 'Hsbench':
+                x_axis, data_read_latency_B2 = get_buildwise_data(version,build2,bench,configs,operation_read,'Latency','Avg')
+                x_axis, data_write_latency_B2 = get_buildwise_data(version,build2,bench,configs,operation_write,'Latency','Avg')
+            else:
+                x_axis, data_read_latency_B2 = get_buildwise_data(version,build2,bench,configs,operation_read,'Latency')
+                x_axis, data_write_latency_B2 = get_buildwise_data(version,build2,bench,configs,operation_write,'Latency')
 
-        data_read_IOPS_B2 = get_Data(build2,bench,configs,operation_read,'IOPS')
-        data_write_IOPS_B2 = get_Data(build2,bench,configs,operation_write,'IOPS')
-        if bench == 'S3bench':
-            data_read_TTFB_B2 = get_Data(build2,bench,configs,operation_read,'TTFB','Avg')
-            data_write_TTFB_B2 = get_Data(build2,bench,configs,operation_write,'TTFB','Avg')
+            x_axis, data_read_IOPS_B2 = get_buildwise_data(version,build2,bench,configs,operation_read,'IOPS')
+            x_axis, data_write_IOPS_B2 = get_buildwise_data(version,build2,bench,configs,operation_write,'IOPS')
+            if bench == 'S3bench':
+                x_axis, data_read_TTFB_B2 = get_buildwise_data(version,build2,bench,configs,operation_read,'TTFB','Avg')
+                x_axis, data_write_TTFB_B2 = get_buildwise_data(version,build2,bench,configs,operation_write,'TTFB','Avg')
 
         trace1 = go.Scatter(
             name = 'Read Throughput - {}'.format(build1),
-            x = objects,
+            x = x_axis,
             y = data_read_throughput_B1,
             hovertemplate = '<br>%{y} MBps<br>'+
                             '<b>Read Throughput - {}</b><extra></extra>'.format(build1),
@@ -293,7 +391,7 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
 
         trace2 = go.Scatter(
             name = 'Write Throughput - {}'.format(build1),
-            x = objects,
+            x = x_axis,
             y = data_write_throughput_B1,
             hovertemplate = '<br>%{y} MBps<br>'+
                             '<b>Write Throughput - {}</b><extra></extra>'.format(build1),  
@@ -302,7 +400,7 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
 
         trace3 = go.Scatter(
             name = 'Read Latency - {}'.format(build1),
-            x = objects,
+            x = x_axis,
             y = data_read_latency_B1,
             hovertemplate = '<br>%{y} ms<br>'+
                             '<b>Read Latency - {}</b><extra></extra>'.format(build1),
@@ -311,7 +409,7 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
 
         trace4 = go.Scatter(
             name = 'Write Latency - {}'.format(build1),
-            x = objects,
+            x = x_axis,
             y = data_write_latency_B1,
             hovertemplate = '<br>%{y} ms<br>'+
                             '<b>Write Latency - {}</b><extra></extra>'.format(build1),
@@ -320,7 +418,7 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
 
         trace5 = go.Scatter(
             name = 'Read IOPS - {}'.format(build1),
-            x = objects,
+            x = x_axis,
             y = data_read_IOPS_B1,
             hovertemplate = '<br>%{y}<br>'+
                             '<b>Read IOPS - {}</b><extra></extra>'.format(build1),
@@ -329,7 +427,7 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
 
         trace6 = go.Scatter(
             name = 'Write IOPS - {}'.format(build1),
-            x = objects,
+            x = x_axis,
             y = data_write_IOPS_B1,
             hovertemplate = '<br>%{y}<br>'+
                             '<b>Write IOPS - {}</b><extra></extra>'.format(build1),
@@ -339,7 +437,7 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
         if bench == 'S3bench':
             trace7 = go.Scatter(
                 name = 'Read TTFB - {}'.format(build1),
-                x = objects,
+                x = x_axis,
                 y = data_read_TTFB_B1,
             hovertemplate = '<br>%{y} ms<br>'+
                                 '<b>Read TTFB - {}</b><extra></extra>'.format(build1),     
@@ -348,7 +446,7 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
 
             trace8 = go.Scatter(
                 name = 'Write TTFB - {}'.format(build1),
-                x = objects,
+                x = x_axis,
                 y = data_write_TTFB_B1,
                 hovertemplate = '<br>%{y} ms<br>'+
                                 '<b>Write TTFB - {}</b><extra></extra>'.format(build1),
@@ -357,7 +455,7 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
 
         trace9 = go.Scatter(
             name = 'Read Throughput - {}'.format(build2),
-            x = objects,
+            x = x_axis,
             y = data_read_throughput_B2,
             hovertemplate = '<br>%{y} MBps<br>'+
                             '<b>Read Throughput - {}</b><extra></extra>'.format(build2),
@@ -366,7 +464,7 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
 
         trace10 = go.Scatter(
             name = 'Write Throughput - {}'.format(build2),
-            x = objects,
+            x = x_axis,
             y = data_write_throughput_B2,
             hovertemplate = '<br>%{y} MBps<br>'+
                             '<b>Write Throughput - {}</b><extra></extra>'.format(build2),
@@ -375,7 +473,7 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
 
         trace11 = go.Scatter(
             name = 'Read Latency - {}'.format(build2),
-            x = objects,
+            x = x_axis,
             y = data_read_latency_B2,
             hovertemplate = '<br>%{y} ms<br>'+
                             '<b>Read Latency - {}</b><extra></extra>'.format(build2), 
@@ -384,7 +482,7 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
 
         trace12 = go.Scatter(
             name = 'Write Latency - {}'.format(build2),
-            x = objects,
+            x = x_axis,
             y = data_write_latency_B2,
             hovertemplate = '<br>%{y} ms<br>'+
                             '<b>Write Latency - {}</b><extra></extra>'.format(build2),
@@ -393,7 +491,7 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
 
         trace13 = go.Scatter(
             name = 'Read IOPS - {}'.format(build2),
-            x = objects,
+            x = x_axis,
             y = data_read_IOPS_B2,
             hovertemplate = '<br>%{y}<br>'+
                             '<b>Read IOPS - {}</b><extra></extra>'.format(build2),        
@@ -402,7 +500,7 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
 
         trace14 = go.Scatter(
             name = 'Write IOPS - {}'.format(build2),
-            x = objects,
+            x = x_axis,
             y = data_write_IOPS_B2,
             hovertemplate = '<br>%{y}<br>'+
                             '<b>Write IOPS - {}</b><extra></extra>'.format(build2),
@@ -412,7 +510,7 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
         if bench == 'S3bench':
             trace15 = go.Scatter(
                 name = 'Read TTFB - {}'.format(build2),
-                x = objects,
+                x = x_axis,
                 y = data_read_TTFB_B2,
                 hovertemplate = '<br>%{y} ms<br>'+
                                 '<b>Read TTFB - {}</b><extra></extra>'.format(build2),
@@ -421,7 +519,7 @@ def get_all_traces(build1, build2, objects, bench, configs, operation):
 
             trace16 = go.Scatter(
                 name = 'Write TTFB - {}'.format(build2),
-                x = objects,
+                x = x_axis,
                 y = data_write_TTFB_B2,
                 hovertemplate = '<br>%{y} ms<br>'+
                                 '<b>Write TTFB - {}</b><extra></extra>'.format(build2),

@@ -410,7 +410,11 @@ Td {
     text-align: center;
     margin-right: 15px;
 }
-
+#Filter_Dropdown{
+    width: 100px;
+    text-align: left;
+    margin-right: 15px;
+}
 #Version_Dropdown, #Build1_Dropdown, #Build2_Dropdown, #Benchmark_Dropdown, #Operations_Dropdown{
     width: 200px;
     text-align: center;

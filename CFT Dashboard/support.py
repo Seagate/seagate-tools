@@ -28,16 +28,6 @@ def get_IO_size(IOsize,bench):
         return IOsize[:-2] + ' ' + IOsize[-2::].upper()
     else:
         return IOsize[:-2]+IOsize[-2::].lower().capitalize()
-<<<<<<< HEAD
-
-def get_non_configs_IOsize_data(build,bench,operation,param,subparam=None):
-    IOsize_list = get_x_axis('Object Size',bench)
-    # print("nc",build,bench,operation,param,subparam)
-
-    data = []
-    col = get_DB_details()
-
-=======
 
 def get_non_configs_IOsize_data(build,bench,operation,param,subparam=None):
     IOsize_list = get_x_axis('Object Size',bench)
@@ -46,7 +36,6 @@ def get_non_configs_IOsize_data(build,bench,operation,param,subparam=None):
     data = []
     col = get_DB_details()
 
->>>>>>> 12e280d... EOS-16198: V6 - Update for Object Size filter
     if subparam==None:
         for IOsize in IOsize_list:
             try: 
@@ -68,15 +57,6 @@ def get_non_configs_IOsize_data(build,bench,operation,param,subparam=None):
         data = (pd.Series(data) * 1000).tolist()
 
     return IOsize_list, data
-<<<<<<< HEAD
-
-def get_configs_IOsize_data(build,bench,operation,buckets,objects,sessions,param,subparam=None):
-    # print("c",build,bench,operation,buckets,objects,sessions,param,subparam)
-    data = []
-    col = get_DB_details()
-    IOsize_list = get_x_axis('Object Size',bench)
-
-=======
 
 def get_configs_IOsize_data(build,bench,operation,buckets,objects,sessions,param,subparam=None):
     print("c",build,bench,operation,buckets,objects,sessions,param,subparam)
@@ -84,7 +64,6 @@ def get_configs_IOsize_data(build,bench,operation,buckets,objects,sessions,param
     col = get_DB_details()
     IOsize_list = get_x_axis('Object Size',bench)
 
->>>>>>> 12e280d... EOS-16198: V6 - Update for Object Size filter
     if subparam==None:
         operation = operation.lower()
         for IOsize in IOsize_list:
@@ -150,11 +129,7 @@ def get_IOsizewise_data(build,bench,configs,operation,param,subparam=None):
         return get_configs_IOsize_data(build,bench,operation,Buckets,Objects,Sessions,param,subparam)
 
 def get_non_config_builds_data(version,IOsize,bench,configs,operation,param,subparam):
-<<<<<<< HEAD
-    # print("nc",version,IOsize,bench,configs,operation,param,subparam)
-=======
     print("nc",version,IOsize,bench,configs,operation,param,subparam)
->>>>>>> 12e280d... EOS-16198: V6 - Update for Object Size filter
     build_list = get_x_axis('builds',bench,version)
     # print(build_list)
     data = []
@@ -184,11 +159,7 @@ def get_non_config_builds_data(version,IOsize,bench,configs,operation,param,subp
         return build_list, (pd.Series(data) * 1000).tolist()
 
 def get_config_builds_data(version,IOsize,bench,operation,buckets,objects,sessions,param,subparam=None):
-<<<<<<< HEAD
-    # print("c",version,IOsize,bench,operation,buckets,objects,sessions,param,subparam)
-=======
     print("c",version,IOsize,bench,operation,buckets,objects,sessions,param,subparam)
->>>>>>> 12e280d... EOS-16198: V6 - Update for Object Size filter
     data = []
     col = get_DB_details()
     build_list = get_x_axis('builds',bench,version)

@@ -2,11 +2,7 @@
 CORTX CFT Dashboard Script
 @ Seagate Pune
 last Modification: 18 January 2020
-<<<<<<< HEAD
-Version: 5
-=======
 Version: 6
->>>>>>> 1fc93a37f90a0ae6bc1a9c9ac670b13422370d38
 '''
 ### ====================================================================================
 import re
@@ -410,18 +406,6 @@ tab1_content = dbc.Card(
             id = "ET6",
             ),
 
-            # dbc.Row([dcc.Dropdown(
-            #         id = "Bucket_Ops_Dropdown",
-            #         options = bucketOps,
-            #         placeholder="Select Bucket Operation",
-            #         style = {'width': '250px', 'verticalAlign': 'middle',"margin-right": "15px"}, #,'align-items': 'center', 'justify-content': 'center'
-            #     ),
-            # html.P(html.Em("⟽ Select one of the bucket operations to view statistics."),className="card-text",),
-    
-            # ],justify="center", align="center"
-            # ),
-            
-
             dbc.Table(bucketops_caption + bucketops_head + [html.Tbody([b1,b2,b3,b4,b5,b6,b7,b9,b8,b10,b11,b12,b13,b14,b15,b16,b18,b17,\
                     b19,b20,b21,b22,b23,b24,b25,b27,b26])],
             className = "caption-Top col-xs-6",
@@ -691,6 +675,7 @@ tab4_content = dbc.Card(
                 dcc.Graph(id='plot_IOPS'),
                 dcc.Graph(id='plot_TTFB'),
                 dcc.Graph(id='plot'),
+                html.P('Statistics are displayed only for the builds on which Performance test suite has ran.',className="card-text",style={'margin-top':'10px'})
             ],
             justify='center',style={'padding':'10px'})
         ])
@@ -1768,14 +1753,6 @@ def update_exe_table_3(clicks, pathname, input_value, enter_input):
             long_count_f = mapi.count_documents({'build': build,'deleted':False, 'feature': 'Longevity', 'testResult':'FAIL'})
         except:
             long_count_f = "-"
-        # try:
-        #     perf_count_p = mapi.count_documents({'build': build,'deleted':False, 'feature': 'Performance', 'testResult':'PASS'})
-        # except:
-        #     perf_count_p = "-"
-        # try:
-        #     perf_count_f = mapi.count_documents({'build': build,'deleted':False, 'feature': 'Performance', 'testResult':'FAIL'})
-        # except:
-        #     perf_count_f = "-"
         try:
             uc_count_p = mapi.count_documents({'build': build,'deleted':False, 'feature': 'Usecases', 'testResult':'PASS'})
         except:
@@ -1808,10 +1785,6 @@ def update_exe_table_3(clicks, pathname, input_value, enter_input):
             l_total = long_count_p + long_count_f
         except:
             l_total = "-"
-        # try:
-        #     p_total = perf_count_p + perf_count_f
-        # except:
-        #     p_total = "-"
         try:
             u_total = uc_count_p + uc_count_f
         except:
@@ -2104,7 +2077,6 @@ def update_eng_table_1(clicks, pathname, input_value, enter_input):
             product_trivial_count = len(mapi.find_distinct("defectID",{'build':build,'deleted':False, 'defectPriority' : 'Trivial','testResult':'FAIL'}))
         except:
             product_trivial_count = "-"
-        #test_total = mapi.count_documents({'build':build,'deleted':False, "testLabels" : 'EOS_TA'})
         
         try:
             product_total = 0

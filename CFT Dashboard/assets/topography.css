@@ -425,3 +425,8 @@ Td {
     text-align: center;
     margin-right: 15px;
 }
+#Build1_Dropdown, #Build2_Dropdown, #Benchmark_Dropdown, #Operations_Dropdown{
+    width: 150px;
+    text-align: center;
+    margin-right: 15px;
+}

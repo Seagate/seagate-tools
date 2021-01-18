@@ -2,7 +2,11 @@
 CORTX CFT Dashboard Script
 @ Seagate Pune
 last Modification: 18 January 2020
+<<<<<<< HEAD
 Version: 5
+=======
+Version: 6
+>>>>>>> 1fc93a37f90a0ae6bc1a9c9ac670b13422370d38
 '''
 ### ====================================================================================
 import re

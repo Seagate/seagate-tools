@@ -417,6 +417,14 @@ Td {
 }
 #Version_Dropdown{
     width: 150px;
+<<<<<<< HEAD
+    text-align: center;
+    margin-right: 15px;
+}
+#Build1_Dropdown, #Build2_Dropdown, #Benchmark_Dropdown, #Operations_Dropdown{
+    width: 150px;
+=======
+>>>>>>> 1fc93a37f90a0ae6bc1a9c9ac670b13422370d38
     text-align: center;
     margin-right: 15px;
 }

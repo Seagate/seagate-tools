@@ -1,7 +1,7 @@
 '''
 CORTX CFT Dashboard Script
 @ Seagate Pune
-last Modification: 20 October 2020
+last Modification: 18 January 2020
 Version: 5
 '''
 ### ====================================================================================
@@ -42,7 +42,7 @@ perfDb = dd.get_database()
 username = '752263' # <insert your JIRA Username here > # input("JIRA username: ")
 password = 'seaSAM!369' # <insert your JIRA password here > # getpass.getpass("JIRA password: ")
 
-__version__ = "5.28"
+__version__ = "6.11"
 ### ====================================================================================
 
 @server.route('/favicon.ico')
@@ -616,9 +616,9 @@ versions = [
 ]
 #### -------------------------------------------------------------------------------------------
 operations = [
-    {'label': 'Read', 'value':'read'},
-    {'label': 'Write', 'value':'write'},
     {'label': 'Both', 'value':'Both'},
+    {'label': 'Read', 'value':'read'},
+    {'label': 'Write', 'value':'write'},    
 ]
 benchmarks = [
     {'label': 'S3bench', 'value':'S3bench'},
@@ -632,7 +632,7 @@ config_list = [
 ]
 
 Xfilter = [
-    {'label': 'IO Size', 'value':'IOSize'},
+    {'label': 'Object Size', 'value':'Object Size'},
     {'label': 'Build', 'value':'build'},
 ]
 tab4_content = dbc.Card(
@@ -642,40 +642,43 @@ tab4_content = dbc.Card(
         html.Div([dbc.Row(
             [
                 dcc.Dropdown(
+                    id = "Version_Dropdown",
+                    options = versions,
+                    placeholder="Build Version",
+                ),
+
+                dcc.Dropdown(
                     id = "Filter_Dropdown",
                     options = Xfilter,
                     placeholder="Filter by",
                 ),
 
                 dcc.Dropdown(
-                    id = "Version_Dropdown",
-                    options = versions,
-                    placeholder="Select Version",
-                ),
-
-                dcc.Dropdown(
                     id = 'Build1_Dropdown',
-                    placeholder="Select Build",
+                    placeholder="first choice",
                 ),
             
                 dcc.Dropdown(
                     id = 'Build2_Dropdown',
-                    placeholder="Compare Build with",
+                    placeholder="Compare with",
                 ),
                 dcc.Dropdown(
                     id = "Benchmark_Dropdown",
                     options = benchmarks,
-                    placeholder="Choose Benchmark",
+                    placeholder="Benchmark",
+                    value = 'S3bench'
                 ),
                 dcc.Dropdown(
                     id = 'configs_Dropdown',
                     options = config_list,
-                    placeholder="Choose Configurations",
+                    placeholder="Choose configurations",
+                    style={'display':'none'}
                     ),
                 dcc.Dropdown(
                     id = "Operations_Dropdown",
                     options = operations,
-                    placeholder="Choose Filter",
+                    placeholder="Operation",
+                    value = 'Both'
                 ),
                 dbc.Button("Get!", id="get_graph_button", color="success",style={'height': '35px'}),
 
@@ -992,29 +995,43 @@ def versionCallback(Xfilter, value):
         else:
             return [build_options_cortx1, build_options_cortx1]
     else:
-        IOsize_list = get_x_axis('IOsize')
-        IOsize_options = [
-             {'label' : IOsize, 'value' : IOsize} for IOsize in IOsize_list
+        Objsize_list = get_x_axis('Object Size')
+        Objsize_options = [
+             {'label' : Objsize, 'value' : Objsize} for Objsize in Objsize_list
         ]
-        return [IOsize_options, IOsize_options]
+        return [Objsize_options, Objsize_options]
 
     return [None, None]
 #### ----------------------------------------------------------------------------------------------
 @app.callback(
     [dash.dependencies.Output('configs_Dropdown', 'style'),
     dash.dependencies.Output('plot_TTFB', 'style'),
-    dash.dependencies.Output('perf_graphs_heading', 'children')],
-    [dash.dependencies.Input('Benchmark_Dropdown', 'value')]
+    dash.dependencies.Output('perf_graphs_heading', 'children'),
+    dash.dependencies.Output('Build1_Dropdown', 'placeholder'),
+    dash.dependencies.Output('Build2_Dropdown', 'style'),],
+    [dash.dependencies.Input('Benchmark_Dropdown', 'value'),
+    dash.dependencies.Input('Filter_Dropdown', 'value')]
 )
-def update_configs(bench):
+def update_configs(bench, label):
     if bench != 'S3bench':
-        state = {'display': 'block'}
         graph_state = {'display': 'none'}
+        configs_state = {'display': 'block'}
     else:
-        state = {'display': 'none'}
-        graph_state = {'display': 'block'}
+        configs_state = {'display': 'none'}
+        graph_state = {'display': 'none'}
     heading_String = html.Th("Graphical representation of {} Performance data".format(bench), style={'text-align':'center'})
-    return [state,graph_state,heading_String]
+    
+    if label == None:
+        placeholder = 'Choose prev filter'
+    else:
+        placeholder = "Select " + label
+
+    if label == 'Object Size':
+        dropdown_state = {'display': 'none'}
+    else:
+        dropdown_state = {'display': 'block'}
+
+    return [configs_state,graph_state,heading_String, placeholder,dropdown_state]
 
 @app.callback(
     dash.dependencies.Output('plot', 'figure'),
@@ -1027,12 +1044,12 @@ def update_configs(bench):
     dash.dependencies.Input('Operations_Dropdown', 'value')],
 )
 def update_all(xfilter, version, build1, build2, bench, configs, operation):
-    if not (build1 and operation):
+    if not build1:
         raise PreventUpdate
-    if build1 and operation and (build2 == None):
-        build2 = build1
-    if not bench:
-        bench = 'S3bench'
+    if not operation:
+        operation = 'Both'
+    # if build1 and operation and (build2 == None):
+    #    build2 = build1
     if (bench != 'S3bench') and not configs:
         raise PreventUpdate
     
@@ -1056,16 +1073,19 @@ def update_all(xfilter, version, build1, build2, bench, configs, operation):
 def update_throughput(xfilter, version, build1, build2, bench, configs, operation):
     print("Attempt for build {} {}".format(build1, build2))
     param = 'Throughput'
-    
-    if not (build1 and operation):
+    if not build1:
         raise PreventUpdate
-    if build1 and operation and (build2 == None):
-        build2 = build1
-    if not bench:
-        bench = 'S3bench'
+    if not operation:
+        operation = 'Both'
+    # if build1 and operation and (build2 == None):
+    #     build2 = build1
     if (bench != 'S3bench') and not configs:
         raise PreventUpdate
-    
+    if xfilter == 'build': 
+        titleText = 'Object Sizes' 
+    else:
+        titleText = 'Builds'
+ 
     operation_read = 'read'
     operation_write = 'write'
     if bench == 'S3bench':
@@ -1096,15 +1116,16 @@ def update_throughput(xfilter, version, build1, build2, bench, configs, operatio
                             '<b>{} - {}</b><extra></extra>'.format(operation, build1),
         )
 
-        trace2 = go.Scatter(
+        fig.add_trace(trace1)
+        if build2 != None:
+            trace2 = go.Scatter(
             name = '{} {} - {}'.format(operation, param, build2),
             x = x_axis,
             y= data_B2,
             hovertemplate = '<br>%{y} MBps<br>'+
                             '<b>{} - {}</b><extra></extra>'.format(operation, build2),
-        )
-        fig.add_trace(trace1)
-        fig.add_trace(trace2)
+            )
+            fig.add_trace(trace2)
 
     else:
         if xfilter == 'build':
@@ -1133,25 +1154,28 @@ def update_throughput(xfilter, version, build1, build2, bench, configs, operatio
             hovertemplate = '<br>%{y} MBps<br>'+
                             '<b>Write - {}</b><extra></extra>'.format(build1),
         )
-        trace3 = go.Scatter(
-            name = 'Read {} - {}'.format(param, build2),
-            x = x_axis,
-            y=  data_read_B2,
-            hovertemplate = '<br>%{y} MBps<br>'+
-                            '<b>Read - {}</b><extra></extra>'.format(build2),      
-        )
-        trace4 = go.Scatter(
-            name = 'Write {} - {}'.format(param, build2),
-            x = x_axis,
-            y= data_write_B2,
-            hovertemplate = '<br>%{y} MBps<br>'+
-                            '<b>Write - {}</b><extra></extra>'.format(build2),
-        )
+
+        if build2 != None:
+            trace3 = go.Scatter(
+                name = 'Read {} - {}'.format(param, build2),
+                x = x_axis,
+                y=  data_read_B2,
+                hovertemplate = '<br>%{y} MBps<br>'+
+                                '<b>Read - {}</b><extra></extra>'.format(build2),      
+            )
+            trace4 = go.Scatter(
+                name = 'Write {} - {}'.format(param, build2),
+                x = x_axis,
+                y= data_write_B2,
+                hovertemplate = '<br>%{y} MBps<br>'+
+                                '<b>Write - {}</b><extra></extra>'.format(build2),
+            )
+            fig.add_trace(trace3)
+            fig.add_trace(trace4)
 
         fig.add_trace(trace1)
         fig.add_trace(trace2)
-        fig.add_trace(trace3)
-        fig.add_trace(trace4)
+        
     fig.update_layout(
         autosize=True,
         showlegend = True,
@@ -1163,7 +1187,7 @@ def update_throughput(xfilter, version, build1, build2, bench, configs, operatio
             title_text="Data (MBps)",
             titlefont=dict(size=16)),
         xaxis=dict(
-            title_text="Object Sizes",
+            title_text=titleText,
             titlefont=dict(size=16)
         ),        
     )
@@ -1181,14 +1205,18 @@ def update_throughput(xfilter, version, build1, build2, bench, configs, operatio
 )
 def update_latency(xfilter, version, build1, build2, bench, configs, operation):
     param = 'Latency'
-    if not (build1 and operation):
+    if not build1:
         raise PreventUpdate
-    if build1 and operation and (build2 == None):
-        build2 = build1
-    if not bench:
-        bench = 'S3bench'
+    if not operation:
+        operation = 'Both'
+    # if build1 and operation and (build2 == None):
+        # build2 = build1
     if (bench != 'S3bench') and not configs:
         raise PreventUpdate
+    if xfilter == 'build': 
+        titleText = 'Object Sizes' 
+    else:
+        titleText = 'Builds'
 
     operation_read = 'read'
     operation_write = 'write'
@@ -1228,15 +1256,17 @@ def update_latency(xfilter, version, build1, build2, bench, configs, operation):
                             '<b>{} - {}</b><extra></extra>'.format(operation, build1),
         )
 
-        trace2 = go.Scatter(
+        fig.add_trace(trace1)
+
+        if build2 != None:
+            trace2 = go.Scatter(
             name = '{} {} - {}'.format(operation, param, build2),
             x = x_axis,
             y= data_B2,
             hovertemplate = '<br>%{y} ms<br>'+
                             '<b>{} - {}</b><extra></extra>'.format(operation, build2),
-        )
-        fig.add_trace(trace1)
-        fig.add_trace(trace2)
+            )
+            fig.add_trace(trace2)
 
     else:
         if xfilter == 'build':
@@ -1277,27 +1307,30 @@ def update_latency(xfilter, version, build1, build2, bench, configs, operation):
             hovertemplate = '<br>%{y} ms<br>'+
                             '<b>Write - {}</b><extra></extra>'.format(build1),      
         )
-
-        trace3 = go.Scatter(
-            name = 'Read {} - {}'.format(param, build2),
-            x = x_axis,
-            y=  data_read_B2,
-            hovertemplate = '<br>%{y} ms<br>'+
-                            '<b>Read - {}</b><extra></extra>'.format(build2),
-        )
-
-        trace4 = go.Scatter(
-            name = 'Write {} - {}'.format(param, build2),
-            x = x_axis,
-            y= data_write_B2,
-            hovertemplate = '<br>%{y} ms<br>'+
-                            '<b>Write - {}</b><extra></extra>'.format(build2),
-        )
-    
         fig.add_trace(trace1)
         fig.add_trace(trace2)
-        fig.add_trace(trace3)
-        fig.add_trace(trace4)
+
+        if build2 != None:
+            trace3 = go.Scatter(
+                name = 'Read {} - {}'.format(param, build2),
+                x = x_axis,
+                y=  data_read_B2,
+                hovertemplate = '<br>%{y} ms<br>'+
+                                '<b>Read - {}</b><extra></extra>'.format(build2),
+            )
+
+            trace4 = go.Scatter(
+                name = 'Write {} - {}'.format(param, build2),
+                x = x_axis,
+                y= data_write_B2,
+                hovertemplate = '<br>%{y} ms<br>'+
+                                '<b>Write - {}</b><extra></extra>'.format(build2),
+            )
+            fig.add_trace(trace3)
+            fig.add_trace(trace4)
+
+        
+        
     fig.update_layout(
         autosize=True,
         showlegend = True,
@@ -1309,7 +1342,7 @@ def update_latency(xfilter, version, build1, build2, bench, configs, operation):
             title_text="Data (ms)",
             titlefont=dict(size=16)),
         xaxis=dict(
-            title_text="Object Sizes",
+            title_text=titleText,
             titlefont=dict(size=16)
         )
     )
@@ -1327,14 +1360,18 @@ def update_latency(xfilter, version, build1, build2, bench, configs, operation):
 )
 def update_IOPS(xfilter, version, build1, build2, bench, configs, operation):
     param = 'IOPS'
-    if not (build1 and operation):
+    if not build1:
         raise PreventUpdate
-    if build1 and operation and (build2 == None):
-        build2 = build1
-    if not bench:
-        bench = 'S3bench'
+    if not operation:
+        operation = 'Both'
+    # if build1 and operation and (build2 == None):
+    #     build2 = build1
     if (bench != 'S3bench') and not configs:
         raise PreventUpdate
+    if xfilter == 'build': 
+        titleText = 'Object Sizes' 
+    else:
+        titleText = 'Builds'
 
     operation_read = 'read'
     operation_write = 'write'
@@ -1366,15 +1403,18 @@ def update_IOPS(xfilter, version, build1, build2, bench, configs, operation):
             hovertemplate = '<br>%{y}<br>'+
                             '<b>{} - {}</b><extra></extra>'.format(operation, build1),
         )
-        trace2 = go.Scatter(
+        
+        fig.add_trace(trace1)
+
+        if build2 != None:
+            trace2 = go.Scatter(
             name = '{} {} - {}'.format(operation, param, build2),
             x = x_axis,
             y= data_B2,
             hovertemplate = '<br>%{y}<br>'+
                             '<b>{} - {}</b><extra></extra>'.format(operation, build2),
-        )
-        fig.add_trace(trace1)
-        fig.add_trace(trace2)
+            )
+            fig.add_trace(trace2)
 
     else:
         if xfilter == 'build':
@@ -1403,25 +1443,27 @@ def update_IOPS(xfilter, version, build1, build2, bench, configs, operation):
                             '<b>Write - {}</b><extra></extra>'.format(build1),
             
         )
-        trace3 = go.Scatter(
-            name = 'Read {} - {}'.format(param, build2),
-            x = x_axis,
-            y=  data_read_B2,
-            hovertemplate = '<br>%{y}<br>'+
-                            '<b>Read - {}</b><extra></extra>'.format(build2),
-            
-        )
-        trace4 = go.Scatter(
-            name = 'Write {} - {}'.format(param, build2),
-            x = x_axis,
-            y= data_write_B2,
-            hovertemplate = '<br>%{y}<br>'+
-                            '<b>Write - {}</b><extra></extra>'.format(build2),
-        )
         fig.add_trace(trace1)
         fig.add_trace(trace2)
-        fig.add_trace(trace3)
-        fig.add_trace(trace4)
+
+        if build2 != None:
+            trace3 = go.Scatter(
+                name = 'Read {} - {}'.format(param, build2),
+                x = x_axis,
+                y=  data_read_B2,
+                hovertemplate = '<br>%{y}<br>'+
+                                '<b>Read - {}</b><extra></extra>'.format(build2),
+                
+            )
+            trace4 = go.Scatter(
+                name = 'Write {} - {}'.format(param, build2),
+                x = x_axis,
+                y= data_write_B2,
+                hovertemplate = '<br>%{y}<br>'+
+                                '<b>Write - {}</b><extra></extra>'.format(build2),
+            )
+            fig.add_trace(trace3)
+            fig.add_trace(trace4)
 
     fig.update_layout(
         autosize=True,
@@ -1434,7 +1476,7 @@ def update_IOPS(xfilter, version, build1, build2, bench, configs, operation):
             title_text="Data",
             titlefont=dict(size=16)),
         xaxis=dict(
-            title_text="Object Sizes",
+            title_text=titleText,
             titlefont=dict(size=16)
         )
     )
@@ -1452,13 +1494,19 @@ def update_IOPS(xfilter, version, build1, build2, bench, configs, operation):
 )
 def update_TTFB(xfilter, version, build1, build2, bench, configs, operation):
     param = 'TTFB'
-    if not (build1 and operation):
+    if not build1:
         raise PreventUpdate
+    if not operation:
+        operation = 'Both'
     if build1 and operation and (build2 == None):
         build2 = build1
     if not bench:
         bench = 'S3bench'
-    
+    if xfilter == 'build': 
+        titleText = 'Object Sizes' 
+    else:
+        titleText = 'Builds'
+
     fig = go.Figure()    
     if bench != 'S3bench':
         return fig
@@ -1487,16 +1535,17 @@ def update_TTFB(xfilter, version, build1, build2, bench, configs, operation):
             hovertemplate = '<br>%{y} ms<br>'+
                             '<b>{} - {}</b><extra></extra>'.format(operation, build1),
         )
-
-        trace2 = go.Scatter(
-            name = '{} {} - {}'.format(operation, param, build2),
-            x = x_axis,
-            y= data_B2,
-            hovertemplate = '<br>%{y} ms<br>'+
-                            '<b>{} - {}</b><extra></extra>'.format(operation, build2),
-        )
         fig.add_trace(trace1)
-        fig.add_trace(trace2)
+
+        if build2 != None:
+            trace2 = go.Scatter(
+                name = '{} {} - {}'.format(operation, param, build2),
+                x = x_axis,
+                y= data_B2,
+                hovertemplate = '<br>%{y} ms<br>'+
+                                '<b>{} - {}</b><extra></extra>'.format(operation, build2),
+            )
+            fig.add_trace(trace2)
 
     else:
         if xfilter == 'build':
@@ -1526,27 +1575,29 @@ def update_TTFB(xfilter, version, build1, build2, bench, configs, operation):
             hovertemplate = '<br>%{y} ms<br>'+
                             '<b>Write - {}</b><extra></extra>'.format(build1),   
         )
-        trace3 = go.Scatter(
-            name = 'Read {} - {}'.format(param, build2),
-            x = x_axis,
-            y=  data_read_B2,
-            hoverinfo='skip',
-            hovertemplate = '<br>%{y} ms<br>'+
-                            '<b>Read - {}</b><extra></extra>'.format(build2),
-        )
-        trace4 = go.Scatter(
-            name = 'Write {} - {}'.format(param, build2),
-            x = x_axis,
-            y= data_write_B2,
-            hoverinfo='skip',
-            hovertemplate = '<br>%{y} ms<br>'+
-                            '<b>Write - {}</b><extra></extra>'.format(build2),
-        )
-        fig = go.Figure()
         fig.add_trace(trace1)
         fig.add_trace(trace2)
-        fig.add_trace(trace3)
-        fig.add_trace(trace4)
+
+        if build2 != None:
+            trace3 = go.Scatter(
+                name = 'Read {} - {}'.format(param, build2),
+                x = x_axis,
+                y=  data_read_B2,
+                hoverinfo='skip',
+                hovertemplate = '<br>%{y} ms<br>'+
+                                '<b>Read - {}</b><extra></extra>'.format(build2),
+            )
+            trace4 = go.Scatter(
+                name = 'Write {} - {}'.format(param, build2),
+                x = x_axis,
+                y= data_write_B2,
+                hoverinfo='skip',
+                hovertemplate = '<br>%{y} ms<br>'+
+                                '<b>Write - {}</b><extra></extra>'.format(build2),
+            )
+            fig.add_trace(trace3)
+            fig.add_trace(trace4)
+
     fig.update_layout(
         autosize=True,
         showlegend = True,
@@ -1558,7 +1609,7 @@ def update_TTFB(xfilter, version, build1, build2, bench, configs, operation):
             title_text="Data (ms)",
             titlefont=dict(size=16)),
         xaxis=dict(
-            title_text="Object Sizes",
+            title_text=titleText,
             titlefont=dict(size=16)
         )
     )
@@ -5338,6 +5389,6 @@ def update_bucketops3(parameter,clicks, pathname, input_value, enter_input):
 
 if __name__ == '__main__':
     # run on port 5002
-    app.run_server(host='0.0.0.0', port=5002, threaded=True, debug=True)
+    app.run_server(host='0.0.0.0', port=5002, threaded=True, debug=False)
 
 #### Application ends ==============================================================================

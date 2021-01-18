@@ -1,8 +1,8 @@
 '''
 CORTX CFT Dashboard Script
 @ Seagate Pune
-last Modification: 20 October 2020
-Version: 5
+last Modification: 18 January 2020
+Version: 6
 '''
 ### ====================================================================================
 import re
@@ -29,7 +29,7 @@ import plotly.graph_objs as go
 import mongodbAPIs as mapi
 import timingAPIs
 import db_details as dd
-from support import get_DB_details, get_Data, get_Data
+from support import get_DB_details, get_IOsizewise_data, get_x_axis, get_buildwise_data
 
 ### ====================================================================================
 # global declarations
@@ -42,7 +42,7 @@ perfDb = dd.get_database()
 username = # <insert your JIRA Username here > # input("JIRA username: ")
 password = # <insert your JIRA password here > # getpass.getpass("JIRA password: ")
 
-__version__ = "5.28"
+__version__ = "6.11"
 ### ====================================================================================
 
 @server.route('/favicon.ico')
@@ -613,13 +613,12 @@ versions = [
         {'label' : 'Release', 'value' : 'release'},
         {'label' : 'Cortx-1.0', 'value' : 'cortx1'},
         {'label' : 'Main', 'value' : 'main', 'disabled': True}
-
 ]
 #### -------------------------------------------------------------------------------------------
 operations = [
-    {'label': 'Read', 'value':'read'},
-    {'label': 'Write', 'value':'write'},
     {'label': 'Both', 'value':'Both'},
+    {'label': 'Read', 'value':'read'},
+    {'label': 'Write', 'value':'write'},    
 ]
 benchmarks = [
     {'label': 'S3bench', 'value':'S3bench'},
@@ -631,42 +630,55 @@ config_list = [
         {'label' : '10 Buckets, 100 Objects, 100 Sessions', 'value' : 'option2'},
         {'label' : '50 Buckets, 100 Objects, 100 Sessions', 'value' : 'option3'}
 ]
+
+Xfilter = [
+    {'label': 'Object Size', 'value':'Object Size'},
+    {'label': 'Build', 'value':'build'},
+]
 tab4_content = dbc.Card(
     dbc.CardBody(
         [ 
         html.Th("Graphical representation of S3bench Performance data", id= 'perf_graphs_heading',style={'text-align':'center'}),
         html.Div([dbc.Row(
             [
-                
                 dcc.Dropdown(
                     id = "Version_Dropdown",
                     options = versions,
-                    placeholder="Select Version",
+                    placeholder="Build Version",
+                ),
+
+                dcc.Dropdown(
+                    id = "Filter_Dropdown",
+                    options = Xfilter,
+                    placeholder="Filter by",
                 ),
 
                 dcc.Dropdown(
                     id = 'Build1_Dropdown',
-                    placeholder="Select Build",
+                    placeholder="first choice",
                 ),
             
                 dcc.Dropdown(
                     id = 'Build2_Dropdown',
-                    placeholder="Compare Build with",
+                    placeholder="Compare with",
                 ),
                 dcc.Dropdown(
                     id = "Benchmark_Dropdown",
                     options = benchmarks,
-                    placeholder="Choose Benchmark",
+                    placeholder="Benchmark",
+                    value = 'S3bench'
                 ),
                 dcc.Dropdown(
                     id = 'configs_Dropdown',
                     options = config_list,
-                    placeholder="Choose Configurations",
+                    placeholder="Choose configurations",
+                    style={'display':'none'}
                     ),
                 dcc.Dropdown(
                     id = "Operations_Dropdown",
                     options = operations,
-                    placeholder="Choose Filter",
+                    placeholder="Operation",
+                    value = 'Both'
                 ),
                 dbc.Button("Get!", id="get_graph_button", color="success",style={'height': '35px'}),
 
@@ -700,18 +712,6 @@ tabs = dbc.Tabs(
 
 #### ==============================================================================================
 # Build number input field on top
-
-build_input_group = dbc.Row(
-    dbc.Col(dbc.InputGroup([
-        dbc.Input(id="table_build_input",
-                  placeholder="Input build version", debounce=True),
-        dbc.InputGroupAddon(
-            dbc.Button("Get Build Report", id="table_submit_button", color="success"),
-            addon_type="postpend",
-        )], style={'margin': 10}),
-        width=4),
-    justify="center"
-)
 
 build_report_header = dbc.Jumbotron(html.H4(html.Em("... looking for build number!")),
                         id="build_report_header",
@@ -962,69 +962,94 @@ def fetch_build_for_dropdown(value):
 ### ===============================================================================================
 # Tab 4 : Performance
 ### ===============================================================================================
+
 @app.callback(
-    #dash.dependencies.Output('dd-output-container', 'children'),
     [dash.dependencies.Output('Build1_Dropdown', 'options'),
     dash.dependencies.Output('Build2_Dropdown', 'options'),],
-    [dash.dependencies.Input('Version_Dropdown', 'value')],
+    [dash.dependencies.Input('Filter_Dropdown', 'value'),
+    dash.dependencies.Input('Version_Dropdown', 'value'),],
 )
-def versionCallback(value):
-    if not value:
+def versionCallback(Xfilter, value):
+    if not Xfilter:
         raise PreventUpdate
-    beta_chain = [ele for ele in reversed(dd.get_chain('beta'))]
-    release_chain = [ele for ele in reversed(dd.get_chain('release'))]
-    cortx1_chain = [ele for ele in reversed(dd.get_chain('cortx1'))]
-    build_options_beta = [
-            {'label' : build, 'value' : build} for build in beta_chain
+    if Xfilter == 'build':
+        if not value:
+            raise PreventUpdate
+ 
+        beta_chain = [ele for ele in reversed(dd.get_chain('beta'))]
+        release_chain = [ele for ele in reversed(dd.get_chain('release'))]
+        cortx1_chain = [ele for ele in reversed(dd.get_chain('cortx1'))]
+        build_options_beta = [
+                {'label' : build, 'value' : build} for build in beta_chain
+            ]
+        build_options_release = [
+                {'label' : build, 'value' : build} for build in release_chain
+            ]
+        build_options_cortx1 = [
+            {'label' : build, 'value' : build} for build in cortx1_chain
         ]
-    build_options_release = [
-            {'label' : build, 'value' : build} for build in release_chain
-        ]
-    build_options_cortx1 = [
-        {'label' : build, 'value' : build} for build in cortx1_chain
-    ]
-    if value == 'beta':
-        return [build_options_beta, build_options_beta]
-    elif value == 'release':
-        return [build_options_release, build_options_release]
+        if value == 'beta':
+            return [build_options_beta, build_options_beta]
+        elif value == 'release':
+            return [build_options_release, build_options_release]
+        else:
+            return [build_options_cortx1, build_options_cortx1]
     else:
-        return [build_options_cortx1, build_options_cortx1]
-
+        Objsize_list = get_x_axis('Object Size')
+        Objsize_options = [
+             {'label' : Objsize, 'value' : Objsize} for Objsize in Objsize_list
+        ]
+        return [Objsize_options, Objsize_options]
 
     return [None, None]
 #### ----------------------------------------------------------------------------------------------
 @app.callback(
     [dash.dependencies.Output('configs_Dropdown', 'style'),
     dash.dependencies.Output('plot_TTFB', 'style'),
-    dash.dependencies.Output('perf_graphs_heading', 'children')],
-    [dash.dependencies.Input('Benchmark_Dropdown', 'value')]
+    dash.dependencies.Output('perf_graphs_heading', 'children'),
+    dash.dependencies.Output('Build1_Dropdown', 'placeholder'),
+    dash.dependencies.Output('Build2_Dropdown', 'style'),],
+    [dash.dependencies.Input('Benchmark_Dropdown', 'value'),
+    dash.dependencies.Input('Filter_Dropdown', 'value')]
 )
-def update_configs(bench):
+def update_configs(bench, label):
     if bench != 'S3bench':
-        state = {'display': 'block'}
         graph_state = {'display': 'none'}
+        configs_state = {'display': 'block'}
     else:
-        state = {'display': 'none'}
-        graph_state = {'display': 'block'}
+        configs_state = {'display': 'none'}
+        graph_state = {'display': 'none'}
     heading_String = html.Th("Graphical representation of {} Performance data".format(bench), style={'text-align':'center'})
-    return [state,graph_state,heading_String]
+    
+    if label == None:
+        placeholder = 'Choose prev filter'
+    else:
+        placeholder = "Select " + label
+
+    if label == 'Object Size':
+        dropdown_state = {'display': 'none'}
+    else:
+        dropdown_state = {'display': 'block'}
+
+    return [configs_state,graph_state,heading_String, placeholder,dropdown_state]
 
 @app.callback(
     dash.dependencies.Output('plot', 'figure'),
-    [dash.dependencies.Input('Build1_Dropdown', 'value'),
+    [dash.dependencies.Input('Filter_Dropdown', 'value'),
+    dash.dependencies.Input('Version_Dropdown', 'value'),
+    dash.dependencies.Input('Build1_Dropdown', 'value'),
     dash.dependencies.Input('Build2_Dropdown', 'value'),
     dash.dependencies.Input('Benchmark_Dropdown', 'value'),
     dash.dependencies.Input('configs_Dropdown', 'value'),
     dash.dependencies.Input('Operations_Dropdown', 'value')],
 )
-def update_all(build1, build2, bench, configs, operation):
-    objects = ['4KB','100KB','1MB','5MB','36MB','64MB','128MB','256MB']
-    if not (build1 and operation):
+def update_all(xfilter, version, build1, build2, bench, configs, operation):
+    if not build1:
         raise PreventUpdate
-    if build1 and operation and (build2 == None):
-        build2 = build1
-    if not bench:
-        bench = 'S3bench'
+    if not operation:
+        operation = 'Both'
+    # if build1 and operation and (build2 == None):
+    #    build2 = build1
     if (bench != 'S3bench') and not configs:
         raise PreventUpdate
     
@@ -1033,30 +1058,34 @@ def update_all(build1, build2, bench, configs, operation):
         operation = operation.capitalize()
 
     from support import get_all_traces
-    return get_all_traces(build1, build2, objects, bench, configs, operation)
+    return get_all_traces(xfilter, version, build1, build2, bench, configs, operation)
 #### ----------------------------------------------------------------------------------------------
 @app.callback(
     dash.dependencies.Output('plot_Throughput', 'figure'),
-    [dash.dependencies.Input('Build1_Dropdown', 'value'),
+    [dash.dependencies.Input('Filter_Dropdown', 'value'),
+    dash.dependencies.Input('Version_Dropdown', 'value'),
+    dash.dependencies.Input('Build1_Dropdown', 'value'),
     dash.dependencies.Input('Build2_Dropdown', 'value'),
     dash.dependencies.Input('Benchmark_Dropdown', 'value'),
     dash.dependencies.Input('configs_Dropdown', 'value'),
     dash.dependencies.Input('Operations_Dropdown', 'value')],
 )
-def update_throughput(build1, build2, bench, configs, operation):
-    objects = ['4KB','100KB','1MB','5MB','36MB','64MB','128MB','256MB']
+def update_throughput(xfilter, version, build1, build2, bench, configs, operation):
     print("Attempt for build {} {}".format(build1, build2))
     param = 'Throughput'
-    
-    if not (build1 and operation):
+    if not build1:
         raise PreventUpdate
-    if build1 and operation and (build2 == None):
-        build2 = build1
-    if not bench:
-        bench = 'S3bench'
+    if not operation:
+        operation = 'Both'
+    # if build1 and operation and (build2 == None):
+    #     build2 = build1
     if (bench != 'S3bench') and not configs:
         raise PreventUpdate
-    
+    if xfilter == 'build': 
+        titleText = 'Object Sizes' 
+    else:
+        titleText = 'Builds'
+ 
     operation_read = 'read'
     operation_write = 'write'
     if bench == 'S3bench':
@@ -1072,66 +1101,81 @@ def update_throughput(build1, build2, bench, configs, operation):
     data_write_B2 = []
     
     if operation != 'Both':
-        data_B1 = get_Data(build1,bench,configs,operation,param)
-        data_B2 = get_Data(build2,bench,configs,operation,param)
+        if xfilter == 'build':
+            x_axis, data_B1 = get_IOsizewise_data(build1,bench,configs,operation,param)
+            x_axis, data_B2 = get_IOsizewise_data(build2,bench,configs,operation,param)
+        else:
+            x_axis, data_B1 = get_buildwise_data(version,build1,bench,configs,operation,param)
+            x_axis, data_B2 = get_buildwise_data(version,build2,bench,configs,operation,param)
 
         trace1 = go.Scatter(
             name = '{} {} - {}'.format(operation, param, build1),
-            x = objects,
+            x = x_axis,
             y= data_B1,
             hovertemplate = '<br>%{y} MBps<br>'+
                             '<b>{} - {}</b><extra></extra>'.format(operation, build1),
         )
 
-        trace2 = go.Scatter(
+        fig.add_trace(trace1)
+        if build2 != None:
+            trace2 = go.Scatter(
             name = '{} {} - {}'.format(operation, param, build2),
-            x = objects,
+            x = x_axis,
             y= data_B2,
             hovertemplate = '<br>%{y} MBps<br>'+
                             '<b>{} - {}</b><extra></extra>'.format(operation, build2),
-        )
-        fig.add_trace(trace1)
-        fig.add_trace(trace2)
+            )
+            fig.add_trace(trace2)
 
     else:
-        data_read_B1 = get_Data(build1,bench,configs,operation_read,param)    
-        data_write_B1 = get_Data(build1,bench,configs,operation_write,param)
-        data_read_B2 = get_Data(build2,bench,configs,operation_read,param)
-        data_write_B2 = get_Data(build2,bench,configs,operation_write,param)
+        if xfilter == 'build':
+            x_axis, data_read_B1 = get_IOsizewise_data(build1,bench,configs,operation_read,param)    
+            x_axis, data_write_B1 = get_IOsizewise_data(build1,bench,configs,operation_write,param)
+            x_axis, data_read_B2 = get_IOsizewise_data(build2,bench,configs,operation_read,param)
+            x_axis, data_write_B2 = get_IOsizewise_data(build2,bench,configs,operation_write,param)
+
+        else:
+            x_axis, data_read_B1 = get_buildwise_data(version,build1,bench,configs,operation_read,param)    
+            x_axis, data_write_B1 = get_buildwise_data(version,build1,bench,configs,operation_write,param)
+            x_axis, data_read_B2 = get_buildwise_data(version,build2,bench,configs,operation_read,param)
+            x_axis, data_write_B2 = get_buildwise_data(version,build2,bench,configs,operation_write,param)
 
         trace1 = go.Scatter(
             name = 'Read {} - {}'.format(param, build1),
-            x = objects,
+            x = x_axis,
             y= data_read_B1,
             hovertemplate = '<br>%{y} MBps<br>'+
                             '<b>Read - {}</b><extra></extra>'.format(build1),
         )
         trace2 = go.Scatter(
             name = 'Write {} - {}'.format(param, build1),
-            x = objects,
+            x = x_axis,
             y= data_write_B1,
             hovertemplate = '<br>%{y} MBps<br>'+
                             '<b>Write - {}</b><extra></extra>'.format(build1),
         )
-        trace3 = go.Scatter(
-            name = 'Read {} - {}'.format(param, build2),
-            x = objects,
-            y=  data_read_B2,
-            hovertemplate = '<br>%{y} MBps<br>'+
-                            '<b>Read - {}</b><extra></extra>'.format(build2),      
-        )
-        trace4 = go.Scatter(
-            name = 'Write {} - {}'.format(param, build2),
-            x = objects,
-            y= data_write_B2,
-            hovertemplate = '<br>%{y} MBps<br>'+
-                            '<b>Write - {}</b><extra></extra>'.format(build2),
-        )
+
+        if build2 != None:
+            trace3 = go.Scatter(
+                name = 'Read {} - {}'.format(param, build2),
+                x = x_axis,
+                y=  data_read_B2,
+                hovertemplate = '<br>%{y} MBps<br>'+
+                                '<b>Read - {}</b><extra></extra>'.format(build2),      
+            )
+            trace4 = go.Scatter(
+                name = 'Write {} - {}'.format(param, build2),
+                x = x_axis,
+                y= data_write_B2,
+                hovertemplate = '<br>%{y} MBps<br>'+
+                                '<b>Write - {}</b><extra></extra>'.format(build2),
+            )
+            fig.add_trace(trace3)
+            fig.add_trace(trace4)
 
         fig.add_trace(trace1)
         fig.add_trace(trace2)
-        fig.add_trace(trace3)
-        fig.add_trace(trace4)
+        
     fig.update_layout(
         autosize=True,
         showlegend = True,
@@ -1143,7 +1187,7 @@ def update_throughput(build1, build2, bench, configs, operation):
             title_text="Data (MBps)",
             titlefont=dict(size=16)),
         xaxis=dict(
-            title_text="Object Sizes",
+            title_text=titleText,
             titlefont=dict(size=16)
         ),        
     )
@@ -1151,23 +1195,28 @@ def update_throughput(build1, build2, bench, configs, operation):
 #### ----------------------------------------------------------------------------------------------
 @app.callback(
     dash.dependencies.Output('plot_Latency', 'figure'),
-    [dash.dependencies.Input('Build1_Dropdown', 'value'),
+    [dash.dependencies.Input('Filter_Dropdown', 'value'),
+    dash.dependencies.Input('Version_Dropdown', 'value'),
+    dash.dependencies.Input('Build1_Dropdown', 'value'),
     dash.dependencies.Input('Build2_Dropdown', 'value'),
     dash.dependencies.Input('Benchmark_Dropdown', 'value'),
     dash.dependencies.Input('configs_Dropdown', 'value'),
     dash.dependencies.Input('Operations_Dropdown', 'value')],
 )
-def update_latency(build1, build2, bench, configs, operation):
-    objects = ['4KB','100KB','1MB','5MB','36MB','64MB','128MB','256MB']
+def update_latency(xfilter, version, build1, build2, bench, configs, operation):
     param = 'Latency'
-    if not (build1 and operation):
+    if not build1:
         raise PreventUpdate
-    if build1 and operation and (build2 == None):
-        build2 = build1
-    if not bench:
-        bench = 'S3bench'
+    if not operation:
+        operation = 'Both'
+    # if build1 and operation and (build2 == None):
+        # build2 = build1
     if (bench != 'S3bench') and not configs:
         raise PreventUpdate
+    if xfilter == 'build': 
+        titleText = 'Object Sizes' 
+    else:
+        titleText = 'Builds'
 
     operation_read = 'read'
     operation_write = 'write'
@@ -1182,47 +1231,70 @@ def update_latency(build1, build2, bench, configs, operation):
     data_write_B1 = []
     data_read_B2 = []
     data_write_B2 = []
+
     if operation != 'Both':
-        if bench != 'Hsbench':
-            data_B1 = get_Data(build1,bench,configs,operation,param,'Avg')
-            data_B2 = get_Data(build2,bench,configs,operation,param,'Avg')
+        if xfilter == 'build':
+            if bench != 'Hsbench':
+                x_axis, data_B1 = get_IOsizewise_data(build1,bench,configs,operation,param,'Avg')
+                x_axis, data_B2 = get_IOsizewise_data(build2,bench,configs,operation,param,'Avg')
+            else:
+                x_axis, data_B1 = get_IOsizewise_data(build1,bench,configs,operation,param)
+                x_axis, data_B2 = get_IOsizewise_data(build2,bench,configs,operation,param)
         else:
-            data_B1 = get_Data(build1,bench,configs,operation,param)
-            data_B2 = get_Data(build2,bench,configs,operation,param)
+            if bench != 'Hsbench':
+                x_axis, data_B1 = get_buildwise_data(version,build1,bench,configs,operation,param,'Avg')
+                x_axis, data_B2 = get_buildwise_data(version,build2,bench,configs,operation,param,'Avg')
+            else:
+                x_axis, data_B1 = get_buildwise_data(version,build1,bench,configs,operation,param)
+                x_axis, data_B2 = get_buildwise_data(version,build2,bench,configs,operation,param)        
 
         trace1 = go.Scatter(
             name = '{} {} - {}'.format(operation, param, build1),
-            x = objects,
+            x = x_axis,
             y= data_B1,
             hovertemplate = '<br>%{y} ms<br>'+
                             '<b>{} - {}</b><extra></extra>'.format(operation, build1),
         )
 
-        trace2 = go.Scatter(
+        fig.add_trace(trace1)
+
+        if build2 != None:
+            trace2 = go.Scatter(
             name = '{} {} - {}'.format(operation, param, build2),
-            x = objects,
+            x = x_axis,
             y= data_B2,
             hovertemplate = '<br>%{y} ms<br>'+
                             '<b>{} - {}</b><extra></extra>'.format(operation, build2),
-        )
-        fig.add_trace(trace1)
-        fig.add_trace(trace2)
+            )
+            fig.add_trace(trace2)
 
     else:
-        if bench != 'Hsbech':
-            data_read_B1 = get_Data(build1,bench,configs,operation_read,param,'Avg')    
-            data_write_B1 = get_Data(build1,bench,configs,operation_write,param,'Avg')
-            data_read_B2 = get_Data(build2,bench,configs,operation_read,param,'Avg')
-            data_write_B2 = get_Data(build2,bench,configs,operation_write,param,'Avg')
+        if xfilter == 'build':
+            if bench != 'Hsbench':
+                x_axis, data_read_B1 = get_IOsizewise_data(build1,bench,configs,operation_read,param,'Avg')    
+                x_axis, data_write_B1 = get_IOsizewise_data(build1,bench,configs,operation_write,param,'Avg')
+                x_axis, data_read_B2 = get_IOsizewise_data(build2,bench,configs,operation_read,param,'Avg')
+                x_axis, data_write_B2 = get_IOsizewise_data(build2,bench,configs,operation_write,param,'Avg')
+            else:
+                x_axis, data_read_B1 = get_IOsizewise_data(build1,bench,configs,operation_read,param)    
+                x_axis, data_write_B1 = get_IOsizewise_data(build1,bench,configs,operation_write,param)
+                x_axis, data_read_B2 = get_IOsizewise_data(build2,bench,configs,operation_read,param)
+                x_axis, data_write_B2 = get_IOsizewise_data(build2,bench,configs,operation_write,param)
         else:
-            data_read_B1 = get_Data(build1,bench,configs,operation_read,param)    
-            data_write_B1 = get_Data(build1,bench,configs,operation_write,param)
-            data_read_B2 = get_Data(build2,bench,configs,operation_read,param)
-            data_write_B2 = get_Data(build2,bench,configs,operation_write,param)
+            if bench != 'Hsbench':
+                x_axis, data_read_B1 = get_buildwise_data(version,build1,bench,configs,operation_read,param,'Avg')    
+                x_axis, data_write_B1 = get_buildwise_data(version,build1,bench,configs,operation_write,param,'Avg')
+                x_axis, data_read_B2 = get_buildwise_data(version,build2,bench,configs,operation_read,param,'Avg')
+                x_axis, data_write_B2 = get_buildwise_data(version,build2,bench,configs,operation_write,param,'Avg')
+            else:
+                x_axis, data_read_B1 = get_buildwise_data(version,build1,bench,configs,operation_read,param)    
+                x_axis, data_write_B1 = get_buildwise_data(version,build1,bench,configs,operation_write,param)
+                x_axis, data_read_B2 = get_buildwise_data(version,build2,bench,configs,operation_read,param)
+                x_axis, data_write_B2 = get_buildwise_data(version,build2,bench,configs,operation_write,param)   
 
         trace1 = go.Scatter(
             name = 'Read {} - {}'.format(param, build1),
-            x = objects,
+            x = x_axis,
             y= data_read_B1,
             hovertemplate = '<br>%{y} ms<br>'+
                             '<b>Read - {}</b><extra></extra>'.format(build1),
@@ -1230,32 +1302,35 @@ def update_latency(build1, build2, bench, configs, operation):
 
         trace2 = go.Scatter(
             name = 'Write {} - {}'.format(param, build1),
-            x = objects,
+            x = x_axis,
             y= data_write_B1,
             hovertemplate = '<br>%{y} ms<br>'+
                             '<b>Write - {}</b><extra></extra>'.format(build1),      
         )
-
-        trace3 = go.Scatter(
-            name = 'Read {} - {}'.format(param, build2),
-            x = objects,
-            y=  data_read_B2,
-            hovertemplate = '<br>%{y} ms<br>'+
-                            '<b>Read - {}</b><extra></extra>'.format(build2),
-        )
-
-        trace4 = go.Scatter(
-            name = 'Write {} - {}'.format(param, build2),
-            x = objects,
-            y= data_write_B2,
-            hovertemplate = '<br>%{y} ms<br>'+
-                            '<b>Write - {}</b><extra></extra>'.format(build2),
-        )
-    
         fig.add_trace(trace1)
         fig.add_trace(trace2)
-        fig.add_trace(trace3)
-        fig.add_trace(trace4)
+
+        if build2 != None:
+            trace3 = go.Scatter(
+                name = 'Read {} - {}'.format(param, build2),
+                x = x_axis,
+                y=  data_read_B2,
+                hovertemplate = '<br>%{y} ms<br>'+
+                                '<b>Read - {}</b><extra></extra>'.format(build2),
+            )
+
+            trace4 = go.Scatter(
+                name = 'Write {} - {}'.format(param, build2),
+                x = x_axis,
+                y= data_write_B2,
+                hovertemplate = '<br>%{y} ms<br>'+
+                                '<b>Write - {}</b><extra></extra>'.format(build2),
+            )
+            fig.add_trace(trace3)
+            fig.add_trace(trace4)
+
+        
+        
     fig.update_layout(
         autosize=True,
         showlegend = True,
@@ -1267,7 +1342,7 @@ def update_latency(build1, build2, bench, configs, operation):
             title_text="Data (ms)",
             titlefont=dict(size=16)),
         xaxis=dict(
-            title_text="Object Sizes",
+            title_text=titleText,
             titlefont=dict(size=16)
         )
     )
@@ -1275,23 +1350,28 @@ def update_latency(build1, build2, bench, configs, operation):
 #### ----------------------------------------------------------------------------------------------
 @app.callback(
     dash.dependencies.Output('plot_IOPS', 'figure'),
-    [dash.dependencies.Input('Build1_Dropdown', 'value'),
+    [dash.dependencies.Input('Filter_Dropdown', 'value'),
+    dash.dependencies.Input('Version_Dropdown', 'value'),
+    dash.dependencies.Input('Build1_Dropdown', 'value'),
     dash.dependencies.Input('Build2_Dropdown', 'value'),
     dash.dependencies.Input('Benchmark_Dropdown', 'value'),
     dash.dependencies.Input('configs_Dropdown', 'value'),
     dash.dependencies.Input('Operations_Dropdown', 'value')],
 )
-def update_IOPS(build1, build2, bench, configs, operation):
-    objects = ['4KB','100KB','1MB','5MB','36MB','64MB','128MB','256MB']
+def update_IOPS(xfilter, version, build1, build2, bench, configs, operation):
     param = 'IOPS'
-    if not (build1 and operation):
+    if not build1:
         raise PreventUpdate
-    if build1 and operation and (build2 == None):
-        build2 = build1
-    if not bench:
-        bench = 'S3bench'
+    if not operation:
+        operation = 'Both'
+    # if build1 and operation and (build2 == None):
+    #     build2 = build1
     if (bench != 'S3bench') and not configs:
         raise PreventUpdate
+    if xfilter == 'build': 
+        titleText = 'Object Sizes' 
+    else:
+        titleText = 'Builds'
 
     operation_read = 'read'
     operation_write = 'write'
@@ -1306,69 +1386,85 @@ def update_IOPS(build1, build2, bench, configs, operation):
     data_write_B1 = []
     data_read_B2 = []
     data_write_B2 = []
+
     if operation != 'Both':
-        data_B1 = get_Data(build1,bench,configs,operation,param)
-        data_B2 = get_Data(build2,bench,configs,operation,param)
+
+        if xfilter == 'build':
+            x_axis, data_B1 = get_IOsizewise_data(build1,bench,configs,operation,param)
+            x_axis, data_B2 = get_IOsizewise_data(build2,bench,configs,operation,param)
+        else:
+            x_axis, data_B1 = get_buildwise_data(version,build1,bench,configs,operation,param)
+            x_axis, data_B2 = get_buildwise_data(version,build2,bench,configs,operation,param)  
 
         trace1 = go.Scatter(
             name = '{} {} - {}'.format(operation, param, build1),
-            x = objects,
+            x = x_axis,
             y= data_B1,
             hovertemplate = '<br>%{y}<br>'+
                             '<b>{} - {}</b><extra></extra>'.format(operation, build1),
         )
-        trace2 = go.Scatter(
+        
+        fig.add_trace(trace1)
+
+        if build2 != None:
+            trace2 = go.Scatter(
             name = '{} {} - {}'.format(operation, param, build2),
-            x = objects,
+            x = x_axis,
             y= data_B2,
             hovertemplate = '<br>%{y}<br>'+
                             '<b>{} - {}</b><extra></extra>'.format(operation, build2),
-        )
-        fig.add_trace(trace1)
-        fig.add_trace(trace2)
+            )
+            fig.add_trace(trace2)
 
     else:
+        if xfilter == 'build':
+            x_axis, data_read_B1 = get_IOsizewise_data(build1,bench,configs,operation_read,param)    
+            x_axis, data_write_B1 = get_IOsizewise_data(build1,bench,configs,operation_write,param)
+            x_axis, data_read_B2 = get_IOsizewise_data(build2,bench,configs,operation_read,param)
+            x_axis, data_write_B2 = get_IOsizewise_data(build2,bench,configs,operation_write,param)
+        else:
+            x_axis, data_read_B1 = get_buildwise_data(version,build1,bench,configs,operation_read,param)    
+            x_axis, data_write_B1 = get_buildwise_data(version,build1,bench,configs,operation_write,param)
+            x_axis, data_read_B2 = get_buildwise_data(version,build2,bench,configs,operation_read,param)
+            x_axis, data_write_B2 = get_buildwise_data(version,build2,bench,configs,operation_write,param)
   
-        data_read_B1 = get_Data(build1,bench,configs,operation_read,param)    
-        data_write_B1 = get_Data(build1,bench,configs,operation_write,param)
-        data_read_B2 = get_Data(build2,bench,configs,operation_read,param)
-        data_write_B2 = get_Data(build2,bench,configs,operation_write,param)
-
         trace1 = go.Scatter(
             name = 'Read {} - {}'.format(param, build1),
-            x = objects,
+            x = x_axis,
             y= data_read_B1,
             hovertemplate = '<br>%{y}<br>'+
                             '<b>Read - {}</b><extra></extra>'.format(build1),
         )
         trace2 = go.Scatter(
             name = 'Write {} - {}'.format(param, build1),
-            x = objects,
+            x = x_axis,
             y= data_write_B1,
             hovertemplate = '<br>%{y}<br>'+
                             '<b>Write - {}</b><extra></extra>'.format(build1),
             
         )
-        trace3 = go.Scatter(
-            name = 'Read {} - {}'.format(param, build2),
-            x = objects,
-            y=  data_read_B2,
-            hovertemplate = '<br>%{y}<br>'+
-                            '<b>Read - {}</b><extra></extra>'.format(build2),
-            
-        )
-        trace4 = go.Scatter(
-            name = 'Write {} - {}'.format(param, build2),
-            x = objects,
-            y= data_write_B2,
-            hovertemplate = '<br>%{y}<br>'+
-                            '<b>Write - {}</b><extra></extra>'.format(build2),
-        )
-
         fig.add_trace(trace1)
         fig.add_trace(trace2)
-        fig.add_trace(trace3)
-        fig.add_trace(trace4)
+
+        if build2 != None:
+            trace3 = go.Scatter(
+                name = 'Read {} - {}'.format(param, build2),
+                x = x_axis,
+                y=  data_read_B2,
+                hovertemplate = '<br>%{y}<br>'+
+                                '<b>Read - {}</b><extra></extra>'.format(build2),
+                
+            )
+            trace4 = go.Scatter(
+                name = 'Write {} - {}'.format(param, build2),
+                x = x_axis,
+                y= data_write_B2,
+                hovertemplate = '<br>%{y}<br>'+
+                                '<b>Write - {}</b><extra></extra>'.format(build2),
+            )
+            fig.add_trace(trace3)
+            fig.add_trace(trace4)
+
     fig.update_layout(
         autosize=True,
         showlegend = True,
@@ -1380,7 +1476,7 @@ def update_IOPS(build1, build2, bench, configs, operation):
             title_text="Data",
             titlefont=dict(size=16)),
         xaxis=dict(
-            title_text="Object Sizes",
+            title_text=titleText,
             titlefont=dict(size=16)
         )
     )
@@ -1388,22 +1484,29 @@ def update_IOPS(build1, build2, bench, configs, operation):
 #### ----------------------------------------------------------------------------------------------
 @app.callback(
     dash.dependencies.Output('plot_TTFB', 'figure'),
-    [dash.dependencies.Input('Build1_Dropdown', 'value'),
+    [dash.dependencies.Input('Filter_Dropdown', 'value'),
+    dash.dependencies.Input('Version_Dropdown', 'value'),
+    dash.dependencies.Input('Build1_Dropdown', 'value'),
     dash.dependencies.Input('Build2_Dropdown', 'value'),
     dash.dependencies.Input('Benchmark_Dropdown', 'value'),
     dash.dependencies.Input('configs_Dropdown', 'value'),
     dash.dependencies.Input('Operations_Dropdown', 'value')],
 )
-def update_TTFB(build1, build2, bench, configs, operation):
-    objects = ['4KB','100KB','1MB','5MB','36MB','64MB','128MB','256MB']
+def update_TTFB(xfilter, version, build1, build2, bench, configs, operation):
     param = 'TTFB'
-    if not (build1 and operation):
+    if not build1:
         raise PreventUpdate
+    if not operation:
+        operation = 'Both'
     if build1 and operation and (build2 == None):
         build2 = build1
     if not bench:
         bench = 'S3bench'
-    
+    if xfilter == 'build': 
+        titleText = 'Object Sizes' 
+    else:
+        titleText = 'Builds'
+
     fig = go.Figure()    
     if bench != 'S3bench':
         return fig
@@ -1417,36 +1520,48 @@ def update_TTFB(build1, build2, bench, configs, operation):
         operation = operation.capitalize()
 
     if operation != 'Both':
-        data_B1 = get_Data(build1,bench,configs,operation,param,'Avg')
-        data_B2 = get_Data(build2,bench,configs,operation,param,'Avg')
+        
+        if xfilter == 'build':
+            x_axis, data_B1 = get_IOsizewise_data(build1,bench,configs,operation,param,'Avg')
+            x_axis, data_B2 = get_IOsizewise_data(build2,bench,configs,operation,param,'Avg')
+        else:
+            x_axis, data_B1 = get_buildwise_data(version,build1,bench,configs,operation,param,'Avg')
+            x_axis, data_B2 = get_buildwise_data(version,build2,bench,configs,operation,param,'Avg')
 
         trace1 = go.Scatter(
             name = '{} {} - {}'.format(operation, param, build1),
-            x = objects,
+            x = x_axis,
             y= data_B1,
             hovertemplate = '<br>%{y} ms<br>'+
                             '<b>{} - {}</b><extra></extra>'.format(operation, build1),
         )
-
-        trace2 = go.Scatter(
-            name = '{} {} - {}'.format(operation, param, build2),
-            x = objects,
-            y= data_B2,
-            hovertemplate = '<br>%{y} ms<br>'+
-                            '<b>{} - {}</b><extra></extra>'.format(operation, build2),
-        )
         fig.add_trace(trace1)
-        fig.add_trace(trace2)
+
+        if build2 != None:
+            trace2 = go.Scatter(
+                name = '{} {} - {}'.format(operation, param, build2),
+                x = x_axis,
+                y= data_B2,
+                hovertemplate = '<br>%{y} ms<br>'+
+                                '<b>{} - {}</b><extra></extra>'.format(operation, build2),
+            )
+            fig.add_trace(trace2)
 
     else:
-        data_read_B1 = get_Data(build1,bench,configs,operation_read,param,'Avg')    
-        data_write_B1 = get_Data(build1,bench,configs,operation_write,param,'Avg')
-        data_read_B2 = get_Data(build2,bench,configs,operation_read,param,'Avg')
-        data_write_B2 = get_Data(build2,bench,configs,operation_write,param,'Avg')
-
+        if xfilter == 'build':
+            x_axis, data_read_B1 = get_IOsizewise_data(build1,bench,configs,operation_read,param,'Avg')    
+            x_axis, data_write_B1 = get_IOsizewise_data(build1,bench,configs,operation_write,param,'Avg')
+            x_axis, data_read_B2 = get_IOsizewise_data(build2,bench,configs,operation_read,param,'Avg')
+            x_axis, data_write_B2 = get_IOsizewise_data(build2,bench,configs,operation_write,param,'Avg')
+        else:
+            x_axis, data_read_B1 = get_buildwise_data(version,build1,bench,configs,operation_read,param,'Avg')    
+            x_axis, data_write_B1 = get_buildwise_data(version,build1,bench,configs,operation_write,param,'Avg')
+            x_axis, data_read_B2 = get_buildwise_data(version,build2,bench,configs,operation_read,param,'Avg')
+            x_axis, data_write_B2 = get_buildwise_data(version,build2,bench,configs,operation_write,param,'Avg')
+        
         trace1 = go.Scatter(
             name = 'Read {} - {}'.format(param, build1),
-            x = objects,
+            x = x_axis,
             y= data_read_B1,
             hoverinfo='skip',
             hovertemplate = '<br>%{y} ms<br>'+
@@ -1454,33 +1569,35 @@ def update_TTFB(build1, build2, bench, configs, operation):
         )
         trace2 = go.Scatter(
             name = 'Write {} - {}'.format(param, build1),
-            x = objects,
+            x = x_axis,
             y= data_write_B1,
             hoverinfo='skip',
             hovertemplate = '<br>%{y} ms<br>'+
                             '<b>Write - {}</b><extra></extra>'.format(build1),   
         )
-        trace3 = go.Scatter(
-            name = 'Read {} - {}'.format(param, build2),
-            x = objects,
-            y=  data_read_B2,
-            hoverinfo='skip',
-            hovertemplate = '<br>%{y} ms<br>'+
-                            '<b>Read - {}</b><extra></extra>'.format(build2),
-        )
-        trace4 = go.Scatter(
-            name = 'Write {} - {}'.format(param, build2),
-            x = objects,
-            y= data_write_B2,
-            hoverinfo='skip',
-            hovertemplate = '<br>%{y} ms<br>'+
-                            '<b>Write - {}</b><extra></extra>'.format(build2),
-        )
-        fig = go.Figure()
         fig.add_trace(trace1)
         fig.add_trace(trace2)
-        fig.add_trace(trace3)
-        fig.add_trace(trace4)
+
+        if build2 != None:
+            trace3 = go.Scatter(
+                name = 'Read {} - {}'.format(param, build2),
+                x = x_axis,
+                y=  data_read_B2,
+                hoverinfo='skip',
+                hovertemplate = '<br>%{y} ms<br>'+
+                                '<b>Read - {}</b><extra></extra>'.format(build2),
+            )
+            trace4 = go.Scatter(
+                name = 'Write {} - {}'.format(param, build2),
+                x = x_axis,
+                y= data_write_B2,
+                hoverinfo='skip',
+                hovertemplate = '<br>%{y} ms<br>'+
+                                '<b>Write - {}</b><extra></extra>'.format(build2),
+            )
+            fig.add_trace(trace3)
+            fig.add_trace(trace4)
+
     fig.update_layout(
         autosize=True,
         showlegend = True,
@@ -1492,7 +1609,7 @@ def update_TTFB(build1, build2, bench, configs, operation):
             title_text="Data (ms)",
             titlefont=dict(size=16)),
         xaxis=dict(
-            title_text="Object Sizes",
+            title_text=titleText,
             titlefont=dict(size=16)
         )
     )

@@ -9,6 +9,6 @@ db_collection: results
 sysstat_collection: systemresults
 config_collection: configurations
 db_database: performance_db
-db_user: perfpro 
-db_passwd: PerfPro
-db_url: mongodb://perfpro:PerfPro@cftic1.pun.seagate.com:27017,cftic2.pun.seagate.com:27017,apollojenkins.pun.seagate.com:27017/test?authSource=performance_db&replicaSet=rs0&readPreference=primary&appname=MongoDB%20Compass%20Community&ssl=false
+db_user: < db_username > 
+db_passwd: < db_password >
+db_url: mongodb://< db_username >:< db_password >@cftic1.pun.seagate.com:27017,cftic2.pun.seagate.com:27017,apollojenkins.pun.seagate.com:27017/test?authSource=performance_db&replicaSet=rs0&readPreference=primary&appname=MongoDB%20Compass%20Community&ssl=false

@@ -1,5 +1,5 @@
 # Re-organized and renamed PerfLine 
-.
+`.
 ├── ansible.cfg
 ├── callbacks
 │   └── anstomlog.py
@@ -196,7 +196,8 @@
 │       │   └── taskq.yml
 │       └── vars
 │           └── main.yml
-└── run_perfline.yml
+└── run_perfline.yml`
+
 
 # Perfline
 This is perfline module that allows to run cortx-motr workloads. 
@@ -228,14 +229,14 @@ For automated deploying perfline on a client, following prerequisites must be sa
     For cluster configuration `ha_type = pcs`  
 
 # Installation
-When prerequisites is satisfied you need to `# cd` to PerfLine directory and run:  
+When prerequisites is satisfied you need to `# cd` to `PerfLine` directory and run:  
 `# ansible-playbook -i inventories/perfline_hosts/hosts run_perfline.yml -v`  
 After that wait till ansible will copy and install all required artifacts on target nodes and also copy required script on client node to run perfline workload within `/root/perfline`.  
 
 # Starting workload
 Workload can be started only from client_node machine  
 For starting workload on a cluster you need to run tasks, which describing amount/size of files you want to upload/download and how many clients will perform load.  
-You can find examples of such tasks at /root/perfline/wrapper/workload
+You can find examples of such tasks at `/root/perfline/wrapper/workload`
 After you choose/wrote task description, you need to `# cd /root/perfline/wrapper` and than run task with:  
 `# python3 perfline.py  -a < workload/s3bench.mkfs.yaml`  
 or  

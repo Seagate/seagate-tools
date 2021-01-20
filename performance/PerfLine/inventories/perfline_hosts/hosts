@@ -1,9 +1,9 @@
 [nodes]
-srvnode-1 ansible_host=sm13-r2.pun.seagate.com
-srvnode-2 ansible_host=sm14-r2.pun.seagate.com
+srvnode-1 ansible_host=<PRIMARY-NODE-1>
+srvnode-2 ansible_host=<SECONDARY-NODE-2>
 
 [client]
-client-1 ansible_host=iu07-r20.pun.seagate.com
+client-1 ansible_host=<CLIENT-NODE-1>
 
 [all:vars]
 ansible_connection=ssh

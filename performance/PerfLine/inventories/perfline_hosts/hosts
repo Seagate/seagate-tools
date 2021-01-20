@@ -1,0 +1,11 @@
+[nodes]
+srvnode-1 ansible_host=<PRIMARY-NODE-1>
+srvnode-2 ansible_host=<SECONDARY-NODE-2>
+
+[client]
+client-1 ansible_host=<CLIENT-NODE-1>
+
+[all:vars]
+ansible_connection=ssh
+ansible_user=root
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'

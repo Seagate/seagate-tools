@@ -1,0 +1,9 @@
+---
+ - hosts: localhost
+   gather_facts: yes
+   become: yes
+   vars_files:
+     - roles/perfline_setup/vars/main.yml
+   roles:
+     - perfline_setup
+

@@ -110,7 +110,7 @@ function restart_hare() {
 function restart_pcs() {
     if [[ -n "$MKFS" ]]; then
         ssh $PRIMARY_NODE "ssh srvnode-1 'systemctl start motr-mkfs@0x7200000000000001:0xc'"
-        ssh $PRIMARY_NODE "ssh srvnode-2 'systemctl start motr-mkfs@0x7200000000000001:0x53'"
+        ssh $PRIMARY_NODE "ssh srvnode-2 'systemctl start motr-mkfs@0x7200000000000001:0x55'"
     fi
 
 

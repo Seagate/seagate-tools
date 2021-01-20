@@ -1,0 +1,418 @@
+#ET1, #ET2, #ET3, #ET4, #ET5, #ET6, #XT1, #XT2, #XT3, #XT4, #XT5, #ET7, #B1, #detailed_report_table{
+    border-width: 2px;
+    border-color: #101010;
+    border-style: solid;
+}
+
+caption, #detailed_report_header, #detailed_report_tab3, #perf_graphs_heading { 
+    caption-side: top; 
+    width: auto;
+    text-align: center;
+    color : #0000a5;
+    font-size: 20px;
+}
+
+thead
+{
+    background-color :  #7F8C8D;
+}
+
+#eng_total, #exe_total, #exe_qa_total,#eng_qa_total, #total_row{
+    color : #3498DB;
+    font-weight: bolder;
+} 
+
+#eng_blocker, #exe_blocker, #exe_qa_fail, #eng_qa_fail, #fail_row{
+    color : #CB4335;
+    font-weight: bolder;
+    
+} 
+
+#eng_critical, #exe_critical, #exe_qa_blocked, #eng_qa_blocked{
+    color : #F39C12;
+    font-weight: bolder;
+} 
+
+#eng_major, #exe_major{
+    color  : #2874A6;
+    font-weight: bolder;
+} 
+
+#eng_minor, #exe_minor, #exe_qa_aborted, #eng_qa_aborted, #abort_row{
+    color : #2E4053;
+    font-weight: bolder;
+} 
+
+#eng_trivial, #exe_trivial, #exe_qa_pass, #eng_qa_pass, #pass_row{
+    color : #229954;
+    font-weight: bolder;
+}
+
+#exe_qa_todo, #eng_qa_todo, #blocked_row
+{
+    color : #566573;
+    font-weight: bolder;
+}
+
+#eWTH, #eRTH, #eWL, #eRL, #WIOPS, #RIOPS, #WTTFB, #RTTFB, #puttag, #gettag, #headobj{
+    color : #212F3D;
+    background-color:#B2BABB;
+    font-weight: bolder;
+}
+
+#e4WTH, #e4RTH, #e4WL, #e4RL, #e4WIOPS, #e4RIOPS, #e4WTTFB, #e4RTTFB{
+    color : #212F3D;
+    background-color: #F8F8F8;
+}
+
+#e100WTH, #e100RTH, #e100WL, #e100RL, #e100WIOPS, #e100RIOPS, #e100WTTFB, #e100RTTFB{
+    color : #212F3D;
+    background-color: #F5F5F5;
+}
+
+#e1WTH, #e1RTH, #e1WL, #e1RL, #e1WIOPS, #e1RIOPS, #e1WTTFB, #e1RTTFB{
+    color : #212F3D;
+    background-color: #F0F0F0;
+}
+
+#e5WTH, #e5RTH, #e5WL, #e5RL, #e5WIOPS, #e5RIOPS, #e5WTTFB, #e5RTTFB{
+    color : #212F3D;
+    background-color: #E8E8E8;
+}
+
+#e36WTH, #e36RTH, #e36WL, #e36RL, #e36WIOPS, #e36RIOPS, #e36WTTFB, #e36RTTFB{
+    color : #212F3D;
+    background-color: #E0E0E0;
+}
+
+#e64WTH, #e64RTH, #e64WL, #e64RL, #e64WIOPS, #e64RIOPS, #e64WTTFB, #e64RTTFB{
+    color : #212F3D;
+    background-color: #DCDCDC;
+}
+
+#e128WTH, #e128RTH, #e128WL, #e128RL, #e128WIOPS, #e128RIOPS, #e128WTTFB, #e128RTTFB{
+    color : #212F3D;
+    background-color: #D8D8D8;
+}
+
+#e256WTH, #e256RTH, #e256WL, #e256RL, #e256WIOPS, #e256RIOPS, #e256WTTFB, #e256RTTFB{
+    color : #212F3D;
+    background-color: #D8D8D8;
+}
+
+#IBCLR4, #IBDEL4, #BINIT4, #PUT4, #LIST4, #GET4, #DEL4, #BCLR4, #BDEL4,
+#IBCLR42, #IBDEL42, #BINIT42, #PUT42, #LIST42, #GET42, #DEL42, #BCLR42, #BDEL42{
+    color : #212F3D;
+    background-color: #F8F8F8;
+}
+
+#IBCLR100, #IBDEL100, #BINIT100, #PUT100, #LIST100, #GET100, #DEL100, #BCLR100, #BDEL100,
+#IBCLR1002, #IBDEL1002, #BINIT1002, #PUT1002, #LIST1002, #GET1002, #DEL1002, #BCLR1002, #BDEL1002{
+    color : #212F3D;
+    background-color: #F5F5F5;
+}
+
+#IBCLR1, #IBDEL1, #BINIT1, #PUT1, #LIST1, #GET1, #DEL1, #BCLR1, #BDEL1,
+#IBCLR12, #IBDEL12, #BINIT12, #PUT12, #LIST12, #GET12, #DEL12, #BCLR12, #BDEL12{
+    color : #212F3D;
+    background-color: #F0F0F0;
+}
+
+#IBCLR5, #IBDEL5, #BINIT5, #PUT5, #LIST5, #GET5, #DEL5, #BCLR5, #BDEL5,
+#IBCLR52, #IBDEL52, #BINIT52, #PUT52, #LIST52, #GET52, #DEL52, #BCLR52, #BDEL52{
+    color : #212F3D;
+    background-color: #E8E8E8;
+}
+
+#IBCLR36, #IBDEL36, #BINIT36, #PUT36, #LIST36, #GET36, #DEL36, #BCLR36, #BDEL36,
+#IBCLR362, #IBDEL362, #BINIT362, #PUT362, #LIST362, #GET362, #DEL362, #BCLR362, #BDEL362{
+    color : #212F3D;
+    background-color: #E0E0E0;
+}
+
+#IBCLR64, #IBDEL64, #BINIT64, #PUT64, #LIST64, #GET64, #DEL64, #BCLR64, #BDEL64,
+#IBCLR642, #IBDEL642, #BINIT642, #PUT642, #LIST642, #GET642, #DEL642, #BCLR642, #BDEL642{
+    color : #212F3D;
+    background-color: #DCDCDC;
+}
+
+#IBCLR128, #IBDEL128, #BINIT128, #PUT128, #LIST128, #GET128, #DEL128, #BCLR128, #BDEL128,
+#IBCLR1282, #IBDEL1282, #BINIT1282, #PUT1282, #LIST1282, #GET1282, #DEL1282, #BCLR1282, #BDEL1282{
+    color : #212F3D;
+    background-color: #D8D8D8;
+}
+
+#IBCLR256, #IBDEL256, #BINIT256, #PUT256, #LIST256, #GET256, #DEL256, #BCLR256, #BDEL256,
+#IBCLR2562, #IBDEL2562, #BINIT2562, #PUT2562, #LIST2562, #GET2562, #DEL2562, #BCLR2562, #BDEL2562{
+    color : #212F3D;
+    background-color: #D8D8D8;
+}
+
+#IBCLR41, #IBDEL41, #BINIT41, #PUT41, #LIST41, #GET41, #DEL41, #BCLR41, #BDEL41{
+    background-color: #D0D0D0;
+}
+
+#IBCLR1001, #IBDEL1001, #BINIT1001, #PUT1001, #LIST1001, #GET1001, #DEL1001, #BCLR1001, #BDEL1001{
+    background-color: #C8C8C8;
+}
+
+#IBCLR11, #IBDEL11, #BINIT11, #PUT11, #LIST11, #GET11, #DEL11, #BCLR11, #BDEL11{
+    background-color: #C0C0C0;
+}
+
+#IBCLR51, #IBDEL51, #BINIT51, #PUT51, #LIST51, #GET51, #DEL51, #BCLR51, #BDEL51{
+    background-color: #BEBEBE;
+}
+
+#IBCLR361, #IBDEL361, #BINIT361, #PUT361, #LIST361, #GET361, #DEL361, #BCLR361, #BDEL361{
+    background-color: #B8B8B8;
+}
+
+#IBCLR641, #IBDEL641, #BINIT641, #PUT641, #LIST641, #GET641, #DEL641, #BCLR641, #BDEL641{
+    background-color: #B0B0B0;
+}
+
+#IBCLR1281, #IBDEL1281, #BINIT1281, #PUT1281, #LIST1281, #GET1281, #DEL1281, #BCLR1281, #BDEL1281{
+    background-color: #A9A9A9;
+}
+
+#IBCLR2561, #IBDEL2561, #BINIT2561, #PUT2561, #LIST2561, #GET2561, #DEL2561, #BCLR2561, #BDEL2561{
+    background-color: #A8A8A8;
+}
+
+#IBDEL, #IBCLR, #BINIT, #PUT, #LIST, #DEL, #GET, #BCLR, #BDEL,#IBDEL2, #IBCLR2, #BINIT2, #PUT2, #LIST2, #DEL2, #GET2, #BCLR2, #BDEL2{
+    font-weight: bolder;
+    color : #404040;
+    background-color: #B2BABB;
+}
+
+#IBDEL1H, #IBCLR1H, #BINIT1H, #PUT1H, #LIST1H, #DEL1H, #GET1H, #BCLR1H, #BDEL1H{
+    font-weight: bolder;
+    color : #404040;
+    background-color: #99A3A4;
+}
+
+#e4COS2WTH, #e4COS2RTH, #e4COS2RL, #e4COS2WL, #e4COS2WIOPS, #e4COS2RIOPS,#e4HS1WTH, #e4HS1RTH, #e4HS1RL, #e4HS1WL, 
+#e4HS1WIOPS, #e4HS1RIOPS,#e4HS3WTH, #e4HS3RTH, #e4HS3RL, #e4HS3WL, #e4HS3WIOPS, #e4HS3RIOPS {
+    background-color: #F8F8F8;
+}
+
+#e100COS2WTH, #e100COS2RTH, #e100COS2RL, #e100COS2WL, #e100COS2WIOPS, #e100COS2RIOPS,#e100HS1WTH, #e100HS1RTH, #e100HS1RL,
+ #e100HS1WL, #e100HS1WIOPS, #e100HS1RIOPS ,#e100HS3WTH, #e100HS3RTH, #e100HS3RL, #e100HS3WL, #e100HS3WIOPS, #e100HS3RIOPS {
+    background-color: #F5F5F5;
+}
+
+#e1COS2WTH, #e1COS2RTH, #e1COS2RL, #e1COS2WL, #e1COS2WIOPS, #e1COS2RIOPS, #e1HS1WTH, #e1HS1RTH, #e1HS1RL, #e1HS1WL, 
+#e1HS1WIOPS, #e1HS1RIOPS, #e1HS3WTH, #e1HS3RTH, #e1HS3RL, #e1HS3WL, #e1HS3WIOPS, #e1HS3RIOPS {
+    background-color: #F0F0F0;
+}
+
+#e5COS2WTH, #e5COS2RTH, #e5COS2RL, #e5COS2WL, #e5COS2WIOPS, #e5COS2RIOPS,#e5HS1WTH, #e5HS1RTH, #e5HS1RL, #e5HS1WL, 
+#e5HS1WIOPS, #e5HS1RIOPS,#e5HS3WTH, #e5HS3RTH, #e5HS3RL, #e5HS3WL, #e5HS3WIOPS, #e5HS3RIOPS {
+    background-color: #E8E8E8;
+}
+
+#e36COS2WTH, #e36COS2RTH, #e36COS2RL, #e36COS2WL, #e36COS2WIOPS, #e36COS2RIOPS, #e36HS1WTH, #e36HS1RTH, #e36HS1RL,
+ #e36HS1WL, #e36HS1WIOPS, #e36HS1RIOPS, #e36HS3WTH, #e36HS3RTH, #e36HS3RL, #e36HS3WL, #e36HS3WIOPS, #e36HS3RIOPS {
+    background-color: #E0E0E0;
+}
+
+#e64COS2WTH, #e64COS2RTH, #e64COS2RL, #e64COS2WL, #e64COS2WIOPS, #e64COS2RIOPS, #e64HS1WTH, #e64HS1RTH, #e64HS1RL, 
+#e64HS1WL, #e64HS1WIOPS, #e64HS1RIOPS, #e64HS3WTH, #e64HS3RTH, #e64HS3RL, #e64HS3WL, #e64HS3WIOPS, #e64HS3RIOPS {
+    background-color: #DCDCDC;
+}
+
+#e128COS2WTH, #e128COS2RTH, #e128COS2RL, #e128COS2WL, #e128COS2WIOPS, #e128COS2RIOPS, #e128HS1WTH, #e128HS1RTH, #e128HS1RL, #e128HS1WL, 
+#e128HS1WIOPS, #e128HS1RIOPS, #e128HS3WTH, #e128HS3RTH, #e128HS3RL, #e128HS3WL, #e128HS3WIOPS, #e128HS3RIOPS  {
+    background-color: #D8D8D8;
+}
+
+#e256COS2WTH, #e256COS2RTH, #e256COS2RL, #e256COS2WL, #e256COS2WIOPS, #e256COS2RIOPS, #e256HS1WTH, #e256HS1RTH, #e256HS1RL, #e256HS1WL,
+ #e256HS1WIOPS, #e256HS1RIOPS, #e256HS3WTH, #e256HS3RTH, #e256HS3RL, #e256HS3WL, #e256HS3WIOPS, #e256HS3RIOPS {
+    background-color: #D3D3D3;
+}
+
+#COS2WTH, #COS2RTH, #COS2RL, #COS2WL, #COS2WIOPS, #COS2RIOPS, #HS1WTH, #HS1RTH, #HS1RL, #HS1WL, #HS1WIOPS, 
+#HS1RIOPS, #HS3WTH, #HS3RTH, #HS3RL, #HS3WL, #HS3WIOPS, #HS3RIOPS{
+    font-weight: bolder;
+    color : #404040;
+    background-color: #B2BABB;
+}
+
+#e4COS1WTH, #e4COS1RTH, #e4COS1RL, #e4COS1WL, #e4COS1WIOPS, #e4COS1RIOPS,#e4COS3WTH, #e4COS3RTH, #e4COS3RL, 
+#e4COS3WL, #e4COS3WIOPS, #e4COS3RIOPS,#e4HS2WTH, #e4HS2RTH, #e4HS2RL, #e4HS2WL, #e4HS2WIOPS, #e4HS2RIOPS {
+    background-color: #D0D0D0;
+}
+
+#e100COS1WTH, #e100COS1RTH, #e100COS1RL, #e100COS1WL, #e100COS1WIOPS, #e100COS1RIOPS,#e100COS3WTH, #e100COS3RTH, 
+#e100COS3RL, #e100COS3WL, #e100COS3WIOPS, #e100COS3RIOPS,#e100HS2WTH, #e100HS2RTH, #e100HS2RL, #e100HS2WL, #e100HS2WIOPS, #e100HS2RIOPS {
+    background-color: #C8C8C8;
+}
+
+#e1COS1WTH, #e1COS1RTH, #e1COS1RL, #e1COS1WL, #e1COS1WIOPS, #e1COS1RIOPS,#e1COS3WTH, #e1COS3RTH, #e1COS3RL,
+ #e1COS3WL, #e1COS3WIOPS, #e1COS3RIOPS, #e1HS2WTH, #e1HS2RTH, #e1HS2RL, #e1HS2WL, #e1HS2WIOPS, #e1HS2RIOPS {
+    background-color: #C0C0C0;
+}
+
+#e5COS1WTH, #e5COS1RTH, #e5COS1RL, #e5COS1WL, #e5COS1WIOPS, #e5COS1RIOPS,#e5COS3WTH, #e5COS3RTH, #e5COS3RL, 
+#e5COS3WL, #e5COS3WIOPS, #e5COS3RIOPS,#e5HS2WTH, #e5HS2RTH, #e5HS2RL, #e5HS2WL, #e5HS2WIOPS, #e5HS2RIOPS {
+    background-color: #BEBEBE;
+}
+
+#e36COS1WTH, #e36COS1RTH, #e36COS1RL, #e36COS1WL, #e36COS1WIOPS, #e36COS1RIOPS,#e36COS3WTH, #e36COS3RTH, 
+#e36COS3RL, #e36COS3WL, #e36COS3WIOPS, #e36COS3RIOPS, #e36HS2WTH, #e36HS2RTH, #e36HS2RL, #e36HS2WL, #e36HS2WIOPS, #e36HS2RIOPS {
+    background-color: #B8B8B8;
+}
+
+#e64COS1WTH, #e64COS1RTH, #e64COS1RL, #e64COS1WL, #e64COS1WIOPS, #e64COS1RIOPS,#e64COS3WTH, #e64COS3RTH, #e64COS3RL, 
+#e64COS3WL, #e64COS3WIOPS, #e64COS3RIOPS, #e64HS2WTH, #e64HS2RTH, #e64HS2RL, #e64HS2WL, #e64HS2WIOPS, #e64HS2RIOPS {
+    background-color: #B0B0B0;
+}
+
+#e128COS1WTH, #e128COS1RTH, #e128COS1RL, #e128COS1WL, #e128COS1WIOPS, #e128COS1RIOPS,#e128COS3WTH, #e128COS3RTH, #e128COS3RL, 
+#e128COS3WL, #e128COS3WIOPS, #e128COS3RIOPS, #e128HS2WTH, #e128HS2RTH, #e128HS2RL, #e128HS2WL, #e128HS2WIOPS, #e128HS2RIOPS {
+    background-color: #A9A9A9;
+}
+
+#e256COS1WTH, #e256COS1RTH, #e256COS1RL, #e256COS1WL, #e256COS1WIOPS, #e256COS1RIOPS,#e256COS3WTH, #e256COS3RTH, #e256COS3RL,
+ #e256COS3WL, #e256COS3WIOPS, #e256COS3RIOPS, #e256HS2WTH, #e256HS2RTH, #e256HS2RL, #e256HS2WL, #e256HS2WIOPS, #e256HS2RIOPS {
+    background-color: #A8A8A8;
+}
+
+#COS1WTH, #COS1RTH, #COS1RL, #COS1WL, #COS1WIOPS, #COS1RIOPS,#COS3WTH, #COS3RTH, #COS3RL,
+ #COS3WL, #COS3WIOPS, #COS3RIOPS, #HS2WTH, #HS2RTH, #HS2RL, #HS2WL, #HS2WIOPS, #HS2RIOPS{
+    font-weight: bolder;
+    color : #404040;
+    background-color: #99A3A4;
+}
+
+#hsbench_main_1, #hsbench_main_3, #cosbench_main_2,#bops1, #bops3{
+    font-weight: bolder;
+    color : #101010;
+    background-color: #99A3A4;
+}
+
+#hsbench_main_2, #cosbench_main_3, #cosbench_main_1, #bops2{
+    font-weight: bolder;
+    color : #101010;
+    background-color: #C0C0C0;
+}
+
+#S3, #Provisioner, #CSM, #SSPL, #HA, #Motr, #Locust, #Cosbench,#data_recovery, #node_recovery, #Total,#exe_total4,#exe_pass, #exe_fail, #exe_aborted, #exe_blocked,
+#update, #deploy, #box, #unbox, #onboard, #firm, #NReboot, #Nstart, #Nstop, #Nfail, #Nfback, #stopA, #startA, #bcre, #bdel {
+    font-weight: bold;
+    color : #1C2833;
+    background-color: #B2BABB;
+}
+
+#code_maturity_build_current{
+    color : #641E16;
+}
+
+#S3_1_pass, #provision_1_pass, #csm_1_pass, #sspl_1_pass, #motr_1_pass, #ha_1_pass, #loc_1_pass, #cos_1_pass, #dr_1_pass, #nr_1_pass,
+#S3_2_pass, #provision_2_pass, #csm_2_pass, #sspl_2_pass, #motr_2_pass, #ha_2_pass, #loc_2_pass, #cos_2_pass, #dr_2_pass, #nr_2_pass
+{
+    color : #239B56;
+    font-weight: bolder;
+}
+
+#S3_1_fail, #provision_1_fail, #csm_1_fail, #sspl_1_fail, #motr_1_fail, #ha_1_fail, #loc_1_fail, #cos_1_fail, #dr_1_fail, #nr_1_fail,
+#S3_2_fail, #provision_2_fail, #csm_2_fail, #sspl_2_fail, #motr_2_fail, #ha_2_fail, #loc_2_fail, #cos_2_fail, #dr_2_fail, #nr_2_fail
+{
+    color : #E74C3C;
+    font-weight: bolder;
+}
+
+#xtotal_ppass, #total_1_pass, #total_2_pass, #xtotal_pass{
+    color : #186A3B;
+    font-weight: bold;
+    background-color: #AED6F1;
+}
+
+#total_1_fail, #total_2_fail,#xtotal_fail,#xtotal_pfail, #xtotal_pfail{
+    color : #E74C3C;
+    font-weight: bold;
+    background-color: #AED6F1;
+}
+
+#user_op_pass, #scale_pass, #avail_pass, #long_pass, #ucases_pass, #orphans_pass{
+    color : #16A085;
+    font-weight: bolder;
+}
+
+#user_op_ppass, #scale_ppass, #avail_ppass, #long_ppass, #ucases_ppass, #orphans_ppass{
+    color : #138D75;
+    font-weight: bolder;
+}
+
+#user_op_fail, #scale_fail, #avail_fail, #long_fail, #ucases_fail, #orphans_fail{
+    color : #A04000;
+    font-weight: bolder;
+}
+
+#user_op_pfail, #scale_pfail, #avail_pfail, #long_pfail, #ucases_pfail, #orphans_pfail{
+    color: #BA4A00;
+    font-weight: bolder;
+}
+
+#user_op_total, #scale_total, #avail_total, #long_total, #ucases_total, #orphans_total{
+    color : #2874A6;
+    font-weight: bolder;
+}
+
+#xtotal_total{
+    background-color: #AED6F1;
+    color : #1A5276;
+    font-weight: bolder;    
+}
+
+#xTotal, #User_operations, #Scalability, #Availability, #Longevity, #Use_cases, #Orphans{
+    background-color:#B2BABB;
+    font-weight: bolder;
+}
+
+#WTH, #RTH, #WL, #RL{
+    font-weight: bolder;
+    color : #404040;
+    background-color: #B2BABB;
+}
+
+#WTH4, #RTH4, #WL4, #RL4{
+    font-weight: bolder;
+}
+
+#WTH256, #RTH256, #WL256, #RL256{
+    font-weight: bolder;
+}
+
+body{
+    background-color: #343a40;
+    line-height: 1.0;
+}
+
+H4, H6{
+    color : #ECF0F1;
+}
+
+#tabs {
+    margin-left: 20;
+    margin-right: 20;
+    color : #6ebe4a; 
+}
+
+Td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+#configs_Dropdown{
+    width: 300px;
+    text-align: center;
+    margin-right: 15px;
+}
+
+#Version_Dropdown, #Build1_Dropdown, #Build2_Dropdown, #Benchmark_Dropdown, #Operations_Dropdown{
+    width: 200px;
+    text-align: center;
+    margin-right: 15px;
+}

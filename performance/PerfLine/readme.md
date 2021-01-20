@@ -1,5 +1,6 @@
 # Re-organized and renamed PerfLine 
-`.
+```
+.
 ├── ansible.cfg
 ├── callbacks
 │   └── anstomlog.py
@@ -196,7 +197,8 @@
 │       │   └── taskq.yml
 │       └── vars
 │           └── main.yml
-└── run_perfline.yml`
+└── run_perfline.yml
+```
 
 
 # Perfline
@@ -213,18 +215,19 @@ For automated deploying perfline on a client, following prerequisites must be sa
 3. Machine, from which installation will be performed, should have ssh access to cluster nodes by their dns-name/ip (ssh-copy-id) from both end(client-to-srvnode1/2,srvnode1/2-to-client).
 4. Setup config for cluster nodes  
     4.1 Change ./inventories/perfline_hosts/hosts file and set target cluster nodes dns-name/ip. Accordingly for nodes and client groups.
-    `[nodes]`
-    `srvnode-1 ansible_host=<PRIMARY NODE-FQDN>`
-    `srvnode-2 ansible_host=<SECONDARY NODE-FQDN>`
+    ```
+    [nodes]
+    srvnode-1 ansible_host=<PRIMARY NODE-FQDN>
+    srvnode-2 ansible_host=<SECONDARY NODE-FQDN>
 
-    `[client]`
-    `client-1 ansible_host=<CLIENT NODE-FQDN>`
-    `...`  
+    [client]
+    client-1 ansible_host=<CLIENT NODE-FQDN>
+    ```
     4.2 Change ./roles/perfline_setup/files/wrapper/sys/config.py and set target nodes names and ha_type.   
-    `...`  
-    `nodes = 'target1.seagate.com,target2.seagate.com'`  
-    `ha_type = 'hare'`  
-    `...`  
+    ```
+    nodes = 'target1.seagate.com,target2.seagate.com'
+    ha_type = 'hare'
+    ```
     For VMs configuration `ha_type = hare`  
     For cluster configuration `ha_type = pcs`  
 
@@ -252,10 +255,10 @@ If you go to report page you could see detailed report for executed task, includ
 
 ##### 8005 is a default port. If you want to change it, you should do it before perfline installation with these steps:  
 - in ./ansible_setup/setup.yaml find task named 'Open port for webui' and change mentioned port for desired:  
-    `...`  
+    ```
     ` - name: Open port for webui`  
     `firewalld: port='new_port'/tcp zone=public permanent=true state=enabled immediate=yes`  
-    `...`  
+    ```
 - in ./webui/config.py change `server_ep` variable for port:  
     `...`  
     `server_ep = {'host': '0.0.0.0', 'port': 'new_port'}`  

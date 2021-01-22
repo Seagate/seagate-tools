@@ -71,7 +71,7 @@ from os.path import basename, splitext
 import re
 from dateutil.parser import parse as dtparse
 from datetime import datetime
-import memory_profiler
+import json
 
 
 DB      = SqliteDatabase(None)
@@ -403,8 +403,11 @@ def fd_consume_record(rec):
 
 
 class AddbDumpIterator:
-    def __init__(self, file):
+    def __init__(self, file, start_pos=None, end_pos=None):
         self.file = file
+        self.start_pos = 0 if start_pos is None else start_pos
+        self.cur_pos = -1
+        self.end_pos = end_pos
 
     def __iter__(self):
         self.fd = open(self.file)
@@ -414,10 +417,19 @@ class AddbDumpIterator:
     def __next__(self):
         results = list()
         data_chunk = list()
+
         for addb_rec in self.fd_iter:
+            self.cur_pos += 1
+
+            if self.cur_pos < self.start_pos:
+                continue
+            elif self.end_pos != None and self.cur_pos >= self.end_pos:
+                break
+
             data_chunk.append(addb_rec)
             if len(data_chunk) >= BLOCK:
                 break
+
         if len(data_chunk) == 0:
             self.fd.close()
             raise StopIteration()
@@ -453,7 +465,7 @@ def insert_records(tables):
                             else:
                                 raise ex
 
-def db_consume_data(files: List[str], append_db: bool):
+def db_consume_data(files, append_db: bool):
     if len(files) == 0:
         return
 
@@ -461,13 +473,24 @@ def db_consume_data(files: List[str], append_db: bool):
         db_drop_tables()
         db_create_tables()
 
-    for (nr,file) in enumerate(files):
-        lines_nr = get_lines_nr(file)
+    for (nr,input_file_data) in enumerate(files):
+
+        file = input_file_data[0]
+
+        if len(input_file_data) == 3:
+            start = input_file_data[1]
+            stop = input_file_data[2]
+            lines_nr = stop - start
+        else:
+            start = None
+            stop = None
+            lines_nr = get_lines_nr(file)
+
         global PID
         PID = parse_pid(file)
         with tqdm(total=lines_nr, desc=f"{nr+1}/{len(files)} Read file: {file}") as tqwerty:
 
-            for rows in AddbDumpIterator(file):
+            for rows in AddbDumpIterator(file, start, stop):
                 filtered_rows = filter(None, rows)
                 tables = defaultdict(list)
                 for k,v in filtered_rows:
@@ -510,6 +533,13 @@ addb2db.py: creates sql database containing performance samples
 A bunch of addb2dump.txts can be passed here for processing:
 python3 addb2db.py --dumps dump1.txt dump2.txt ...
 """)
+    parser.add_argument('--jdumps', type=str, required=False, default=None, help="""
+Json formatted list of addb dumps with start/end position for each file.
+Can be used instead of --dumps parameter to limit number of lines of each dump to process.
+Example of using:
+python3 addb2db.py --jdumps "[[\\"dumps_1.txt\\",100,200],[\\"dumps_2.txt\\",1000,2000]]"
+""")
+
     parser.add_argument('--db', type=str, required=False,
                         default="m0play.db",
                         help="Output database file")
@@ -525,6 +555,12 @@ python3 addb2db.py --dumps dump1.txt dump2.txt ...
 
 if __name__ == '__main__':
     args=db_parse_args()
+
+    if args.jdumps:
+        input_data = json.loads(args.jdumps)
+    else:
+        input_data = [ [addb_dump] for addb_dump in args.dumps ]
+
     BLOCK=args.block
     DBBATCH=args.batch
 
@@ -532,6 +568,6 @@ if __name__ == '__main__':
     db_setup_loggers()
     db_connect()
 
-    db_consume_data(args.dumps, args.append_db)
+    db_consume_data(input_data, args.append_db)
     # db_idx_create()
     db_close()

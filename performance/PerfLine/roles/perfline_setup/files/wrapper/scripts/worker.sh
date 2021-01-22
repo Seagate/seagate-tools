@@ -183,6 +183,19 @@ function run_workloads()
     popd			# $client
 }
 
+function s3bench_workloads()
+{
+    local client="client"
+    mkdir -p $client
+    pushd $client
+    START_TIME=`date +%s000000000`
+    $SCRIPT_DIR/s3bench_run.sh -b $BUCKETNAME -n $SAMPLE -c $CLIENT -o $IOSIZE | tee workload_s3bench.log
+    STATUS=${PIPESTATUS[0]}
+    STOP_TIME=`date +%s000000000`
+    sleep 120
+    popd
+}
+
 function create_results_dir() {
     echo "Create results folder"
     mkdir -p $RESULTS_DIR
@@ -426,7 +439,9 @@ function main() {
     
     # Start workload
     run_workloads
-
+    
+    # Start s3bench workload
+    s3bench_workloads
     # Stop workload time execution measuring
     stop_measuring_workload_time
 
@@ -476,6 +491,22 @@ while [[ $# -gt 0 ]]; do
             ;;
         -p|--result-path)
             RESULTS_DIR=$2
+            shift
+            ;;
+        -bucket)
+            BUCKETNAME=$2
+            shift
+            ;;
+        -clients)
+            CLIENT=$2
+            shift
+            ;;
+        -sample)
+            SAMPLE=$2
+            shift
+            ;;
+        -size)
+            IOSIZE=$2
             shift
             ;;
         --nodes)

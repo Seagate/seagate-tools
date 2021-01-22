@@ -41,6 +41,15 @@ def get_schema_motr():
                 }
             }
         },
+        'parameter': {
+            'type': 'dict',
+            'schema': {
+                'BucketName': {'type': 'string'},
+                'NumClients': {'type': 'integer'},
+                'NumSample': {'type': 'integer'},
+                'ObjSize': {'type': 'string'},
+            }
+        },
         'execution_options': {
             'type': 'dict',
             'schema': {

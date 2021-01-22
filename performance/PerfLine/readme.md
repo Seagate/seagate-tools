@@ -89,7 +89,7 @@
 │       │   │   └── test_io.yaml.template
 │       │   ├── filter.py
 │       │   ├── huey_consumer
-│       │   ├── huey-consumer.service
+│       │   ├── perfline.service
 │       │   ├── main.py
 │       │   ├── perfline
 │       │   │   ├── perfline

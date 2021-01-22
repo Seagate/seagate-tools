@@ -58,16 +58,16 @@
       dest: /etc/systemd/system/webui.service
     delegate_to: "client-1"
 
-  - name: Copy huey-consumer systemd file
+  - name: Copy perfline systemd file
     copy:
-      src: files/huey-consumer.service
-      dest: /etc/systemd/system/huey-consumer.service
+      src: files/perfline.service
+      dest: /etc/systemd/system/perfline.service
     delegate_to: "client-1"
 
   - name: Start webui service
     systemd: state=started name=webui daemon_reload=yes
     delegate_to: "client-1"
 
-  - name: Start huey-consumer service
-    systemd: state=started name=huey-consumer daemon_reload=yes
+  - name: Start perfline service
+    systemd: state=started name=perfline daemon_reload=yes
     delegate_to: "client-1"

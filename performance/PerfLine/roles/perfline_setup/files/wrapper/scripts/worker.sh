@@ -288,6 +288,7 @@ function save_stats() {
 	scp -r $srv:/var/perfline/dstat* dstat || true
 	scp -r $srv:/var/perfline/hw* hw || true
 	scp -r $srv:/var/perfline/network* network || true
+	scp -r $srv:/var/perfline/5u84* 5u84 || true
 	popd
     done
 }

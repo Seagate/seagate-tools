@@ -152,7 +152,6 @@
 │       │   │       ├── s3bench.yaml
 │       │   │       └── sleep.yaml
 │       │   ├── record.py
-│       │   ├── run_pl.sh
 │       │   ├── webui
 │       │   │   ├── config.py
 │       │   │   ├── install-systemd-service

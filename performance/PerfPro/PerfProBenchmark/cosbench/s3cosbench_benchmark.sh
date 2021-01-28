@@ -126,6 +126,7 @@ if [ ! -d $LOG ]; then
           cp -r ~/cos/archive/$i* $LOG;
       done     
       python3 cosbench_DBupdate.py $LOG $MAIN $CONFIG
+      python3 collect_logs_cosbench.py
 else
       mv $LOG $CURRENT_PATH/benchmark.bak_$TIMESTAMP
       mkdir $LOG
@@ -135,5 +136,6 @@ else
           cp -r ~/cos/archive/$i* $LOG;
       done
       python3 cosbench_DBupdate.py $LOG $MAIN $CONFIG
-     
+      python3 collect_logs_cosbench.py     
+
 fi

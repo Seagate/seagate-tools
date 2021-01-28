@@ -5,7 +5,7 @@ Description=Perfline service
 Type=simple
 Restart=always
 WorkingDirectory=/root/perfline/wrapper
-ExecStart=/usr/bin/bash /root/perfline/wrapper/run_pl.sh
+ExecStart=/usr/bin/bash /root/perfline/wrapper/run_pl
 
 [Install]
 WantedBy=multi-user.target

@@ -9,7 +9,7 @@
 
   - name: Copy perfline working dir
     copy:
-      src: files/perfline
+      src: files/wrapper
       dest: "{{ perfline_dir }}"
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"

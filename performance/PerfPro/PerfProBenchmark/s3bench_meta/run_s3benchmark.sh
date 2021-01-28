@@ -114,9 +114,13 @@ if [ ! -d $BENCHMARKLOG ]; then
       mkdir $BENCHMARKLOG
       s3benchmark
       python3 s3bench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG
+      python3 collect_logs_s3bench.py
+
 else
       mv $BENCHMARKLOG $CURRENTPATH/benchmark.bak_$TIMESTAMP
       mkdir $BENCHMARKLOG
       s3benchmark
       python3 s3bench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG      
+      python3 collect_logs_s3bench.py
+
 fi

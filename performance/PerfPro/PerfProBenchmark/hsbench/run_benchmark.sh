@@ -121,11 +121,13 @@ if [ ! -d $BENCHMARKLOG ]; then
       mkdir $BENCHMARKLOG
       hotsause_benchmark #2>&1 | tee benchmark.log/output.log 
       python3 hsbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG
+      python3 collect_logs_hsbench.py
       
 else
       mv $BENCHMARKLOG $CURRENTPATH/benchmark.bak_$TIMESTAMP
       mkdir $BENCHMARKLOG
       hotsause_benchmark #2>&1 | tee benchmark.log/output.log 
       python3 hsbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG
-      
+      python3 collect_logs_hsbench.py
+
 fi

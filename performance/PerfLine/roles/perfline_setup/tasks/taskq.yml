@@ -1,16 +1,27 @@
 ---
-  - name: Copy webui dir
-    copy:
-      src: files/webui
+  - name: Compress directory files/webui into files/webui.tgz
+    archive:
+      path: "{{ role_path }}/files/webui"
+      dest: "{{ role_path }}/files/webui.tar.gz"
+   
+
+  - name: Copy perfline webui scripts
+    unarchive:
+      src: "{{ role_path }}/files/webui.tar.gz"
       dest: "{{ perfline_dir }}"
     delegate_to: "client-1"
 
-  - name: Copy chronometry dir
-    copy:
-      src: files/chronometry
+  - name: Compress directory files/chronometry into files/chronometry.tar.gz
+    archive:
+      path: "{{ role_path }}/files/chronometry"
+      dest: "{{ role_path }}/files/chronometry.tar.gz"
+   
+
+  - name: Copy perfline webui scripts
+    unarchive:
+      src: "{{ role_path }}/files/chronometry.tar.gz"
       dest: "{{ perfline_dir }}"
-    delegate_to: "{{ item }}"
-    with_items: "{{ groups['all'] }}"
+    delegate_to: "client-1" 
 
 
 #  - name: Open port for webui

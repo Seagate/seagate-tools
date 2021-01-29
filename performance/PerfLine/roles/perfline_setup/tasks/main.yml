@@ -15,22 +15,22 @@
     with_items: "{{ groups['all'] }}"
 
   - name: Changing permission for execution for perfline scripts
-    file: path=/root/perfline/perfline/scripts mode=a+x state=directory recurse=yes
+    file: path=/root/perfline/wrapper/scripts mode=a+x state=directory recurse=yes
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
   - name: Changing permission for execution for stat scripts
-    file: path=/root/perfline/perfline/stat mode=a+x state=directory recurse=yes
+    file: path=/root/perfline/wrapper/stat mode=a+x state=directory recurse=yes
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
   - name: Changing permission for execution for stat scripts
-    file: path=/root/perfline/perfline/workload mode=a+x state=directory recurse=yes
+    file: path=/root/perfline/wrapper/workload mode=a+x state=directory recurse=yes
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
   - name: Changing permission for execution for perfline.py
-    file: dest=/root/perfline/perfline/perfline.py mode=a+x
+    file: dest=/root/perfline/wrapper/perfline.py mode=a+x
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 

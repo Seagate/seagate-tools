@@ -1,4 +1,4 @@
-perfline_script_path = '/root/perfline/perfline/perfline.py'
+perfline_script_path = '/root/perfline/wrapper/perfline.py'
 artifacts_dir = '/var/perfline'
 logfile = '/var/perfline/log/nohup.log'
 

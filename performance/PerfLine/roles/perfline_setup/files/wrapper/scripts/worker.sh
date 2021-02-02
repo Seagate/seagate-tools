@@ -442,7 +442,7 @@ function main() {
     run_workloads
     
     # Start s3bench workload
-    if [[ "$S3BENCH" = true ]] || [[ "$S3BENCH" = True ]]; then
+    if [[ -n "$S3BENCH" ]]; then
         s3bench_workloads
     fi
 
@@ -498,11 +498,11 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         --fio)
-            FIO=$2
+            FIO="1"
             shift
             ;;
         --s3bench)
-            S3BENCH=$2
+            S3BENCH="1"
             shift
             ;;
         -bucket)

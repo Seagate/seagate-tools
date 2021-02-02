@@ -499,11 +499,9 @@ while [[ $# -gt 0 ]]; do
             ;;
         --fio)
             FIO="1"
-            shift
             ;;
         --s3bench)
             S3BENCH="1"
-            shift
             ;;
         -bucket)
             BUCKETNAME=$2

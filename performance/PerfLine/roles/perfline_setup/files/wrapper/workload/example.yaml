@@ -17,11 +17,31 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 
-from huey import SqliteHuey
+common:
+  version: 1
+  description: Perf benchmark - s3bench, size=, clients=, num=
+  priority: 1
+  batch_id: null
+  user: user@seagate.com
+  send_email: false
 
-huey = SqliteHuey(filename='sys/s3cluster_queue.db')
-artifacts_dir = f'/var/perfline'
-pack_artifacts = False
-nodes = '<PRIMARY-NODE>,<SECONDARY-NODE>'
-ha_type = 'pcs'
-# TODO: Pass parameter of type: HARE or Pacemaker
+workload:
+  - cmd: sleep 1
+
+benchmark:
+  fio: false 
+  s3bench: True
+
+parameter:
+  BucketName: 
+  NumClients: 
+  NumSample: 
+  ObjSize:       
+
+execution_options:
+  mkfs: false
+  no_m0trace_files: true
+  no_m0trace_dumps: true
+  no_addb_stobs: true
+  no_addb_dumps: true
+  no_m0play_db: true

@@ -1,5 +1,5 @@
 ---
- - hosts: clientserver
+ - hosts: localhost
    gather_facts: no
    become: yes
    vars_files:

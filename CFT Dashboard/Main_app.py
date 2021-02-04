@@ -2081,7 +2081,6 @@ def update_eng_table_1(clicks, pathname, input_value, enter_input):
             product_trivial_count = len(mapi.find_distinct("defectID",{'build':build,'deleted':False, 'defectPriority' : 'Trivial','testResult':'FAIL'}))
         except:
             product_trivial_count = "-"
-        #test_total = mapi.count_documents({'build':build,'deleted':False, "testLabels" : 'EOS_TA'})
         
         try:
             product_total = 0

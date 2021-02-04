@@ -1,7 +1,7 @@
 '''
 CORTX CFT Dashboard Script
 @ Seagate Pune
-last Modification: 18 January 2020
+last Modification: 3 February 2020
 Version: 6
 '''
 ### ====================================================================================
@@ -39,10 +39,10 @@ app.title = "CORTX Test Status"
 server = app.server
 perfDb = dd.get_database()
 
-username = '752263' # <insert your JIRA Username here > # input("JIRA username: ")
-password = 'seaSAM!369' # <insert your JIRA password here > # getpass.getpass("JIRA password: ")
+username = # <insert your JIRA Username here > # input("JIRA username: ")
+password = # <insert your JIRA password here > # getpass.getpass("JIRA password: ")
 
-__version__ = "6.11"
+__version__ = "6.12"
 ### ====================================================================================
 
 @server.route('/favicon.ico')
@@ -288,10 +288,11 @@ bucketops_caption = [
                 dcc.Dropdown(
                     id = "Bucket_Ops_Dropdown",
                     options = bucketOps,
-                    placeholder="Average Latency",
+                    placeholder="Metrics",
+                    value="AvgLat",
                     style = {'width': '300px', 'verticalAlign': 'middle',"margin-right": "15px"}, #,'align-items': 'center', 'justify-content': 'center'
                 ),
-            html.P(html.Em("⟽ Select one of the bucket operations to view statistics."),className="card-text",),
+            html.P(html.Em("(Select one of the Metrics)"),className="card-text",),
     
             ],justify="center", align="center"
             ),
@@ -405,6 +406,18 @@ tab1_content = dbc.Card(
             style = {'textAlign': 'center'},
             id = "ET6",
             ),
+
+            # dbc.Row([dcc.Dropdown(
+            #         id = "Bucket_Ops_Dropdown",
+            #         options = bucketOps,
+            #         placeholder="Select Bucket Operation",
+            #         style = {'width': '250px', 'verticalAlign': 'middle',"margin-right": "15px"}, #,'align-items': 'center', 'justify-content': 'center'
+            #     ),
+            # html.P(html.Em("? Select one of the bucket operations to view statistics."),className="card-text",),
+    
+            # ],justify="center", align="center"
+            # ),
+            
 
             dbc.Table(bucketops_caption + bucketops_head + [html.Tbody([b1,b2,b3,b4,b5,b6,b7,b9,b8,b10,b11,b12,b13,b14,b15,b16,b18,b17,\
                     b19,b20,b21,b22,b23,b24,b25,b27,b26])],
@@ -609,9 +622,9 @@ operations = [
     {'label': 'Write', 'value':'write'},    
 ]
 benchmarks = [
-    {'label': 'S3bench', 'value':'S3bench'},
-    {'label': 'COSbench', 'value':'Cosbench'},
-    {'label': 'HSbench', 'value':'Hsbench'},
+    {'label': 'S3Bench', 'value':'S3bench'},
+    {'label': 'COSBench', 'value':'Cosbench'},
+    {'label': 'HSBench', 'value':'Hsbench'},
 ]
 config_list = [
         {'label' : '1 Bucket, 1000 Objects, 100 Sessions', 'value' : 'option1'},
@@ -669,12 +682,19 @@ tab4_content = dbc.Card(
                     value = 'Both'
                 ),
                 dbc.Button("Get!", id="get_graph_button", color="success",style={'height': '35px'}),
-
+            ],
+            justify='center',style={'padding':'10px'}),
+            dbc.Row(
+              [
                 dcc.Graph(id='plot_Throughput'),
                 dcc.Graph(id='plot_Latency'),
                 dcc.Graph(id='plot_IOPS'),
                 dcc.Graph(id='plot_TTFB'),
                 dcc.Graph(id='plot'),
+              ],
+            justify='center',style={'padding':'10px'}),
+            dbc.Row(
+              [
                 html.P('Statistics are displayed only for the builds on which Performance test suite has ran.',className="card-text",style={'margin-top':'10px'})
             ],
             justify='center',style={'padding':'10px'})
@@ -1007,7 +1027,7 @@ def update_configs(bench, label):
         configs_state = {'display': 'block'}
     else:
         configs_state = {'display': 'none'}
-        graph_state = {'display': 'none'}
+        graph_state = {'display': 'block'}
     heading_String = html.Th("Graphical representation of {} Performance data".format(bench), style={'text-align':'center'})
     
     if label == None:
@@ -1015,10 +1035,10 @@ def update_configs(bench, label):
     else:
         placeholder = "Select " + label
 
-    if label == 'Object Size':
-        dropdown_state = {'display': 'none'}
-    else:
+    if label == 'build':
         dropdown_state = {'display': 'block'}
+    else:
+        dropdown_state = {'display': 'none'}
 
     return [configs_state,graph_state,heading_String, placeholder,dropdown_state]
 
@@ -1168,7 +1188,7 @@ def update_throughput(xfilter, version, build1, build2, bench, configs, operatio
     fig.update_layout(
         autosize=True,
         showlegend = True,
-        title = '{} Variance'.format(param),
+        title = '{}'.format(param),
         legend_title= 'Glossary',
         width=1200,
         height=600,
@@ -1323,7 +1343,7 @@ def update_latency(xfilter, version, build1, build2, bench, configs, operation):
     fig.update_layout(
         autosize=True,
         showlegend = True,
-        title = '{} Variance'.format(param),
+        title = '{}'.format(param),
         legend_title= 'Glossary',
         width=1200,
         height=600,
@@ -1457,7 +1477,7 @@ def update_IOPS(xfilter, version, build1, build2, bench, configs, operation):
     fig.update_layout(
         autosize=True,
         showlegend = True,
-        title = '{} Variance'.format(param),
+        title = 'Requests Per Second ({})'.format(param),
         legend_title= 'Glossary',
         width=1200,
         height=600,
@@ -1590,7 +1610,7 @@ def update_TTFB(xfilter, version, build1, build2, bench, configs, operation):
     fig.update_layout(
         autosize=True,
         showlegend = True,
-        title = '{} Variance'.format(param),
+        title = 'Time To First Byte ({})'.format(param),
         legend_title= 'Glossary',
         width=1200,
         height=600,
@@ -1753,6 +1773,14 @@ def update_exe_table_3(clicks, pathname, input_value, enter_input):
             long_count_f = mapi.count_documents({'build': build,'deleted':False, 'feature': 'Longevity', 'testResult':'FAIL'})
         except:
             long_count_f = "-"
+        # try:
+        #     perf_count_p = mapi.count_documents({'build': build,'deleted':False, 'feature': 'Performance', 'testResult':'PASS'})
+        # except:
+        #     perf_count_p = "-"
+        # try:
+        #     perf_count_f = mapi.count_documents({'build': build,'deleted':False, 'feature': 'Performance', 'testResult':'FAIL'})
+        # except:
+        #     perf_count_f = "-"
         try:
             uc_count_p = mapi.count_documents({'build': build,'deleted':False, 'feature': 'Usecases', 'testResult':'PASS'})
         except:
@@ -1785,6 +1813,10 @@ def update_exe_table_3(clicks, pathname, input_value, enter_input):
             l_total = long_count_p + long_count_f
         except:
             l_total = "-"
+        # try:
+        #     p_total = perf_count_p + perf_count_f
+        # except:
+        #     p_total = "-"
         try:
             u_total = uc_count_p + uc_count_f
         except:
@@ -2077,6 +2109,7 @@ def update_eng_table_1(clicks, pathname, input_value, enter_input):
             product_trivial_count = len(mapi.find_distinct("defectID",{'build':build,'deleted':False, 'defectPriority' : 'Trivial','testResult':'FAIL'}))
         except:
             product_trivial_count = "-"
+        #test_total = mapi.count_documents({'build':build,'deleted':False, "testLabels" : 'EOS_TA'})
         
         try:
             product_total = 0

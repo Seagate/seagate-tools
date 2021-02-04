@@ -43,6 +43,7 @@ username = # <insert your JIRA Username here > # input("JIRA username: ")
 password = # <insert your JIRA password here > # getpass.getpass("JIRA password: ")
 
 __version__ = "6.12"
+
 ### ====================================================================================
 
 @server.route('/favicon.ico')
@@ -1044,6 +1045,7 @@ def update_all(xfilter, version, build1, build2, bench, configs, operation):
         raise PreventUpdate
     if not operation:
         operation = 'Both'
+
     if (bench != 'S3bench') and not configs:
         raise PreventUpdate
     
@@ -2081,7 +2083,6 @@ def update_eng_table_1(clicks, pathname, input_value, enter_input):
             product_trivial_count = len(mapi.find_distinct("defectID",{'build':build,'deleted':False, 'defectPriority' : 'Trivial','testResult':'FAIL'}))
         except:
             product_trivial_count = "-"
-        #test_total = mapi.count_documents({'build':build,'deleted':False, "testLabels" : 'EOS_TA'})
         
         try:
             product_total = 0

@@ -1,0 +1,11 @@
+[Unit]
+Description=Perfline service
+
+[Service]
+Type=simple
+Restart=always
+WorkingDirectory=/root/perfline/wrapper
+ExecStart=/usr/bin/bash /root/perfline/wrapper/run_pl
+
+[Install]
+WantedBy=multi-user.target

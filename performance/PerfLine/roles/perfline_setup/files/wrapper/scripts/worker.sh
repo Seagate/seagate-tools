@@ -330,6 +330,7 @@ function collect_artifacts() {
     
     if [[ -z $NO_ADDB_STOBS ]] && [[ -z $NO_ADDB_DUMPS ]] && [[ -z $NO_M0PLAY_DB ]]; then
         $SCRIPT_DIR/merge_m0playdb $m0d/dumps/m0play* $s3srv/*/m0play*
+        rm -f $m0d/dumps/m0play* $s3srv/*/m0play*
     fi
 }
 

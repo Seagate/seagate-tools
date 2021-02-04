@@ -21,24 +21,12 @@
 set -e
 set -x
 
-# TOOLS_DIR="/root/chronometry"
 SCRIPT_PATH="$(readlink -f $0)"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 TOOLS_DIR="$SCRIPT_DIR/../../chronometry"
 
 function main()
 {
-    # echo "P1: $1"
-    # echo "P2: $2"
-    # echo "P3: $3"
-    # echo "P4: $4"
-    # echo "P5: $5"
-    # echo "P6: $6"
-    # echo "P7: $7"
-    # echo "P8: $8"
-    # echo "P9: $9"
-    # echo "P10: ${10}"
-
     parse_params "$@"
 
     if [[ "$APP" == "motr" ]]; then
@@ -90,83 +78,63 @@ parse_params()
 
 function process_motr_addb()
 {
+    local motr_addb_dir="/var/log/seagate/motr/addb"
+
+    local tmp_dir="$motr_addb_dir/$(mktemp -u addb_tmp_XXXXXXX)"
+    mkdir $tmp_dir
+    pushd $tmp_dir
 
     for ios_fid in $IO_SERVICES; do
+       local ios_dir="$motr_addb_dir/m0d-$ios_fid"
 
-       #local ios_dir="/var/motr/m0d-$ios_fid"
-       local ios_dir="/var/log/seagate/motr/addb/m0d-$ios_fid"
+        if [[ ! -d "$ios_dir" ]]; then
+            continue
+        fi
 
-       if [[ ! -d "$ios_dir" ]]; then
-           continue
-       fi
+        local ios_addb_stobs="$ios_dir/addb-stobs-*/o/100000000000000:2" 
 
-       local ios_addb_stobs="$ios_dir/addb-stobs-*/o/100000000000000:2" 
-
-       #local ios_addb_stobs="$ios_dir/stobs*/o/100000000000000:*" 
-
-       for addb_stob in $ios_addb_stobs; do
-
-           pushd $(dirname $addb_stob)
-           pid=$(echo $addb_stob | sed -E 's/.*addb-stobs-([0-9]+)[/].*/\1/')
-
-           #local fname=$(basename $addb_stob);
-
-           #pid=$(echo $fname | sed -E s/10+://)
-           m0addb2dump -f -- "$addb_stob" > ./dumps_${pid}.txt
-           scp dumps_* root@${ARTIF_HOST}:${ARTIF_DIR}
-           generate_m0playdb dumps_${pid}.txt $pid root@${ARTIF_HOST}:${ARTIF_DIR}
-           popd
-
-       done
-
+        for addb_stob in $ios_addb_stobs; do
+            pid=$(echo $addb_stob | sed -E 's/.*addb-stobs-([0-9]+)[/].*/\1/')
+            m0addb2dump -f -- "$addb_stob" > ./dumps_${pid}.txt
+        done
     done
-    
 
-#    for ios_fid in $IO_SERVICES; do
-#        local ios_dir="/var/motr/m0d-$ios_fid"
-#        local ios_addb_stob="$ios_dir/addb-stobs-*/o/100000000000000:2"
-#        local pid=$(echo $ios_addb_stob | sed -E 's/.*[x]([a-z0-9]*)[/].*/\1/')
-#
-#        if [[ -e $ios_addb_stob ]]; then
-#            pushd $ios_dir/addb-stobs/o/
-#            m0addb2dump -f -- "$ios_addb_stob" > ./dumps_${pid}.txt
-#            scp dumps_* root@${ARTIF_HOST}:${ARTIF_DIR}
-#            generate_m0playdb dumps_${pid}.txt $pid root@${ARTIF_HOST}:${ARTIF_DIR}
-#
-#            ls ./
-#            popd
-#        fi
-#    done
+    # generate motr m0play.db 
+    if ls dumps* &> /dev/null; then
+        $TOOLS_DIR/../chronometry_v2/addb2db_multiprocess.sh --dumps ./dumps*
+        local db_filename="m0play.db.$(hostname)"
+        mv m0play.db $db_filename
+        scp dumps* root@${ARTIF_HOST}:${ARTIF_DIR}
+        scp $db_filename root@${ARTIF_HOST}:${ARTIF_DIR}
+    fi
+
+    popd
+    rm -rf $tmp_dir
 }
 
 function process_s3_addb()
 {
+    local s3_addb_dir="/var/log/seagate/motr"
+
+    local tmp_dir="$s3_addb_dir/$(mktemp -u addb_tmp_XXXXXXX)"
+    mkdir $tmp_dir
+    pushd $tmp_dir
+
     for addb_stob in /var/log/seagate/motr/s3server*/addb*/o/100000000000000:2; do
-        pushd $(dirname $addb_stob)
         pid=$(echo $addb_stob | sed -E 's/.*addb_([0-9]+)[/].*/\1/')
         m0addb2dump -f -p /opt/seagate/cortx/s3/addb-plugin/libs3addbplugin.so \
             -- "$addb_stob" > ./dumpc_${pid}.txt
-        scp dumpc_* root@${ARTIF_HOST}:${ARTIF_DIR}/$(hostname)
-        generate_m0playdb dumpc_${pid}.txt $pid root@${ARTIF_HOST}:${ARTIF_DIR}/$(hostname)
+    done
 
-        ls ./
-        popd
-    done    
-}
-
-function generate_m0playdb()
-{
-    if [[ -n "$NO_M0PLAY_DB" ]]; then
-        return 0
+    # generate motr m0play.db 
+    if ls dumpc* &> /dev/null; then
+        $TOOLS_DIR/../chronometry_v2/addb2db_multiprocess.sh --dumps ./dumpc*
+        scp dumpc* root@${ARTIF_HOST}:${ARTIF_DIR}/$(hostname)
+        scp m0play.db root@${ARTIF_HOST}:${ARTIF_DIR}/$(hostname)
     fi
 
-    local addb_dump="$1"
-    local pid="$2"
-    local remote_path="$3"
-
-    python3 $TOOLS_DIR/addb2new.py --procs 16 --dumps ./$addb_dump
-    mv m0play.db m0play_${pid}.db
-    scp m0play_${pid}.db $remote_path
+    popd
+    rm -rf $tmp_dir
 }
 
 main "$@"

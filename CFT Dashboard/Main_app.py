@@ -165,7 +165,6 @@ t5_caption = [
 ]
 t5_head = [
     html.Thead(html.Tr([html.Th(" ", rowSpan=2),html.Th("Current Build",id='timing_build_current'),html.Th("Prev Build",id= "timing_build_prev_2"),html.Th("Prev Build",id= "timing_build_prev_3"),html.Th("Prev Build",id= "timing_build_prev_4"),html.Th("Prev Build",id= "timing_build_prev_5")])),
-    #html.Thead(html.Tr([html.Th(" "),html.Th("Min"), html.Th("Max"),html.Th("Min"), html.Th("Max"),html.Th("Min"), html.Th("Max"),html.Th("Min"), html.Th("Max"),html.Th("Min"), html.Th("Max")]))
 ]
 t5r1 = html.Tr([html.Td("Update",id="update"),html.Td(None, id="update_min_1"),html.Td(None, id="update_min_2"),html.Td(None, id="update_min_3"),html.Td(None, id="update_min_4"),html.Td(None, id="update_min_5")])
 t5r2 = html.Tr([html.Td("Deployment",id="deploy"),html.Td(None, id="deploy_min_1"),html.Td(None, id="deploy_min_2"),html.Td(None, id="deploy_min_3"),html.Td(None, id="deploy_min_4"),html.Td(None, id="deploy_min_5")])
@@ -406,18 +405,6 @@ tab1_content = dbc.Card(
             style = {'textAlign': 'center'},
             id = "ET6",
             ),
-
-            # dbc.Row([dcc.Dropdown(
-            #         id = "Bucket_Ops_Dropdown",
-            #         options = bucketOps,
-            #         placeholder="Select Bucket Operation",
-            #         style = {'width': '250px', 'verticalAlign': 'middle',"margin-right": "15px"}, #,'align-items': 'center', 'justify-content': 'center'
-            #     ),
-            # html.P(html.Em("? Select one of the bucket operations to view statistics."),className="card-text",),
-    
-            # ],justify="center", align="center"
-            # ),
-            
 
             dbc.Table(bucketops_caption + bucketops_head + [html.Tbody([b1,b2,b3,b4,b5,b6,b7,b9,b8,b10,b11,b12,b13,b14,b15,b16,b18,b17,\
                     b19,b20,b21,b22,b23,b24,b25,b27,b26])],
@@ -1057,8 +1044,6 @@ def update_all(xfilter, version, build1, build2, bench, configs, operation):
         raise PreventUpdate
     if not operation:
         operation = 'Both'
-    # if build1 and operation and (build2 == None):
-    #    build2 = build1
     if (bench != 'S3bench') and not configs:
         raise PreventUpdate
     
@@ -1730,7 +1715,6 @@ def update_tab3(clicks, input_value):
     Output('scale_total', 'children'),Output('scale_pass', 'children'),Output('scale_fail', 'children'),Output('scale_ppass', 'children'),Output('scale_pfail', 'children'),
     Output('avail_total', 'children'),Output('avail_pass', 'children'),Output('avail_fail', 'children'),Output('avail_ppass', 'children'),Output('avail_pfail', 'children'),
     Output('long_total', 'children'),Output('long_pass', 'children'),Output('long_fail', 'children'),Output('long_ppass', 'children'),Output('long_pfail', 'children'),
-    #Output('perf_total', 'children'),Output('perf_pass', 'children'),Output('perf_fail', 'children'),Output('perf_ppass', 'children'),Output('perf_pfail', 'children'),
     Output('ucases_total', 'children'),Output('ucases_pass', 'children'),Output('ucases_fail', 'children'),Output('ucases_ppass', 'children'),Output('ucases_pfail', 'children'),
     Output('orphans_total', 'children'),Output('orphans_pass', 'children'),Output('orphans_fail', 'children'),Output('orphans_ppass', 'children'),Output('orphans_pfail', 'children'),
     Output('xtotal_total', 'children'),Output('xtotal_pass', 'children'),Output('xtotal_fail', 'children'),Output('xtotal_ppass', 'children'),Output('xtotal_pfail', 'children')],  #47 T3
@@ -1773,14 +1757,6 @@ def update_exe_table_3(clicks, pathname, input_value, enter_input):
             long_count_f = mapi.count_documents({'build': build,'deleted':False, 'feature': 'Longevity', 'testResult':'FAIL'})
         except:
             long_count_f = "-"
-        # try:
-        #     perf_count_p = mapi.count_documents({'build': build,'deleted':False, 'feature': 'Performance', 'testResult':'PASS'})
-        # except:
-        #     perf_count_p = "-"
-        # try:
-        #     perf_count_f = mapi.count_documents({'build': build,'deleted':False, 'feature': 'Performance', 'testResult':'FAIL'})
-        # except:
-        #     perf_count_f = "-"
         try:
             uc_count_p = mapi.count_documents({'build': build,'deleted':False, 'feature': 'Usecases', 'testResult':'PASS'})
         except:
@@ -1813,10 +1789,6 @@ def update_exe_table_3(clicks, pathname, input_value, enter_input):
             l_total = long_count_p + long_count_f
         except:
             l_total = "-"
-        # try:
-        #     p_total = perf_count_p + perf_count_f
-        # except:
-        #     p_total = "-"
         try:
             u_total = uc_count_p + uc_count_f
         except:
@@ -4793,7 +4765,6 @@ def update_cosbench3(clicks, pathname, input_value, enter_input):
     Output('IBCLR256', 'children'),Output('IBDEL256', 'children'),Output('BINIT256', 'children'),Output('PUT256', 'children'),Output('LIST256', 'children'),Output('GET256', 'children'),Output('DEL256', 'children'),Output('BCLR256', 'children'),Output('BDEL256', 'children')],
     [Input('Bucket_Ops_Dropdown','value'),Input('table_submit_button', 'n_clicks'),dash.dependencies.Input('url', 'pathname'),Input('table_build_input', 'value')],[State('table_build_input', 'value')])
 def update_bucketops1(parameter,clicks, pathname, input_value, enter_input):
-    #Build = '120'
     if not parameter:
         parameter = 'AvgLat'
     if parameter:
@@ -4997,8 +4968,7 @@ def update_bucketops1(parameter,clicks, pathname, input_value, enter_input):
     Output('IBCLR1281', 'children'),Output('IBDEL1281', 'children'),Output('BINIT1281', 'children'),Output('PUT1281', 'children'),Output('LIST1281', 'children'),Output('GET1281', 'children'),Output('DEL1281', 'children'),Output('BCLR1281', 'children'),Output('BDEL1281', 'children'),
     Output('IBCLR2561', 'children'),Output('IBDEL2561', 'children'),Output('BINIT2561', 'children'),Output('PUT2561', 'children'),Output('LIST2561', 'children'),Output('GET2561', 'children'),Output('DEL2561', 'children'),Output('BCLR2561', 'children'),Output('BDEL2561', 'children')],
     [Input('Bucket_Ops_Dropdown','value'),Input('table_submit_button', 'n_clicks'),dash.dependencies.Input('url', 'pathname'),Input('table_build_input', 'value')],[State('table_build_input', 'value')])
-def update_bucketops2(parameter,clicks, pathname, input_value, enter_input):
-    #Build = '120'      
+def update_bucketops2(parameter,clicks, pathname, input_value, enter_input):    
     if not parameter:
         parameter = 'AvgLat'  
     if parameter:

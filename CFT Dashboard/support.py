@@ -1,6 +1,7 @@
 ## Support file
 
 from pymongo import MongoClient
+# from multipledispatch import dispatch
 import plotly.graph_objs as go 
 import pandas as pd
 
@@ -31,6 +32,7 @@ def get_IO_size(IOsize,bench):
 
 def get_non_configs_IOsize_data(build,bench,operation,param,subparam=None):
     IOsize_list = get_x_axis('Object Size',bench)
+    # print("nc",build,bench,operation,param,subparam)
 
     data = []
     col = get_DB_details()
@@ -42,6 +44,7 @@ def get_non_configs_IOsize_data(build,bench,operation,param,subparam=None):
                 data.append(cursor[0][param])
             except:
                data.append(None)
+               # IOsize_list.remove(IOsize)
 
     else:
         for IOsize in IOsize_list:
@@ -50,6 +53,7 @@ def get_non_configs_IOsize_data(build,bench,operation,param,subparam=None):
                 data.append(cursor[0][param][subparam])
             except:
                data.append(None)
+               # IOsize_list.remove(IOsize)
 
         data = (pd.Series(data) * 1000).tolist()
 
@@ -68,6 +72,7 @@ def get_configs_IOsize_data(build,bench,operation,buckets,objects,sessions,param
                 data.append(cursor[0][param])
             except:
                data.append(None)
+               # IOsize_list.remove(IOsize)
     else:
         for IOsize in IOsize_list:
             try:
@@ -75,6 +80,7 @@ def get_configs_IOsize_data(build,bench,operation,buckets,objects,sessions,param
                 data.append(cursor[0][param][subparam])
             except:
                data.append(None)
+               # IOsize_list.remove(IOsize)
 
         data = (pd.Series(data) * 1000).tolist()
 
@@ -123,30 +129,37 @@ def get_IOsizewise_data(build,bench,configs,operation,param,subparam=None):
         return get_configs_IOsize_data(build,bench,operation,Buckets,Objects,Sessions,param,subparam)
 
 def get_non_config_builds_data(version,IOsize,bench,configs,operation,param,subparam):
+    # print("nc",version,IOsize,bench,configs,operation,param,subparam)
     build_list = get_x_axis('builds',bench,version)
+    # print(build_list)
     data = []
     col = get_DB_details()
 
     if subparam==None:
         for build in build_list:
+            #print(IOsize,bench,configs,operation,param,subparam,build)
             try:
                 cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': get_IO_size(IOsize,bench)})
                 data.append(cursor[0][param])
             except:
+                # build_list.remove(build)
                 data.append(None)
 
         return build_list, data
     else:
         for build in build_list:
+            #print(IOsize,bench,configs,operation,param,subparam,build)
             try:
                 cursor = col.find({'Build':build,'Name': bench, 'Operation':operation,'Object_Size': get_IO_size(IOsize,bench)})
                 data.append(cursor[0][param][subparam])
             except:
+                # build_list.remove(build)
                 data.append(None)
 
         return build_list, (pd.Series(data) * 1000).tolist()
 
 def get_config_builds_data(version,IOsize,bench,operation,buckets,objects,sessions,param,subparam=None):
+    # print("c",version,IOsize,bench,operation,buckets,objects,sessions,param,subparam)
     data = []
     col = get_DB_details()
     build_list = get_x_axis('builds',bench,version)
@@ -158,6 +171,7 @@ def get_config_builds_data(version,IOsize,bench,operation,buckets,objects,sessio
                 cursor = col.find({'Build':build,'Name': bench,'Operation':operation,'Object_Size': get_IO_size(IOsize,bench),'Buckets':buckets,'Objects':objects,'Sessions':sessions})
                 data.append(cursor[0][param])
             except:
+                # build_list.remove(build)
                 data.append(None)
         return build_list, data
 
@@ -168,6 +182,7 @@ def get_config_builds_data(version,IOsize,bench,operation,buckets,objects,sessio
                 cursor = col.find({'Build':build,'Name': bench,'Operation':operation,'Object_Size': get_IO_size(IOsize,bench),'Buckets':buckets,'Objects':objects,'Sessions':sessions})
                 data.append(cursor[0][param][subparam])
             except:
+                # build_list.remove(build)
                 data.append(None)
         return build_list, data
 
@@ -179,6 +194,7 @@ def get_buildwise_data(version,IOsize,bench,configs,operation,param,subparam=Non
         Buckets, Objects, Sessions = get_benchmark_configs(configs, bench)
         builds, datapoints = get_config_builds_data(version,IOsize,bench,operation,Buckets,Objects,Sessions,param,subparam)
     
+    # print(builds,datapoints)
     return builds, datapoints
 
 def get_all_traces(xfilter, version, build1, build2, bench, configs, operation):

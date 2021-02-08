@@ -1,4 +1,5 @@
-# Support file
+## Support file
+
 from pymongo import MongoClient
 import plotly.graph_objs as go 
 import pandas as pd
@@ -55,7 +56,6 @@ def get_non_configs_IOsize_data(build,bench,operation,param,subparam=None):
     return IOsize_list, data
 
 def get_configs_IOsize_data(build,bench,operation,buckets,objects,sessions,param,subparam=None):
-    print("c",build,bench,operation,buckets,objects,sessions,param,subparam)
     data = []
     col = get_DB_details()
     IOsize_list = get_x_axis('Object Size',bench)
@@ -530,7 +530,7 @@ def get_all_traces(xfilter, version, build1, build2, bench, configs, operation):
     fig.update_layout(
         autosize=True,
         showlegend = True,
-        title = 'All Statistics Variance',
+        title = 'All in One',
         legend_title= 'Glossary',
         width=1200,
         height=600,

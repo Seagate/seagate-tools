@@ -42,7 +42,26 @@ def parse_options(conf, result_dir):
     for w in conf['workload']:
         options.append('-w')
         options.append(w['cmd'])
+    
+    # Benchmark
+    options.append('--fio')    
+    options.append(conf['benchmark']['fio'])
 
+    options.append('--s3bench')
+    options.append(conf['benchmark']['s3bench'])
+    
+    # Parameter
+    options.append('-bucket')
+    options.append(conf['parameter']['BucketName'])
+
+    options.append('-clients')
+    options.append(conf['parameter']['NumClients'])
+   
+    options.append('-sample')
+    options.append(conf['parameter']['NumSample'])
+
+    options.append('-size')
+    options.append(conf['parameter']['ObjSize'])
     # Execution options:
     if 'mkfs' in conf['execution_options']:
         if conf['execution_options']['mkfs']:

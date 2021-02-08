@@ -243,9 +243,22 @@ class ADDB2PP:
         pid2 = PID
         type_id = table
 
-        return(("relation", {'mid1': mid1, 'pid1': pid1,
+        result = list()
+
+        fom_attrs = dict()
+        for i in range(3, len(measurement), 2):
+            fom_attr_name = measurement[i].replace(':', '')
+            fom_attr_val = measurement[i + 1].replace('<', '').replace('>', '').replace(',','')
+            fom_attrs[fom_attr_name] = fom_attr_val
+        
+        e_id = fom_attrs['fom_sm_id']
+        for k, v in fom_attrs.items():
+            result.append( ('attr', {'entity_id' : e_id, 'pid' : PID, 'name' : k, 'val' : v}) )
+
+        result.append( ("relation", {'mid1': mid1, 'pid1': pid1,
                              'mid2': mid2, 'pid2': pid2,
-                             'type_id': type_id }))
+                             'type_id': type_id }) )
+        return result
 
 
     # ['*', '2019-08-29-12:08:23.766071289', 'fom-descr', 'service:', '<0:0>,',  'sender:', '0,', 'req-opcode:', 'none,',  'rep-opcode:', 'none,', 'local:', 'false,', 'rpc_sm_id:', '0,',    'fom_sm_id:', '0']
@@ -433,7 +446,14 @@ class AddbDumpIterator:
         if len(data_chunk) == 0:
             self.fd.close()
             raise StopIteration()
-        results.extend(map(fd_consume_record, data_chunk))
+
+        for raw_record in data_chunk:
+            tmp = fd_consume_record(raw_record)
+            if type(tmp) == list:
+                results.extend(tmp)
+            else:
+                results.append(tmp)
+
         return results
 
 def get_lines_nr(file_path):
@@ -491,6 +511,7 @@ def db_consume_data(files, append_db: bool):
         with tqdm(total=lines_nr, desc=f"{nr+1}/{len(files)} Read file: {file}") as tqwerty:
 
             for rows in AddbDumpIterator(file, start, stop):
+
                 filtered_rows = filter(None, rows)
                 tables = defaultdict(list)
                 for k,v in filtered_rows:

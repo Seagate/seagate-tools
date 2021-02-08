@@ -26,7 +26,7 @@ common:
   send_email: false
 
 workload:
-  - cmd: /root/perfline/perfline/workload/s3bench_run.sh -n 1024 -c 256 -o 100k
+  - cmd: /root/perfline/wrapper/workload/s3bench_run.sh -n 1024 -c 256 -o 100k
 
 execution_options:
   mkfs: true

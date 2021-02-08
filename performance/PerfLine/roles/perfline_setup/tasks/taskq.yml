@@ -22,7 +22,7 @@
       dest: "{{ perfline_dir }}"
     delegate_to: "client-1" 
  
- - name: Compress directory files/chronometry_v2 into files/chronometry_v2.tar.gz
+  - name: Compress directory files/chronometry_v2 into files/chronometry_v2.tar.gz
     archive:
       path: "{{ role_path }}/files/chronometry_v2"
       dest: "{{ role_path }}/files/chronometry_v2.tar.gz"
@@ -41,6 +41,13 @@
 
 #  - name: Open port for webui
 #    firewalld: port=8005/tcp zone=public permanent=true state=enabled immediate=yes
+
+  - name: Copying local.repo in "/etc/yum.repo.d/" location
+    copy:
+      src: files/local.repo
+      dest: /etc/yum.repos.d/
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['nodes'] }}"
 
   - name: Install perfline python dependencies
     pip:

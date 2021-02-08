@@ -13,7 +13,6 @@ function iostat_service_stop()
      while kill -0 "$iostat_pid"; do
          sleep 1
      done
-#     disks=$(salt-call pillar.get cluster:`cat /etc/salt/minion_id`:storage:data_devices --output=newline_values_only)
      
      md=`mount | grep -e mero -e m0tr -e motr | awk '{print $1}'`
      md_base=`echo $md | awk -F/ '{print $NF}'`

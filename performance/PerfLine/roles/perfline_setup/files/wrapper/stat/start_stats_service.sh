@@ -20,26 +20,25 @@ function creating_dir()
 
 function iostat-service-start()
 {
-     iostat -yxmt 1 &> /var/perfline/iostat.$(hostname -s)/iostat.log
+     iostat -yxmt 1 > /var/perfline/iostat.$(hostname -s)/iostat.log &
 }
 
 function dstat-service-start()
 {
-     dstat --full --output /var/perfline/dstat.$(hostname -s)/dstat.csv &> /dev/null
+     dstat --full --output /var/perfline/dstat.$(hostname -s)/dstat.csv > /dev/null &
 }
 
 function blktrace-service-start()
 {    
-     blktrace $DISKS -D /var/perfline/blktrace.$(hostname -s)
+     blktrace $DISKS -D /var/perfline/blktrace.$(hostname -s) 
 
 }
 
 
 
 removing_dir    
-sleep 10
 creating_dir
-iostat-service-start  
+iostat-service-start   
 dstat-service-start 
 blktrace-service-start  
 

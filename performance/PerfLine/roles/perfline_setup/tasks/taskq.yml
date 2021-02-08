@@ -20,7 +20,8 @@
     unarchive:
       src: "{{ role_path }}/files/chronometry.tar.gz"
       dest: "{{ perfline_dir }}"
-    delegate_to: "client-1" 
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['all'] }}"
  
   - name: Compress directory files/chronometry_v2 into files/chronometry_v2.tar.gz
     archive:
@@ -31,7 +32,8 @@
     unarchive:
       src: "{{ role_path }}/files/chronometry_v2.tar.gz"
       dest: "{{ perfline_dir }}"
-    delegate_to: "client-1"
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['all'] }}"
 
 
 #  - name: Open port for webui

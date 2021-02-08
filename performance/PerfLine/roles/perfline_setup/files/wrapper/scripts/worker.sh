@@ -439,8 +439,6 @@ function main() {
     echo "Stop stat utilities"
     stop_stat_utils
 
-    # Collect stat artifacts
-    # echo "Collect stat artifacts"
 
     ssh $PRIMARY_NODE 'hctl status' > hctl-status.stop
     # if [[ -n $MKFS ]]; then

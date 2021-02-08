@@ -1,7 +1,7 @@
 '''
 CORTX CFT Dashboard Script
 @ Seagate Pune
-last Modification: 3 February 2020
+last Modification: 8 February 2020
 Version: 6
 '''
 ### ====================================================================================
@@ -39,10 +39,11 @@ app.title = "CORTX Test Status"
 server = app.server
 perfDb = dd.get_database()
 
-username = # <insert your JIRA Username here > # input("JIRA username: ")
-password = # <insert your JIRA password here > # getpass.getpass("JIRA password: ")
+username = '' # <insert your JIRA Username here > # input("JIRA username: ")
+password = '' # <insert your JIRA password here > # getpass.getpass("JIRA password: ")
 
-__version__ = "6.12"
+__version__ = "6.13"
+
 ### ====================================================================================
 
 @server.route('/favicon.ico')
@@ -59,7 +60,6 @@ toast = html.Div(
             dismissable=True,
             icon="danger",
             duration=6000,
-            # top: 66 positions the toast below the navbar
             style={"position": "fixed", "top": 25, "right": 10, "width": 350},
         ),
     ]
@@ -600,6 +600,7 @@ versions = [
         {'label' : 'Cortx-1.0-Beta', 'value' : 'beta'},
         {'label' : 'Release', 'value' : 'release'},
         {'label' : 'Cortx-1.0', 'value' : 'cortx1'},
+        {'label' : 'Custom', 'value' : 'custom'},
         {'label' : 'Main', 'value' : 'main', 'disabled': True}
 ]
 #### -------------------------------------------------------------------------------------------
@@ -717,17 +718,19 @@ build_report_header = dbc.Jumbotron(html.H4(html.Em("... looking for build numbe
 #### ==============================================================================================
 # App configarations
 #### ==============================================================================================
-versions = [
+version_main = [
         {'label' : 'Cortx-1.0-Beta', 'value' : 'beta'},
         {'label' : 'Release', 'value' : 'release'},
         {'label' : 'Cortx-1.0', 'value' : 'cortx1'},
+        {'label' : 'Custom', 'value' : 'custom'},
         {'label' : 'Main', 'value' : 'main', 'disabled': True}
 ]
+
 input_options = dbc.Row(
     [
         dcc.Dropdown(
             id = "version_main_dropdown",
-            options = versions,
+            options = version_main,
             placeholder="select version",
             style = {'width': '200px', 'verticalAlign': 'middle',"margin-right": "15px"},
         ),
@@ -849,7 +852,7 @@ def get_input(table_type, ctx, clicks, input_value, enter_input, pathname):
     if table_type == 'perf':
         item = perfDb.results.find({'Title' : 'Main Chain'})
         for doc in item:
-            if current_build not in doc['beta'] and current_build not in doc['release'] and current_build not in doc['cortx1']:
+            if current_build not in doc['beta'] and current_build not in doc['release'] and current_build not in doc['cortx1'] and current_build not in doc['custom']:
                 return [None, None, None]
         if found_current:
             previous_build = None    
@@ -937,6 +940,16 @@ def fetch_build_for_dropdown(value):
         ]
         return [another]
 
+    elif value== 'custom':
+        cursor = mapi.find({'info' : 'build sequence'})
+        builds = cursor[0][value]
+        list1 = builds
+        result = [ele for ele in reversed(list1)]
+        another = [
+                {'label' : build, 'value' : build} for build in result
+        ]
+        return [another]
+
     if version:
         cursor = mapi.find({'info' : 'build sequence'})
         builds = cursor[0][version]
@@ -972,24 +985,34 @@ def versionCallback(Xfilter, value):
         if not value:
             raise PreventUpdate
  
-        beta_chain = [ele for ele in reversed(dd.get_chain('beta'))]
-        release_chain = [ele for ele in reversed(dd.get_chain('release'))]
-        cortx1_chain = [ele for ele in reversed(dd.get_chain('cortx1'))]
-        build_options_beta = [
+        if value == 'beta':
+            beta_chain = [ele for ele in reversed(dd.get_chain('beta'))]
+            build_options_beta = [
                 {'label' : build, 'value' : build} for build in beta_chain
             ]
-        build_options_release = [
-                {'label' : build, 'value' : build} for build in release_chain
-            ]
-        build_options_cortx1 = [
-            {'label' : build, 'value' : build} for build in cortx1_chain
-        ]
-        if value == 'beta':
             return [build_options_beta, build_options_beta]
+            
         elif value == 'release':
+            release_chain = [ele for ele in reversed(dd.get_chain('release'))]
+            build_options_release = [
+                {'label' : build, 'value' : build} for build in release_chain
+            ]            
             return [build_options_release, build_options_release]
+        
+        elif value == 'custom':
+           custom_chain = [ele for ele in reversed(dd.get_chain('custom'))]
+           build_options_custom = [
+            {'label' : build, 'value' : build} for build in custom_chain
+           ]
+           return [build_options_custom, build_options_custom]
+           
         else:
+            cortx1_chain = [ele for ele in reversed(dd.get_chain('cortx1'))]        
+            build_options_cortx1 = [
+                {'label' : build, 'value' : build} for build in cortx1_chain
+            ]
             return [build_options_cortx1, build_options_cortx1]
+            
     else:
         Objsize_list = get_x_axis('Object Size')
         Objsize_options = [
@@ -1044,6 +1067,7 @@ def update_all(xfilter, version, build1, build2, bench, configs, operation):
         raise PreventUpdate
     if not operation:
         operation = 'Both'
+
     if (bench != 'S3bench') and not configs:
         raise PreventUpdate
     
@@ -2081,7 +2105,6 @@ def update_eng_table_1(clicks, pathname, input_value, enter_input):
             product_trivial_count = len(mapi.find_distinct("defectID",{'build':build,'deleted':False, 'defectPriority' : 'Trivial','testResult':'FAIL'}))
         except:
             product_trivial_count = "-"
-        #test_total = mapi.count_documents({'build':build,'deleted':False, "testLabels" : 'EOS_TA'})
         
         try:
             product_total = 0
@@ -4968,7 +4991,7 @@ def update_bucketops1(parameter,clicks, pathname, input_value, enter_input):
     Output('IBCLR1281', 'children'),Output('IBDEL1281', 'children'),Output('BINIT1281', 'children'),Output('PUT1281', 'children'),Output('LIST1281', 'children'),Output('GET1281', 'children'),Output('DEL1281', 'children'),Output('BCLR1281', 'children'),Output('BDEL1281', 'children'),
     Output('IBCLR2561', 'children'),Output('IBDEL2561', 'children'),Output('BINIT2561', 'children'),Output('PUT2561', 'children'),Output('LIST2561', 'children'),Output('GET2561', 'children'),Output('DEL2561', 'children'),Output('BCLR2561', 'children'),Output('BDEL2561', 'children')],
     [Input('Bucket_Ops_Dropdown','value'),Input('table_submit_button', 'n_clicks'),dash.dependencies.Input('url', 'pathname'),Input('table_build_input', 'value')],[State('table_build_input', 'value')])
-def update_bucketops2(parameter,clicks, pathname, input_value, enter_input):    
+def update_bucketops2(parameter,clicks, pathname, input_value, enter_input):
     if not parameter:
         parameter = 'AvgLat'  
     if parameter:

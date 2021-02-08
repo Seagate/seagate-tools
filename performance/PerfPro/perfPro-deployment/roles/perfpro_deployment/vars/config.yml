@@ -1,0 +1,25 @@
+---
+REIMAGE: 
+NODE1: 
+NODE2: 
+CLIENT: 
+BUILD_URL: 
+CLUSTER_PASS: seagate1
+CHANGE_PASS: 'no'
+PRVSNR_CLI_REPO: https://github.com/Seagate/cortx-prvsnr@cortx-1.0#subdirectory=api/python
+PREREQ_URL: https://raw.githubusercontent.com/Seagate/cortx-prvsnr/cortx-1.0/cli/src/cortx-prereqs.sh
+
+# If you want to change server password then enter below details
+SERVICE_USER:
+SERVICE_PASS:
+
+required_vars:
+  - REIMAGE
+  - NODE1
+  - NODE2
+  - CLIENT
+  - BUILD_URL
+  - CLUSTER_PASS
+  - SATELLITE_UN
+  - SATELLITE_PW
+  - CHANGE_PASS

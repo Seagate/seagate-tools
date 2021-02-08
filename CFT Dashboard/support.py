@@ -1,4 +1,5 @@
-# Support file
+## Support file
+
 from pymongo import MongoClient
 # from multipledispatch import dispatch
 import plotly.graph_objs as go 
@@ -59,7 +60,6 @@ def get_non_configs_IOsize_data(build,bench,operation,param,subparam=None):
     return IOsize_list, data
 
 def get_configs_IOsize_data(build,bench,operation,buckets,objects,sessions,param,subparam=None):
-    # print("c",build,bench,operation,buckets,objects,sessions,param,subparam)
     data = []
     col = get_DB_details()
     IOsize_list = get_x_axis('Object Size',bench)

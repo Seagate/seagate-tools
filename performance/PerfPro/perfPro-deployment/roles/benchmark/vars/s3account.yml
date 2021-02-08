@@ -1,0 +1,24 @@
+---
+MGMT_VIP: 10.237.65.69
+Restcall:
+  ip : "10.237.65.69"
+  port : 28100
+  jsonfile : 'rest_call.json'
+  csm_admin_user :
+    username: "admin"
+    password: "Seagate@1"
+  csm_user_manage:
+    username: "csm_user_manage"
+    password: "Testuser@123"
+  csm_user_monitor:
+    username: "csm_user_monitor"
+    password: "Testuser@123"
+  s3account_user:
+    username: "s3user3"
+    password: "Seagate@123"
+    email: "accounts323.admin@seagate.com"
+  Login_headers:
+    Content-Type: 'application/json'
+  rest_login_endpoint : "/api/v1/login"
+  alerts_endpoint : "/api/v1/alerts"
+  s3accounts_endpoint : "/api/v1/s3_accounts"

@@ -38,7 +38,24 @@ def get_schema_motr():
                 'type': 'dict',
                 'schema': {
                     'cmd': {'type': 'string'},
+        
                 }
+            }
+        },
+        'benchmark': {
+            'type': 'dict',
+            'schema': {
+                'fio': {'type': 'boolean'},
+                's3bench': {'type': 'boolean' },
+            }
+        },
+        'parameter': {
+            'type': 'dict',
+            'schema': {
+                'BucketName': {'type': 'string', 'required': False, 'nullable': True },
+                'NumClients': {'type': 'integer', 'required': False, 'nullable': True },
+                'NumSample': {'type': 'integer', 'required': False, 'nullable': True },
+                'ObjSize': {'type': 'string', 'required': False, 'nullable': True },
             }
         },
         'execution_options': {

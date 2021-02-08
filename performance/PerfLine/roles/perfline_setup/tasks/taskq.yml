@@ -1,5 +1,5 @@
 ---
-  - name: Compress directory files/webui into files/webui.tgz
+  - name: Compress directory files/webui into files/webui.tar.gz
     archive:
       path: "{{ role_path }}/files/webui"
       dest: "{{ role_path }}/files/webui.tar.gz"
@@ -16,12 +16,22 @@
       path: "{{ role_path }}/files/chronometry"
       dest: "{{ role_path }}/files/chronometry.tar.gz"
    
-
-  - name: Copy perfline webui scripts
+  - name: Copy perfline chronometry scripts
     unarchive:
       src: "{{ role_path }}/files/chronometry.tar.gz"
       dest: "{{ perfline_dir }}"
     delegate_to: "client-1" 
+ 
+ - name: Compress directory files/chronometry_v2 into files/chronometry_v2.tar.gz
+    archive:
+      path: "{{ role_path }}/files/chronometry_v2"
+      dest: "{{ role_path }}/files/chronometry_v2.tar.gz"
+
+  - name: Copy perfline chronometry_v2 scripts
+    unarchive:
+      src: "{{ role_path }}/files/chronometry_v2.tar.gz"
+      dest: "{{ perfline_dir }}"
+    delegate_to: "client-1"
 
 
 #  - name: Open port for webui

@@ -341,29 +341,14 @@ function close_results_dir() {
 function start_stat_utils()
 {
     echo "Start stat utils"
-
-    echo "Start iostat"
-    $EX_SRV "$STAT_DIR/iostat_start.sh" &
-
-    echo "Start blktrace"
-    $EX_SRV "$STAT_DIR/blktrace_start.sh" &
-
-    echo "Start dstat"
-    $EX_SRV "$STAT_DIR/dstat_start.sh" &
+    $EX_SRV "$STAT_DIR/start_stats_service.sh" &
+    sleep 30
 }
 
 function stop_stat_utils()
 {
     echo "Stop stat utils"
-
-    echo "Stop iostat"
-    $EX_SRV "$STAT_DIR/iostat_stop.sh"
-
-    echo "Stop blktrace"
-    $EX_SRV "$STAT_DIR/blktrace_stop.sh"
-    
-    echo "Stop dstat"
-    $EX_SRV "$STAT_DIR/dstat_stop.sh"
+    $EX_SRV "$STAT_DIR/stop_stats_service.sh" 
 
     echo "Gather static info"
     $EX_SRV "$STAT_DIR/collect_static_info.sh"
@@ -442,7 +427,7 @@ function main() {
     run_workloads
     
     # Start s3bench workload
-    if [[ -n "$S3BENCH" ]]; then
+    if [[ -n $S3BENCH ]]; then
         s3bench_workloads
     fi
 
@@ -455,7 +440,7 @@ function main() {
     stop_stat_utils
 
     # Collect stat artifacts
-    echo "Collect stat artifacts"
+    # echo "Collect stat artifacts"
 
     ssh $PRIMARY_NODE 'hctl status' > hctl-status.stop
     # if [[ -n $MKFS ]]; then
@@ -497,12 +482,6 @@ while [[ $# -gt 0 ]]; do
             RESULTS_DIR=$2
             shift
             ;;
-        --fio)
-            FIO="1"
-            ;;
-        --s3bench)
-            S3BENCH="1"
-            ;;
         -bucket)
             BUCKETNAME=$2
             shift
@@ -528,6 +507,12 @@ while [[ $# -gt 0 ]]; do
         --ha_type)
             HA_TYPE=$2
             shift
+            ;;
+        --fio)                 
+            FIO="1"
+            ;;
+        --s3bench)
+            S3BENCH="1"
             ;;
         --no-m0trace-files)
             NO_M0TRACE_FILES="1"

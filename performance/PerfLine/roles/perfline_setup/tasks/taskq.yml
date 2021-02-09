@@ -1,5 +1,5 @@
 ---
-  - name: Compress directory files/webui into files/webui.tgz
+  - name: Compress directory files/webui into files/webui.tar.gz
     archive:
       path: "{{ role_path }}/files/webui"
       dest: "{{ role_path }}/files/webui.tar.gz"
@@ -16,12 +16,24 @@
       path: "{{ role_path }}/files/chronometry"
       dest: "{{ role_path }}/files/chronometry.tar.gz"
    
-
-  - name: Copy perfline webui scripts
+  - name: Copy perfline chronometry scripts
     unarchive:
       src: "{{ role_path }}/files/chronometry.tar.gz"
       dest: "{{ perfline_dir }}"
-    delegate_to: "client-1" 
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['all'] }}"
+ 
+  - name: Compress directory files/chronometry_v2 into files/chronometry_v2.tar.gz
+    archive:
+      path: "{{ role_path }}/files/chronometry_v2"
+      dest: "{{ role_path }}/files/chronometry_v2.tar.gz"
+
+  - name: Copy perfline chronometry_v2 scripts
+    unarchive:
+      src: "{{ role_path }}/files/chronometry_v2.tar.gz"
+      dest: "{{ perfline_dir }}"
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['all'] }}"
 
   - name: Copy huey_consumer python bin
     copy:
@@ -31,6 +43,13 @@
 
 #  - name: Open port for webui
 #    firewalld: port=8005/tcp zone=public permanent=true state=enabled immediate=yes
+
+  - name: Copying local.repo in "/etc/yum.repo.d/" location
+    copy:
+      src: files/local.repo
+      dest: /etc/yum.repos.d/
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['nodes'] }}"
 
   - name: Install perfline python dependencies
     pip:

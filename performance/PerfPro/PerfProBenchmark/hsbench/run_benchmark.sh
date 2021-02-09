@@ -20,7 +20,7 @@ TIMESTAMP=`date +'%Y-%m-%d_%H:%M:%S'`
 #IFS=”,”
 MAIN="/root/PerfProBenchmark/main.yml"
 CONFIG="/root/PerfProBenchmark/config.yml"
-
+LOG_COLLECT="/root/PerfProBenchmark/collect_logs.py"
 
 
 validate_args() {
@@ -121,13 +121,13 @@ if [ ! -d $BENCHMARKLOG ]; then
       mkdir $BENCHMARKLOG
       hotsause_benchmark #2>&1 | tee benchmark.log/output.log 
       python3 hsbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG
-      python3 collect_logs_hsbench.py
+      python3 $LOG_COLLECT $CONFIG
       
 else
       mv $BENCHMARKLOG $CURRENTPATH/benchmark.bak_$TIMESTAMP
       mkdir $BENCHMARKLOG
       hotsause_benchmark #2>&1 | tee benchmark.log/output.log 
       python3 hsbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG
-      python3 collect_logs_hsbench.py
+      python3 $LOG_COLLECT $CONFIG
 
 fi

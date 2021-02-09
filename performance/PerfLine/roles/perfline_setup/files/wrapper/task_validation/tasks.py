@@ -44,11 +44,11 @@ def parse_options(conf, result_dir):
         options.append(w['cmd'])
     
     # Benchmark
-    options.append('--fio')    
-    options.append(conf['benchmark']['fio'])
+    if conf['benchmark']['fio']: 
+        options.append('--fio')    
 
-    options.append('--s3bench')
-    options.append(conf['benchmark']['s3bench'])
+    if conf['benchmark']['s3bench']:
+        options.append('--s3bench')
     
     # Parameter
     options.append('-bucket')

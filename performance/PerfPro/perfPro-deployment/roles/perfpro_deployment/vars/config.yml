@@ -1,9 +1,12 @@
 ---
+# reimage as 'yes' or 'no'
 REIMAGE: 
 NODE1: 
 NODE2: 
 CLIENT: 
 BUILD_URL: 
+BUILD: 
+OS_TYPE:      # Cluster OS type either CENTOS and RHEL
 CLUSTER_PASS: seagate1
 CHANGE_PASS: 'no'
 PRVSNR_CLI_REPO: https://github.com/Seagate/cortx-prvsnr@cortx-1.0#subdirectory=api/python
@@ -12,6 +15,14 @@ PREREQ_URL: https://raw.githubusercontent.com/Seagate/cortx-prvsnr/cortx-1.0/cli
 # If you want to change server password then enter below details
 SERVICE_USER:
 SERVICE_PASS:
+
+#Enter Below details for log collection on NFS repo
+NFS_SERVER: 
+NFS_EXPORT: 
+NFS_MOUNT_POINT: 
+NFS_FOLDER: 
+#End of NFS config
+
 
 required_vars:
   - REIMAGE
@@ -23,3 +34,8 @@ required_vars:
   - SATELLITE_UN
   - SATELLITE_PW
   - CHANGE_PASS
+  - NFS_SERVER
+  - NFS_EXPORT
+  - NFS_MOUNT_POINT
+  - NFS_FOLDER
+

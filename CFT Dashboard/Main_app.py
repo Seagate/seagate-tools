@@ -1,7 +1,7 @@
 '''
 CORTX CFT Dashboard Script
 @ Seagate Pune
-last Modification: 18 January 2020
+last Modification: 8 February 2020
 Version: 6
 '''
 ### ====================================================================================
@@ -39,10 +39,10 @@ app.title = "CORTX Test Status"
 server = app.server
 perfDb = dd.get_database()
 
-username = '752263' # <insert your JIRA Username here > # input("JIRA username: ")
-password = 'seaSAM!369' # <insert your JIRA password here > # getpass.getpass("JIRA password: ")
+username = '' # <insert your JIRA Username here > # input("JIRA username: ")
+password = '' # <insert your JIRA password here > # getpass.getpass("JIRA password: ")
 
-__version__ = "6.11"
+__version__ = "6.13"
 ### ====================================================================================
 
 @server.route('/favicon.ico')
@@ -165,7 +165,6 @@ t5_caption = [
 ]
 t5_head = [
     html.Thead(html.Tr([html.Th(" ", rowSpan=2),html.Th("Current Build",id='timing_build_current'),html.Th("Prev Build",id= "timing_build_prev_2"),html.Th("Prev Build",id= "timing_build_prev_3"),html.Th("Prev Build",id= "timing_build_prev_4"),html.Th("Prev Build",id= "timing_build_prev_5")])),
-    #html.Thead(html.Tr([html.Th(" "),html.Th("Min"), html.Th("Max"),html.Th("Min"), html.Th("Max"),html.Th("Min"), html.Th("Max"),html.Th("Min"), html.Th("Max"),html.Th("Min"), html.Th("Max")]))
 ]
 t5r1 = html.Tr([html.Td("Update",id="update"),html.Td(None, id="update_min_1"),html.Td(None, id="update_min_2"),html.Td(None, id="update_min_3"),html.Td(None, id="update_min_4"),html.Td(None, id="update_min_5")])
 t5r2 = html.Tr([html.Td("Deployment",id="deploy"),html.Td(None, id="deploy_min_1"),html.Td(None, id="deploy_min_2"),html.Td(None, id="deploy_min_3"),html.Td(None, id="deploy_min_4"),html.Td(None, id="deploy_min_5")])
@@ -288,10 +287,11 @@ bucketops_caption = [
                 dcc.Dropdown(
                     id = "Bucket_Ops_Dropdown",
                     options = bucketOps,
-                    placeholder="Average Latency",
+                    placeholder="Metrics",
+                    value="AvgLat",
                     style = {'width': '300px', 'verticalAlign': 'middle',"margin-right": "15px"}, #,'align-items': 'center', 'justify-content': 'center'
                 ),
-            html.P(html.Em("⟽ Select one of the bucket operations to view statistics."),className="card-text",),
+            html.P(html.Em("(Select one of the Metrics)"),className="card-text",),
     
             ],justify="center", align="center"
             ),
@@ -600,6 +600,7 @@ versions = [
         {'label' : 'Cortx-1.0-Beta', 'value' : 'beta'},
         {'label' : 'Release', 'value' : 'release'},
         {'label' : 'Cortx-1.0', 'value' : 'cortx1'},
+        {'label' : 'Custom', 'value' : 'custom'},
         {'label' : 'Main', 'value' : 'main', 'disabled': True}
 ]
 #### -------------------------------------------------------------------------------------------
@@ -609,9 +610,9 @@ operations = [
     {'label': 'Write', 'value':'write'},    
 ]
 benchmarks = [
-    {'label': 'S3bench', 'value':'S3bench'},
-    {'label': 'COSbench', 'value':'Cosbench'},
-    {'label': 'HSbench', 'value':'Hsbench'},
+    {'label': 'S3Bench', 'value':'S3bench'},
+    {'label': 'COSBench', 'value':'Cosbench'},
+    {'label': 'HSBench', 'value':'Hsbench'},
 ]
 config_list = [
         {'label' : '1 Bucket, 1000 Objects, 100 Sessions', 'value' : 'option1'},
@@ -669,12 +670,19 @@ tab4_content = dbc.Card(
                     value = 'Both'
                 ),
                 dbc.Button("Get!", id="get_graph_button", color="success",style={'height': '35px'}),
-
+            ],
+            justify='center',style={'padding':'10px'}),
+            dbc.Row(
+              [
                 dcc.Graph(id='plot_Throughput'),
                 dcc.Graph(id='plot_Latency'),
                 dcc.Graph(id='plot_IOPS'),
                 dcc.Graph(id='plot_TTFB'),
                 dcc.Graph(id='plot'),
+              ],
+            justify='center',style={'padding':'10px'}),
+            dbc.Row(
+              [
                 html.P('Statistics are displayed only for the builds on which Performance test suite has ran.',className="card-text",style={'margin-top':'10px'})
             ],
             justify='center',style={'padding':'10px'})
@@ -710,17 +718,19 @@ build_report_header = dbc.Jumbotron(html.H4(html.Em("... looking for build numbe
 #### ==============================================================================================
 # App configarations
 #### ==============================================================================================
-versions = [
+version_main = [
         {'label' : 'Cortx-1.0-Beta', 'value' : 'beta'},
         {'label' : 'Release', 'value' : 'release'},
         {'label' : 'Cortx-1.0', 'value' : 'cortx1'},
+        {'label' : 'Custom', 'value' : 'custom'},
         {'label' : 'Main', 'value' : 'main', 'disabled': True}
 ]
+
 input_options = dbc.Row(
     [
         dcc.Dropdown(
             id = "version_main_dropdown",
-            options = versions,
+            options = version_main,
             placeholder="select version",
             style = {'width': '200px', 'verticalAlign': 'middle',"margin-right": "15px"},
         ),
@@ -842,7 +852,7 @@ def get_input(table_type, ctx, clicks, input_value, enter_input, pathname):
     if table_type == 'perf':
         item = perfDb.results.find({'Title' : 'Main Chain'})
         for doc in item:
-            if current_build not in doc['beta'] and current_build not in doc['release'] and current_build not in doc['cortx1']:
+            if current_build not in doc['beta'] and current_build not in doc['release'] and current_build not in doc['cortx1'] and current_build not in doc['custom']:
                 return [None, None, None]
         if found_current:
             previous_build = None    
@@ -930,6 +940,16 @@ def fetch_build_for_dropdown(value):
         ]
         return [another]
 
+    elif value== 'custom':
+        cursor = mapi.find({'info' : 'build sequence'})
+        builds = cursor[0][value]
+        list1 = builds
+        result = [ele for ele in reversed(list1)]
+        another = [
+                {'label' : build, 'value' : build} for build in result
+        ]
+        return [another]
+
     if version:
         cursor = mapi.find({'info' : 'build sequence'})
         builds = cursor[0][version]
@@ -965,24 +985,34 @@ def versionCallback(Xfilter, value):
         if not value:
             raise PreventUpdate
  
-        beta_chain = [ele for ele in reversed(dd.get_chain('beta'))]
-        release_chain = [ele for ele in reversed(dd.get_chain('release'))]
-        cortx1_chain = [ele for ele in reversed(dd.get_chain('cortx1'))]
-        build_options_beta = [
+        if value == 'beta':
+            beta_chain = [ele for ele in reversed(dd.get_chain('beta'))]
+            build_options_beta = [
                 {'label' : build, 'value' : build} for build in beta_chain
             ]
-        build_options_release = [
-                {'label' : build, 'value' : build} for build in release_chain
-            ]
-        build_options_cortx1 = [
-            {'label' : build, 'value' : build} for build in cortx1_chain
-        ]
-        if value == 'beta':
             return [build_options_beta, build_options_beta]
+            
         elif value == 'release':
+            release_chain = [ele for ele in reversed(dd.get_chain('release'))]
+            build_options_release = [
+                {'label' : build, 'value' : build} for build in release_chain
+            ]            
             return [build_options_release, build_options_release]
+        
+        elif value == 'custom':
+           custom_chain = [ele for ele in reversed(dd.get_chain('custom'))]
+           build_options_custom = [
+            {'label' : build, 'value' : build} for build in custom_chain
+           ]
+           return [build_options_custom, build_options_custom]
+           
         else:
+            cortx1_chain = [ele for ele in reversed(dd.get_chain('cortx1'))]        
+            build_options_cortx1 = [
+                {'label' : build, 'value' : build} for build in cortx1_chain
+            ]
             return [build_options_cortx1, build_options_cortx1]
+            
     else:
         Objsize_list = get_x_axis('Object Size')
         Objsize_options = [
@@ -1007,7 +1037,7 @@ def update_configs(bench, label):
         configs_state = {'display': 'block'}
     else:
         configs_state = {'display': 'none'}
-        graph_state = {'display': 'none'}
+        graph_state = {'display': 'block'}
     heading_String = html.Th("Graphical representation of {} Performance data".format(bench), style={'text-align':'center'})
     
     if label == None:
@@ -1015,10 +1045,10 @@ def update_configs(bench, label):
     else:
         placeholder = "Select " + label
 
-    if label == 'Object Size':
-        dropdown_state = {'display': 'none'}
-    else:
+    if label == 'build':
         dropdown_state = {'display': 'block'}
+    else:
+        dropdown_state = {'display': 'none'}
 
     return [configs_state,graph_state,heading_String, placeholder,dropdown_state]
 
@@ -1037,8 +1067,7 @@ def update_all(xfilter, version, build1, build2, bench, configs, operation):
         raise PreventUpdate
     if not operation:
         operation = 'Both'
-    # if build1 and operation and (build2 == None):
-    #    build2 = build1
+
     if (bench != 'S3bench') and not configs:
         raise PreventUpdate
     
@@ -1168,7 +1197,7 @@ def update_throughput(xfilter, version, build1, build2, bench, configs, operatio
     fig.update_layout(
         autosize=True,
         showlegend = True,
-        title = '{} Variance'.format(param),
+        title = '{}'.format(param),
         legend_title= 'Glossary',
         width=1200,
         height=600,
@@ -1323,7 +1352,7 @@ def update_latency(xfilter, version, build1, build2, bench, configs, operation):
     fig.update_layout(
         autosize=True,
         showlegend = True,
-        title = '{} Variance'.format(param),
+        title = '{}'.format(param),
         legend_title= 'Glossary',
         width=1200,
         height=600,
@@ -1457,7 +1486,7 @@ def update_IOPS(xfilter, version, build1, build2, bench, configs, operation):
     fig.update_layout(
         autosize=True,
         showlegend = True,
-        title = '{} Variance'.format(param),
+        title = 'Requests Per Second ({})'.format(param),
         legend_title= 'Glossary',
         width=1200,
         height=600,
@@ -1590,7 +1619,7 @@ def update_TTFB(xfilter, version, build1, build2, bench, configs, operation):
     fig.update_layout(
         autosize=True,
         showlegend = True,
-        title = '{} Variance'.format(param),
+        title = 'Time To First Byte ({})'.format(param),
         legend_title= 'Glossary',
         width=1200,
         height=600,
@@ -1710,7 +1739,6 @@ def update_tab3(clicks, input_value):
     Output('scale_total', 'children'),Output('scale_pass', 'children'),Output('scale_fail', 'children'),Output('scale_ppass', 'children'),Output('scale_pfail', 'children'),
     Output('avail_total', 'children'),Output('avail_pass', 'children'),Output('avail_fail', 'children'),Output('avail_ppass', 'children'),Output('avail_pfail', 'children'),
     Output('long_total', 'children'),Output('long_pass', 'children'),Output('long_fail', 'children'),Output('long_ppass', 'children'),Output('long_pfail', 'children'),
-    #Output('perf_total', 'children'),Output('perf_pass', 'children'),Output('perf_fail', 'children'),Output('perf_ppass', 'children'),Output('perf_pfail', 'children'),
     Output('ucases_total', 'children'),Output('ucases_pass', 'children'),Output('ucases_fail', 'children'),Output('ucases_ppass', 'children'),Output('ucases_pfail', 'children'),
     Output('orphans_total', 'children'),Output('orphans_pass', 'children'),Output('orphans_fail', 'children'),Output('orphans_ppass', 'children'),Output('orphans_pfail', 'children'),
     Output('xtotal_total', 'children'),Output('xtotal_pass', 'children'),Output('xtotal_fail', 'children'),Output('xtotal_ppass', 'children'),Output('xtotal_pfail', 'children')],  #47 T3
@@ -4760,7 +4788,6 @@ def update_cosbench3(clicks, pathname, input_value, enter_input):
     Output('IBCLR256', 'children'),Output('IBDEL256', 'children'),Output('BINIT256', 'children'),Output('PUT256', 'children'),Output('LIST256', 'children'),Output('GET256', 'children'),Output('DEL256', 'children'),Output('BCLR256', 'children'),Output('BDEL256', 'children')],
     [Input('Bucket_Ops_Dropdown','value'),Input('table_submit_button', 'n_clicks'),dash.dependencies.Input('url', 'pathname'),Input('table_build_input', 'value')],[State('table_build_input', 'value')])
 def update_bucketops1(parameter,clicks, pathname, input_value, enter_input):
-    #Build = '120'
     if not parameter:
         parameter = 'AvgLat'
     if parameter:
@@ -4964,8 +4991,7 @@ def update_bucketops1(parameter,clicks, pathname, input_value, enter_input):
     Output('IBCLR1281', 'children'),Output('IBDEL1281', 'children'),Output('BINIT1281', 'children'),Output('PUT1281', 'children'),Output('LIST1281', 'children'),Output('GET1281', 'children'),Output('DEL1281', 'children'),Output('BCLR1281', 'children'),Output('BDEL1281', 'children'),
     Output('IBCLR2561', 'children'),Output('IBDEL2561', 'children'),Output('BINIT2561', 'children'),Output('PUT2561', 'children'),Output('LIST2561', 'children'),Output('GET2561', 'children'),Output('DEL2561', 'children'),Output('BCLR2561', 'children'),Output('BDEL2561', 'children')],
     [Input('Bucket_Ops_Dropdown','value'),Input('table_submit_button', 'n_clicks'),dash.dependencies.Input('url', 'pathname'),Input('table_build_input', 'value')],[State('table_build_input', 'value')])
-def update_bucketops2(parameter,clicks, pathname, input_value, enter_input):
-    #Build = '120'      
+def update_bucketops2(parameter,clicks, pathname, input_value, enter_input):    
     if not parameter:
         parameter = 'AvgLat'  
     if parameter:

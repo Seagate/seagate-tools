@@ -12,7 +12,7 @@ NUMSAMPLES=""
 IO_SIZE=""
 MAIN="/root/PerfProBenchmark/main.yml"
 CONFIG="/root/PerfProBenchmark/config.yml"
-
+LOG_COLLECT="/root/PerfProBenchmark/collect_logs.py"
 
 
 validate_args() {
@@ -114,13 +114,13 @@ if [ ! -d $BENCHMARKLOG ]; then
       mkdir $BENCHMARKLOG
       s3benchmark
       python3 s3bench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG
-      python3 collect_logs_s3bench.py
+      python3 $LOG_COLLECT $CONFIG
 
 else
       mv $BENCHMARKLOG $CURRENTPATH/benchmark.bak_$TIMESTAMP
       mkdir $BENCHMARKLOG
       s3benchmark
       python3 s3bench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG      
-      python3 collect_logs_s3bench.py
+      python3 $LOG_COLLECT $CONFIG
 
 fi

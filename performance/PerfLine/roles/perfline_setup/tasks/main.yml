@@ -1,36 +1,29 @@
 ---
 # tasks file for perfline_setup
-  - name: Creating perfline directory
+  - name: Creating artifacts directory /var/perfline
     file:
       path: /var/perfline
       state: directory
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
-  - name: Copy perfline working dir
-    copy:
-      src: files/wrapper
+  - name: Creating perfline directory /root/perfline
+    file:
+      path: /root/perfline
+      state: directory
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['all'] }}"
+
+  - name: Compress directory files/wrapper into files/wrapper.tar.gz
+    archive:
+      path: "{{ role_path }}/files/wrapper"
+      dest: "{{ role_path }}/files/wrapper.tar.gz"
+    
+
+  - name: Copy perfline wrapper scripts
+    unarchive:
+      src: "{{ role_path }}/files/wrapper.tar.gz"
       dest: "{{ perfline_dir }}"
-    delegate_to: "{{ item }}"
-    with_items: "{{ groups['all'] }}"
-
-  - name: Changing permission for execution for perfline scripts
-    file: path=/root/perfline/perfline/scripts mode=a+x state=directory recurse=yes
-    delegate_to: "{{ item }}"
-    with_items: "{{ groups['all'] }}"
-
-  - name: Changing permission for execution for stat scripts
-    file: path=/root/perfline/perfline/stat mode=a+x state=directory recurse=yes
-    delegate_to: "{{ item }}"
-    with_items: "{{ groups['all'] }}"
-
-  - name: Changing permission for execution for stat scripts
-    file: path=/root/perfline/perfline/workload mode=a+x state=directory recurse=yes
-    delegate_to: "{{ item }}"
-    with_items: "{{ groups['all'] }}"
-
-  - name: Changing permission for execution for perfline.py
-    file: dest=/root/perfline/perfline/perfline.py mode=a+x
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 

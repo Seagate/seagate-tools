@@ -179,8 +179,21 @@ function run_workloads()
     done
 
     STOP_TIME=`date +%s000000000`
-    sleep 120
+    sleep 30
     popd			# $client
+}
+
+function s3bench_workloads()
+{
+    local client="client"
+    mkdir -p $client
+    pushd $client
+    START_TIME=`date +%s000000000`
+    $SCRIPT_DIR/s3bench_run.sh -b $BUCKETNAME -n $SAMPLE -c $CLIENT -o $IOSIZE | tee workload_s3bench.log
+    STATUS=${PIPESTATUS[0]}
+    STOP_TIME=`date +%s000000000`
+    sleep 120
+    popd
 }
 
 function create_results_dir() {
@@ -317,6 +330,7 @@ function collect_artifacts() {
     
     if [[ -z $NO_ADDB_STOBS ]] && [[ -z $NO_ADDB_DUMPS ]] && [[ -z $NO_M0PLAY_DB ]]; then
         $SCRIPT_DIR/merge_m0playdb $m0d/dumps/m0play* $s3srv/*/m0play*
+        rm -f $m0d/dumps/m0play* $s3srv/*/m0play*
     fi
 }
 
@@ -328,29 +342,14 @@ function close_results_dir() {
 function start_stat_utils()
 {
     echo "Start stat utils"
-
-    echo "Start iostat"
-    $EX_SRV "$STAT_DIR/iostat_start.sh" &
-
-    echo "Start blktrace"
-    $EX_SRV "$STAT_DIR/blktrace_start.sh" &
-
-    echo "Start dstat"
-    $EX_SRV "$STAT_DIR/dstat_start.sh" &
+    $EX_SRV "$STAT_DIR/start_stats_service.sh" &
+    sleep 30
 }
 
 function stop_stat_utils()
 {
     echo "Stop stat utils"
-
-    echo "Stop iostat"
-    $EX_SRV "$STAT_DIR/iostat_stop.sh"
-
-    echo "Stop blktrace"
-    $EX_SRV "$STAT_DIR/blktrace_stop.sh"
-    
-    echo "Stop dstat"
-    $EX_SRV "$STAT_DIR/dstat_stop.sh"
+    $EX_SRV "$STAT_DIR/stop_stats_service.sh" 
 
     echo "Gather static info"
     $EX_SRV "$STAT_DIR/collect_static_info.sh"
@@ -427,6 +426,11 @@ function main() {
     
     # Start workload
     run_workloads
+    
+    # Start s3bench workload
+    if [[ -n $S3BENCH ]]; then
+        s3bench_workloads
+    fi
 
     # Stop workload time execution measuring
     stop_measuring_workload_time
@@ -436,8 +440,6 @@ function main() {
     echo "Stop stat utilities"
     stop_stat_utils
 
-    # Collect stat artifacts
-    echo "Collect stat artifacts"
 
     ssh $PRIMARY_NODE 'hctl status' > hctl-status.stop
     # if [[ -n $MKFS ]]; then
@@ -479,6 +481,22 @@ while [[ $# -gt 0 ]]; do
             RESULTS_DIR=$2
             shift
             ;;
+        -bucket)
+            BUCKETNAME=$2
+            shift
+            ;;
+        -clients)
+            CLIENT=$2
+            shift
+            ;;
+        -sample)
+            SAMPLE=$2
+            shift
+            ;;
+        -size)
+            IOSIZE=$2
+            shift
+            ;;
         --nodes)
             NODES=$2
             EX_SRV="pdsh -S -w $NODES"
@@ -488,6 +506,12 @@ while [[ $# -gt 0 ]]; do
         --ha_type)
             HA_TYPE=$2
             shift
+            ;;
+        --fio)                 
+            FIO="1"
+            ;;
+        --s3bench)
+            S3BENCH="1"
             ;;
         --no-m0trace-files)
             NO_M0TRACE_FILES="1"

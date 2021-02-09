@@ -16,7 +16,7 @@ TIMESTAMP=`date +'%Y-%m-%d_%H:%M:%S'`
 size=
 MAIN="/root/PerfProBenchmark/main.yml"
 CONFIG="/root/PerfProBenchmark/config.yml"
-
+LOG_COLLECT="/root/PerfProBenchmark/collect_logs.py"
 
 validate_args() {
 
@@ -126,7 +126,7 @@ if [ ! -d $LOG ]; then
           cp -r ~/cos/archive/$i* $LOG;
       done     
       python3 cosbench_DBupdate.py $LOG $MAIN $CONFIG
-      python3 collect_logs_cosbench.py
+      python3 $LOG_COLLECT $CONFIG
 else
       mv $LOG $CURRENT_PATH/benchmark.bak_$TIMESTAMP
       mkdir $LOG
@@ -136,6 +136,6 @@ else
           cp -r ~/cos/archive/$i* $LOG;
       done
       python3 cosbench_DBupdate.py $LOG $MAIN $CONFIG
-      python3 collect_logs_cosbench.py     
+      python3 $LOG_COLLECT $CONFIG
 
 fi

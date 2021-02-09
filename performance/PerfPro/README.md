@@ -1,4 +1,40 @@
 # PerfPro
+
+## Introduction
+```
+This directory contains 2 sub directories for deployment and benchmarking tools.
+1.  PerfProBenchmark
+      addconfiguration.py
+      collect_logs.py
+      cosbench
+      hsbench
+      README.md
+      s3bench_meta
+      S3UserCreation
+      support_bundle_generate.py
+      system_monitoring
+
+2.  perfPro-deployment
+      ansible.cfg
+      inventories
+      perfpro_deploy.yml
+      roles
+```
+## perfPro-deployment:
+```
+It is a directory on ansible framework that contains artifacts which enable user to aciheve following things in sequence.
+
+01. Re-image of the CORTX cluster nodes through RedHat Satellite
+02. Installation of CORTX pre-requisites packages required for CORTX-Provisioner
+03. CORTX build deployment using CORTX-Provisioner's auto_deploy method
+04. CSM Admin user creation (Login: admin / Password: Seagate@1)
+05. S3account creation (Login: S3account / Password: Seagate@1)
+06. Copying credentials from above step to ~/.aws/credentials file on mentioned client machine
+07. Triggering of benchmarks with S3Bench, HSBench and COSBench
+08. Pushing benchmark test results to MongoDB hosted on CFT-IC1/2 for CFT Dashboard
+09. Pushing benchmark test logs to shared network storage
+10. Collecting and pushing CORTX support bundle to shared network storage
+```
 ## Installation
 
 

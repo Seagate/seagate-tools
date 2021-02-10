@@ -49,6 +49,7 @@ Parameters : input(None) - none
 def getBuild(): 
     build = "NA"
     version = "NA"
+    # os_type = configs_config['OS_TYPE']
     buildurl = configs_config['BUILD_URL'].strip()
     listbuild=re.split('//|/',buildurl)
     if "releases/eos" in buildurl:
@@ -63,7 +64,9 @@ def getBuild():
         if e.isdigit():
             build = e
             break
-
+    
+    # if build != 'NA':
+    #     build = "{}_{}".format(os_type,build.lower())    
     return build,version
 
 # Function to get the files from use entered filepath
@@ -102,6 +105,32 @@ def extract_json(file):
     return table_op
 
 
+def getconfig():
+    configs = open(Config_path,"r")
+    lines = configs.readlines()
+    key=""
+    dic={}
+    value=""
+    count=0
+    for l in lines:
+        l=l.strip()
+        count+=1
+        if "#END" in l:
+            dic[key]=value
+            break
+        elif "#" in l :
+            continue
+        elif not ":" in l:
+            value=value+l
+        else:
+            dic[key]=value
+            data = l.split(":",1)
+            key = data[0].strip()
+            value = data[1].strip()
+            
+    dic.pop("","key not found")
+
+
 # Function to push data to DB 
 '''
 Parameters : input - (list) list containing file names with specified filter, 
@@ -114,11 +143,7 @@ def push_data(files, host, db, build, version):
     print("logged in from ", host)
     collection=db[configs_main['db_collection']]
     col_config = db[configs_main['config_collection']]
-    dic = {}
-    for attr,value in configs_config.items():
-        dic.update( {attr : value} )
-        if attr == "AUTO_DEPLOY_URL":
-            break
+    dic = getconfig()
     result = col_config.find_one(dic)  # find entry from configurations collection
     Config_ID = "NA"
     if result:

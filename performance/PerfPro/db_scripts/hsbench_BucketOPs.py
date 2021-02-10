@@ -69,6 +69,7 @@ def extract_json(file):
                 value.append(data[key])
             values.append(value)
     table_op = pd.DataFrame(values, columns=keys)
+    print(table_op)
     return table_op
 
 
@@ -94,7 +95,7 @@ def push_db_data(files, host, collection, build):
         data_dict = data.to_dict("records")
         collection.insert_one({
             'Name': 'Hsbench',
-            'Build': build.lower(),
+            'Build': build,
             'Object_Size': obj_size,
             'Buckets': buckets,
             'Objects': objects,
@@ -104,8 +105,8 @@ def push_db_data(files, host, collection, build):
             'Log_file': IO_SIZE,
         })
         print("data pushed for - {}".format(IO_SIZE))
-        #print('=============IO_SIZE: {}============='.format(IO_SIZE))
-        # print(data)
+        print('=============IO_SIZE: {}============='.format(IO_SIZE))
+        print(data)
 
 
 # Main function
@@ -114,7 +115,7 @@ parameters : input - (String) folder path to required files
              returns - none
 '''
 if __name__ == '__main__':
-    files = extractFile(sys.argv[1])
+    files = extractFile("runid_2020-08-24_18%3A37%3A30")
     host = socket.gethostname()
     collection, build = get_DB_details()
     push_db_data(files, host, collection, build)

@@ -42,6 +42,7 @@ def makeconnection():  # function for making connection with database
 def getBuild():
     build = "NA"
     version = "NA"
+    # os_type = configs_config['OS_TYPE']
     buildurl = configs_config['BUILD_URL'].strip()
     listbuild=re.split('//|/',buildurl)
     if "releases/eos" in buildurl:
@@ -56,7 +57,9 @@ def getBuild():
         if e.isdigit():
             build = e
             break
-
+    
+    # if build != 'NA':
+    #     build = "{}_{}".format(os_type,build.lower())
     return [build,version]
 
 
@@ -147,18 +150,38 @@ def update_mega_chain(build, version, col):
     print("...Mega entry has not updated for build ", build)
 
 
+def getconfig():
+    configs = open(Config_path,"r")
+    lines = configs.readlines()
+    key=""
+    dic={}
+    value=""
+    count=0
+    for l in lines:
+        l=l.strip()
+        count+=1
+        if "#END" in l:
+            dic[key]=value
+            break
+        elif "#" in l :
+            continue
+        elif not ":" in l:
+            value=value+l
+        else:
+            dic[key]=value
+            data = l.split(":",1)
+            key = data[0].strip()
+            value = data[1].strip()
+            
+    dic.pop("","key not found")
+
 def main(argv):
     dic = argv[1]
     files = getallfiles(dic, "workloadtype.csv")
     build = getBuild()
     db = makeconnection()  # getting instance  of database
     col_config = db[configs_main['config_collection']]
-    dic = {}
-    for attr,value in configs_config.items():
-        #print(attr,":",value)
-        dic.update( {attr : value} )
-        if attr == "AUTO_DEPLOY_URL":
-            break
+    dic = getconfig()
     result = col_config.find_one(dic)# find entry from configurations collection
     Config_ID = "NA"
     if result:

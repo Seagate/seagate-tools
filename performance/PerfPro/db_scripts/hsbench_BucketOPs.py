@@ -95,7 +95,7 @@ def push_db_data(files, host, collection, build):
         data_dict = data.to_dict("records")
         collection.insert_one({
             'Name': 'Hsbench',
-            'Build': build,
+            'Build': build.lower(),
             'Object_Size': obj_size,
             'Buckets': buckets,
             'Objects': objects,
@@ -115,7 +115,7 @@ parameters : input - (String) folder path to required files
              returns - none
 '''
 if __name__ == '__main__':
-    files = extractFile("runid_2020-08-24_18%3A37%3A30")
+    files = extractFile(sys.argv[1]) # ("runid_2020-08-24_18%3A37%3A30")
     host = socket.gethostname()
     collection, build = get_DB_details()
     push_db_data(files, host, collection, build)

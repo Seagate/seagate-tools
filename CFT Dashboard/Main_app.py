@@ -1,7 +1,7 @@
 '''
 CORTX CFT Dashboard Script
 @ Seagate Pune
-last Modification: 8 February 2020
+last Modification: 10 February 2020
 Version: 6
 '''
 ### ====================================================================================
@@ -1095,8 +1095,6 @@ def update_throughput(xfilter, version, build1, build2, bench, configs, operatio
         raise PreventUpdate
     if not operation:
         operation = 'Both'
-    # if build1 and operation and (build2 == None):
-    #     build2 = build1
     if (bench != 'S3bench') and not configs:
         raise PreventUpdate
     if xfilter == 'build': 
@@ -1227,8 +1225,6 @@ def update_latency(xfilter, version, build1, build2, bench, configs, operation):
         raise PreventUpdate
     if not operation:
         operation = 'Both'
-    # if build1 and operation and (build2 == None):
-        # build2 = build1
     if (bench != 'S3bench') and not configs:
         raise PreventUpdate
     if xfilter == 'build': 
@@ -1382,8 +1378,6 @@ def update_IOPS(xfilter, version, build1, build2, bench, configs, operation):
         raise PreventUpdate
     if not operation:
         operation = 'Both'
-    # if build1 and operation and (build2 == None):
-    #     build2 = build1
     if (bench != 'S3bench') and not configs:
         raise PreventUpdate
     if xfilter == 'build': 
@@ -1516,8 +1510,6 @@ def update_TTFB(xfilter, version, build1, build2, bench, configs, operation):
         raise PreventUpdate
     if not operation:
         operation = 'Both'
-    if build1 and operation and (build2 == None):
-        build2 = build1
     if not bench:
         bench = 'S3bench'
     if xfilter == 'build': 

@@ -75,7 +75,7 @@ Installation and usage steps:
 			$ sh cosbench.sh stop --controller <CLIENT1-FQDN> --drivers driver-nodes-list 
 
 Log collection to NFS repo :
-
+```
    1. In the config.yml file please update the following as per the NFS server details
 
       #Enter Below details for log collection on NFS repo
@@ -97,4 +97,4 @@ Log collection to NFS repo :
 
    5. In order to avoid the log collection to NFS Repo please comment following in the benchmark running scripts for the tools
       'python3 $LOG_COLLECT $CONFIG'
-
+```

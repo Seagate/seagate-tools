@@ -19,6 +19,7 @@
 #
 
 set -e
+set -x
 
 SCRIPT_NAME=`echo $0 | awk -F "/" '{print $NF}'`
 SCRIPT_PATH="$(readlink -f $0)"
@@ -28,7 +29,9 @@ declare -A PART_SIZES
 
 function merge_db_parts()
 {
+    pushd $TMP_DIR
     $SCRIPT_DIR/../wrapper/scripts/merge_m0playdb m0play.db.part.*
+    popd
 }
 
 function process_parts()
@@ -36,7 +39,7 @@ function process_parts()
     local part_index=$1
     shift
 
-    local db_file="m0play.db.part.${part_index}"
+    local db_file="$TMP_DIR/m0play.db.part.${part_index}"
     local dumps_arg=""
     local tmp=""
 
@@ -85,17 +88,15 @@ function wait_for_completion
     echo "finished all background processes"
 }
 
-function pushd_temp_dir()
+function create_temp_dir()
 {
     TMP_DIR=$(mktemp -u tmp_addb_XXXXXXX)
     mkdir $TMP_DIR
     echo "tmp dir: $TMP_DIR"
-    pushd $TMP_DIR
 }
 
-function popd_temp_dir()
+function del_temp_dir()
 {
-    popd
     mv ./$TMP_DIR/m0play.db ./
     rm -rf $TMP_DIR
 }
@@ -152,12 +153,12 @@ function main()
     parse_args $@
     validate_args
     detect_cpu_nr
-    pushd_temp_dir
+    create_temp_dir
     calc_part_sizes $ADDB_DUMPS
     start_working_processes $ADDB_DUMPS
     wait_for_completion
     merge_db_parts
-    popd_temp_dir
+    del_temp_dir
 }
 
 main $@

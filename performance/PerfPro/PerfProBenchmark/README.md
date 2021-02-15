@@ -78,20 +78,20 @@ Log collection to NFS repo :
 
    1. In the config.yml file please update the following as per the NFS server details
 
-#Enter Below details for log collection on NFS repo
-NFS_SERVER: <nfs.server.lab.com>
-NFS_EXPORT: </exportname>
-NFS_MOUNT_POINT: </mnt/mountpoint>
-NFS_FOLDER: <foldername/> 
-#End of NFS config
+      #Enter Below details for log collection on NFS repo
+      NFS_SERVER: <nfs.server.lab.com>
+      NFS_EXPORT: </exportname>
+      NFS_MOUNT_POINT: </mnt/mountpoint>
+      NFS_FOLDER: <foldername/> 
+      #End of NFS config
 
    2. Make sure the "NFS_FOLDER" is created inside the "NFS_EXPORT"
 
    3. In the "cosbench/s3cosbench_benchmark.sh" , "hsbench/run_benchmark.sh" and "s3bench_meta/run_s3benchmark.sh" 
       check the following:
 
-      a. "LOG_COLLECT" points to the absolute path of the "collect_logs.py" file
-      b. "CONFIG" points to the absolute path of the "config.yml" file
+      i)  "LOG_COLLECT" points to the absolute path of the "collect_logs.py" file
+      ii) "CONFIG" points to the absolute path of the "config.yml" file
 
    4. "NFS_MOUNT_POINT" need not be created in the client machine but the parent directory should be present.
 

@@ -23,7 +23,7 @@ NFS_MOUNT_POINT:
 NFS_FOLDER: 
 #End of NFS config
 
-
+#END
 required_vars:
   - REIMAGE
   - NODE1

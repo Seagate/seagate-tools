@@ -1,8 +1,8 @@
 
-#!/usr/bin/env python3
 """
-python3 cosbench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
-Attributes: _id,Log_File,Name,Operation,IOPS,Throughput,Latency,TTFB,Object_Size,HOST
+python3 s3bench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
+
+Attributes :_id,Log_File,Name,Operation,IOPS,Throughput,Latency,TTFB,Object_Size,HOST
 """
 
 import pymongo
@@ -32,28 +32,21 @@ configs_config= makeconfig(Config_path)
 def makeconnection():  #function for making connection with database
     client = MongoClient(configs_main['db_url'])  #connecting with mongodb database
     db=client[configs_main['db_database']]  #database name=performance 
+    #col=db[configs_main['db_collection']]  #collection name = results
     return db
 
 def getBuild():
     build = "NA"
     version = "NA"
-    # os_type = configs_config['OS_TYPE'] # Enable for custom mode
-    buildurl = configs_config['BUILD_URL'].strip()
-    listbuild=re.split('//|/',buildurl)
-    if "releases/eos" in buildurl:
-        version="beta"
+    listbuild=re.split('//|/',configs_config['BUILD_URL'].strip())
+    if len(listbuild) < 7:
+        build = listbuild[-2]
+        version = "beta"
     else:
-        version="release"
-
-    for e in listbuild[::-1]:
-        if "cortx" in e.lower() and "rc" in e.lower():
-            build = e.lower()
-            break
-        if e.isdigit():
-            build = e
-            break
-
-    return [build,version]
+        version = listbuild[5]
+        if version.lower() == "release":
+            build = listbuild[7]
+    return [build.lower(),version.lower()]
 
 class s3bench:
 
@@ -100,13 +93,14 @@ def insertOperations(file,build,version,col,Config_ID):   #function for retrivin
     lines = f.readlines()[-150:]
     count=0
     while count<150:
+        #print(lines[count])
         if "objectSize(MB):" in lines[count].strip().replace(" ", ""):
             r=lines[count].strip().replace(" ", "").split(":")
             Objsize = float(r[1])
             if(Objsize.is_integer()):
-                obj=str(int(Objsize))+"Mb"
+                obj=str(int(Objsize))+"MB"
             else:
-                obj=str(round(Objsize*1024))+"Kb"
+                obj=str(int(Objsize*1000))+"KB"
 
         if "Operation:" in lines[count].replace(" ", ""):
             r=lines[count].strip().replace(" ", "").split(":")
@@ -138,7 +132,9 @@ def getallfiles(directory,extension):#function to return all file names with per
 def update_mega_chain(build,version, col):
     cursor = col.find({'Title' : 'Main Chain'})
     beta_chain = cursor[0]['beta']
+    #print(beta_chain)
     release_chain = cursor[0]['release']
+    #print(release_chain)
     if version == 'release':
         if build not in release_chain:
             print(build)
@@ -167,33 +163,6 @@ def update_mega_chain(build,version, col):
             return
     print("...Mega entry has not updated for build ", build)
 
-
-def getconfig():
-    configs = open(Config_path,"r")
-    lines = configs.readlines()
-    key=""
-    dic={}
-    value=""
-    count=0
-    for l in lines:
-        l=l.strip()
-        count+=1
-        if "#END" in l:
-            dic[key]=value
-            break
-        elif "#" in l :
-            continue
-        elif not ":" in l:
-            value=value+l
-        else:
-            dic[key]=value
-            data = l.split(":",1)
-            key = data[0].strip()
-            value = data[1].strip()
-            
-    dic.pop("","key not found")
-    return dic
-
 def main(argv):
     dic=argv[1]
     files = getallfiles(dic,".log")#getting all files with log as extension from given directory
@@ -201,9 +170,8 @@ def main(argv):
 
     build = getBuild()
         
-    col_config = db[configs_main['config_collection']]
-    dic = getconfig()
-    result = col_config.find_one(dic)  # reading entry 
+    col_config = db["configurations"]
+    result = col_config.find_one(configs_config)  # reading entry 
     Config_ID = "NA"
     if result:
         Config_ID = result['_id'] # foreign key : it will map entry in configurations to results entry
@@ -216,3 +184,5 @@ def main(argv):
 
 if __name__=="__main__":
     main(sys.argv) 
+
+

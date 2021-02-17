@@ -127,9 +127,8 @@ def getallfiles(directory,extension):#function to return all file names with per
 def update_mega_chain(build,version, col):
     cursor = col.find({'Title' : 'Main Chain'})
     beta_chain = cursor[0]['beta']
-    #print(beta_chain)
     release_chain = cursor[0]['release']
-    #print(release_chain)
+
     if version == 'release':
         if build not in release_chain:
             print(build)
@@ -163,5 +162,3 @@ def main(argv):
 
 if __name__=="__main__":
 	main(sys.argv) 
-
-

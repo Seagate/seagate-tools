@@ -85,17 +85,6 @@ def getBuild():
 
     return build,version
 
-# def get_DB_details():
-#     data_config = Properties()
-#     with open('config.properties','rb') as config_file:
-#         data_config.load(config_file)
-#         client = MongoClient(data_config.get("DB_URL").data)  #connecting with mongodb database
-#         db=client[data_config.get("DB_DATABASE").data]  #database name=performance 
-#         collection=db[data_config.get("DB_COLLECTION").data]
-#         build = data_config.get("BUILD").data
-#     return collection, build
-
-# Function to get the files from use entered filepath
 '''
 Parameters : input(String) - file path of the folder
              returns(list) - list of filtered files in specified folder
@@ -124,7 +113,6 @@ def push_data(files, host, db, build, version):
     col_config = db[configs_main['config_collection']]
     dic = {}
     for attr,value in configs_config.items():
-        #print(attr,":",value)
         dic.update( {attr : value} )
         if attr == "AUTO_DEPLOY_URL":
             break
@@ -134,7 +122,6 @@ def push_data(files, host, db, build, version):
         Config_ID = result['_id'] # foreign key : it will map entry in configurations to results entry
     
     for doc in files:
-        #print(doc)
         filename = doc #'NT_32_NB_2048_object_size_16Mb.json'
         doc = filename.strip(".json")
         attr = re.split("_", doc)
@@ -146,7 +133,6 @@ def push_data(files, host, db, build, version):
         with open(filename) as json_file:
             data = json.load(json_file)
             for entry in data:
-                #print(entry['IntervalName'])
                 operation = ''
                 
                 if (entry['Mode'] == 'PUT'):
@@ -155,7 +141,6 @@ def push_data(files, host, db, build, version):
                     operation = 'read'       
 
                 if(entry['Mode'] == 'PUT' or entry['Mode'] == 'GET') and (entry['IntervalName'] == 'TOTAL'):   
-                    # print(buckets,objects,sessions)
                     primary_Set = {
                         'Build': build,
                         'Version': version,
@@ -176,7 +161,7 @@ def push_data(files, host, db, build, version):
                         'Config_ID':Config_ID,
                         'Timestamp':datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     }
-                    # print(primary_Set, updation_Set)
+
                     action = "updated"
                     try:
                         count_documents= collection.count_documents(primary_Set)
@@ -196,9 +181,8 @@ def push_data(files, host, db, build, version):
 def update_mega_chain(build,version, col):
     cursor = col.find({'Title' : 'Main Chain'})
     beta_chain = cursor[0]['beta']
-    #print(beta_chain)
     release_chain = cursor[0]['release']
-    #print(release_chain)
+
     if version == 'release':
         if build not in release_chain:
             print(build)
@@ -226,6 +210,7 @@ def update_mega_chain(build,version, col):
             print("...Mega entry has updated with beta build ", build)
             return
     print("...Mega entry has not updated for build ", build)
+    
 # Main fucntion
 '''
 parameters : input - (String) folder path to required files

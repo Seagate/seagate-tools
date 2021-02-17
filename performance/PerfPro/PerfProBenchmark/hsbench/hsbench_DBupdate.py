@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 '''
 python3 hsbench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
 
@@ -37,7 +38,6 @@ Must have main.yml file already
 def makeconnection(): 
     client = MongoClient(configs_main['db_url'])  #connecting with mongodb database
     db=client[configs_main['db_database']]  #database name=performance 
-    # col=db[configs_main['db_collection']]  #collection name = results
     return db
 
 # Function to get build and version from URL
@@ -49,7 +49,7 @@ Parameters : input(None) - none
 def getBuild(): 
     build = "NA"
     version = "NA"
-    # os_type = configs_config['OS_TYPE']
+    # os_type = configs_config['OS_TYPE'] # Enable for custom mode
     buildurl = configs_config['BUILD_URL'].strip()
     listbuild=re.split('//|/',buildurl)
     if "releases/eos" in buildurl:
@@ -64,9 +64,7 @@ def getBuild():
         if e.isdigit():
             build = e
             break
-    
-    # if build != 'NA':
-    #     build = "{}_{}".format(os_type,build.lower())    
+     
     return build,version
 
 # Function to get the files from use entered filepath
@@ -78,7 +76,6 @@ def get_files(filepath):
     files=[]
     for r, _, f in os.walk(filepath):
         for doc in f:
-            # print(doc)
             if '.json' in doc:
                 files.append(os.path.join(r, doc))
     return files
@@ -129,6 +126,7 @@ def getconfig():
             value = data[1].strip()
             
     dic.pop("","key not found")
+    return dic
 
 
 # Function to push data to DB 
@@ -158,7 +156,6 @@ def push_data(files, host, db, build, version):
         except:
             data_dict = 'NA'
 
-        #print(data_dict)
         filename = doc 
         doc = filename.strip(".json")
         attr = re.split("_", doc)

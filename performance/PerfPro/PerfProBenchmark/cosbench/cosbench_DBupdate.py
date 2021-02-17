@@ -1,5 +1,6 @@
+#!/usr/bin/env python3
 """
-python3 cosbench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
+python3 s3bench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
 Attributes:
 _id,Log_File,Name,Operation,IOPS,Throughput,Latency,TTFB,Object_Size,HOST,Objects,Buckets,Session
 """
@@ -15,8 +16,6 @@ from os import listdir
 import yaml
 from datetime import datetime
 
-#Main_path = '/root/Modified/main.yml'
-#Config_path = '/root/Modified/config.yml'
 Main_path = sys.argv[2]
 Config_path = sys.argv[3]
 
@@ -35,13 +34,13 @@ def makeconnection():  # function for making connection with database
     # connecting with mongodb database
     client = MongoClient(configs_main['db_url'])
     db = client[configs_main['db_database']]  # database name=performance
-    # col=db[configs['db_collection']]  #collection name = results
     return db
 
 
 def getBuild():
     build = "NA"
     version = "NA"
+    # os_type = configs_config['OS_TYPE'] # Enable for custom mode
     buildurl = configs_config['BUILD_URL'].strip()
     listbuild=re.split('//|/',buildurl)
     if "releases/eos" in buildurl:
@@ -56,7 +55,7 @@ def getBuild():
         if e.isdigit():
             build = e
             break
-
+    
     return [build,version]
 
 
@@ -147,18 +146,39 @@ def update_mega_chain(build, version, col):
     print("...Mega entry has not updated for build ", build)
 
 
+def getconfig():
+    configs = open(Config_path,"r")
+    lines = configs.readlines()
+    key=""
+    dic={}
+    value=""
+    count=0
+    for l in lines:
+        l=l.strip()
+        count+=1
+        if "#END" in l:
+            dic[key]=value
+            break
+        elif "#" in l :
+            continue
+        elif not ":" in l:
+            value=value+l
+        else:
+            dic[key]=value
+            data = l.split(":",1)
+            key = data[0].strip()
+            value = data[1].strip()
+            
+    dic.pop("","key not found")
+    return dic
+
 def main(argv):
     dic = argv[1]
     files = getallfiles(dic, "workloadtype.csv")
     build = getBuild()
     db = makeconnection()  # getting instance  of database
     col_config = db[configs_main['config_collection']]
-    dic = {}
-    for attr,value in configs_config.items():
-        #print(attr,":",value)
-        dic.update( {attr : value} )
-        if attr == "AUTO_DEPLOY_URL":
-            break
+    dic = getconfig()
     result = col_config.find_one(dic)# find entry from configurations collection
     Config_ID = "NA"
     if result:
@@ -169,8 +189,6 @@ def main(argv):
     for f in files:
         insert_data(f,build,Config_ID,col)
     update_mega_chain(build[0],build[1],col)# update mega entry
-
-
 
 
 if __name__ == "__main__":

@@ -122,9 +122,8 @@ def getallfiles(directory, extension):
 def update_mega_chain(build, version, col):
     cursor = col.find({'Title' : 'Main Chain'})
     beta_chain = cursor[0]['beta']
-    #print(beta_chain)
     release_chain = cursor[0]['release']
-    #print(release_chain)
+
     if version == 'release':
         if build not in release_chain:
             print(build)

@@ -1,8 +1,8 @@
 
+#!/usr/bin/env python3
 """
 python3 cosbench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
-
-_id,Log_File,Name,Operation,IOPS,Throughput,Latency,TTFB,Object_Size,HOST
+Attributes: _id,Log_File,Name,Operation,IOPS,Throughput,Latency,TTFB,Object_Size,HOST
 """
 
 import pymongo
@@ -32,13 +32,12 @@ configs_config= makeconfig(Config_path)
 def makeconnection():  #function for making connection with database
     client = MongoClient(configs_main['db_url'])  #connecting with mongodb database
     db=client[configs_main['db_database']]  #database name=performance 
-    #col=db[configs_main['db_collection']]  #collection name = results
     return db
 
 def getBuild():
     build = "NA"
     version = "NA"
-    # os_type = configs_config['OS_TYPE']
+    # os_type = configs_config['OS_TYPE'] # Enable for custom mode
     buildurl = configs_config['BUILD_URL'].strip()
     listbuild=re.split('//|/',buildurl)
     if "releases/eos" in buildurl:
@@ -54,8 +53,6 @@ def getBuild():
             build = e
             break
 
-    # if build != 'NA':
-    #     build = "{}_{}".format(os_type,build.lower())
     return [build,version]
 
 class s3bench:
@@ -103,7 +100,6 @@ def insertOperations(file,build,version,col,Config_ID):   #function for retrivin
     lines = f.readlines()[-150:]
     count=0
     while count<150:
-        #print(lines[count])
         if "objectSize(MB):" in lines[count].strip().replace(" ", ""):
             r=lines[count].strip().replace(" ", "").split(":")
             Objsize = float(r[1])
@@ -142,9 +138,7 @@ def getallfiles(directory,extension):#function to return all file names with per
 def update_mega_chain(build,version, col):
     cursor = col.find({'Title' : 'Main Chain'})
     beta_chain = cursor[0]['beta']
-    #print(beta_chain)
     release_chain = cursor[0]['release']
-    #print(release_chain)
     if version == 'release':
         if build not in release_chain:
             print(build)
@@ -174,7 +168,6 @@ def update_mega_chain(build,version, col):
     print("...Mega entry has not updated for build ", build)
 
 
-
 def getconfig():
     configs = open(Config_path,"r")
     lines = configs.readlines()
@@ -201,7 +194,6 @@ def getconfig():
     dic.pop("","key not found")
     return dic
 
-
 def main(argv):
     dic=argv[1]
     files = getallfiles(dic,".log")#getting all files with log as extension from given directory
@@ -224,5 +216,3 @@ def main(argv):
 
 if __name__=="__main__":
     main(sys.argv) 
-
-

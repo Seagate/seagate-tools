@@ -1,5 +1,6 @@
+#!/usr/bin/env python3
 """
-python3 cosbench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
+python3 s3bench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
 Attributes:
 _id,Log_File,Name,Operation,IOPS,Throughput,Latency,TTFB,Object_Size,HOST,Objects,Buckets,Session
 """
@@ -15,8 +16,6 @@ from os import listdir
 import yaml
 from datetime import datetime
 
-#Main_path = '/root/Modified/main.yml'
-#Config_path = '/root/Modified/config.yml'
 Main_path = sys.argv[2]
 Config_path = sys.argv[3]
 
@@ -35,14 +34,13 @@ def makeconnection():  # function for making connection with database
     # connecting with mongodb database
     client = MongoClient(configs_main['db_url'])
     db = client[configs_main['db_database']]  # database name=performance
-    # col=db[configs['db_collection']]  #collection name = results
     return db
 
 
 def getBuild():
     build = "NA"
     version = "NA"
-    # os_type = configs_config['OS_TYPE']
+    # os_type = configs_config['OS_TYPE'] # Enable for custom mode
     buildurl = configs_config['BUILD_URL'].strip()
     listbuild=re.split('//|/',buildurl)
     if "releases/eos" in buildurl:
@@ -58,8 +56,6 @@ def getBuild():
             build = e
             break
     
-    # if build != 'NA':
-    #     build = "{}_{}".format(os_type,build.lower())
     return [build,version]
 
 
@@ -174,6 +170,7 @@ def getconfig():
             value = data[1].strip()
             
     dic.pop("","key not found")
+    return dic
 
 def main(argv):
     dic = argv[1]
@@ -192,8 +189,6 @@ def main(argv):
     for f in files:
         insert_data(f,build,Config_ID,col)
     update_mega_chain(build[0],build[1],col)# update mega entry
-
-
 
 
 if __name__ == "__main__":

@@ -35,7 +35,7 @@
   ignore_errors: true
   with_items: "{{ groups['all'] }}"
 
-- include: storage.yml
+#- include: storage.yml
 
 - name: "[reimage] : Re-Image Node {{ NODE1 }} , {{ NODE2 }} Using Satellite API" 
   command: python3 -u {{ role_path }}/files/autoreimage.py -p {{ NODE1 }} -s {{ NODE2 }} -un {{ SATELLITE_UN }} -pw {{ SATELLITE_PW }}
@@ -143,15 +143,8 @@
      dest: /root/
   delegate_to: "srvnode-1"
 
-- name: "[download-iso] : download ISO from source"
-#  command: mkdir -p ~/projects; cd ~/projects 
-  get_url: 
-     url: "{{ BUILD_URL }}" 
-     dest: /root/
-  delegate_to: "srvnode-1"
-
 - name: "[deploy] : Deploy Cluster on Primary Node"
-  script: files/deploy_iso.sh {{ BUILD }} {{ NODE1 }}  {{ NODE2 }}  {{ CLUSTER_PASS }}
+  script: files/deploy.sh {{ BUILD_URL }} {{ NODE1 }}  {{ NODE2 }}  {{ CLUSTER_PASS }}
   delegate_to: "srvnode-1"
 
 - include: enable_cross_connect.yml

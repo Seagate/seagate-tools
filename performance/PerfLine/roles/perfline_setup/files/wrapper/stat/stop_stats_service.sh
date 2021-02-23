@@ -2,8 +2,15 @@
 
 set -x
 
-DISKS=$(salt-call pillar.get cluster:`cat /etc/salt/minion_id`:storage:data_devices --output=newline_values_only)
-CURRENT_NODE=$(cat /etc/salt/minion_id)
+CLUSTER_CONFIG_FILE="/var/lib/hare/cluster.yaml"
+ASSIGNED_IPS=$(ifconfig | grep inet | awk '{print $2}')
+SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_DIR="${SCRIPT_PATH%/*}"
+RESULT=$(python3 $SCRIPT_DIR/extract_disks.py $CLUSTER_CONFIG_FILE $ASSIGNED_IPS)
+NODE=`echo $RESULT | cut -d' ' -f 1`
+CURRENT_NODE="srvnode-${NODE}"
+DISKS=`echo $RESULT | cut -d' ' -f 2-`
+# CURRENT_NODE=$(cat /etc/salt/minion_id)
 
 function iostat_service_stop()
 {

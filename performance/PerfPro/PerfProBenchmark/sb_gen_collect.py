@@ -3,8 +3,6 @@ import time
 import os
 import yaml
 user_name = "root"
-passwd = "Seagate!23"
-#passwd = "seagate1"
 port =  22
 nfs_mount_point = "/mnt/support_bundle/"
 nfs_loc = "/mnt/support_bundle/PerfPro/support_bundle/"
@@ -22,6 +20,7 @@ node2 = parse_conf.get('NODE2')
 nfs_server=parse_conf.get('NFS_SERVER')
 nfs_export=parse_conf.get('NFS_EXPORT')
 build = parse_conf.get('BUILD')
+passwd = parse_conf.get('CLUSTER_PASS')
 
 ########################################Node1################################
 
@@ -55,7 +54,7 @@ try:
             break
         except Exception:
             print("Waiting for sometime as support bundle is being generated for bundle id {}".format(id))
-            time.sleep(10)
+            time.sleep(60)
     ftp_client.close()
 
     print("Copying support bundle for {} at NFS location".format(id))

@@ -6,8 +6,10 @@
      - roles/perfpro_deployment/vars/config.yml 
      - roles/perfpro_deployment/vars/satellite_creds.yml
    roles:
+      - log_collector 
       - perfpro_deployment
       - benchmark
+
 
 
 

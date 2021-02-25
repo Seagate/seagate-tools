@@ -24,7 +24,8 @@ This directory contains 2 sub directories for deployment and benchmarking tools.
 ```
 It is a directory on ansible framework that contains artifacts which enable user to aciheve following things in sequence.
 
-01. Re-image of the CORTX cluster nodes through RedHat Satellite
+01. Starts capturing ansible.log via a role. This log file is copied on NFS location post run is completed.
+02. Re-image of the CORTX cluster nodes through RedHat Satellite
 02. Installation of CORTX pre-requisites packages required for CORTX-Provisioner
 03. CORTX build deployment using CORTX-Provisioner's auto_deploy method
 04. CSM Admin user creation (Login: admin / Password: Seagate@1)
@@ -34,6 +35,7 @@ It is a directory on ansible framework that contains artifacts which enable user
 08. Pushing benchmark test results to MongoDB hosted on CFT-IC1/2 for CFT Dashboard
 09. Pushing benchmark test logs to shared network storage
 10. Collecting and pushing CORTX support bundle to shared network storage
+11. Copying ansible.log with appending timestamp to its name at end and keeping on NFS location where other test artifacts are kept.
 ```
 ## Installation
 

@@ -26,6 +26,8 @@ import sqlite3
 import sys
 import argparse
 
+HOSTS = []
+
 def pandas_init():
     pd.set_option('display.max_rows', 500)
     pd.set_option('display.max_columns', 500)
@@ -35,6 +37,32 @@ def pandas_init():
 def pandas_fini():
     pass
 
+def put_all_pids(db_connection):
+    HOSTS.clear()
+    all_pids_df = sql.read_sql('select distinct(pid) from request', con=db_connection)
+    HOSTS.append( ('ALL', all_pids_df) )
+
+def detect_hosts(db_connection):
+    table_descr_query = 'select * from sqlite_master where type="table" and name="host"'
+    table_descr_df = sql.read_sql(table_descr_query, con=db_connection)
+
+    if table_descr_df.empty:
+        put_all_pids(db_connection)
+    else:
+        pids_df = sql.read_sql('select * from host', con=db_connection)
+
+        if pids_df.empty:
+            put_all_pids(db_connection)
+        else:
+            pids_df = pids_df.drop_duplicates()
+
+            hosts_df = pids_df[ ['hostname'] ].drop_duplicates()
+
+            for index, row in hosts_df.iterrows():
+                hostname = row['hostname']
+                host_pids_df = pids_df[ pids_df.hostname == hostname ][ ['pid'] ]
+                HOSTS.append( (hostname, host_pids_df) )
+
 def layout_init(rows, cols, title):
     axes = []
     fig = plt.figure(figsize=(10, 10))
@@ -42,8 +70,10 @@ def layout_init(rows, cols, title):
 
     ax = None 
     for i in range(0, rows):
-        ax = fig.add_subplot(layout[i, 0], sharex = ax)
-        axes.append(ax)
+        axes.append([])
+        for j in range(0, cols):
+            ax = fig.add_subplot(layout[i, j], sharex = ax)
+            axes[i].append(ax)
     plt.suptitle(title)
 
     return axes
@@ -53,6 +83,9 @@ def layout_fini():
 
 def connect(db_path):
     return sqlite3.connect(db_path)
+
+def disconnect(db_connection):
+    db_connection.close()
 
 def queue(df, start_states, stop_states, label):
     df = df[(df.state.isin(start_states)) | (df.state.isin(stop_states))]
@@ -94,9 +127,13 @@ def s3_queue(conn, ax):
     s3p = s3states(s3, 'S3PutObjectAction')
     s3g = s3states(s3, 'S3GetObjectAction')
 
-    ax.set_title('S3 layer [S3:START->S3:COMPLETE]')
-    plot(queue(s3p, start, stop, label="S3 Put"), ax=ax, color='r')
-    plot(queue(s3g, start, stop, label="S3 Get"), ax=ax, color='g')
+    for i, (host, pids_df) in enumerate(HOSTS):
+        s3p_host = pd.merge(s3p, pids_df, on=['pid'], how='inner')
+        s3g_host = pd.merge(s3g, pids_df, on=['pid'], how='inner')
+
+        ax[i].set_title('S3 {} [{}->{}]'.format(host, start, stop))
+        plot(queue(s3p_host, start, stop, label="S3 Put"), ax=ax[i], color='r')
+        plot(queue(s3g_host, start, stop, label="S3 Get"), ax=ax[i], color='g')
 
 def client_req(conn, operation):
     query = f'''
@@ -121,9 +158,13 @@ def client_req_queue(conn, ax):
     writes = client_req(conn, 'M0_OC_WRITE')
     reads = client_req(conn, 'M0_OC_READ')
 
-    ax.set_title(f'Motr client [client_req:{start}->client_req:{stop}]')
-    plot(queue(writes, start, stop, label="Write"), ax=ax, color='r')
-    plot(queue(reads, start, stop, label="Read"), ax=ax, color='g')
+    for i, (host, pids_df) in enumerate(HOSTS):
+        writes_host = pd.merge(writes, pids_df, on=['pid'], how='inner')
+        reads_host = pd.merge(reads, pids_df, on=['pid'], how='inner')
+
+        ax[i].set_title(f'Motr client {host} [{start}->{stop}]')
+        plot(queue(writes_host, start, stop, label="Write"), ax=ax[i], color='r')
+        plot(queue(reads_host, start, stop, label="Read"), ax=ax[i], color='g')
 
 def crpc_writev_req(conn):
     query = f'''
@@ -162,9 +203,13 @@ def crpc_queue(conn, ax):
     writev = crpc_writev_req(conn)
     readv = crpc_readv_req(conn)
 
-    ax.set_title(f'CRPC [CRPC:{start}->CRPC:{stop}]')
-    plot(queue(writev, start, stop, label="Writev"), ax=ax, color='r')
-    plot(queue(readv, start, stop, label="Readv"), ax=ax, color='g')
+    for i, (host, pids_df) in enumerate(HOSTS):
+        writev_host = pd.merge(writev, pids_df, on=['pid'], how='inner')
+        readv_host = pd.merge(readv, pids_df, on=['pid'], how='inner')
+
+        ax[i].set_title(f'CRPC {host} [{start}->{stop}]')
+        plot(queue(writev_host, start, stop, label="Writev"), ax=ax[i], color='r')
+        plot(queue(readv_host, start, stop, label="Readv"), ax=ax[i], color='g')
 
 def srpc_queue(conn, ax):
     start = ["ACCEPTED"]
@@ -188,8 +233,11 @@ def srpc_queue(conn, ax):
     srpc_mask = srpc_df[srpc_df.state.str.contains("ACCEPTED")][['pid', 'id']].drop_duplicates()
     srpc_df = pd.merge(srpc_df, srpc_mask, on=['pid', 'id'], how='inner')
 
-    ax.set_title('SRPC layer [ACCEPTED->REPLIED]')
-    plot(queue(srpc_df, start, stop, label="SRPC"), ax=ax, color='r')
+    for i, (host, pids_df) in enumerate(HOSTS):
+        srpc_df_host = pd.merge(srpc_df, pids_df, on=['pid'], how='inner')
+
+        ax[i].set_title('SRPC {} [{}->{}]'.format(host, start, stop))
+        plot(queue(srpc_df_host, start, stop, label="SRPC"), ax=ax[i], color='r')
 
 def fom_queue(conn, ax):
     start = ['-1']
@@ -206,17 +254,25 @@ def fom_queue(conn, ax):
     read_foms_df = pd.merge(fom_df, read_opcodes_df, on=['pid', 'id'], how='inner')
     write_foms_df = pd.merge(fom_df, write_opcodes_df, on=['pid', 'id'], how='inner')
 
-    ax.set_title('FOM layer [-1->finish]')
-    plot(queue(read_foms_df, start, stop, label="FOM_READ"), ax=ax, color='g')
-    plot(queue(write_foms_df, start, stop, label="FOM_WRITE"), ax=ax, color='r')
+    for i, (host, pids_df) in enumerate(HOSTS):
+        read_foms_df_host = pd.merge(read_foms_df, pids_df, on=['pid'], how='inner')
+        write_foms_df_host = pd.merge(write_foms_df, pids_df, on=['pid'], how='inner')
+
+        ax[i].set_title('FOM {} [{}->{}]'.format(host, start, stop))
+        plot(queue(read_foms_df_host, start, stop, label="FOM_READ"), ax=ax[i], color='g')
+        plot(queue(write_foms_df_host, start, stop, label="FOM_WRITE"), ax=ax[i], color='r')
 
 def be_queue(conn, ax):
     start = ['prepare']
     stop = ['done']
     tx_query = "SELECT * FROM request WHERE type_id='be_tx'"
     tx_df = sql.read_sql(tx_query, con=conn)
-    ax.set_title('BE layer [prepare -> done]')
-    plot(queue(tx_df, start, stop, label="TX"), ax=ax, color='r')
+
+    for i, (host, pids_df) in enumerate(HOSTS):
+        tx_df_host = pd.merge(tx_df, pids_df, on=['pid'], how='inner')
+
+        ax[i].set_title('BE {} [{}->{}]'.format(host, start, stop))
+        plot(queue(tx_df_host, start, stop, label="TX"), ax=ax[i], color='r')
 
 
 def stio_queue(conn, ax):
@@ -232,10 +288,13 @@ def stio_queue(conn, ax):
     stio_write_df = stio_df[ (stio_df["is_write"] == 1) ]
     stio_read_df = stio_df[ (stio_df["is_write"] != 1) ]
 
+    for i, (host, pids_df) in enumerate(HOSTS):
+        stio_write_df_host = pd.merge(stio_write_df, pids_df, on=['pid'], how='inner')
+        stio_read_df_host = pd.merge(stio_read_df, pids_df, on=['pid'], how='inner')
 
-    ax.set_title('STOB layer [M0_AVI_AD_PREPARE -> M0_AVI_AD_ENDIO]')
-    plot(queue(stio_write_df, start, stop, label="STIO Write"), ax=ax, color='r')
-    plot(queue(stio_read_df, start, stop, label="STIO Read"), ax=ax, color='g')
+        ax[i].set_title('STOB {} [{}->{}]'.format(host, start, stop))
+        plot(queue(stio_write_df_host, start, stop, label="STIO Write"), ax=ax[i], color='r')
+        plot(queue(stio_read_df_host, start, stop, label="STIO Read"), ax=ax[i], color='g')
 
 def parse_args():
     parser = argparse.ArgumentParser(prog=sys.argv[0], description="""
@@ -244,6 +303,8 @@ def parse_args():
     
     parser.add_argument("-d", "--db", type=str, default="m0play.db",
                         help="Performance database (m0play.db)")
+    parser.add_argument("-n", "--no-split", action='store_true',
+                        help="Don't split graphs by nodes")
 
     return parser.parse_args()
 
@@ -255,14 +316,21 @@ def main():
               stio_queue]
 
     pandas_init()
-    axes = layout_init(len(layers), 1, "S3/Motr queues")
+    
     conn = connect(args.db)
+    if args.no_split:
+        put_all_pids(conn)
+    else:
+        detect_hosts(conn)
+    
+    axes = layout_init(len(layers), len(HOSTS), "S3/Motr queues")
 
     for i, layer in enumerate(layers):
         print("drawing {} ".format(layer.__name__))
         layer(conn, axes[i])
 
     layout_fini()
+    disconnect(conn)
     return
 
 if __name__ == "__main__":

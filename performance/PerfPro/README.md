@@ -11,7 +11,7 @@ This directory contains 2 sub directories for deployment and benchmarking tools.
       README.md
       s3bench_meta
       S3UserCreation
-      support_bundle_generate.py
+      sb_gen_collect.py
       system_monitoring
 
 2.  perfPro-deployment
@@ -47,6 +47,7 @@ pip install PyYAML==5.3.1
 pip install requests==2.24.0
 pip install jsonschema==3.2.0
 pip3 install pymongo==3.11.0
+pip3 install paramiko==2.7.2
 
 ```
 
@@ -81,4 +82,10 @@ For creating S3 user with predefined credentials
 it will create csm admin if not present
 
 python3 main_createusers.py
+```
+```
+For collecting and pushing CORTX support bundle to shared network storage
+
+python3 sb_gen_collect.py
+
 ```

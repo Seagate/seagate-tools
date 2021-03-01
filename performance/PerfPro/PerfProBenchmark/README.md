@@ -98,3 +98,13 @@ Log collection to NFS repo :
    5. In order to avoid the log collection to NFS Repo please comment following in the benchmark running scripts for the tools
       'python3 $LOG_COLLECT $CONFIG'
 ```
+
+CORTX support bundle collection to NFS repo :
+```
+   1. In the config.yml file please update the following as per the NFS server details, other required details for running script will be read from config.yml file. 
+
+      #Enter Below details for log collection on NFS repo
+      NFS_SERVER: <nfs.server.lab.com>
+      NFS_EXPORT: </exportname>
+      #End of NFS config
+```

@@ -35,22 +35,22 @@
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
-  - name: Compress directory files/BuildDeploy into files/BuildDeploy.tar.gz
+  - name: Compress directory files/build_deploy into files/build_deploy.tar.gz
     archive:
-      path: "{{ role_path }}/files/BuildDeploy"
-      dest: "{{ role_path }}/files/BuildDeploy.tar.gz"
+      path: "{{ role_path }}/files/build_deploy"
+      dest: "{{ role_path }}/files/build_deploy.tar.gz"
 
-  - name: Copy perfline BuildDeploy scripts
+  - name: Copy perfline build_deploy scripts
     unarchive:
-      src: "{{ role_path }}/files/BuildDeploy.tar.gz"
+      src: "{{ role_path }}/files/build_deploy.tar.gz"
       dest: "{{ perfline_dir }}"
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
-  - name: copy inventory file to perfline/BuildDeploy
+  - name: copy inventory file to perfline/build_deploy
     copy:
        src: "{{ playbook_dir }}/inventories/perfline_hosts/hosts"
-       dest: "{{ perfline_dir }}/BuildDeploy/inventories/perfline_hosts/hosts"
+       dest: "{{ perfline_dir }}/build_deploy/inventories/perfline_hosts/hosts"
     delegate_to: "client-1"
 
 

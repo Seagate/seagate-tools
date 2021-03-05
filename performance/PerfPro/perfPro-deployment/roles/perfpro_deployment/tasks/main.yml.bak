@@ -1,4 +1,5 @@
 ---
+
 - name: "[local-pre-req] : Validate Required Variables"
   fail: msg="Variable '{{ item }}' is not defined"
   when: item not in vars
@@ -20,11 +21,6 @@
     state: latest
     update_cache: yes
 
-- name: "[local-pre-req] : Install python library on localhost"
-  pip:
-    name: requests
-    executable: pip3.3
-
 - include: change_pass.yml
   when: CHANGE_PASS == "yes"
 
@@ -39,8 +35,7 @@
   ignore_errors: true
   with_items: "{{ groups['all'] }}"
 
-- include: storage.yml
-  when: REIMAGE == "yes"
+#- include: storage.yml
 
 - name: "[reimage] : Re-Image Node {{ NODE1 }} , {{ NODE2 }} Using Satellite API" 
   command: python3 -u {{ role_path }}/files/autoreimage.py -p {{ NODE1 }} -s {{ NODE2 }} -un {{ SATELLITE_UN }} -pw {{ SATELLITE_PW }}
@@ -71,18 +66,76 @@
   script: files/passwordless_ssh.sh {{ hostvars[item]['ansible_user'] }} {{ hostvars[item]['ansible_host'] }} {{ CLUSTER_PASS }}
   with_items: "{{ groups['all'] }}"
 
-- name: "[prov-prereq] : Download both ISOs and corresponding cortx-prep-<version>.sh script to both servers to /opt/isos"
-  shell: mkdir -p /opt/isos; cd /opt/isos; for file in $(curl -s {{ BUILD_URL }} | grep href | sed 's/.*href="//' | sed 's/".*//' | grep '^[a-zA-Z].*'); do curl -s -O {{ BUILD_URL }}$file; done 
+- name: "[issue-fix] : Remove volume_groups and Reboot" 
+  script: files/storage_fix.sh
+  ignore_errors: true
+  become: true
+  delegate_to: "srvnode-1"
+
+- name: "[issue-fix] : Wait for Server to Restart"
+  wait_for:
+      host={{ hostvars[item]['ansible_host'] }}
+      port=22
+      delay=30
+      timeout=900
+  become: false
+  ignore_errors: true
+  with_items: "{{ groups['nodes'] }}"
+
+- name: "[prov-prereq] : Clone Scripts for Pre-requisite Steps to Deploy Cluster" 
+  shell: curl {{ PREREQ_URL }} -o cortx-prereqs.sh; chmod a+x cortx-prereqs.sh;
   delegate_to: "{{ item }}"
   with_items: "{{ groups['nodes'] }}"
-  
-- name: "[prov-prereq] : Dependencies library"
-  shell: chmod +x /opt/isos/*.sh; /opt/isos/*.sh
+
+- name: "[prov-prereq] : Run cortx-prereqs.sh on Primary and Reboot" 
+  command: ./cortx-prereqs.sh --disable-sub-mgr
+  async: 1200
+  poll: 0
+  ignore_errors: true
+  become: true
   delegate_to: "srvnode-1"
+
+- name: "[prov-prereq] : Run cortx-prereqs.sh on Secondary Node and Reboot" 
+  command: ./cortx-prereqs.sh --disable-sub-mgr
+  ignore_errors: true
+  become: true
+  delegate_to: "srvnode-2"
+
+- name: "[prov-prereq] : Wait for Nodes to Restart"
+  wait_for:
+      host={{ hostvars[item]['ansible_host'] }}
+      port=22
+      delay=30
+      timeout=900
+  become: false
+  ignore_errors: true
+  with_items: "{{ groups['nodes'] }}"
 
 - include: inband.yml
 
 - include: disable_cross_connect.yml   
+
+- name: "[prov-prereq] : Install Git, Python3 on Primary Node"
+  yum:
+    name: 
+      - git
+      - python3
+      - expect
+    state: latest
+    update_cache: yes   
+  delegate_to: "srvnode-1"
+
+- name: "[prov-prereq] : Install Provisioner CLI on Primary Node"
+  shell: pip3 install -U git+{{ PRVSNR_CLI_REPO }}
+  delegate_to: "srvnode-1"
+
+- name: "[prov-prereq] : Verfiy Provisioner CLI on Primary Node"
+  shell: provisioner --version
+  delegate_to: "srvnode-1"  
+
+#- name: "[deploy-config] : Download Config File on Primary Node"
+#  shell: curl {{ CONFIG_URL }} -o /root/config.ini;
+#  delegate_to: "srvnode-1"
 
 - name: "[deploy-config] : copy Config File on Primary Node"
   copy:
@@ -90,53 +143,8 @@
      dest: /root/
   delegate_to: "srvnode-1"
 
-- name: Copying expect rpm
-  copy:
-    src: files/expect-5.45-14.el7_1.x86_64.rpm
-    dest: /root/
-  delegate_to: "{{ item }}"
-  with_items: "{{ groups['nodes'] }}"
-
-- name: Installing expect packages
-  yum:
-    name: /root/expect-5.45-14.el7_1.x86_64.rpm
-    state: present
-  delegate_to: "{{ item }}"
-  with_items: "{{ groups['nodes'] }}"
-
-
-- name: Copying deployment scripts to srvnode-1
-  copy:
-    src: files/deploy_iso.sh
-    dest: /root/
-    mode: '0755'
-  delegate_to: "srvnode-1"
- 
 - name: "[deploy] : Deploy Cluster on Primary Node"
-  shell: /root/deploy_iso.sh $(ls /opt/isos | grep single.iso) $(ls /opt/isos | grep os) {{ NODE1 }}  {{ NODE2 }}  {{ CLUSTER_PASS }}
+  script: files/deploy.sh {{ BUILD_URL }} {{ NODE1 }}  {{ NODE2 }}  {{ CLUSTER_PASS }}
   delegate_to: "srvnode-1"
 
 - include: enable_cross_connect.yml
-
-- name: Taking backup of yum repo
-  command: mv /etc/yum.repos.d /etc/yum.repos.d.BAK
-  delegate_to: "{{ item }}"
-  with_items: "{{ groups['nodes'] }}"
-
-- name: restore yum repo
-  unarchive:
-     src: files/yum.repos.d.tar.gz
-     dest: /etc/
-  delegate_to: "{{ item }}"
-  with_items: "{{ groups['nodes'] }}"
-
-#Copying ansible.log for the run to NFS share
-- name: Mounting nfs share
-  shell: mount {{ NFS_SERVER }}:/{{ NFS_EXPORT }} {{ NFS_MOUNT_POINT }}
-
-- name: Copying ansible log to NFS share
-  shell: mkdir -p {{ NFS_MOUNT_POINT }}/{{ NFS_FOLDER }}; echo y | cp /var/log/ansible.log-{{ tstamp.stdout }} {{ NFS_MOUNT_POINT }}/{{ NFS_FOLDER }}/
-
-- name: Unmounting NFS share
-  shell:  umount -l {{ NFS_MOUNT_POINT }}
-

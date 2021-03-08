@@ -10,7 +10,7 @@ SCRIPT_DIR="${SCRIPT_PATH%/*}"
 TOOLS_DIR="$SCRIPT_DIR/../../chronometry"
 PERFLINE_DIR="$SCRIPT_DIR/../"
 STAT_DIR="$SCRIPT_DIR/../stat"
-
+BUILD_DEPLOY_DIR="/root/perfline/build_deploy"
 # NODES="ssc-vm-c-1042.colo.seagate.com,ssc-vm-c-1043.colo.seagate.com"
 # EX_SRV="pdsh -S -w $NODES"
 # HA_TYPE="hare"
@@ -45,6 +45,12 @@ function validate() {
     if [[ -n $leave ]]; then
 	exit 1
     fi
+}
+
+function build_deploy() {
+    pushd $BUILD_DEPLOY_DIR
+    ansible-playbook -i inventories/perfline_hosts/hosts run_build_deploy.yml --extra-vars "motr_repo_path=$MOTR_REPO hare_repo_path=$HARE_REPO s3server_repo_path=$S3SERVER_REPO hare_commit_id=$HARE_COMMIT_ID motr_commit_id=$MOTR_COMMIT_ID s3server_commit_id=$S3SERVER_COMMIT_ID" -v
+    popd
 }
 
 function stop_hare() {
@@ -401,6 +407,10 @@ function generate_report()
 function main() {
 
     start_measuring_test_time
+    
+    if [[ -n $BUILD_DEPLOY ]]; then
+        build_deploy       
+    fi
 
     if [[ -n $MKFS ]]; then
 	# Stop cluster 
@@ -481,6 +491,33 @@ while [[ $# -gt 0 ]]; do
             RESULTS_DIR=$2
             shift
             ;;
+        --deploybuild)
+            BUILD_DEPLOY="1"
+            ;;
+        -motr_repo)
+            MOTR_REPO=$2
+            shift
+            ;;
+        -hare_repo)
+            HARE_REPO=$2
+            shift
+            ;;
+	-s3server_repo)
+            S3SERVER_REPO=$2
+            shift
+            ;;
+	-motr_commit_id)
+            MOTR_COMMIT_ID=$2
+            shift
+            ;;
+	-hare_commit_id)
+            HARE_COMMIT_ID=$2
+            shift
+            ;;
+	-s3server_commit_id)
+	    S3SERVER_COMMIT_ID=$2
+	    shift
+	    ;;
         -bucket)
             BUCKETNAME=$2
             shift

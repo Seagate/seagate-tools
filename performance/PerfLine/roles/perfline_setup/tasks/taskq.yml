@@ -35,6 +35,24 @@
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
+  - name: Compress directory files/build_deploy into files/build_deploy.tar.gz
+    archive:
+      path: "{{ role_path }}/files/build_deploy"
+      dest: "{{ role_path }}/files/build_deploy.tar.gz"
+
+  - name: Copy perfline build_deploy scripts
+    unarchive:
+      src: "{{ role_path }}/files/build_deploy.tar.gz"
+      dest: "{{ perfline_dir }}"
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['all'] }}"
+
+  - name: copy inventory file to perfline/build_deploy
+    copy:
+       src: "{{ playbook_dir }}/inventories/perfline_hosts/hosts"
+       dest: "{{ perfline_dir }}/build_deploy/inventories/perfline_hosts/hosts"
+    delegate_to: "client-1"
+
 
 #  - name: Open port for webui
 #    firewalld: port=8005/tcp zone=public permanent=true state=enabled immediate=yes
@@ -62,6 +80,7 @@
   - name: Install perfline system dependencies
     yum:
       name:
+        - ansible
         - sysstat
         - pdsh
         - dstat

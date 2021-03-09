@@ -38,6 +38,21 @@ def parse_options(conf, result_dir):
     options.append(config.nodes)
     options.append('--ha_type')
     options.append(config.ha_type)
+    
+    if conf['custom_build']['deploybuild']:
+       options.append('--deploybuild')
+       options.append('-motr_repo')
+       options.append(conf['custom_build']['motr_repo_path'])
+       options.append('-hare_repo')
+       options.append(conf['custom_build']['hare_repo_path'])
+       options.append('-s3server_repo')
+       options.append(conf['custom_build']['s3server_repo_path'])
+       options.append('-motr_commit_id')
+       options.append(conf['custom_build']['motr_commit_id'])
+       options.append('-hare_commit_id')
+       options.append(conf['custom_build']['hare_commit_id'])
+       options.append('-s3server_commit_id')
+       options.append(conf['custom_build']['s3server_commit_id'])
 
     for w in conf['workload']:
         options.append('-w')

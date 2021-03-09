@@ -42,6 +42,18 @@ def get_schema_motr():
                 }
             }
         },
+        'custom_build': {
+            'type': 'dict',
+            'schema': {
+                'deploybuild': {'type': 'boolean'}, 
+                'motr_repo_path': {'type': 'string', 'required': False, 'nullable': True },
+                'hare_repo_path': {'type': 'string', 'required': False, 'nullable': True },
+                's3server_repo_path': {'type': 'string', 'required': False, 'nullable': True },
+                'hare_commit_id': {'type': 'string', 'required': False, 'nullable': True },
+                'motr_commit_id': {'type': 'string', 'required': False, 'nullable': True },
+                's3server_commit_id': {'type': 'string', 'required': False, 'nullable': True },
+            }
+         },
         'benchmark': {
             'type': 'dict',
             'schema': {

@@ -147,7 +147,8 @@ def parse_args():
     parser.add_argument("-f", "--fmt", type=str, default="svg")
     parser.add_argument("-r", "--rows", type=int, default=1)
     parser.add_argument("-s", "--size", nargs=2, type=int, default=[12,8])
-    parser.add_argument("-n", "--no-split", action='store_true', help="Don't split histograms by nodes")
+    parser.add_argument("-a", "--aggregated", action='store_true',
+                        help="Show graphs from data collected from all nodes")
     parser.add_argument("range", nargs='?', help="""
     "[[from1, to1, [rend]], ... [from_n, to_n, [rend_n]]]"
     """)
@@ -222,7 +223,7 @@ if __name__ == "__main__":
     db_init(args.db)
     db_connect()
 
-    if args.no_split:
+    if args.aggregated:
         put_all_pids()
     else:
         detect_nodes()

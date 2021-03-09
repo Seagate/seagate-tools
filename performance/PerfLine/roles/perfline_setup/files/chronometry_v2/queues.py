@@ -303,8 +303,8 @@ def parse_args():
     
     parser.add_argument("-d", "--db", type=str, default="m0play.db",
                         help="Performance database (m0play.db)")
-    parser.add_argument("-n", "--no-split", action='store_true',
-                        help="Don't split graphs by nodes")
+    parser.add_argument("-a", "--aggregated", action='store_true',
+                        help="Show graphs from data collected from all nodes")
 
     return parser.parse_args()
 
@@ -318,7 +318,7 @@ def main():
     pandas_init()
     
     conn = connect(args.db)
-    if args.no_split:
+    if args.aggregated:
         put_all_pids(conn)
     else:
         detect_hosts(conn)

@@ -78,6 +78,7 @@ parse_params()
 
 function process_motr_addb()
 {
+    local host="$(hostname -s)"
     local motr_addb_dir="/var/log/seagate/motr/addb"
 
     local tmp_dir="$motr_addb_dir/$(mktemp -u addb_tmp_XXXXXXX)"
@@ -95,7 +96,7 @@ function process_motr_addb()
 
         for addb_stob in $ios_addb_stobs; do
             pid=$(echo $addb_stob | sed -E 's/.*addb-stobs-([0-9]+)[/].*/\1/')
-            m0addb2dump -f -- "$addb_stob" > ./dumps_${pid}.txt
+            m0addb2dump -f -- "$addb_stob" > ./dumps_${host}_${pid}.txt
         done
     done
 
@@ -114,6 +115,7 @@ function process_motr_addb()
 
 function process_s3_addb()
 {
+    local host="$(hostname -s)"
     local s3_addb_dir="/var/log/seagate/motr"
 
     local tmp_dir="$s3_addb_dir/$(mktemp -u addb_tmp_XXXXXXX)"
@@ -123,7 +125,7 @@ function process_s3_addb()
     for addb_stob in /var/log/seagate/motr/s3server*/addb*/o/100000000000000:2; do
         pid=$(echo $addb_stob | sed -E 's/.*addb_([0-9]+)[/].*/\1/')
         m0addb2dump -f -p /opt/seagate/cortx/s3/addb-plugin/libs3addbplugin.so \
-            -- "$addb_stob" > ./dumpc_${pid}.txt
+            -- "$addb_stob" > ./dumpc_${host}_${pid}.txt
     done
 
     # generate motr m0play.db 

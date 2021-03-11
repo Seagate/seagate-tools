@@ -1,0 +1,28 @@
+common:
+  version: 1
+  description: Perf benchmark - s3bench, size=16Mb, clients=32, num=128
+  priority: 1
+  batch_id: null
+  user: user@seagate.com
+  send_email: false
+
+workload:
+  - cmd: sleep 1
+
+benchmark:
+  fio: false
+  s3bench: True
+
+parameter:
+  BucketName: testbucket
+  NumClients: 32
+  NumSample: 128
+  ObjSize: 16Mb
+
+execution_options:
+  mkfs: false
+  no_m0trace_files: true
+  no_m0trace_dumps: true
+  no_addb_stobs: true
+  no_addb_dumps: true
+  no_m0play_db: true

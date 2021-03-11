@@ -1,3 +1,23 @@
+#!/usr/bin/env python
+#
+# Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+
 from flask import Flask, send_from_directory, redirect, \
     render_template, request, json, make_response, jsonify, send_file
 import gzip
@@ -5,7 +25,6 @@ import yaml
 from typing import Dict
 from plumbum import local, BG
 import datetime
-import pl_api
 import os
 from os.path import isdir, join, isfile
 import perf_result_parser
@@ -20,7 +39,8 @@ import itertools
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
-from util_funcs import *
+from core.utils import *
+from core import s3bench_log_parser, cache, pl_api
 
 
 app = Flask(__name__)
@@ -133,10 +153,6 @@ def index():
 def templates(path):
     return send_from_directory('templates', path)
 
-
-STUPID_CACHE = dict()
-
-
 @app.route('/stats/<path:path>')
 def stats(path):
     response = send_from_directory('stats', path)
@@ -144,6 +160,16 @@ def stats(path):
     response.headers['Pragma'] = 'no-cache'
     return response
 
+def get_s3bench_perf_results(task_id):
+    cache_key = f's3bench_perf_res_{task_id}'
+
+    if cache.contains(cache_key):
+        return cache.get(cache_key)
+
+    s3bench_log_path = f'{config.artifacts_dir}/result_{task_id}/{config.s3bench_log_path}'
+    result = s3bench_log_parser.try_parse_s3bench_results(s3bench_log_path)
+    cache.put(cache_key, result)
+    return result
 
 def tq_results_read(limit: int) -> Dict:
     lines = pl_api.get_results().split('\n')[-limit:]
@@ -164,30 +190,9 @@ def tq_results_read(limit: int) -> Dict:
             tq_task_common_get(elem, r)
 
             elem["status"] = info['info']['status']
-            # task_type = info['info']['conf']['common']['type']
             task = r[0]
 
-            # if task_type in ('s3client', 'm0crate') and info['info']['status'] == 'SUCCESS':
-            #     t_id = task['task_id']
-
-            #     if t_id in STUPID_CACHE:
-            #         perf_aggr_data = STUPID_CACHE[t_id]
-            #     else:
-            #         artif_dir = '{0}/result_{1}'.format(config.artifacts_dir, t_id)
-            #         if task_type == 's3client':
-            #             perf_aggr_data = perf_result_parser.parse_perf_results(t_id, artif_dir)
-            #         else:
-            #             perf_aggr_data = perf_result_parser.parse_m0crate_perf_results(t_id, artif_dir)
-            #         STUPID_CACHE[t_id] = perf_aggr_data
-
-            #     elem['perfagg'] = perf_aggr_data[t_id]
-            # else:
-            #     elem['perfagg'] = {"bW": "UNKNOWN"}
-
-            rw_info = read_rw_stats(task["task_id"])
-            elem['rw_stats'] = {
-                "rw": rw_info
-            }
+            elem['perf_metrics'] = get_s3bench_perf_results(elem["task_id"])
 
             elem['artifacts'] = {
                 "artifacts_page": "artifacts/{0}".format(task['task_id']),
@@ -202,16 +207,6 @@ def tq_results_read(limit: int) -> Dict:
         out.append(elem)
 
     return list(reversed(out))
-
-
-def read_rw_stats(task_id):
-    rw_file_path = f'/var/perfline/result_{task_id}/rw_stat'
-    if isfile(rw_file_path):
-        with open(rw_file_path, 'r') as rw_file:
-            return rw_file.readlines()
-    else:
-        return [0, 0]
-
 
 def tq_queue_read(limit: int) -> Dict:
     lines = pl_api.get_queue().split('\n')[-limit:]
@@ -350,7 +345,7 @@ def queue(limit=9999999):
 @app.route('/api/task/<string:task>')
 def loadtask(task: str):
     try:
-        with open(f"{task}.yaml", "r") as f:
+        with open(f"task_templates/{task}.yaml", "r") as f:
             data = {
                 "task": "".join(f.readlines())
             }

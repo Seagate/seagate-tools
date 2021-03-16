@@ -87,16 +87,9 @@
 	<!-- perf metrics -->
 	<td>
 		<table>
-			<tr ng-repeat="metrics in row.perf_metrics">
+			<tr ng-repeat="metric in row.perf_metrics">
 				<td>
-					<table>
-						<tr ng-repeat="(key,val) in metrics">
-							<td>
-								<u>{{key}}:</u> <b>{{val}}</b>
-							</td>
-						</tr>
-					</table>
-					
+					{{metric}}
 				</td>
 			</tr>
 		</table>

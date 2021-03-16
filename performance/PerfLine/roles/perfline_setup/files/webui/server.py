@@ -20,6 +20,8 @@ import itertools
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
+from util_funcs import *
+
 
 app = Flask(__name__)
 git = local["git"]
@@ -141,49 +143,6 @@ def stats(path):
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     response.headers['Pragma'] = 'no-cache'
     return response
-
-
-def tq_task_common_get(elem, r):
-    task = r[0]
-    info = r[2]
-
-    elem["task_id"] = task['task_id']
-    elem["task_id_short"] = task['task_id'][:4] \
-        + "..." + task['task_id'][-4:]
-
-    elem["desc"] = info['info']['conf']['common'].get('description')
-    elem["prio"] = info['info']['conf']['common']['priority']
-    elem["user"] = info['info']['conf']['common']['user'].\
-        replace("@seagate.com", "")
-
-    elem['workload'] = info['info']['conf']['workload']
-    # elem['s3build'] = info['info']['conf'].get('s3server')
-    # elem['merobuild'] = info['info']['conf']['mero']
-    # elem['exopt'] = info['info']['conf']['execution_options']
-
-    fmt = '%Y-%m-%d %H:%M:%S.%f'
-    hms = '%Y-%m-%d %H:%M:%S'
-    q = datetime.datetime.strptime(info['info']['enqueue_time'], fmt)
-    elem['time'] = {
-        # "date": q.strftime('%Y/%m/%d'),
-        "enqueue": q.strftime(hms),
-    }
-
-    if 'start_time' in info['info']:
-        s = datetime.datetime.strptime(info['info']['start_time'], fmt)
-        elem['time']['start'] = s.strftime(hms)
-
-    if 'finish_time' in info['info']:
-        f = datetime.datetime.strptime(info['info']['finish_time'], fmt)
-        elem['time']['end'] = f.strftime(hms)
-
-    # try:
-    #     s = datetime.datetime.strptime(info['info']['start_time'], fmt)
-    #     f = datetime.datetime.strptime(info['info']['finish_time'], fmt)
-    #     elem['time']['start'] = s.strftime(hms)
-    #     elem['time']['end'] = f.strftime(hms)
-    # except Exception as e:
-    #     print(e)
 
 
 def tq_results_read(limit: int) -> Dict:

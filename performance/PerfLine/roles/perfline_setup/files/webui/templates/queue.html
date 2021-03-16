@@ -22,7 +22,9 @@
       <th>state</th>
       <th>user</th>
       <th>time</th>
-      <th>workload</th>
+	  <th>workload</th>
+	  <th>benchmark</th>
+	  <th>params</th>
     </tr>
   </thead>
   <tr ng-repeat="row in names | filter:searchText | limitTo:itemsPerPage:(currentPage-1)*itemsPerPage">
@@ -87,7 +89,32 @@
 	  </tr>
 	</table> -->
 	<!-- /WORKLOAD -->
-      </td>
+	  </td>
+	  
+	<!-- benchmark -->
+	<td>
+		<table>
+			<tr ng-repeat="(key,val) in row.benchmark">
+				<td>
+					<u>{{key}}: <b>{{val}}</b></u>
+				</td>
+			</tr>
+		</table>
+	</td>
+	<!-- benchmark end -->
+
+	<!-- params -->
+	<td>
+		<table>
+			<tr ng-repeat="(key,val) in row.parameters">
+				<td>
+					<u>{{key}}: <b>{{val}}</b></u>
+				</td>
+			</tr>
+		</table>
+	</td>
+	<!-- params end -->
+
   </tr>
 </table>
 <table width=100%>

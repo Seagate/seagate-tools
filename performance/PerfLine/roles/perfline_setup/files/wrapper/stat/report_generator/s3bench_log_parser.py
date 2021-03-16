@@ -19,6 +19,7 @@
 #
 
 import os.path
+import sys
 
 S3BENCH_MEASUREMENTS = ('Total Throughput (MB/s)', 'Ttfb Max', 'Ttfb Avg', 'Ttfb Min')
 
@@ -64,5 +65,13 @@ def try_parse_s3bench_results(s3bench_log_path):
         return [{'result': 'N/A'}]
 
 if __name__ == "__main__":
-    logfile = 'workload_s3bench.log'
-    print(parse_s3bench_log(logfile))
+    logfile = sys.argv[1]
+    results = parse_s3bench_log(logfile)
+
+    for test in results:
+        op = "Operation"
+        print("{}: {}".format(op,test[op]))
+        for m in S3BENCH_MEASUREMENTS:
+            if m in test:
+                print("{}: {}".format(m,test[m]))
+        print('')

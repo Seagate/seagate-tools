@@ -115,8 +115,12 @@ class s3_request_uid(BaseModel):
     id  = IntegerField()
     uuid = TextField()
 
+class host(BaseModel):
+    pid      = IntegerField()
+    hostname = TextField()
 
-db_create_delete_tables = [relation, request, attr, s3_request_uid]
+
+db_create_delete_tables = [relation, request, attr, s3_request_uid, host]
 
 def db_create_tables():
     with DB:
@@ -464,6 +468,13 @@ def parse_pid(file_path):
     fid = file_name.split('.')[0].split('_')[-1]
     return int(fid) if fid.isnumeric() else int(fid, base=16)
 
+def parse_hostname(file_path):
+    file_name_parts = basename(file_path).split('.')[0].split('_')
+
+    if len(file_name_parts) == 3:
+        return file_name_parts[1]
+    return None
+
 def insert_records(tables):
     with profiler("Write to db"):
         for k in tables.keys():
@@ -508,6 +519,13 @@ def db_consume_data(files, append_db: bool):
 
         global PID
         PID = parse_pid(file)
+
+        hostname = parse_hostname(file)
+
+        if hostname:
+            host_rec = host(pid=PID, hostname=hostname)
+            host_rec.save()
+
         with tqdm(total=lines_nr, desc=f"{nr+1}/{len(files)} Read file: {file}") as tqwerty:
 
             for rows in AddbDumpIterator(file, start, stop):

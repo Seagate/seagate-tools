@@ -1,0 +1,11 @@
+[global]        
+iodepth=16      
+direct=1        
+ioengine=libaio 
+group_reporting 
+time_based      
+name=raw-write
+rw=write  
+
+#[job1]
+#filename= devicename

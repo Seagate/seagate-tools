@@ -22,7 +22,9 @@
       <th>status</th>
       <th>user</th>
       <th>time</th>
-      <th>workload</th>
+	  <th>workload</th>
+	  <th>benchmark</th>
+	  <th>params</th>
       <th>R/W stats</th>
       <th>artifacts</th>
       <th>perf agg</th>
@@ -53,6 +55,31 @@
 	    </td>
 	  </tr>
 	</table>
+
+	<!-- benchmark -->
+	<td>
+		<table>
+			<tr ng-repeat="(key,val) in row.benchmark">
+				<td>
+					<u>{{key}}: <b>{{val}}</b></u>
+				</td>
+			</tr>
+		</table>
+	</td>
+	<!-- benchmark end -->
+
+	<!-- params -->
+	<td>
+		<table>
+			<tr ng-repeat="(key,val) in row.parameters">
+				<td>
+					<u>{{key}}: <b>{{val}}</b></u>
+				</td>
+			</tr>
+		</table>
+	</td>
+	<!-- params end -->
+
 	<!-- <table>
 	  <tr>
 	    <td>

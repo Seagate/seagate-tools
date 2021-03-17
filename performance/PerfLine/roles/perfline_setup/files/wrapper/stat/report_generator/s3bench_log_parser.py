@@ -22,6 +22,7 @@ import os.path
 import sys
 
 S3BENCH_MEASUREMENTS = ('Total Throughput (MB/s)', 'Ttfb Max', 'Ttfb Avg', 'Ttfb Min')
+S3BENCH_PARAMS = ('numClients', 'numSamples', 'objectSize (MB)', 'bucket')
 
 def parse_kv(line):
     line = line.strip()
@@ -33,30 +34,51 @@ def parse_kv(line):
     
     return t[0], t[1]
 
+current_results = None
+
+def process_result_record(key, val, results):
+    if key is None:
+        return
+    
+    global current_results
+
+    if key == 'Operation':
+        current_results = {key: val}
+        results.append(current_results)
+    elif key in S3BENCH_MEASUREMENTS:
+        current_results[key] = val
+
+def process_param_record(key, val, params):
+    if key is None:
+        return
+
+    if key in S3BENCH_PARAMS:
+        params[key] = val
+
 def parse_s3bench_log(s3bench_log_path):
     with open(s3bench_log_path) as f:
+        test_params = {}
         tests_results = []
+        is_params_section = False
         is_tests_section = False
-        current_results = None
+
         for line in f:
             key, val = parse_kv(line)
             if key == 'Tests':
                 is_tests_section = True
+                is_params_section = False
+                continue
+            elif key == 'Parameters':
+                is_tests_section = False
+                is_params_section = True
                 continue
 
-            if not is_tests_section:
-                continue
+            if is_tests_section:
+                process_result_record(key, val, tests_results)
+            elif is_params_section:
+                process_param_record(key, val, test_params)
 
-            if key is None:
-                continue
-
-            if key == 'Operation':
-                current_results = {key: val}
-                tests_results.append(current_results)
-            elif key in S3BENCH_MEASUREMENTS:
-                current_results[key] = val
-
-    return tests_results
+    return {'params': test_params, 'results': tests_results}
 
 def try_parse_s3bench_results(s3bench_log_path):
     if os.path.isfile(s3bench_log_path):
@@ -68,7 +90,7 @@ if __name__ == "__main__":
     logfile = sys.argv[1]
     results = parse_s3bench_log(logfile)
 
-    for test in results:
+    for test in results['results']:
         op = "Operation"
         print("{}: {}".format(op,test[op]))
         for m in S3BENCH_MEASUREMENTS:

@@ -50,7 +50,7 @@
   - name: copy inventory file to perfline/build_deploy
     copy:
        src: "{{ playbook_dir }}/inventories/perfline_hosts/hosts"
-       dest: "{{ perfline_dir }}/build_deploy/inventories/perfline_hosts/hosts"
+       dest: "{{ perfline_dir }}/build_deploy/hosts"
     delegate_to: "client-1"
 
 
@@ -86,10 +86,12 @@
         - dstat
         - blktrace
         - iowatcher
+        - python3-devel
       state: present
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
+ 
   - name: Copy webui systemd file
     copy:
       src: files/webui.service

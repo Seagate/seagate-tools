@@ -21,6 +21,7 @@ function creating_dir()
      mkdir -p /var/perfline/iostat.$(hostname -s)
      mkdir -p /var/perfline/dstat.$(hostname -s)
      mkdir -p /var/perfline/blktrace.$(hostname -s)
+     mkdir -p /var/perfline/glances.$(hostname -s)
 }
 
 function iostat-service-start()
@@ -35,17 +36,31 @@ function dstat-service-start()
 
 function blktrace-service-start()
 {    
-     blktrace $DISKS -D /var/perfline/blktrace.$(hostname -s) 
+     blktrace $DISKS -D /var/perfline/blktrace.$(hostname -s) & 
 
 }
+function glance_service_start()
+{
+     glances --stdout now,core,cpu,percpu,diskio,fs,load,system,mem,memswap,network,processcount,raid,sensors,uptime --export csv --export-csv-file /var/perfline/glances/glances.$(hostname -s)/glances.csv > /dev/null 2>&1 &    
+}
 
-
-
+echo "stat collection: $1"
 removing_dir    
 creating_dir
-iostat-service-start   
-dstat-service-start 
-blktrace-service-start  
-
-
+if [[ "$1" == *"IOSTAT"* ]]
+then
+    iostat-service-start   
+fi
+if [[ "$1" == *"DSTAT"* ]]
+then
+    dstat-service-start 
+fi
+if [[ "$1" == *"BLKTRACE"* ]]
+then
+    blktrace-service-start  
+fi
+if [[ "$1" == *"GLANCES"* ]]
+then
+    glance_service_start
+fi
 

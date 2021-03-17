@@ -98,7 +98,29 @@ function blktrace_service_stop()
  
 }
 
-iostat_service_stop
-dstat_service_stop
-blktrace_service_stop
+function glances_service_stop()
+{
+     pids=`ps ax | grep glances |  grep -v grep | awk '{print $1}'`
+     for pid in $pids ; do
+        kill -9 $pid
 
+     done
+
+}
+
+if [[ "$1" == *"IOSTAT"* ]]
+then
+    iostat_service_stop
+fi
+if [[ "$1" == *"DSTAT"* ]]
+then
+    dstat_service_stop
+fi
+if [[ "$1" == *"BLKTRACE"* ]]
+then
+    blktrace_service_stop
+fi
+if [[ "$1" == *"GLANCES"* ]]
+then
+    glances_service_stop
+fi

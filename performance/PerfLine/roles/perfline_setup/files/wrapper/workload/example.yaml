@@ -25,6 +25,15 @@ common:
   user: user@seagate.com
   send_email: false
 
+custom_build:
+  deploybuild: false
+  motr_repo_path: ""
+  hare_repo_path: ""
+  s3server_repo_path: ""
+  hare_commit_id: ""
+  motr_commit_id: ""
+  s3server_commit_id: ""
+
 workload:
   - cmd: sleep 1
 
@@ -36,7 +45,7 @@ parameter:
   BucketName: 
   NumClients: 
   NumSample: 
-  ObjSize:       
+  ObjSize:      
 
 execution_options:
   mkfs: false

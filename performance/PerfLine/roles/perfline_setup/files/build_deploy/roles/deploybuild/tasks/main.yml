@@ -1,0 +1,134 @@
+---
+# tasks file for reform
+
+  - name: "Shutdown cluster"
+    command: hctl shutdown
+    ignore_errors: true
+    delegate_to: "srvnode-1"
+
+  - name: "Adding docker repository"
+    command: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['nodes'] }}"
+
+  - name: "Installing Required packages"
+    yum:
+      name:
+        - yum-utils
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+      state: present 
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['nodes'] }}"
+
+  - name: "Start docker services"
+    service:
+       name: docker
+       state: started 
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['nodes'] }}"
+
+  - name: "Clone motr, hare and s3server repository"
+    git:
+       repo: https://github.com/Seagate/cortx
+       dest: /root/cortx
+       clone: yes
+       recursive: yes
+       force: yes
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['nodes'] }}"
+
+  - name: "Upgrading motr, hare and S3server with custom repo"
+    shell: cd /root/cortx; rm -rf cortx-motr cortx-hare cortx-s3server
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['nodes'] }}"
+    when: (motr_repo_path != "") and (hare_repo_path != "") and (s3server_repo_path != "")
+    register: custom
+
+
+  - name: "Git clone custom repo"
+    shell: cd /root/cortx/; git clone {{ motr_repo_path }}; git clone {{ hare_repo_path }}; git clone {{ s3server_repo_path }}
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['nodes'] }}"
+    when: custom is changed   
+
+  - name: "Refresh motr repo based on {{ motr_commit_id }}"
+    shell: cd /root/cortx/cortx-motr && git checkout {{ motr_commit_id }}
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['nodes'] }}"
+    when: motr_commit_id != ""
+    ignore_errors: true
+
+  - name: "Refresh hare repo based on {{ hare_commit_id }}"
+    shell: cd /root/cortx/cortx-hare && git checkout {{ hare_commit_id }}
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['nodes'] }}"
+    when: hare_commit_id != ""
+    ignore_errors: true
+
+
+  - name: "Refresh s3server repo based on {{ s3server_commit_id }}"
+    shell: cd /root/cortx/cortx-s3server && git checkout {{ s3server_commit_id }}
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['nodes'] }}"
+    when: s3server_commit_id != ""
+    ignore_errors: true
+
+
+  - name: "Creating new Build location"
+    command: mkdir -p /var/artifacts
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['nodes'] }}"
+
+  - name: "Build cortx using docker"
+    shell: time docker run --rm -v /var/artifacts:/var/artifacts -v /root/cortx:/cortx-workspace ghcr.io/seagate/cortx-build:centos-7.8.2003 make clean build 
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['nodes'] }}"
+
+  - name: "Build io-path using docker"
+    shell: time docker run --rm -v /var/artifacts:/var/artifacts -v /root/cortx:/cortx-workspace ghcr.io/seagate/cortx-build:centos-7.8.2003 make io-path
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['nodes'] }}"
+
+  - name: "Backup yum repo"
+    shell: subscription-manager config --rhsm.manage_repos=0; mv /etc/yum.repos.d /etc/yum.repos.d.bak; mkdir /etc/yum.repos.d
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['nodes'] }}"
+
+  - name: "Coping local.repo"
+    copy:
+       src: files/local.repo
+       dest: /etc/yum.repos.d/local.repo
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['nodes'] }}"
+
+  - name: "Uninstall existing mort, hare and s3server "
+    yum:
+       name:
+         - cortx-motr
+         - cortx-hare
+         - cortx-s3server
+       state: absent
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['nodes'] }}"
+
+  - name: "Installing IO-Path components from new build"
+    yum:
+       name:
+         - cortx-motr
+         - cortx-hare
+         - cortx-s3server
+       state: present
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['nodes'] }}"
+
+  - name: "Bootstrap cluster"
+    command: hctl bootstrap --mkfs singlenode.yaml
+    delegate_to: "srvnode-1"
+ 
+  - name: "Restore yum repo"
+    shell: rm -rf /etc/yum.repos.d && mv /etc/yum.repos.d.bak /etc/yum.repos.d; subscription-manager config --rhsm.manage_repos=1
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['nodes'] }}"
+

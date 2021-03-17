@@ -22,8 +22,8 @@
       <th>state</th>
       <th>user</th>
       <th>time</th>
+	  <th>info</th>
 	  <th>workload</th>
-	  <th>benchmark</th>
 	  <th>params</th>
     </tr>
   </thead>
@@ -32,76 +32,44 @@
       <td>{{row.state}}</td>
       <td>{{row.user}}</td>
       <td>
-	<table>
-	  <tr ng-repeat="(key,val) in row.time">
-	    <td><u>{{key}}:</u><br>{{val}}</td>
-	  </tr>
-	</table>
+		<table>
+			<tr ng-repeat="(key,val) in row.time">
+				<td><u>{{key}}:</u><br>{{val}}</td>
+			</tr>
+		</table>
       </td>
       <td>
-	<!-- WORKLOAD -->
-	<table>
-	  <tr>
-	    <td>
-	      <u>description:</u> {{row.desc}} <u>priority:</u> {{row.prio}}
-	    </td>
-	  <tr>
-	  <tr ng-repeat="(key,val) in row.workload">
-		<td>
-		  <u>{{val.cmd}}</u>
-		</td>
-	  </tr>
-	</table>
-	<!-- <table>
-	  <tr>
-	    <td>
-	      <u>extopts:</u>
-	      <span ng-repeat="(key,val) in row.exopt">
-		{{key}}={{val}}
-	      </span>
-	    </td>
-	  </tr>
-	  <tr>
-	    <td>
-	      <u>build_opts:</u> {{row.merobuild.build_options}} <br>
-	      <span ng-if="row.merobuild.config_overrides">
-		<u>mero_config_overrides:</u>
-		<span ng-repeat="(key,val) in row.merobuild.config_overrides">
-		  {{key}}={{val}}
-		</span>
-		<br>
-	      </span>
-	      <span ng-if="row.s3build.config_overrides">
-		<u>s3_config_overrides:</u>
-		<span ng-repeat="(key,val) in row.s3build.config_overrides">
-		  {{key}}={{val}}
-		</span>
-		<br>
-	      </span>
-	      <u>git</u>: mero (
-	      <a href="https://github.com/Seagate/cortx-motr/commit/{{row.merobuild.git}}">
-		{{row.merobuild.git.substring(0,6)}}
-	      </a>)<span ng-if="row.s3build.git">, s3 (
-	      <a href="https://github.com/Seagate/cortx-s3server/commit/{{row.s3build.git}}">
-		{{row.s3build.git.substring(0,6)}}
-	      </a>)</span>
-	    </td>
-	  </tr>
-	</table> -->
-	<!-- /WORKLOAD -->
+	<!-- info -->
+		<table>
+			<tr>
+				<td>
+				<u>description:</u> <b>{{row.desc}}</b>
+				</td>
+			<tr>
+				<tr>
+					<td>
+					<u>priority:</u> <b>{{row.prio}}</b>
+					</td>
+				<tr>
+		</table>
 	  </td>
 	  
-	<!-- benchmark -->
+	<!-- workload -->
 	<td>
 		<table>
-			<tr ng-repeat="(key,val) in row.benchmark">
+			<tr ng-repeat="(key,val) in row.workload">
 				<td>
-					<u>{{key}}: <b>{{val}}</b></u>
+				  <u>custom workload:</u> <b>{{val.cmd}}</b>
+				</td>
+			</tr>
+			<tr ng-repeat="(key,val) in row.benchmark">
+				<td ng-if="val">
+					<u>benchmark:</u> <b>{{key}}</b>
 				</td>
 			</tr>
 		</table>
 	</td>
-	<!-- benchmark end -->
+	<!-- workload end -->
 
 	<!-- params -->
 	<td>

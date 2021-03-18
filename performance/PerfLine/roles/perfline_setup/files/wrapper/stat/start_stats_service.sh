@@ -14,6 +14,7 @@ function removing_dir()
      rm -rf /var/perfline/iostat.$(hostname -s) || true
      rm -rf /var/perfline/dstat.$(hostname -s) || true
      rm -rf /var/perfline/blktrace.$(hostname -s) || true
+     rm -rf /var/perfline/glances.$(hostname -s)
 }
 
 function creating_dir()
@@ -41,7 +42,9 @@ function blktrace-service-start()
 }
 function glance_service_start()
 {
-     glances --stdout now,core,cpu,percpu,diskio,fs,load,system,mem,memswap,network,processcount,raid,sensors,uptime --export csv --export-csv-file /var/perfline/glances/glances.$(hostname -s)/glances.csv > /dev/null 2>&1 &    
+     glances --stdout now,core,cpu,percpu,diskio,fs,load,system,mem,memswap,\
+network,processcount,raid,sensors,uptime --export csv --export-csv-file \
+/var/perfline/glances/glances.$(hostname -s)/glances.csv > /dev/null 2>&1 &
 }
 
 echo "stat collection: $1"

@@ -22,12 +22,11 @@
       <th>status</th>
       <th>user</th>
       <th>time</th>
+	  <th>info</th>
 	  <th>workload</th>
-	  <th>benchmark</th>
 	  <th>params</th>
-      <th>R/W stats</th>
+      <th>perf result</th>
       <th>artifacts</th>
-      <th>perf agg</th>
     </tr>
   </thead>
   <tr ng-repeat="row in names | filter:searchText | limitTo:itemsPerPage:(currentPage-1)*itemsPerPage">
@@ -37,31 +36,36 @@
       <td>
 	<table>
 	  <tr ng-repeat="(key,val) in row.time">
-	    <td><u>{{key}}:</u><br>{{val}}</td>
+	    <td><u>{{key}}:</u><b>{{val}}</b></td>
 	  </tr>
 	</table>
       </td>
       <td>
-	<!-- WORKLOAD -->
+	<!-- info -->
 	<table>
 	  <tr>
 	    <td>
-	      <u>description:</u> {{row.desc}} <u>priority:</u> {{row.prio}}
+	      <u>description:</u> <b>{{row.desc}}</b>
 	    </td>
 	  <tr>
-	  <tr ng-repeat="(key,val) in row.workload">
-	    <td>
-	      <u>{{val.cmd}}</u>
-	    </td>
-	  </tr>
+		<tr>
+			<td>
+			  <u>priority:</u> <b>{{row.prio}}</b>
+			</td>
+		<tr>
 	</table>
 
 	<!-- benchmark -->
 	<td>
 		<table>
-			<tr ng-repeat="(key,val) in row.benchmark">
+			<tr ng-repeat="(key,val) in row.workload">
 				<td>
-					<u>{{key}}: <b>{{val}}</b></u>
+				  <u>custom workload:</u> <b>{{val.cmd}}</b>
+				</td>
+			  </tr>
+			<tr ng-repeat="(key,val) in row.benchmark">
+				<td ng-if="val">
+					<u>benchmark:</u> <b>{{key}}</b>
 				</td>
 			</tr>
 		</table>
@@ -73,97 +77,34 @@
 		<table>
 			<tr ng-repeat="(key,val) in row.parameters">
 				<td>
-					<u>{{key}}: <b>{{val}}</b></u>
+					<u>{{key}}:</u> <b>{{val}}</b>
 				</td>
 			</tr>
 		</table>
 	</td>
 	<!-- params end -->
 
-	<!-- <table>
-	  <tr>
-	    <td>
-	      <u>extopts:</u>
-	      <span ng-repeat="(key,val) in row.exopt">
-		{{key}}={{val}}
-	      </span>
-	    </td>
-	  </tr>
-	  <tr>
-	    <td>
-	      <u>build_opts:</u> {{row.merobuild.build_options}} <br>
-	      <span ng-if="row.merobuild.config_overrides">
-		<u>mero_config_overrides:</u>
-		<span ng-repeat="(key,val) in row.merobuild.config_overrides">
-		  {{key}}={{val}}
-		</span>
-		<br>
-	      </span>
-	      <span ng-if="row.s3build.config_overrides">
-		<u>s3_config_overrides:</u>
-		<span ng-repeat="(key,val) in row.s3build.config_overrides">
-		  {{key}}={{val}}
-		</span>
-		<br>
-	      </span>
-	      <u>git</u>: mero (
-	      <a href="https://github.com/Seagate/cortx-motr/commit/{{row.merobuild.git}}">
-		{{row.merobuild.git.substring(0,6)}}
-	      </a>)<span ng-if="row.s3build.git">, s3 (
-	      <a href="https://github.com/Seagate/cortx-s3server/commit/{{row.s3build.git}}">
-		{{row.s3build.git.substring(0,6)}}
-	      </a>)</span>
-	    </td>
-	  </tr>
-	</table> -->
-	<!-- /WORKLOAD -->
-	  </td>
-
-    <td>
-
-	  	<table>
-		<tr ng-repeat="val in row.rw_stats">
-			<td>
-				Write: {{val[0]}} <br>
-				Read: {{val[1]}}
-			</td>
-		</tr>
-		</table>
-	</td>
-
-      <td>
-
-	<table>
-	  <tr ng-repeat="(key,val) in row.artifacts">
-	    <td><a href="{{val}}">{{key}}</a></td>
-	  </tr>
-	</table>
-      </td>
-      <td>
-
-
-		<!-- <span ng-repeat="(key,val) in row.perfagg">
-			<u>{{key}}:</u> <span ng-repeat="(key1,val1) in val">{{key1}}={{val1}} </span><br>
-		</span> -->
-
-
+	<!-- perf metrics -->
+	<td>
 		<table>
-			<tr ng-repeat="(key,val) in row.perfagg">
-				<td><a href="{{val}}">{{key}}</a></td>
+			<tr ng-repeat="metric in row.perf_metrics">
+				<td>
+					{{metric}}
+				</td>
 			</tr>
 		</table>
-	<!-- <table>
-	  <tr ng-repeat="(key,val) in row.perfagg">
-		<td>{{key}}</td>
-		<td>
-			<table>
-				<tr ng-repeat="(key1,val1) in val">
-					<td>{{key1}}={{val1}}</td>
-				</tr>
-			</table>
-		</td>
-	  </tr>
-	</table> -->
+	</td>
+	<!-- perf metrics end -->
+
+      <td>
+		  <table>
+			  <tr>
+				<td> <a href="{{row.perfagg.report_page}}">report</a> </td>
+			  </tr>
+			  <tr>
+				  <td> <a href="{{row.artifacts.artifacts_page}}">artifacts</a> </td>
+			  </tr>
+		  </table>
       </td>
   </tr>
 </table>

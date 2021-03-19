@@ -286,7 +286,7 @@ If you go to report page you could see detailed report for executed task, includ
 │       │   │       │   └── ui-bootstrap-tpls-2.5.0.min.js
 │       │   │       ├── stats.html
 │       │   │       └── task.html
-│       │   └── webui.service
+│       │   └── perfline-ui.service
 │       ├── handlers
 │       │   └── main.yml
 │       ├── tasks

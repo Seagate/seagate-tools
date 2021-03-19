@@ -9,9 +9,9 @@ TEMPLATE=$6
 
 echo "System monitoring started"
 systemctl restart telegraf
-ssh root@$SERVER "cd ~/BENCHMARK/fio; ./run_fiobenchmark.sh -t $DURATION -bs $IOSIZE -nj $NUMJOBS -sm $SAMPLE -tm $TEMPLATE" &
+ssh root@$SERVER "cd ~/cortx-benchmark/fio; ./run_fiobenchmark.sh -t $DURATION -bs $IOSIZE -nj $NUMJOBS -sm $SAMPLE -tm $TEMPLATE" &
 PID1=$!
-ssh root@$SERVER "ssh srvnode-2 'cd ~/BENCHMARK/fio; ./run_fiobenchmark.sh -t $DURATION -bs $IOSIZE -nj $NUMJOBS -sm $SAMPLE -tm $TEMPLATE'" &
+ssh root@$SERVER "ssh srvnode-2 'cd ~/cortx-benchmark/fio; ./run_fiobenchmark.sh -t $DURATION -bs $IOSIZE -nj $NUMJOBS -sm $SAMPLE -tm $TEMPLATE'" &
 PID2=$!
 sleep 20
 while [ true ]

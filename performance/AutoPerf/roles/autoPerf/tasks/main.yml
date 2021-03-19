@@ -42,6 +42,11 @@
      update_cache: yes
    delegate_to: "{{ item }}"
    with_items: "{{ groups['allserver'] }}"
+
+ - name: Compress directory files/cortx-benchmark into files/cortx-benchmark.tar.gz
+   archive:
+     path: "{{ role_path }}/files/cortx-benchmark"
+     dest: "{{ role_path }}/files/cortx-benchmark.tar.gz"
  
  - name: Copying benchmark script to {{ ansible_host }}
    unarchive: 

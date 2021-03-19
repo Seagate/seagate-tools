@@ -40,7 +40,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 from core.utils import *
-from core import s3bench_log_parser, cache, pl_api
+from core import cache, pl_api
 
 
 app = Flask(__name__)
@@ -160,14 +160,25 @@ def stats(path):
     response.headers['Pragma'] = 'no-cache'
     return response
 
-def get_s3bench_perf_results(task_id):
-    cache_key = f's3bench_perf_res_{task_id}'
+def get_perf_results(task_id):
+    cache_key = f'perf_res_{task_id}'
 
     if cache.contains(cache_key):
         return cache.get(cache_key)
 
-    s3bench_log_path = f'{config.artifacts_dir}/result_{task_id}/{config.s3bench_log_path}'
-    result = s3bench_log_parser.try_parse_s3bench_results(s3bench_log_path)
+    perf_results_path = f'{config.artifacts_dir}/result_{task_id}/{config.perf_results_filename}'
+
+    if isfile(perf_results_path):
+        result = []
+
+        with open(perf_results_path) as f:
+            for line in f:
+                line_s = line.strip()
+                if line_s:
+                    result.append(line_s)
+    else:
+        result = ['N/A']
+
     cache.put(cache_key, result)
     return result
 
@@ -192,7 +203,7 @@ def tq_results_read(limit: int) -> Dict:
             elem["status"] = info['info']['status']
             task = r[0]
 
-            elem['perf_metrics'] = get_s3bench_perf_results(elem["task_id"])
+            elem['perf_metrics'] = get_perf_results(elem["task_id"])
 
             elem['artifacts'] = {
                 "artifacts_page": "artifacts/{0}".format(task['task_id']),

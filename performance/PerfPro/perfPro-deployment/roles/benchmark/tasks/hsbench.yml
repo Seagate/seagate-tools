@@ -1,12 +1,47 @@
 ---
- - name: "[HSbench-1-Bucket]: HSbench running ( Size='4Kb,100Kb,256Kb,1Mb,5Mb,16Mb,36Mb,64Mb,128Mb,256Mb' sample=1000 session= 100 bucket=1 )"
-   shell: cd /root/PerfProBenchmark/hsbench; ./run_benchmark.sh -b 1 -o 1000 -s "4Kb,100Kb,256Kb,1Mb,5Mb,16Mb,36Mb,64Mb,128Mb,256Mb" -t 100 -d 600
+ - name: "[HSbench-1-Bucket]: HSbench running (Size='4Kb,100Kb,1Mb,5Mb,36Mb,64Mb,128Mb,256Mb')"
+   shell: cd /root/PerfProBenchmark/hsbench; ./run_benchmark.sh -b 1 -o {{ item.numsamples }} -s {{ item.objsize }} -t 300 -d 600
    delegate_to: "client-1"
+   loop:
+       - { objsize: '4Kb', numsamples: '33000'}
+       - { objsize: '100Kb', numsamples: '130000'}
+       - { objsize: '256Kb', numsamples: '96000'}
+       - { objsize: '1Mb', numsamples: '150000'}
+       - { objsize: '5Mb', numsamples: '82000'}
+       - { objsize: '16Mb', numsamples: '40000'}
+       - { objsize: '36Mb', numsamples: '24000'}
+       - { objsize: '64Mb', numsamples: '15000'}
+       - { objsize: '128Mb', numsamples: '7400'}
+       - { objsize: '256Mb', numsamples: '4600'}
 
- - name: "[HSbench-10-Buckets]: HSbench running ( Size='4Kb,100Kb,256Kb,1Mb,5Mb,16Mb,36Mb,64Mb,128Mb,256Mb' sample=1000 session=100 bucket=10 )"
-   shell: cd /root/PerfProBenchmark/hsbench; ./run_benchmark.sh -b 10 -o 1000 -s "4Kb,100Kb,256Kb,1Mb,5Mb,16Mb,36Mb,64Mb,128Mb,256Mb" -t 100 -d 600; 
+ - name: "[HSbench-10-Buckets]: HSbench running (Size='4Kb,100Kb,1Mb,5Mb,36Mb,64Mb,128Mb,256Mb')"
+   shell: cd /root/PerfProBenchmark/hsbench; ./run_benchmark.sh -b 10 -o {{ item.numsamples }} -s {{ item.objsize }} -t 300 -d 600
    delegate_to: "client-1"
+   loop:
+       - { objsize: '4Kb', numsamples: '33000'}
+       - { objsize: '100Kb', numsamples: '130000'}
+       - { objsize: '256Kb', numsamples: '96000'}
+       - { objsize: '1Mb', numsamples: '150000'}
+       - { objsize: '5Mb', numsamples: '82000'}
+       - { objsize: '16Mb', numsamples: '40000'}
+       - { objsize: '36Mb', numsamples: '24000'}
+       - { objsize: '64Mb', numsamples: '15000'}
+       - { objsize: '128Mb', numsamples: '7400'}
+       - { objsize: '256Mb', numsamples: '4600'}
 
- - name: "[HSbench-50-Buckets]: HSbench running ( Size='4Kb,100Kb,256Kb,1Mb,5Mb,16Mb,36Mb,64Mb,128Mb,256Mb' sample=5000 session=100 bucket=50 )"
-   shell: cd /root/PerfProBenchmark/hsbench; ./run_benchmark.sh -b 50 -o 5000 -s "4Kb,100Kb,256Kb,1Mb,5Mb,16Mb,36Mb,64Mb,128Mb,256Mb" -t 100 -d 600
+ - name: "[HSbench-50-Buckets]: HSbench running (Size='4Kb,100Kb,1Mb,5Mb,36Mb,64Mb,128Mb,256Mb')"
+   shell: cd /root/PerfProBenchmark/hsbench; ./run_benchmark.sh -b 50 -o {{ item.numsamples }} -s {{ item.objsize }} -t 300 -d 600
    delegate_to: "client-1"
+   loop:
+       - { objsize: '4Kb', numsamples: '33000'}
+       - { objsize: '100Kb', numsamples: '130000'}
+       - { objsize: '256Kb', numsamples: '96000'}
+       - { objsize: '1Mb', numsamples: '150000'}
+       - { objsize: '5Mb', numsamples: '82000'}
+       - { objsize: '16Mb', numsamples: '40000'}
+       - { objsize: '36Mb', numsamples: '24000'}
+       - { objsize: '64Mb', numsamples: '15000'}
+       - { objsize: '128Mb', numsamples: '7400'}
+       - { objsize: '256Mb', numsamples: '4600'}
+
+

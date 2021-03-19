@@ -90,10 +90,10 @@
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
-  - name: Copy webui systemd file
+  - name: Copy perfline-ui systemd file
     copy:
-      src: files/webui.service
-      dest: /etc/systemd/system/webui.service
+      src: files/perfline-ui.service
+      dest: /etc/systemd/system/perfline-ui.service
     delegate_to: "client-1"
 
   - name: Copy perfline systemd file
@@ -102,8 +102,8 @@
       dest: /etc/systemd/system/perfline.service
     delegate_to: "client-1"
 
-  - name: Start webui service
-    systemd: state=started name=webui daemon_reload=yes
+  - name: Start perfline-ui service
+    systemd: state=started name=perfline-ui daemon_reload=yes
     delegate_to: "client-1"
 
   - name: Start perfline service

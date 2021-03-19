@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
 #
@@ -17,21 +18,27 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 
-common:
-  version: 1
-  description: Run small workload using s3bench
-  priority: 1
-  batch_id: null
-  user: user@seagate.com
-  send_email: false
+from plumbum import local
 
-workload:
-  - cmd: /root/perfline/wrapper/workload/s3bench_run.sh -n 64 -c 2 -o 64m
+_tq = None
 
-execution_options:
-  mkfs: true
-  no_m0trace_files: true
-  no_m0trace_dumps: true
-  no_addb_stobs: true
-  no_addb_dumps: true
-  no_m0play_db: true
+def init_tq_endpoint(tq_endpoint_path):
+    global _tq
+    _tq = local[tq_endpoint_path]
+
+def get_queue():
+    _check_tq_ep()
+    queue = _tq['-l']()
+    return queue
+
+def get_results():
+    _check_tq_ep()
+    results = _tq['-r']()
+    return results
+
+def add_task(task_config):
+    _check_tq_ep()
+    (_tq["-a"] << task_config)()
+
+def _check_tq_ep():
+    assert _tq is not None, "call init_tq_endpoint(tq_endpoint_path) before"

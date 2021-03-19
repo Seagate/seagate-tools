@@ -17,6 +17,10 @@ STAT_COLLECTION=""
 # HA_TYPE="hare"
 MKFS=
 
+PERF_RESULTS_FILE='perf_results'
+CLIENT_ARTIFACTS_DIR='client'
+S3BENCH_LOGFILE='workload_s3bench.log'
+
 function validate() {
     local leave=
     if [[ -z "$RESULTS_DIR" ]]; then
@@ -173,9 +177,8 @@ function is_cluster_online() {
 
 function run_workloads()
 {
-    local client="client"
-    mkdir -p $client
-    pushd $client
+    mkdir -p $CLIENT_ARTIFACTS_DIR
+    pushd $CLIENT_ARTIFACTS_DIR
 
     START_TIME=`date +%s000000000`
     for ((i = 0; i < $((${#WORKLOADS[*]})); i++)); do
@@ -189,16 +192,15 @@ function run_workloads()
 
     STOP_TIME=`date +%s000000000`
     sleep 30
-    popd			# $client
+    popd			# $CLIENT_ARTIFACTS_DIR
 }
 
 function s3bench_workloads()
 {
-    local client="client"
-    mkdir -p $client
-    pushd $client
+    mkdir -p $CLIENT_ARTIFACTS_DIR
+    pushd $CLIENT_ARTIFACTS_DIR
     START_TIME=`date +%s000000000`
-    $SCRIPT_DIR/s3bench_run.sh -b $BUCKETNAME -n $SAMPLE -c $CLIENT -o $IOSIZE | tee workload_s3bench.log
+    $SCRIPT_DIR/s3bench_run.sh -b $BUCKETNAME -n $SAMPLE -c $CLIENT -o $IOSIZE | tee $S3BENCH_LOGFILE
     STATUS=${PIPESTATUS[0]}
     STOP_TIME=`date +%s000000000`
     sleep 120
@@ -316,12 +318,24 @@ function save_stats() {
     done
 }
 
+function save_perf_results() {
+    local s3bench_log="$CLIENT_ARTIFACTS_DIR/$S3BENCH_LOGFILE"
+
+    if [[ -f "$s3bench_log" ]]; then
+        echo "Benchmark: s3bench" >> $PERF_RESULTS_FILE
+        $SCRIPT_DIR/../stat/report_generator/s3bench_log_parser.py $s3bench_log >> $PERF_RESULTS_FILE
+        echo "" >> $PERF_RESULTS_FILE
+    fi
+}
+
 function collect_artifacts() {
     local m0d="m0d"
     local s3srv="s3server"
     local stats="stats"
 
     echo "Collect artifacts"
+
+    save_perf_results
 
     mkdir -p $stats
     pushd $stats

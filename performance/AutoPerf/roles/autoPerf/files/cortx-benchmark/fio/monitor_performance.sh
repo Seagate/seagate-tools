@@ -1,5 +1,5 @@
 #!/bin/bash
-source /root/BENCHMARK/influxdbDetails.conf
+source /root/cortx-benchmark/influxdbDetails.conf
 INFLUXDB=`cat /etc/telegraf/telegraf.conf | grep -A 3 outputs.influxdb | grep urls | cut -d "=" -f2 | tr -d '"[]' | tr -d ' '`
 URL="$INFLUXDB/write?db=$benchmarkdb"
 host=`hostname`

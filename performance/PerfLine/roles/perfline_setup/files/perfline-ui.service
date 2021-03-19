@@ -1,5 +1,5 @@
 [Unit]
-Description=web ui for task queue
+Description=web ui for perfline
 
 [Service]
 Type=simple

@@ -1,6 +1,6 @@
 # autoperf-v1.1
 
-## Pre-Requisits in order to run AutoPerf: 
+## Pre-Requisites in order to run AutoPerf: 
 1. Create and empty 'hosts' file in AutoPerf home directory (~/seagate-tools/performance/AutoPerf/)
 
 

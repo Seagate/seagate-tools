@@ -5,4 +5,4 @@
 
 
 ## Example to run AutoPerf: 
-$ ansible-playbook -i hosts deploy_autoperf.yml --extra-vars '{ "BENCHMARK":"s3bench_basic", "CONFIGURATION":"short", "SAMPLE":"5", "SKIPCLEANUP":"no", "KEY":"password", "nodes":{"1": "node1.loc.seagate.com", "2": "node2.loc.seagate.com" , "clients":{"1": "client1.loc.seagate.com"}}' -v
+$ ansible-playbook -i hosts deploy_autoperf.yml --extra-vars '{ "BENCHMARK":"s3bench_basic", "CONFIGURATION":"short", "SAMPLE":"5", "SKIPCLEANUP":"no", "KEY":"password", "nodes":{"1": "node1.loc.seagate.com", "2": "node2.loc.seagate.com"} , "clients":{"1": "client1.loc.seagate.com"}}' -v

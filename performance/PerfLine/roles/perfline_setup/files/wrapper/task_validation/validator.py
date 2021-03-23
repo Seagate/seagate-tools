@@ -42,6 +42,16 @@ def get_schema_motr():
                 }
             }
         },
+        'stats_collection': {
+            'type': 'dict',
+            'schema': {
+                'iostat': {'type': 'boolean'},
+                'dstat': {'type': 'boolean'},
+                'blktrace': {'type': 'boolean'},
+                'glances': {'type': 'boolean'},
+                
+            }
+         },
         'custom_build': {
             'type': 'dict',
             'schema': {
@@ -73,11 +83,11 @@ def get_schema_motr():
         'execution_options': {
             'type': 'dict',
             'schema': {
-                'no_m0trace_files': {'type': 'boolean'},
-                'no_m0trace_dumps': {'type': 'boolean'},
-                'no_addb_stobs': {'type': 'boolean'},
-                'no_addb_dumps': {'type': 'boolean'},
-                'no_m0play_db': {'type': 'boolean'}
+                'm0trace_files': {'type': 'boolean'},
+                'm0trace_dumps': {'type': 'boolean'},
+                'addb_stobs': {'type': 'boolean'},
+                'addb_dumps': {'type': 'boolean'},
+                'm0play_db': {'type': 'boolean'}
             }
         }
     }

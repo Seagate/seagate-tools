@@ -27,4 +27,11 @@
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
+  - name: Copy glances repo to all node
+    unarchive:
+      src: "{{ role_path }}/files/glances.tar.gz"
+      dest: "{{ perfline_dir }}"
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['all'] }}"
+ 
   - include: taskq.yml

@@ -419,7 +419,7 @@ function stop_measuring_test_time()
 
 function generate_report()
 {
-    python3 $STAT_DIR/report_generator/gen_report.py . $STAT_DIR/report_generator &
+    python3 $STAT_DIR/report_generator/gen_report.py . $STAT_DIR/report_generator
 }
 
 function main() {
@@ -489,7 +489,7 @@ function main() {
 
     stop_measuring_test_time
     
-#    generate_report
+   generate_report
 
     # Close results dir
     close_results_dir

@@ -13,6 +13,8 @@ import itertools
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
+import s3bench_log_parser
+
 # Helper functions
 
 
@@ -177,58 +179,10 @@ def parse_s3_info(report_dir):
 
 
 def parse_report_info(report_dir):
-    report_length = 12
-    test_parameters_length = 7
-    line_amount_to_read = 200
-
-    # Reading stats from s3bench_test
-    S3BENCH_TEST_DIR = join(report_dir, 'client/s3bench_test')
     rw_stats = {}
-    if isdir(S3BENCH_TEST_DIR):
-        path_to_rw_stats = [(f, join(S3BENCH_TEST_DIR, f)) for f in listdir(
-            S3BENCH_TEST_DIR) if isfile(join(S3BENCH_TEST_DIR, f))]
-
-        def file_len(fname):
-            index = 0
-            with open(fname) as f:
-                for i, l in enumerate(f):
-                    index = i
-            return index + 1
-
-        def get_throughtput(lines):
-            for line in lines:
-                l1 = line.split(':')
-                if l1[0] == 'Total Throughput':
-                    return l1[1].strip()
-
-        write_stat = read_stat = None
-        for fname, path in path_to_rw_stats:
-            f_len = file_len(path)
-            len_to_read = f_len - line_amount_to_read
-            unfiltered_report = []
-            with open(join(report_dir, path)) as f:
-                for i, l in enumerate(f):
-                    if i > len_to_read:
-                        unfiltered_report.append(l)
-            test_parameters = next(unfiltered_report[i+1:i+1+test_parameters_length]
-                                   for i, l in enumerate(unfiltered_report) if l == 'Test parameters\n')
-            write_summary = next(unfiltered_report[i+1:i+1+report_length] for i, l in enumerate(
-                unfiltered_report) if l == 'Results Summary for Write Operation(s)\n')
-            read_summary = next(unfiltered_report[i+1:i+1+report_length] for i, l in enumerate(
-                unfiltered_report) if l == 'Results Summary for Read Operation(s)\n')
-
-            write_stat = get_throughtput(write_summary)
-            read_stat = get_throughtput(read_summary)
-
-            test_parameters = list_replace_spaces_for_html(test_parameters)
-            write_summary = list_replace_spaces_for_html(write_summary)
-            read_summary = list_replace_spaces_for_html(read_summary)
-            rw_stats[fname] = [test_parameters, write_summary, read_summary]
-        with open(join(report_dir, 'rw_stat'), 'w+') as file:
-            if (len(path_to_rw_stats) == 1):
-                file.writelines([write_stat, '\n', read_stat])
-            else:
-                file.writelines(['Several rw_stats'])
+    s3bench_log = join(report_dir, 'client/workload_s3bench.log')
+    if isfile(s3bench_log):
+        rw_stats = s3bench_log_parser.parse_s3bench_log(s3bench_log)
 
     # Saving workload filenames
     workload_dir = join(report_dir, 'client')

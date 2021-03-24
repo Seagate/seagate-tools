@@ -11,10 +11,15 @@ TOOLS_DIR="$SCRIPT_DIR/../../chronometry"
 PERFLINE_DIR="$SCRIPT_DIR/../"
 STAT_DIR="$SCRIPT_DIR/../stat"
 BUILD_DEPLOY_DIR="/root/perfline/build_deploy"
+STAT_COLLECTION=""
 # NODES="ssc-vm-c-1042.colo.seagate.com,ssc-vm-c-1043.colo.seagate.com"
 # EX_SRV="pdsh -S -w $NODES"
 # HA_TYPE="hare"
 MKFS=
+
+PERF_RESULTS_FILE='perf_results'
+CLIENT_ARTIFACTS_DIR='client'
+S3BENCH_LOGFILE='workload_s3bench.log'
 
 function validate() {
     local leave=
@@ -49,7 +54,9 @@ function validate() {
 
 function build_deploy() {
     pushd $BUILD_DEPLOY_DIR
-    ansible-playbook -i inventories/perfline_hosts/hosts run_build_deploy.yml --extra-vars "motr_repo_path=$MOTR_REPO hare_repo_path=$HARE_REPO s3server_repo_path=$S3SERVER_REPO hare_commit_id=$HARE_COMMIT_ID motr_commit_id=$MOTR_COMMIT_ID s3server_commit_id=$S3SERVER_COMMIT_ID" -v
+    ansible-playbook -i hosts run_build_deploy.yml --extra-vars "motr_repo_path=$MOTR_REPO \
+hare_repo_path=$HARE_REPO s3server_repo_path=$S3SERVER_REPO hare_commit_id=$HARE_COMMIT_ID \
+motr_commit_id=$MOTR_COMMIT_ID s3server_commit_id=$S3SERVER_COMMIT_ID" -v
     popd
 }
 
@@ -170,9 +177,8 @@ function is_cluster_online() {
 
 function run_workloads()
 {
-    local client="client"
-    mkdir -p $client
-    pushd $client
+    mkdir -p $CLIENT_ARTIFACTS_DIR
+    pushd $CLIENT_ARTIFACTS_DIR
 
     START_TIME=`date +%s000000000`
     for ((i = 0; i < $((${#WORKLOADS[*]})); i++)); do
@@ -186,16 +192,15 @@ function run_workloads()
 
     STOP_TIME=`date +%s000000000`
     sleep 30
-    popd			# $client
+    popd			# $CLIENT_ARTIFACTS_DIR
 }
 
 function s3bench_workloads()
 {
-    local client="client"
-    mkdir -p $client
-    pushd $client
+    mkdir -p $CLIENT_ARTIFACTS_DIR
+    pushd $CLIENT_ARTIFACTS_DIR
     START_TIME=`date +%s000000000`
-    $SCRIPT_DIR/s3bench_run.sh -b $BUCKETNAME -n $SAMPLE -c $CLIENT -o $IOSIZE | tee workload_s3bench.log
+    $SCRIPT_DIR/s3bench_run.sh -b $BUCKETNAME -n $SAMPLE -c $CLIENT -o $IOSIZE | tee $S3BENCH_LOGFILE
     STATUS=${PIPESTATUS[0]}
     STOP_TIME=`date +%s000000000`
     sleep 120
@@ -230,15 +235,15 @@ function save_motr_artifacts() {
 
     mkdir -p $ios_m0trace_dir
     pushd $ios_m0trace_dir
-    if [[ -z $NO_M0TRACE_FILES ]]; then
+    if [[ -n $M0TRACE_FILES ]]; then
         $EX_SRV $SCRIPT_DIR/save_m0traces $(hostname) $(pwd) "motr" "\"$ios_l\""
     fi
     popd # $ios_motrace_dir
 
     mkdir -p $dumps_dir
     pushd $dumps_dir
-    if [[ -z $NO_ADDB_STOBS ]] && [[ -z $NO_ADDB_DUMPS ]]; then
-        if [[ -n "$NO_M0PLAY_DB" ]]; then
+    if [[ -n $ADDB_STOBS ]] && [[ -n $ADDB_DUMPS ]]; then
+        if [[ -z "$M0PLAY_DB" ]]; then
             local no_m0play_option="--no-m0play-db"
         fi
         $EX_SRV $SCRIPT_DIR/process_addb $no_m0play_option --host $(hostname) --dir $(pwd) --app "motr" --io-services "\"$ios_l\"" --start $START_TIME --stop $STOP_TIME
@@ -286,12 +291,12 @@ function save_s3srv_artifacts() {
         popd
     done
 
-    if [[ -z $NO_M0TRACE_FILES ]]; then
+    if [[ -n $M0TRACE_FILES ]]; then
         $EX_SRV $SCRIPT_DIR/save_m0traces $(hostname) $(pwd) "s3server"
     fi
 
-    if [[ -z $NO_ADDB_STOBS ]]; then
-        if [[ -n "$NO_M0PLAY_DB" ]]; then
+    if [[ -n $ADDB_STOBS ]]; then
+        if [[ -z "$M0PLAY_DB" ]]; then
             local no_m0play_option="--no-m0play-db"
         fi
         $EX_SRV $SCRIPT_DIR/process_addb $no_m0play_option --host $(hostname) --dir $(pwd) --app "s3server" --start $START_TIME --stop $STOP_TIME
@@ -305,11 +310,22 @@ function save_stats() {
 	scp -r $srv:/var/perfline/iostat* iostat || true
 	scp -r $srv:/var/perfline/blktrace* blktrace || true
 	scp -r $srv:/var/perfline/dstat* dstat || true
+        scp -r $srv:/var/perfline/glances* glances || true
 	scp -r $srv:/var/perfline/hw* hw || true
 	scp -r $srv:/var/perfline/network* network || true
 	scp -r $srv:/var/perfline/5u84* 5u84 || true
 	popd
     done
+}
+
+function save_perf_results() {
+    local s3bench_log="$CLIENT_ARTIFACTS_DIR/$S3BENCH_LOGFILE"
+
+    if [[ -f "$s3bench_log" ]]; then
+        echo "Benchmark: s3bench" >> $PERF_RESULTS_FILE
+        $SCRIPT_DIR/../stat/report_generator/s3bench_log_parser.py $s3bench_log >> $PERF_RESULTS_FILE
+        echo "" >> $PERF_RESULTS_FILE
+    fi
 }
 
 function collect_artifacts() {
@@ -318,6 +334,8 @@ function collect_artifacts() {
     local stats="stats"
 
     echo "Collect artifacts"
+
+    save_perf_results
 
     mkdir -p $stats
     pushd $stats
@@ -334,7 +352,7 @@ function collect_artifacts() {
     save_s3srv_artifacts
     popd			# $s3server
     
-    if [[ -z $NO_ADDB_STOBS ]] && [[ -z $NO_ADDB_DUMPS ]] && [[ -z $NO_M0PLAY_DB ]]; then
+    if [[ -n $ADDB_STOBS ]] && [[ -n $ADDB_DUMPS ]] && [[ -n $M0PLAY_DB ]]; then
         $SCRIPT_DIR/merge_m0playdb $m0d/dumps/m0play* $s3srv/*/m0play*
         rm -f $m0d/dumps/m0play* $s3srv/*/m0play*
     fi
@@ -348,14 +366,14 @@ function close_results_dir() {
 function start_stat_utils()
 {
     echo "Start stat utils"
-    $EX_SRV "$STAT_DIR/start_stats_service.sh" &
+    $EX_SRV "$STAT_DIR/start_stats_service.sh $STAT_COLLECTION" &
     sleep 30
 }
 
 function stop_stat_utils()
 {
     echo "Stop stat utils"
-    $EX_SRV "$STAT_DIR/stop_stats_service.sh" 
+    $EX_SRV "$STAT_DIR/stop_stats_service.sh $STAT_COLLECTION" 
 
     echo "Gather static info"
     $EX_SRV "$STAT_DIR/collect_static_info.sh"
@@ -401,7 +419,7 @@ function stop_measuring_test_time()
 
 function generate_report()
 {
-    python3 $STAT_DIR/report_generator/gen_report.py . $STAT_DIR/report_generator &
+    python3 $STAT_DIR/report_generator/gen_report.py . $STAT_DIR/report_generator
 }
 
 function main() {
@@ -471,7 +489,7 @@ function main() {
 
     stop_measuring_test_time
     
-#    generate_report
+   generate_report
 
     # Close results dir
     close_results_dir
@@ -550,23 +568,35 @@ while [[ $# -gt 0 ]]; do
         --s3bench)
             S3BENCH="1"
             ;;
-        --no-m0trace-files)
-            NO_M0TRACE_FILES="1"
+        --iostat)
+            STAT_COLLECTION="$STAT_COLLECTION-IOSTAT"
             ;;
-        --no-m0trace-dumps)
-            NO_M0TRACE_DUMPS="1"
+        --dstat)
+            STAT_COLLECTION="$STAT_COLLECTION-DSTAT"
             ;;
-        --no-addb-stobs)
-            NO_ADDB_STOBS="1"
+        --blktrace)
+            STAT_COLLECTION="$STAT_COLLECTION-BLKTRACE"
             ;;
-        -d|--no-addb-dumps)
-            NO_ADDB_DUMPS="1"
+        --glances)
+            STAT_COLLECTION="$STAT_COLLECTION-GLANCES"
             ;;
-        --no-m0play-db)
-            NO_M0PLAY_DB="1"
+        --m0trace-files)
+            M0TRACE_FILES="1"
             ;;
-        --no-motr-trace)
-            NO_MOTR_TRACE="1"
+        --m0trace-dumps)
+            M0TRACE_DUMPS="1"
+            ;;
+        --addb-stobs)
+            ADDB_STOBS="1"
+            ;;
+        -d|--addb-dumps)
+            ADDB_DUMPS="1"
+            ;;
+        --m0play-db)
+            M0PLAY_DB="1"
+            ;;
+        --motr-trace)
+            MOTR_TRACE="1"
             ;;
 	--mkfs)
 	    MKFS="1"

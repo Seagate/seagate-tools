@@ -82,7 +82,7 @@
     with_items: "{{ groups['nodes'] }}"
 
   - name: "Build cortx using docker"
-    shell: time docker run --rm -v /var/artifacts:/var/artifacts -v /root/cortx:/cortx-workspace ghcr.io/seagate/cortx-build:centos-7.8.2003 make clean build 
+    shell: time docker run --rm -v /var/artifacts:/var/artifacts -v /root/cortx:/cortx-workspace ghcr.io/seagate/cortx-build:centos-7.8.2003 make clean
     delegate_to: "{{ item }}"
     with_items: "{{ groups['nodes'] }}"
 

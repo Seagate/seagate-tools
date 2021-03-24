@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
 #
@@ -17,46 +18,15 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 
-common:
-  version: 1
-  description: Perf benchmark - s3bench, size=, clients=, num=
-  priority: 1
-  batch_id: null
-  user: user@seagate.com
-  send_email: false
+CACHE_STORAGE = dict()
 
-custom_build:
-  deploybuild: false
-  motr_repo_path: ""
-  hare_repo_path: ""
-  s3server_repo_path: ""
-  hare_commit_id: ""
-  motr_commit_id: ""
-  s3server_commit_id: ""
+def put(key, value):
+    CACHE_STORAGE[key] = value
 
-workload:
-  - cmd: sleep 1
+def get(key):
+    return CACHE_STORAGE[key]
 
-stats_collection:
-  iostat: true
-  dstat: true
-  blktrace: true
-  glances: true
-
-benchmark:
-  fio: false 
-  s3bench: false
-
-parameter:
-  BucketName: 
-  NumClients: 
-  NumSample: 
-  ObjSize:      
-
-execution_options:
-  mkfs: false
-  m0trace_files: false
-  m0trace_dumps: false
-  addb_stobs: false
-  addb_dumps: false
-  m0play_db: false
+def contains(key):
+    if key in CACHE_STORAGE:
+        return True
+    return False

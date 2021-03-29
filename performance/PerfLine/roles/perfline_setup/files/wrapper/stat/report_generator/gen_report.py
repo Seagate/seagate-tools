@@ -1,5 +1,5 @@
 from os import listdir, getcwd
-from os.path import isdir, join, isfile
+from os.path import isdir, join, isfile, isdir
 
 import json
 import sys
@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 import s3bench_log_parser
+import m0crate_log_parser
 
 # Helper functions
 
@@ -189,7 +190,20 @@ def parse_report_info(report_dir):
     workload_filenames = [f for f in listdir(
         workload_dir) if isfile(join(workload_dir, f))]
 
-    return rw_stats, workload_filenames
+    #m0crate
+    m0crate_dir = join(report_dir, 'm0crate')
+    m0crate_rw_stats = {}
+
+    if isdir(m0crate_dir):
+        m0crate_logs = [f for f in listdir(
+            m0crate_dir) if isfile(join(m0crate_dir, f)) and f.endswith('.log')]
+
+        
+        for m0crate_log in m0crate_logs:
+            m0crate_log_path = join(m0crate_dir, m0crate_log)
+            m0crate_rw_stats[m0crate_log] = m0crate_log_parser.parse_m0crate_log(m0crate_log_path)
+
+    return rw_stats, m0crate_rw_stats, workload_filenames
 
 
 def parse_mapping_info(nodes_stat_dirs):
@@ -312,7 +326,7 @@ def main():
     s3_config_info, hosts_info, haproxy_info = parse_s3_info(report_dir)
 
     # Read report output
-    rw_stats, workload_filenames = parse_report_info(report_dir)
+    rw_stats, m0crate_rw_stats, workload_filenames = parse_report_info(report_dir)
 
     # Disk and network mappings
     disks_mapping_info, nodes_mapping_info = parse_mapping_info(
@@ -339,6 +353,7 @@ def main():
             multipath_conf=multipath_conf,
             multipath_info=multipath_info,
             rw_stats=rw_stats,
+            m0crate_rw_stats=m0crate_rw_stats,
             workload_filenames=workload_filenames,
             mems=mems,
             s3_config_info=s3_config_info,

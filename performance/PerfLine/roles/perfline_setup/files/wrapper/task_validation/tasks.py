@@ -72,6 +72,16 @@ def parse_options(conf, result_dir):
     if conf['benchmark']['fio']: 
         options.append('--fio')    
 
+    if conf['benchmark']['m0crate']:
+        options.append('--m0crate')
+
+    if conf['m0crate_params']:
+        params_str = ''
+        for param_name, param_val in conf['m0crate_params'].items():
+            params_str += "{}={} ".format(param_name, param_val)
+        options.append('--m0crate-params')
+        options.append(params_str)
+
     if conf['benchmark']['s3bench']:
         options.append('--s3bench')
     

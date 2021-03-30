@@ -374,6 +374,7 @@ class ADDB2PP:
             "cas-to-rpc"        : (ADDB2PP.p_1_to_2,      "cas_to_rpc"),
             "dix-to-cas"        : (ADDB2PP.p_1_to_2,      "dix_to_cas"),
             "dix-to-mdix"       : (ADDB2PP.p_1_to_2,      "dix_to_mdix"),
+            "dtx0-state"        : (ADDB2PP.p_sm_req,      "dtx0"),
             "client-to-dix"     : (ADDB2PP.p_1_to_2,      "client_to_dix"),
             "rpc-item-id-assign": (ADDB2PP.p_1_to_2_rpc,  "rpc_to_sxid"),
             "rpc-out-phase"     : (ADDB2PP.p_sm_req,      "rpc_req"),

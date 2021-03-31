@@ -118,6 +118,8 @@ function restart_hare() {
     else
         ssh $PRIMARY_NODE 'hctl bootstrap /var/lib/hare/cluster.yaml'
     fi
+    wait_for_cluster_start
+    
 }
 
 function restart_pcs() {
@@ -157,7 +159,8 @@ function wait_for_cluster_start() {
         sleep 5
     done
 
-    $EX_SRV $SCRIPT_DIR/wait_s3_listeners.sh 11
+    $EX_SRV $SCRIPT_DIR/wait_s3_listeners.sh 21
+    sleep 300
 
 }
 
@@ -200,7 +203,7 @@ function s3bench_workloads()
     mkdir -p $CLIENT_ARTIFACTS_DIR
     pushd $CLIENT_ARTIFACTS_DIR
     START_TIME=`date +%s000000000`
-    $SCRIPT_DIR/s3bench_run.sh -b $BUCKETNAME -n $SAMPLE -c $CLIENT -o $IOSIZE | tee $S3BENCH_LOGFILE
+    $SCRIPT_DIR/s3bench_run.sh -b $BUCKETNAME -n $SAMPLE -c $CLIENT -o $IOSIZE -e $ENDPOINT | tee $S3BENCH_LOGFILE
     STATUS=${PIPESTATUS[0]}
     STOP_TIME=`date +%s000000000`
     sleep 120
@@ -366,7 +369,7 @@ function close_results_dir() {
 function start_stat_utils()
 {
     echo "Start stat utils"
-    $EX_SRV "$STAT_DIR/start_stats_service.sh $STAT_COLLECTION" &
+    $EX_SRV "$STAT_DIR/start_stats_service.sh $STAT_COLLECTION" & 
     sleep 30
 }
 
@@ -550,6 +553,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -size)
             IOSIZE=$2
+            shift
+            ;;
+        -endpoint)
+            ENDPOINT=$2
             shift
             ;;
         --nodes)

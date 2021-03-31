@@ -3,12 +3,9 @@
 db_server: cftic1.pun.seagate.com
 db_port: 27017 
 db_name: PerfPro
-db_collection: results
 db_user: perfpro 
 db_passwd: perfpro
 db_database: performance_db
-sysstat_collection: systemresults
-config_collection: configurations
 R1:
   db_collection: results_1
   sysstat_collection: systemresults_1

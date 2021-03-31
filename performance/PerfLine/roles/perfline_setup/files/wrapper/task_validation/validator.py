@@ -78,6 +78,7 @@ def get_schema_motr():
                 'NumClients': {'type': 'integer', 'required': False, 'nullable': True },
                 'NumSample': {'type': 'integer', 'required': False, 'nullable': True },
                 'ObjSize': {'type': 'string', 'required': False, 'nullable': True },
+                'EndPoint': {'type': 'string', 'required': False, 'nullable': True },
             }
         },
         'execution_options': {

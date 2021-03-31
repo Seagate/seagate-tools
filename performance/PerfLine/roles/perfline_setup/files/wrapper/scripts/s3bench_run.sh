@@ -46,6 +46,10 @@ function parse_args()
                 FILE="$2"
                 shift
                 ;;
+            -e|--endpoint)
+                ENDPOINT="$2"
+                shift
+                ;;
             -h|--help)
                 echo "help information"
                 exit 0
@@ -76,7 +80,7 @@ function run_s3bench()
     if [[ -z $FILE ]]; then
 	FILE="s3bench_workload_${NUM_SAMPLES}_${NUM_CLIENTS}_${OBJ_SIZE}.log"
     fi
-    /root/go/bin/s3bench -accessKey $ACCESS_KEY -accessSecret $SECRET_KEY -bucket $BUCKET_NAME -numSamples $NUM_SAMPLES -objectSize $OBJ_SIZE -numClients $NUM_CLIENTS -endpoint 'https://s3.seagate.com' -verbose 
+    /root/go/bin/s3bench -accessKey $ACCESS_KEY -accessSecret $SECRET_KEY -bucket $BUCKET_NAME -numSamples $NUM_SAMPLES -objectSize $OBJ_SIZE -numClients $NUM_CLIENTS -endpoint "$ENDPOINT" -verbose 
 
     
 }

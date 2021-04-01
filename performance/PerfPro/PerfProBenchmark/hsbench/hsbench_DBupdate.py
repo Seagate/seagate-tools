@@ -14,6 +14,7 @@ import sys
 import yaml
 from datetime import datetime
 import pandas as pd
+import urllib.request
 
 # Path for yaml files locations
 Main_path = sys.argv[2]  # database url
@@ -28,6 +29,13 @@ def makeconfig(name):
 configs_main = makeconfig(Main_path)
 configs_config= makeconfig(Config_path)
 
+build_url=configs_config.get('BUILD_URL')
+nodes_list=configs_config.get('NODES')
+clients_list=configs_config.get('CLIENTS')
+
+nodes_num=len(nodes_list)
+clients_num=len(clients_list)
+
 # Function to get DB details from config files
 '''
 Parameters : input - none
@@ -40,32 +48,21 @@ def makeconnection():
     db=client[configs_main['db_database']]  #database name=performance 
     return db
 
-# Function to get build and version from URL
+# Function to get build release information from URL
 '''
-Parameters : input(None) - none
-             returns(string) - build name
-                    (string) - version of build : beta / release
+Parameters : input(Variable) - Variable from RELEASE.INFO of the Build
+             returns(string) - Value of the Variable
 '''
-def getBuild(): 
-    build = "NA"
-    version = "NA"
-    # os_type = configs_config['OS_TYPE'] # Enable for custom mode
-    buildurl = configs_config['BUILD_URL'].strip()
-    listbuild=re.split('//|/',buildurl)
-    if "releases/eos" in buildurl:
-        version="beta"
-    else:
-        version="release"
 
-    for e in listbuild[::-1]:
-        if "cortx" in e.lower() and "rc" in e.lower():
-            build = e.lower()
-            break
-        if e.isdigit():
-            build = e
-            break
-     
-    return build,version
+def get_release_info(variable):
+    release_info= urllib.request.urlopen(build_url+'prod/RELEASE.INFO')
+    for line in release_info:
+        if variable in line.decode("utf-8"):
+            strinfo=line.decode("utf-8").strip()
+            strip_strinfo=re.split(': ',strinfo)
+            return(strip_strinfo[1])
+
+
 
 # Function to get the files from use entered filepath
 '''
@@ -137,10 +134,13 @@ Parameters : input - (list) list containing file names with specified filter,
                      (String) build number
              returns - none
 '''
-def push_data(files, host, db, build, version):
+def push_data(files, host, db, Build, Version, Branch , OS):
+    global nodes_num, clients_num
     print("logged in from ", host)
-    collection=db[configs_main['db_collection']]
-    col_config = db[configs_main['config_collection']]
+    #collection=db[configs_main['db_collection']]
+    collection='results_'+Version[1]
+    #col_config = db[configs_main['config_collection']]
+    col_config ='configurations_'+Version[1]
     dic = getconfig()
     result = col_config.find_one(dic)  # find entry from configurations collection
     Config_ID = "NA"
@@ -177,8 +177,12 @@ def push_data(files, host, db, build, version):
 
                 if(entry['Mode'] == 'PUT' or entry['Mode'] == 'GET') and (entry['IntervalName'] == 'TOTAL'):
                     primary_Set = {
-                        'Build': build,
-                        'Version': version,
+                        'Build': Build,
+                        'Version': Version,
+                        'Branch': Branch,
+                        'OS': OS,
+                        'Count_of_Servers': nodes_num, 
+                        'Count_of_Clients': clients_num,
                         'Name': 'Hsbench',
                         'Operation': operation,
                         'Object_Size' : obj_size,
@@ -210,7 +214,7 @@ def push_data(files, host, db, build, version):
                         print(e)
 
                     print(operation+ " " + action + ' - ' + doc)
-    update_mega_chain(build, version, collection)
+    update_mega_chain(Build, Version, collection)
 
 
 def update_mega_chain(build,version, col):
@@ -253,9 +257,12 @@ parameters : input - (String) folder path to required files
 if __name__ == "__main__":
     link = sys.argv[1] #input("Enter the file path - ")
     host =  socket.gethostname() #os.uname()[1]
-    build, version = getBuild() # get_DB_details()
+    Build=get_release_info('BUILD')
+    Version=get_release_info('VERSION')
+    Branch=get_release_info('BRANCH')
+    OS=get_release_info('OS')
     db = makeconnection()
     files = get_files(link)
-    push_data(files, host, db, build, version)
+    push_data(files, host, db, Build, Version, Branch , OS) 
 
 # End

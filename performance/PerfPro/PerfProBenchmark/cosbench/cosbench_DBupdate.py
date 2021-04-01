@@ -15,6 +15,7 @@ import os
 from os import listdir
 import yaml
 from datetime import datetime
+import urllib.request
 
 Main_path = sys.argv[2]
 Config_path = sys.argv[3]
@@ -29,6 +30,12 @@ def makeconfig(name):  # function for connecting with configuration file
 configs_main = makeconfig(Main_path)  # getting instance  of main file
 configs_config = makeconfig(Config_path)  # getting instance  of config file
 
+build_url=configs_config.get('BUILD_URL')
+nodes_list=configs_config.get('NODES')
+clients_list=configs_config.get('CLIENTS')
+
+nodes_num=len(nodes_list)
+clients_num=len(clients_list)
 
 def makeconnection():  # function for making connection with database
     # connecting with mongodb database
@@ -37,30 +44,20 @@ def makeconnection():  # function for making connection with database
     return db
 
 
-def getBuild():
-    build = "NA"
-    version = "NA"
-    # os_type = configs_config['OS_TYPE'] # Enable for custom mode
-    buildurl = configs_config['BUILD_URL'].strip()
-    listbuild=re.split('//|/',buildurl)
-    if "releases/eos" in buildurl:
-        version="beta"
-    else:
-        version="release"
 
-    for e in listbuild[::-1]:
-        if "cortx" in e.lower() and "rc" in e.lower():
-            build = e.lower()
-            break
-        if e.isdigit():
-            build = e
-            break
-    
-    return [build,version]
+def get_release_info(variable):
+    release_info= urllib.request.urlopen(build_url+'prod/RELEASE.INFO')
+    for line in release_info:
+        if variable in line.decode("utf-8"):
+            strinfo=line.decode("utf-8").strip()
+            strip_strinfo=re.split(': ',strinfo)
+            return(strip_strinfo[1])
 
 
-def insert_data(file,build,Config_ID,col):  # function for retriving required data from log files and update into mongodb
+
+def insert_data(file,Build,Version,Config_ID,col,Branch,OS):  # function for retriving required data from log files and update into mongodb
     _, filename = os.path.split(file)
+    global nodes_num , clients_num
     with open(file) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         line_count = 0
@@ -81,7 +78,7 @@ def insert_data(file,build,Config_ID,col):  # function for retriving required da
                     lat = {"Max": float(row[12]), "Avg": float(row[5])}
                     # check whether entry with same build -object size -buckets-objects-sessions is presernt or not
                     action = "Updated"
-                    entry = {"Name": "Cosbench", "Operation": row[1], "Build": build[0], "Version": build[1], "Object_Size": attr[1], "Buckets": int(
+                    entry = {"Name": "Cosbench", "Operation": row[1], "Build": Build, "Version": Version,"Branch": Branch ,"OS": OS, "Count_of_Servers": nodes_num , "Count_of_Clients": clients_num , "Object_Size": attr[1], "Buckets": int(
                         re.split(" ", attr[2])[1]), "Objects": int(re.split(" ", attr[3])[1]), "Sessions": int(re.split(" ", attr[4])[1])}
                     
                     
@@ -175,20 +172,25 @@ def getconfig():
 def main(argv):
     dic = argv[1]
     files = getallfiles(dic, "workloadtype.csv")
-    build = getBuild()
+    Build=get_release_info('BUILD')
+    Version=get_release_info('VERSION')
+    Branch=get_release_info('BRANCH')
+    OS=get_release_info('OS')
     db = makeconnection()  # getting instance  of database
-    col_config = db[configs_main['config_collection']]
+    #col_config = db[configs_main['config_collection']]
+    col_config='configurations_'+Version[1]
     dic = getconfig()
     result = col_config.find_one(dic)# find entry from configurations collection
     Config_ID = "NA"
     if result:
         Config_ID = result['_id']        # foreign key : it will map entry in configurations to results entry
 
-    col = db[configs_main['db_collection']]
+    #col = db[configs_main['db_collection']]
+    col ='results_'+Version[1]
     print(col)
     for f in files:
-        insert_data(f,build,Config_ID,col)
-    update_mega_chain(build[0],build[1],col)# update mega entry
+        insert_data(f,Build,Version,Config_ID,col,Branch,OS)
+    update_mega_chain(Build,Version,col)# update mega entry
 
 
 if __name__ == "__main__":

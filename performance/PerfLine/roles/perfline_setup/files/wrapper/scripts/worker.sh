@@ -328,6 +328,7 @@ function save_m0crate_artifacts()
 
     $EX_SRV "scp -r $m0crate_workdir/m0crate.*.log $(hostname):$(pwd)"
     $EX_SRV "scp -r $m0crate_workdir/test_io.*.yaml $(hostname):$(pwd)"
+    $EX_SRV "scp -r $m0crate_workdir/m0trace.* $(hostname):$(pwd)"
 
     if [[ -n $ADDB_STOBS ]]; then
         $EX_SRV $SCRIPT_DIR/process_addb --host $(hostname) --dir $(pwd) \

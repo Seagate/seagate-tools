@@ -37,9 +37,15 @@ custom_build:
 workload:
   - cmd: sleep 1
 
+stats_collection:
+  iostat: true
+  dstat: true
+  blktrace: true
+  glances: true
+
 benchmark:
   fio: false 
-  s3bench: True
+  s3bench: false
 
 parameter:
   BucketName: 
@@ -49,8 +55,8 @@ parameter:
 
 execution_options:
   mkfs: false
-  no_m0trace_files: true
-  no_m0trace_dumps: true
-  no_addb_stobs: true
-  no_addb_dumps: true
-  no_m0play_db: true
+  m0trace_files: false
+  m0trace_dumps: false
+  addb_stobs: false
+  addb_dumps: false
+  m0play_db: false

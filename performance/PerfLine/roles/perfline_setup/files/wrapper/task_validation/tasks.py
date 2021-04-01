@@ -57,7 +57,17 @@ def parse_options(conf, result_dir):
     for w in conf['workload']:
         options.append('-w')
         options.append(w['cmd'])
-    
+
+    # Stats collection
+    if conf['stats_collection']['iostat']:
+        options.append('--iostat')
+    if conf['stats_collection']['dstat']:
+        options.append('--dstat')
+    if conf['stats_collection']['blktrace']:
+        options.append('--blktrace')
+    if conf['stats_collection']['glances']:
+        options.append('--glances')
+
     # Benchmark
     if conf['benchmark']['fio']: 
         options.append('--fio')    
@@ -65,32 +75,32 @@ def parse_options(conf, result_dir):
     if conf['benchmark']['s3bench']:
         options.append('--s3bench')
     
-    # Parameter
-    options.append('-bucket')
-    options.append(conf['parameter']['BucketName'])
+        # Parameter
+        options.append('-bucket')
+        options.append(conf['parameter']['BucketName'])
 
-    options.append('-clients')
-    options.append(conf['parameter']['NumClients'])
-   
-    options.append('-sample')
-    options.append(conf['parameter']['NumSample'])
+        options.append('-clients')
+        options.append(conf['parameter']['NumClients'])
+       
+        options.append('-sample')
+        options.append(conf['parameter']['NumSample'])
 
-    options.append('-size')
-    options.append(conf['parameter']['ObjSize'])
+        options.append('-size')
+        options.append(conf['parameter']['ObjSize'])
     # Execution options:
     if 'mkfs' in conf['execution_options']:
         if conf['execution_options']['mkfs']:
             options.append("--mkfs")
-    if conf['execution_options']['no_m0trace_files']:
-        options.append("--no-m0trace-files")
-    if conf['execution_options']['no_m0trace_dumps']:
-        options.append("--no-m0trace-dumps")
-    if conf['execution_options']['no_addb_stobs']:
-        options.append("--no-addb-stobs")
-    if conf['execution_options']['no_addb_dumps']:
-        options.append("--no-addb-dumps")
-    if conf['execution_options']['no_m0play_db']:
-        options.append("--no-m0play-db")
+    if conf['execution_options']['m0trace_files']:
+        options.append("--m0trace-files")
+    if conf['execution_options']['m0trace_dumps']:
+        options.append("--m0trace-dumps")
+    if conf['execution_options']['addb_stobs']:
+        options.append("--addb-stobs")
+    if conf['execution_options']['addb_dumps']:
+        options.append("--addb-dumps")
+    if conf['execution_options']['m0play_db']:
+        options.append("--m0play-db")
 
     print(options)
     return options

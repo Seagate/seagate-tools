@@ -336,16 +336,32 @@ def stio_queue(conn, ax, hosts, show_title):
         plot(queue(stio_read_df_host, start, stop, label="STIO Read"), ax=ax[i], color='g')
 
 def parse_args():
-    parser = argparse.ArgumentParser(prog=sys.argv[0], description="""
-    queues.py: Display Cortx request queues.
-    """)
+    parser = argparse.ArgumentParser(prog=sys.argv[0],
+                                     formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     description="""
+queues.py: Display Cortx request queues.""",
+                                     epilog="""
+By default queues are shown aggregated for all nodes.
+But queues can be decomposed by nodes of cluster.
+There are two factors of how data may be groupped:
+
+  - By server nodes running m0d processes
+  - By Motr Client (S3server/m0crate) nodes
+    
+Hence, there are four options of how plot could be drawn:
+
+  - Full system state (i.e. aggregated info for client and server layers)
+  - Client layers decomposition by hostname, servers are aggregated
+  - Server layers decomposition by hostname, clients are aggregated
+  - Clients and servers are both decomposed
+""")
     
     parser.add_argument("-d", "--db", type=str, default="m0play.db",
                         help="Performance database (m0play.db)")
-    parser.add_argument("-a", "--aggregated-cli", action='store_true',
-                        help="Show client queues from data collected from all nodes")
-    parser.add_argument("-b", "--aggregated-srv", action='store_true',
-                        help="Show server queues from data collected from all nodes")
+    parser.add_argument("-c", "--per-client-host", action='store_true',
+                        help="Show client side queues separately for each node")
+    parser.add_argument("-s", "--per-server-host", action='store_true',
+                        help="Show server side queues separately for each node")
 
     return parser.parse_args()
 
@@ -363,8 +379,14 @@ def main():
     if hosts_pids is None:
         hosts_pids = aggregated_pids
     
-    cli_aggr = args.aggregated_cli
-    srv_aggr = args.aggregated_srv
+    cli_aggr = True
+    srv_aggr = True
+
+    if args.per_client_host:
+        cli_aggr = False
+
+    if args.per_server_host:
+        srv_aggr = False    
     
     show_srv_title = False
     show_cli_title = False

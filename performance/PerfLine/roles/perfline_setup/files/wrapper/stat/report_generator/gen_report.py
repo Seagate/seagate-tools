@@ -272,16 +272,30 @@ def parse_dstat_info(nodes_stat_dirs):
     return dstat_net_info
 
 
+def parse_addb_info(addb_stat_dir):
+    if isdir(addb_stat_dir):
+        queues_imgs = [f for f in listdir(addb_stat_dir) if f.startswith('queues_')]
+    else:
+        queues_imgs = []
+
+    return queues_imgs
+
+
 def main():
     report_gen_dir = sys.argv[2]
     report_dir = getcwd() if sys.argv[1] == '.' else sys.argv[1]
     stat_result_dir = join(report_dir, 'stats')
+    addb_stat_dir = join(stat_result_dir, 'addb')
     if not isdir(stat_result_dir):
         print(
             f'Aborting report generation. No stats directory detected at: {report_dir}')
         exit()
     nodes_stat_dirs = [join(stat_result_dir, f) for f in listdir(
         stat_result_dir) if isdir(join(stat_result_dir, f))]
+
+    # Filter 'addb' directory
+    # Needs to be improved in the future
+    nodes_stat_dirs = list(filter(lambda x: not x.split('/')[-1].startswith('addb'), nodes_stat_dirs))
 
     # Define task_id
     task_id_path = report_dir.split('/')
@@ -321,6 +335,9 @@ def main():
     # Gen images for dstat
     dstat_net_info = parse_dstat_info(nodes_stat_dirs)
 
+    # Images for addb queues
+    addb_queues = parse_addb_info(addb_stat_dir)
+
     with open(join(report_gen_dir, 'templates/home.html'), 'r') as home:
         home_template = home.read()
 
@@ -354,6 +371,7 @@ def main():
             test_stop_time=test_stop_time,
             node_amount=node_amount,
             iostat_det_imgs=iostat_det_imgs,
+            addb_queues=addb_queues,
             task_id=task_id
         ))
 

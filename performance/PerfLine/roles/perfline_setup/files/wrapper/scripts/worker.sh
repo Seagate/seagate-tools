@@ -10,13 +10,12 @@ SCRIPT_DIR="${SCRIPT_PATH%/*}"
 TOOLS_DIR="$SCRIPT_DIR/../../chronometry"
 PERFLINE_DIR="$SCRIPT_DIR/../"
 STAT_DIR="$SCRIPT_DIR/../stat"
-BUILD_DEPLOY_DIR="/root/perfline/build_deploy"
+BUILD_DEPLOY_DIR="$SCRIPT_DIR/../../build_deploy"
 STAT_COLLECTION=""
 # NODES="ssc-vm-c-1042.colo.seagate.com,ssc-vm-c-1043.colo.seagate.com"
 # EX_SRV="pdsh -S -w $NODES"
 # HA_TYPE="hare"
 MKFS=
-
 PERF_RESULTS_FILE='perf_results'
 CLIENT_ARTIFACTS_DIR='client'
 S3BENCH_LOGFILE='workload_s3bench.log'
@@ -158,8 +157,8 @@ function wait_for_cluster_start() {
 #
         sleep 5
     done
-
-    $EX_SRV $SCRIPT_DIR/wait_s3_listeners.sh 21
+    
+    $EX_SRV $SCRIPT_DIR/wait_s3_listeners.sh $S3SERVER
     sleep 300
 
 }
@@ -454,7 +453,7 @@ function main() {
 
     # Start workload time execution measuring
     start_measuring_workload_time
-    
+
     # Start workload
     run_workloads
     
@@ -492,7 +491,7 @@ function main() {
 
     stop_measuring_test_time
     
-   generate_report
+    generate_report
 
     # Close results dir
     close_results_dir
@@ -563,6 +562,8 @@ while [[ $# -gt 0 ]]; do
             NODES=$2
             EX_SRV="pdsh -S -w $NODES"
             PRIMARY_NODE=$(echo "$NODES" | cut -d "," -f1)
+            S3SERVER=$(ssh $PRIMARY_NODE "cat /var/lib/hare/cluster.yaml | \
+            grep -o 's3: [[:digit:]]*'| head -1 | cut -d ':' -f2 | tr -d ' '")
             shift
             ;;
         --ha_type)

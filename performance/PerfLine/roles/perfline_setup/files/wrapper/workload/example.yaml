@@ -52,6 +52,7 @@ parameter:
   NumClients: 
   NumSample: 
   ObjSize:      
+  EndPoint:
 
 execution_options:
   mkfs: false

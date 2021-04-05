@@ -14,6 +14,7 @@ import os
 from os import listdir
 import yaml
 from datetime import datetime
+import urllib.request
 
 #Main_path = '/root/Modified/main.yml'
 #Config_path = '/root/Modified/config.yml'
@@ -29,35 +30,30 @@ def makeconfig(name):  #function for connecting with configuration file
 configs_main = makeconfig(Main_path)
 configs_config= makeconfig(Config_path)
 
+build_url=configs_config.get('BUILD_URL')
+nodes_list=configs_config.get('NODES')
+clients_list=configs_config.get('CLIENTS')
+
+nodes_num=len(nodes_list)
+clients_num=len(clients_list)
+
 def makeconnection():  #function for making connection with database
     client = MongoClient(configs_main['db_url'])  #connecting with mongodb database
     db=client[configs_main['db_database']]  #database name=performance 
     return db
 
-def getBuild():
-    build = "NA"
-    version = "NA"
-    # os_type = configs_config['OS_TYPE'] # Enable for custom mode
-    buildurl = configs_config['BUILD_URL'].strip()
-    listbuild=re.split('//|/',buildurl)
-    if "releases/eos" in buildurl:
-        version="beta"
-    else:
-        version="release"
+def get_release_info(variable):
+    release_info= urllib.request.urlopen(build_url+'prod/RELEASE.INFO')
+    for line in release_info:
+        if variable in line.decode("utf-8"):
+            strinfo=line.decode("utf-8").strip()
+            strip_strinfo=re.split(': ',strinfo)
+            return(strip_strinfo[1])
 
-    for e in listbuild[::-1]:
-        if "cortx" in e.lower() and "rc" in e.lower():
-            build = e.lower()
-            break
-        if e.isdigit():
-            build = e
-            break
-
-    return [build,version]
 
 class s3bench:
 
-    def __init__(self, Log_File, Operation, IOPS, Throughput, Latency, TTFB, Object_Size,build,version,col,Config_ID):
+    def __init__(self, Log_File, Operation, IOPS, Throughput, Latency, TTFB, Object_Size,Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID):
         self.Log_File = Log_File
         self.Operation = Operation
         self.IOPS = IOPS
@@ -65,8 +61,12 @@ class s3bench:
         self.Latency = Latency
         self.TTFB = TTFB
         self.Object_Size = Object_Size
-        self.build = build
-        self.version = version
+        self.Build = Build
+        self.Version = Version
+        self.Branch = Branch
+        self.OS = OS
+        self.nodes_num = nodes_num
+        self.clients_num = clients_num
         self.col = col
         self.Config_ID = Config_ID
         self.Timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -75,7 +75,7 @@ class s3bench:
     def insert_update(self):# function for inserting and updating mongodb database
         action= "Updated"
         try:
-            pattern = {"Name" : "S3bench","Operation":self.Operation,"Object_Size" : self.Object_Size,"Build" : self.build,"Version":self.version}
+            pattern = {"Name" : "S3bench","Operation":self.Operation,"Object_Size" : self.Object_Size,"Build" : self.Build,"Version":self.Version,"Branch" : self.Branch ,"OS" : self.OS , "Count_of_Servers": self.nodes_num, "Count_of_Clients": self.clients_num}
             count_documents= self.col.count_documents(pattern)
             if count_documents == 0:
                 self.col.insert_one(pattern)
@@ -90,8 +90,9 @@ class s3bench:
 
 
 
-def insertOperations(file,build,version,col,Config_ID):   #function for retriving required data from log files
+def insertOperations(file,Build,Version,col,Config_ID,Branch,OS):   #function for retriving required data from log files
     _, filename = os.path.split(file)
+    global nodes_num, clients_num
     oplist = ["Write" , "Read" , "GetObjTag", "HeadObj" , "PutObjTag"]
     Objsize= 1
     obj = "NA"
@@ -122,7 +123,7 @@ def insertOperations(file,build,version,col,Config_ID):   #function for retrivin
                     throughput = round(throughput,6)
                 lat={"Max":float(lines[count+4].split(":")[1]),"Avg":float(lines[count+5].split(":")[1]),"Min":float(lines[count+6].split(":")[1])}
                 ttfb={"Max":float(lines[count+7].split(":")[1]),"Avg":float(lines[count+8].split(":")[1]),"Min":float(lines[count+9].split(":")[1])}
-                data = s3bench(filename,opname,iops,throughput,lat,ttfb,obj,build,version,col,Config_ID)
+                data = s3bench(filename,opname,iops,throughput,lat,ttfb,obj,Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID)
                 data.insert_update()
                 count += 9
         count +=1
@@ -199,20 +200,26 @@ def main(argv):
     files = getallfiles(dic,".log")#getting all files with log as extension from given directory
     db = makeconnection() #getting instance of database
 
-    build = getBuild()
-        
-    col_config = db[configs_main['config_collection']]
+    Build=get_release_info('BUILD')
+    Version=get_release_info('VERSION')
+    Branch=get_release_info('BRANCH')    
+    OS=get_release_info('OS')
+
+    #col_config = db[configs_main['config_collection']]
+    col_config='configurations_'+Version[1]
     dic = getconfig()
-    result = col_config.find_one(dic)  # reading entry 
     Config_ID = "NA"
     if result:
         Config_ID = result['_id'] # foreign key : it will map entry in configurations to results entry
     
-    col=db[configs_main['db_collection']]
+    #col=db[configs_main['db_collection']]
+    col='results_'+Version[1]
 
     for f in files:
-        insertOperations(f,build[0],build[1], col,Config_ID)
-    update_mega_chain(build[0],build[1], col)
+        insertOperations(f,Build,Version,col,Config_ID,Branch,OS)
+    update_mega_chain(Build,Version, col)
 
 if __name__=="__main__":
     main(sys.argv) 
+
+#!/usr/bin/env python3

@@ -78,15 +78,14 @@ def parse_options(conf, result_dir):
         # Parameter
         options.append('-bucket')
         options.append(conf['parameter']['BucketName'])
-
         options.append('-clients')
         options.append(conf['parameter']['NumClients'])
-       
         options.append('-sample')
         options.append(conf['parameter']['NumSample'])
-
         options.append('-size')
         options.append(conf['parameter']['ObjSize'])
+        options.append('-endpoint')
+        options.append(conf['parameter']['EndPoint'])
     # Execution options:
     if 'mkfs' in conf['execution_options']:
         if conf['execution_options']['mkfs']:

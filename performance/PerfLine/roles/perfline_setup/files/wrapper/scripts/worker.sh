@@ -358,6 +358,15 @@ function collect_artifacts() {
         $SCRIPT_DIR/merge_m0playdb $m0d/dumps/m0play* $s3srv/*/m0play*
         rm -f $m0d/dumps/m0play* $s3srv/*/m0play*
     fi
+
+    if [[ -n $S3BENCH ]] && [[ -f "m0play.db" ]]; then
+        local m0play_path="$(pwd)/m0play.db"
+        local stats_addb="$stats/addb"
+        mkdir -p $stats_addb
+        pushd $stats_addb
+        $SCRIPT_DIR/process_addb_data.sh --db $m0play_path
+        popd
+    fi
 }
 
 function close_results_dir() {

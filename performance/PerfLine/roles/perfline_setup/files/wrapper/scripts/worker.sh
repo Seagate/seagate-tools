@@ -197,6 +197,16 @@ function run_workloads()
     popd			# $CLIENT_ARTIFACTS_DIR
 }
 
+function fio_workloads()
+{
+   START_TIME=`date +%s000000000`  
+   echo "Fio workload triggered on $NODES" 
+   $EX_SRV "$SCRIPT_DIR/run_fiobenchmark.sh -t $DURATION -bs $BLOCKSIZE -nj $NUMJOBS -tm $TEMPATE"
+   STATUS=${PIPESTATUS[0]}
+   STOP_TIME=`date +%s000000000`
+   sleep 120
+}
+
 function s3bench_workloads()
 {
     mkdir -p $CLIENT_ARTIFACTS_DIR
@@ -316,6 +326,7 @@ function save_stats() {
 	scp -r $srv:/var/perfline/hw* hw || true
 	scp -r $srv:/var/perfline/network* network || true
 	scp -r $srv:/var/perfline/5u84* 5u84 || true
+        scp -r $srv:/var/perfline/fio* fio || true
 	popd
     done
 }
@@ -453,7 +464,10 @@ function main() {
 
     # Start workload time execution measuring
     start_measuring_workload_time
-
+    # fio workload
+    if [[ -n $FIO ]]; then
+        fio_workloads
+    fi
     # Start workload
     run_workloads
     
@@ -556,6 +570,22 @@ while [[ $# -gt 0 ]]; do
             ;;
         -endpoint)
             ENDPOINT=$2
+            shift
+            ;;
+        -t)
+            DURATION=$2
+            shift
+            ;;
+        -bs)
+            BLOCKSIZE=$2
+            shift
+            ;;
+        -nj)
+            NUMJOBS=$2
+            shift
+            ;;
+        -tm)
+            TEMPATE=$2
             shift
             ;;
         --nodes)

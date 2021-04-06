@@ -47,6 +47,12 @@ benchmark:
   fio: false 
   s3bench: false
 
+fio_parameter:
+  Duration:
+  BlockSize:
+  NumJobs:
+  Template:               #Template for fio like seq_read_fio, seq_write_fio, randmix_80-20_fio, randmix_20-80_fio and rand_fio
+
 parameter:
   BucketName: 
   NumClients: 

@@ -99,6 +99,7 @@
         - iowatcher
         - python3-devel
         - ftp
+        - fio
       state: present
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"

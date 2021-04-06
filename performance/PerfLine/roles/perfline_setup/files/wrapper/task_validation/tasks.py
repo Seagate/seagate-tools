@@ -71,7 +71,16 @@ def parse_options(conf, result_dir):
     # Benchmark
     if conf['benchmark']['fio']: 
         options.append('--fio')    
-
+        # Fio Parameter
+        options.append('-t')
+        options.append(conf['fio_parameter']['Duration'])
+        options.append('-bs')
+        options.append(conf['fio_parameter']['BlockSize'])
+        options.append('-nj')
+        options.append(conf['fio_parameter']['NumJobs'])
+        options.append('-tm')
+        options.append(conf['fio_parameter']['Template'])
+ 
     if conf['benchmark']['s3bench']:
         options.append('--s3bench')
     

@@ -72,6 +72,15 @@ def get_schema_motr():
                 'm0crate': {'type': 'boolean'},
             }
         },
+        'fio_parameter': {
+            'type': 'dict',
+            'schema': {
+                'Duration': {'type': 'integer', 'required': False, 'nullable': True },
+                'BlockSize': {'type': 'string', 'required': False, 'nullable': True },
+                'NumJobs': {'type': 'integer', 'required': False, 'nullable': True },
+                'Template': {'type': 'string', 'required': False, 'nullable': True },
+            }
+        },
         'parameter': {
             'type': 'dict',
             'schema': {
@@ -79,6 +88,7 @@ def get_schema_motr():
                 'NumClients': {'type': 'integer', 'required': False, 'nullable': True },
                 'NumSample': {'type': 'integer', 'required': False, 'nullable': True },
                 'ObjSize': {'type': 'string', 'required': False, 'nullable': True },
+                'EndPoint': {'type': 'string', 'required': False, 'nullable': True },
             }
         },
         'm0crate_params': {

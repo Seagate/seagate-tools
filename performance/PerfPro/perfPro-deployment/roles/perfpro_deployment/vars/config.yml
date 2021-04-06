@@ -1,11 +1,13 @@
 ---
 # reimage as 'yes' or 'no'
 REIMAGE: 
-NODE1: 
-NODE2: 
-CLIENT: 
+NODES:
+  -  #hostname of node1
+  -  #hostname of node2
+  -  #hostname of node3  so on till Nth node.
+CLIENTS: 
+  -  #list of the clients. 
 BUILD_URL: 
-BUILD: 
 OS_TYPE:      # Cluster OS type either CENTOS and RHEL
 CLUSTER_PASS: seagate1
 CHANGE_PASS: 'no'
@@ -26,9 +28,8 @@ NFS_FOLDER:
 #END
 required_vars:
   - REIMAGE
-  - NODE1
-  - NODE2
-  - CLIENT
+  - NODES
+  - CLIENTS
   - BUILD_URL
   - CLUSTER_PASS
   - SATELLITE_UN

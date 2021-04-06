@@ -10,13 +10,12 @@ SCRIPT_DIR="${SCRIPT_PATH%/*}"
 TOOLS_DIR="$SCRIPT_DIR/../../chronometry"
 PERFLINE_DIR="$SCRIPT_DIR/../"
 STAT_DIR="$SCRIPT_DIR/../stat"
-BUILD_DEPLOY_DIR="/root/perfline/build_deploy"
+BUILD_DEPLOY_DIR="$SCRIPT_DIR/../../build_deploy"
 STAT_COLLECTION=""
 # NODES="ssc-vm-c-1042.colo.seagate.com,ssc-vm-c-1043.colo.seagate.com"
 # EX_SRV="pdsh -S -w $NODES"
 # HA_TYPE="hare"
 MKFS=
-
 PERF_RESULTS_FILE='perf_results'
 CLIENT_ARTIFACTS_DIR='client'
 M0CRATE_ARTIFACTS_DIR='m0crate'
@@ -119,6 +118,8 @@ function restart_hare() {
     else
         ssh $PRIMARY_NODE 'hctl bootstrap /var/lib/hare/cluster.yaml'
     fi
+    wait_for_cluster_start
+    
 }
 
 function restart_pcs() {
@@ -157,8 +158,9 @@ function wait_for_cluster_start() {
 #
         sleep 5
     done
-
-    $EX_SRV $SCRIPT_DIR/wait_s3_listeners.sh 11
+    
+    $EX_SRV $SCRIPT_DIR/wait_s3_listeners.sh $S3SERVER
+    sleep 300
 
 }
 
@@ -196,12 +198,22 @@ function run_workloads()
     popd			# $CLIENT_ARTIFACTS_DIR
 }
 
+function fio_workloads()
+{
+   START_TIME=`date +%s000000000`  
+   echo "Fio workload triggered on $NODES" 
+   $EX_SRV "$SCRIPT_DIR/run_fiobenchmark.sh -t $DURATION -bs $BLOCKSIZE -nj $NUMJOBS -tm $TEMPATE"
+   STATUS=${PIPESTATUS[0]}
+   STOP_TIME=`date +%s000000000`
+   sleep 120
+}
+
 function s3bench_workloads()
 {
     mkdir -p $CLIENT_ARTIFACTS_DIR
     pushd $CLIENT_ARTIFACTS_DIR
     START_TIME=`date +%s000000000`
-    $SCRIPT_DIR/s3bench_run.sh -b $BUCKETNAME -n $SAMPLE -c $CLIENT -o $IOSIZE | tee $S3BENCH_LOGFILE
+    $SCRIPT_DIR/s3bench_run.sh -b $BUCKETNAME -n $SAMPLE -c $CLIENT -o $IOSIZE -e $ENDPOINT | tee $S3BENCH_LOGFILE
     STATUS=${PIPESTATUS[0]}
     STOP_TIME=`date +%s000000000`
     sleep 120
@@ -350,6 +362,7 @@ function save_stats() {
 	scp -r $srv:/var/perfline/hw* hw || true
 	scp -r $srv:/var/perfline/network* network || true
 	scp -r $srv:/var/perfline/5u84* 5u84 || true
+        scp -r $srv:/var/perfline/fio* fio || true
 	popd
     done
 }
@@ -423,6 +436,15 @@ function collect_artifacts() {
         $SCRIPT_DIR/merge_m0playdb $m0playdb_parts
         rm -f $m0playdb_parts
     fi
+
+    if [[ -n $S3BENCH ]] && [[ -f "m0play.db" ]]; then
+        local m0play_path="$(pwd)/m0play.db"
+        local stats_addb="$stats/addb"
+        mkdir -p $stats_addb
+        pushd $stats_addb
+        $SCRIPT_DIR/process_addb_data.sh --db $m0play_path
+        popd
+    fi
 }
 
 function close_results_dir() {
@@ -433,7 +455,7 @@ function close_results_dir() {
 function start_stat_utils()
 {
     echo "Start stat utils"
-    $EX_SRV "$STAT_DIR/start_stats_service.sh $STAT_COLLECTION" &
+    $EX_SRV "$STAT_DIR/start_stats_service.sh $STAT_COLLECTION" & 
     sleep 30
 }
 
@@ -518,7 +540,10 @@ function main() {
 
     # Start workload time execution measuring
     start_measuring_workload_time
-    
+    # fio workload
+    if [[ -n $FIO ]]; then
+        fio_workloads
+    fi
     # Start workload
     run_workloads
     
@@ -560,7 +585,7 @@ function main() {
 
     stop_measuring_test_time
     
-   generate_report
+    generate_report
 
     # Close results dir
     close_results_dir
@@ -623,10 +648,32 @@ while [[ $# -gt 0 ]]; do
             IOSIZE=$2
             shift
             ;;
+        -endpoint)
+            ENDPOINT=$2
+            shift
+            ;;
+        -t)
+            DURATION=$2
+            shift
+            ;;
+        -bs)
+            BLOCKSIZE=$2
+            shift
+            ;;
+        -nj)
+            NUMJOBS=$2
+            shift
+            ;;
+        -tm)
+            TEMPATE=$2
+            shift
+            ;;
         --nodes)
             NODES=$2
             EX_SRV="pdsh -S -w $NODES"
             PRIMARY_NODE=$(echo "$NODES" | cut -d "," -f1)
+            S3SERVER=$(ssh $PRIMARY_NODE "cat /var/lib/hare/cluster.yaml | \
+            grep -o 's3: [[:digit:]]*'| head -1 | cut -d ':' -f2 | tr -d ' '")
             shift
             ;;
         --ha_type)

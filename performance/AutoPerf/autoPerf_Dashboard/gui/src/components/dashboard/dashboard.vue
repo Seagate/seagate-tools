@@ -346,7 +346,7 @@ export default class AutoPerfDashboard extends Vue {
         scriptArgs.operation = this.selectedParameters.operation;
       }
       if (scriptArgs.benchmark === "fio") {
-        scriptArgs.operation = this.selectedParameters.template;
+        scriptArgs.template = this.selectedParameters.template;
       }
       res = await Api.post(apiRegister.script_execution, {
         script_name: "s3workloads",

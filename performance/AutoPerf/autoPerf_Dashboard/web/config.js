@@ -1,11 +1,10 @@
-require('dotenv').config();
+require("dotenv").config({ path: __dirname + "/.env" });
 
-const dir = "/home/732880/workspace0454/auto-perf-nextgen/";
-// const dir = "H:\\732880\\workspace\\";
+const dir = __dirname + "/";
 // const dir = "/root/autoperf-v1.0/";
 
 module.exports = {
-  port: 6786,
+  port: process.env[`${process.env.NODE_ENV}_PORT`],
   databaseHost: process.env[`${process.env.NODE_ENV}_DB_HOST`],
   databaseUser: process.env[`${process.env.NODE_ENV}_DB_USER`],
   databasePassword: process.env[`${process.env.NODE_ENV}_DB_PASSWORD`],
@@ -13,8 +12,7 @@ module.exports = {
   databaseInitial: process.env[`${process.env.NODE_ENV}_DB_INITIAL`],
   database: "mongoDB",
   databasePort: process.env[`${process.env.NODE_ENV}_DB_PORT`],
-  mongoDBConnectionString:
-    "mongodb://ssc-vm-0812.colo.seagate.com:27017/myapp",
+  mongoDBConnectionString: process.env[`${process.env.NODE_ENV}_MONGO_DB_CONN_STRING`],
   emailVerificationLink:
     process.env[`${process.env.NODE_ENV}_EMAIL_VERIFICATION_LINK`],
   resetPasswordLink: process.env[`${process.env.NODE_ENV}_RESET_PASS_LINK`],

@@ -14,7 +14,7 @@ function removing_dir()
      rm -rf /var/perfline/iostat.$(hostname -s) || true
      rm -rf /var/perfline/dstat.$(hostname -s) || true
      rm -rf /var/perfline/blktrace.$(hostname -s) || true
-     rm -rf /var/perfline/glances.$(hostname -s)
+     rm -rf /var/perfline/glances.$(hostname -s) || true
 }
 
 function creating_dir()
@@ -25,45 +25,35 @@ function creating_dir()
      mkdir -p /var/perfline/glances.$(hostname -s)
 }
 
-function iostat-service-start()
-{
-     iostat -yxmt 1 > /var/perfline/iostat.$(hostname -s)/iostat.log &
-}
-
-function dstat-service-start()
-{
-     dstat --full --output /var/perfline/dstat.$(hostname -s)/dstat.csv > /dev/null &
-}
-
-function blktrace-service-start()
-{    
-     blktrace $DISKS -D /var/perfline/blktrace.$(hostname -s) & 
-
-}
-function glance_service_start()
-{
-     glances --stdout now,core,cpu,percpu,diskio,fs,load,system,mem,memswap,\
-network,processcount,raid,sensors,uptime --export csv --export-csv-file \
-/var/perfline/glances/glances.$(hostname -s)/glances.csv > /dev/null 2>&1 &
-}
-
 echo "stat collection: $1"
 removing_dir    
 creating_dir
 if [[ "$1" == *"IOSTAT"* ]]
 then
-    iostat-service-start   
+     iostat -yxmt 1 > /var/perfline/iostat.$(hostname -s)/iostat.log & 
+     echo "iostat collection started"
 fi
+sleep 5
+
 if [[ "$1" == *"DSTAT"* ]]
 then
-    dstat-service-start 
+    dstat --full --output /var/perfline/dstat.$(hostname -s)/dstat.csv > /dev/null &
+    echo "dstat collection started"
 fi
-if [[ "$1" == *"BLKTRACE"* ]]
-then
-    blktrace-service-start  
-fi
+sleep 5
+
 if [[ "$1" == *"GLANCES"* ]]
 then
-    glance_service_start
+    glances --stdout now,core,cpu,percpu,diskio,fs,load,system,mem,memswap,\
+network,processcount,raid,sensors,uptime --export csv --export-csv-file \
+/var/perfline/glances.$(hostname -s)/glances.csv > /dev/null 2>&1 &
+    echo "Glances collection started"
+fi
+sleep 5
+
+if [[ "$1" == *"BLKTRACE"* ]]
+then
+    echo "blktrace collection starting"
+    blktrace $DISKS -D /var/perfline/blktrace.$(hostname -s) 
 fi
 

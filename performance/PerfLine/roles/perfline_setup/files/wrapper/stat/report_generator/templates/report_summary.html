@@ -51,4 +51,35 @@
     {% endfor %}
     {% endif %}
 
+    {% for host,data in m0crate_rw_stats.items() %}
+
+    <tr>
+        <th colspan="3">{{ host }}</th>
+    </tr>
+    <tr>
+        <th colspan="3">m0crate parameters</th>
+    </tr>
+    {% for k, v in data.params.items() %}
+    <tr>
+        <td>{{ k }}</td>
+        <td>{{ v }}</td>
+    </tr>
+    {% endfor %}
+
+    <tr>
+        <th colspan="3">m0crate results</th>
+    </tr>
+    {% for res_item in data.results %}
+
+        {% for k,v in res_item.items() %}
+        <tr>
+            <td>{{ k }}</td>
+            <td>{{ v }}</td>
+        </tr>
+        {% endfor %}
+
+    {% endfor %}
+
+    {% endfor %}
+
 </table>

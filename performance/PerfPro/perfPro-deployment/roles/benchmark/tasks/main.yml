@@ -1,6 +1,18 @@
 ---
  - include: hostconfig.yml
+ - name: "[Sanity:Nodes and clients]: Required for regression test cases"
+   yum:
+     name:
+       - ansible
+       - ntp
+     state: present
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['all'] }}"
 
+ - name: "[Services/daemons:start|stop|restart]: Required for regression test cases"
+   shell: systemctl stop ntpd ; /usr/sbin/ntpdate time.seagate.com ; systemctl start ntpd
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['all'] }}"
  - name: "[pre-requisites]: Required for regression test cases"
    yum:
      name:

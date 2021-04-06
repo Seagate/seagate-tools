@@ -1,0 +1,52 @@
+common:
+  version: 1
+  description: m0crate benchmark 256kb
+  priority: 1
+  batch_id: null
+  user: user@seagate.com
+  send_email: false
+
+custom_build:
+  deploybuild: false
+  motr_repo_path: ""
+  hare_repo_path: ""
+  s3server_repo_path: ""
+  hare_commit_id: ""
+  motr_commit_id: ""
+  s3server_commit_id: ""
+
+workload:
+  - cmd: sleep 1
+
+benchmark:
+  fio: false
+  s3bench: false
+  m0crate: True
+
+parameter:
+  BucketName: mybucket
+  NumClients: 10
+  NumSample: 100
+  ObjSize: 32Mb
+
+m0crate_params:
+  NR_THREADS: 8
+  BLOCK_SIZE: 256k
+  BLOCKS_PER_OP: 1
+  IOSIZE: 256k
+  NR_OBJS: 100
+  RAND_IO: 0
+
+stats_collection:
+  iostat: True
+  blktrace: False
+  dstat: False
+  glances: False
+
+execution_options:
+  mkfs: false
+  m0trace_files: true
+  m0trace_dumps: true
+  addb_stobs: false
+  addb_dumps: false
+  m0play_db: false

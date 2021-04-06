@@ -19,7 +19,6 @@ const controller = {
 
   getScriptExecutionById: async (req, res, next) => {
     try {
-      console.log(req.params.id);
       const scriptLastExecLog = await object.scriptExecutionService().getScriptExecutionById(req.params.id);
       res.send(
         functions.responseGenerator(
@@ -35,8 +34,6 @@ const controller = {
 
   createScriptExecution: async (req, res, next) => {
     try {
-      console.log(res.locals.requestedData);
-      // console.log(res);
       const scriptLastExecLog = await object.scriptExecutionService()
                                             .createScriptExecution(res.locals.tokenInfo.gid, res.locals.requestedData.script_args);
       res.send(

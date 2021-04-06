@@ -69,6 +69,7 @@ def get_schema_motr():
             'schema': {
                 'fio': {'type': 'boolean'},
                 's3bench': {'type': 'boolean' },
+                'm0crate': {'type': 'boolean'},
             }
         },
         'fio_parameter': {
@@ -88,6 +89,22 @@ def get_schema_motr():
                 'NumSample': {'type': 'integer', 'required': False, 'nullable': True },
                 'ObjSize': {'type': 'string', 'required': False, 'nullable': True },
                 'EndPoint': {'type': 'string', 'required': False, 'nullable': True },
+            }
+        },
+        'm0crate_params': {
+            'type': 'dict',
+            'schema': {
+                'LAYOUT_ID': {'type': 'integer', 'required': False, 'nullable': True },
+                'OPCODE': {'type': 'integer', 'required': False, 'nullable': True },
+                'IOSIZE': {'type': 'string', 'required': False, 'nullable': True },
+                'BLOCK_SIZE': {'type': 'string', 'required': False, 'nullable': True },
+                'BLOCKS_PER_OP': {'type': 'integer', 'required': False, 'nullable': True },
+                'MAX_NR_OPS': {'type': 'integer', 'required': False, 'nullable': True },
+                'NR_OBJS': {'type': 'integer', 'required': False, 'nullable': True },
+                'NR_THREADS': {'type': 'integer', 'required': False, 'nullable': True },
+                'RAND_IO': {'type': 'integer', 'required': False, 'nullable': True },
+                'MODE': {'type': 'integer', 'required': False, 'nullable': True },
+                'THREAD_OPS': {'type': 'string', 'required': False, 'nullable': True },
             }
         },
         'execution_options': {

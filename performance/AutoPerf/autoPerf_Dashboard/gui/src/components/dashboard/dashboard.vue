@@ -4,19 +4,24 @@
       <v-col col="12" md="3" sm="5">
         <v-card>
           <v-toolbar color="#6ebe49" dense>
-            <span style="color: #ffffff; font-size: 18px;">Run Script</span>
+            <span style="color: #ffffff; font-size: 18px">Run Script</span>
             <v-spacer></v-spacer>
             <v-btn
-              style="margin-right: 10px;"
+              style="margin-right: 10px"
               :href="graphanaURL"
               target="_blank"
-              v-bind:disabled="!selectedParameters.client" 
+              v-bind:disabled="!selectedParameters.client"
               color="#ffffff"
-              small outlined>Grafana</v-btn>
-            <v-btn small color="#ffffff" @click="showHelp = true" outlined>Help</v-btn>
+              small
+              outlined
+              >Grafana</v-btn
+            >
+            <v-btn small color="#ffffff" @click="showHelp = true" outlined
+              >Help</v-btn
+            >
           </v-toolbar>
           <!--v-progress-linear v-if="disableForm" indeterminate color="#ffffff"></v-progress-linear-->
-          <v-card-text style="padding: 10px;">
+          <v-card-text style="padding: 10px">
             <v-select
               :items="defaultParameters.benchmarks"
               item-text="label"
@@ -28,7 +33,7 @@
             ></v-select>
             <v-select
               v-if="selectedParameters.benchmark === 'cosbench'"
-              style="margin-top: -15px;"
+              style="margin-top: -15px"
               :items="defaultParameters.operations"
               item-text="label"
               item-value="value"
@@ -39,7 +44,7 @@
             ></v-select>
             <v-select
               v-if="selectedParameters.benchmark === 'fio'"
-              style="margin-top: -15px;"
+              style="margin-top: -15px"
               :items="defaultParameters.templates"
               item-text="label"
               item-value="value"
@@ -49,7 +54,7 @@
               dense
             ></v-select>
             <v-select
-              style="margin-top: -15px;"
+              style="margin-top: -15px"
               :items="defaultParameters.configurations"
               item-text="label"
               item-value="value"
@@ -58,54 +63,38 @@
               outlined
               dense
             ></v-select>
-            <v-combobox
-              style="margin-top: -15px;"
+            <v-select
+              style="margin-top: -15px"
               v-model="selectedParameters.client"
               :items="defaultParameters.clients"
               item-text="label"
               item-value="value"
-              label="Client*"
+              label="Clients*"
               outlined
               dense
-            ></v-combobox>
-            <v-text-field
-              style="margin-top: -15px;"
-              type="password"
-              label="Client Password*"
-              v-model.trim="selectedParameters.client_password"
-              outlined
-              dense
-            ></v-text-field>
-            <v-combobox
-              style="margin-top: -15px;"
+              multiple
+            ></v-select>
+            <v-select
+              style="margin-top: -15px"
               v-model="selectedParameters.primary_server"
               :items="defaultParameters.primary_servers"
               item-text="label"
               item-value="value"
-              label="Primary Server*"
+              label="Nodes*"
               outlined
               dense
-            ></v-combobox>
-            <v-combobox
-              style="margin-top: -15px;"
-              v-model="selectedParameters.secondary_server"
-              :items="defaultParameters.secondary_servers"
-              item-text="label"
-              item-value="value"
-              label="Secondary Server*"
-              outlined
-              dense
-            ></v-combobox>
+              multiple
+            ></v-select>
             <v-text-field
-              style="margin-top: -15px;"
+              style="margin-top: -15px"
               type="password"
-              label="Server Password*"
+              label="Password*"
               v-model.trim="selectedParameters.server_password"
               outlined
               dense
             ></v-text-field>
             <v-select
-              style="margin-top: -15px;"
+              style="margin-top: -15px"
               :items="defaultParameters.sampling"
               item-text="label"
               item-value="value"
@@ -115,17 +104,14 @@
               dense
             ></v-select>
             <div>
-              <v-btn
-                color="primary"
-                @click="runScript()"
-                v-bind:disabled="btnDisabled"
-              >Run Script</v-btn>
+              <v-btn color="primary" @click="runScript()" v-bind:disabled="btnDisabled">Run Script</v-btn>
               <v-btn
                 color="primary"
                 @click="clearScriptArgs()"
-                style="margin-left: 16px;"
+                style="margin-left: 16px"
                 outlined
-              >Clear</v-btn>
+                >Clear</v-btn
+              >
             </div>
           </v-card-text>
         </v-card>
@@ -135,66 +121,112 @@
           <v-toolbar color="#6ebe49" dense>
             <v-menu offset-y>
               <template v-slot:activator="{ on }">
-              <v-btn color="#ffffff" v-on="on" icon>
-                <v-icon>mdi-dots-vertical</v-icon>
-              </v-btn>
+                <v-btn color="#ffffff" v-on="on" icon>
+                  <v-icon>mdi-dots-vertical</v-icon>
+                </v-btn>
               </template>
               <v-list>
                 <v-list-item
                   v-for="(scriptExecLog, index) in scriptExecLogs"
                   :key="index"
                   @click="showLog(scriptExecLog)"
-                  style="min-width: 150px;"
+                  style="min-width: 150px"
                 >
-                  <v-list-item-title>{{ scriptExecLog.start_time | fromMillis }}</v-list-item-title>
+                  <v-list-item-title>{{
+                    scriptExecLog.start_time | fromMillis
+                  }}</v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>
-            <span v-if="selectedScriptExecLog" style="color: #ffffff; font-size: 18px;">{{ selectedScriptExecLog.start_time | fromMillis }}</span>
-            <span v-else style="color: #ffffff; font-size: 18px;">Terminal</span>
+            <span
+              v-if="selectedScriptExecLog"
+              style="color: #ffffff; font-size: 18px"
+              >{{ selectedScriptExecLog.start_time | fromMillis }}</span
+            >
+            <span v-else style="color: #ffffff; font-size: 18px">Terminal</span>
           </v-toolbar>
-          <v-card-text style="height: 490px; width: 100%;background-color: #000000;padding: 0px;">
+          <v-card-text
+            style="
+              height: 490px;
+              width: 100%;
+              background-color: #000000;
+              padding: 0px;
+            "
+          >
             <v-row justify="center">
               <v-col col="12" md="6">
-                <div style="border: 1px solid #ffffff;font-size: 13px;">
-                  <p style="color: #99FF33;margin-bottom: 0;text-align: center;">* Auto-Perf Terminal *</p>
-                  <p style="color: #FFFC33;margin-bottom: 0;text-align: center;">(View Script execution logs)</p>
+                <div style="border: 1px solid #ffffff; font-size: 13px">
+                  <p
+                    style="color: #99ff33; margin-bottom: 0; text-align: center"
+                  >
+                    * Auto-Perf Terminal *
+                  </p>
+                  <p
+                    style="color: #fffc33; margin-bottom: 0; text-align: center"
+                  >
+                    (View Script execution logs)
+                  </p>
                 </div>
               </v-col>
             </v-row>
             <v-row>
-              <v-col class="py-0" style="padding-left: 17px;padding-right: 13px;">
-                <div id="logArea" class="terminal">{{ selectedScriptExecLog ? selectedScriptExecLog.log : "" }}</div>
+              <v-col
+                class="py-0"
+                style="padding-left: 17px; padding-right: 13px"
+              >
+                <div id="logArea" class="terminal">
+                  {{ selectedScriptExecLog ? selectedScriptExecLog.log : "" }}
+                </div>
               </v-col>
-            </v-row>         
+            </v-row>
           </v-card-text>
         </v-card>
       </v-col>
     </v-row>
-    <v-dialog
-      v-model="showHelp"
-      width="900"
-    >
+    <v-dialog v-model="showHelp" width="900">
       <v-card>
-        <v-card-title class="headline" style="background-color: #6ebe49; color: #ffffff;">
+        <v-card-title
+          class="headline"
+          style="background-color: #6ebe49; color: #ffffff"
+        >
           Help
         </v-card-title>
 
-        <v-card-text style="margin-top: 15px;">
-          <label>Pre-requisite steps to perform AutoPerf s3 performance testing:</label>
+        <v-card-text style="margin-top: 15px">
+          <label
+            >Pre-requisite steps to perform AutoPerf s3 performance
+            testing:</label
+          >
           <ol>
             <li>S3Cluster should be configured with latest build.</li>
             <li>S3Cluster is stable and in running state.</li>
             <li>It must require root access to the S3 client and S3 server.</li>
-            <li>To enable Passwordless authentication, AutoPerf Dashboard will ask you for the password.</li>
-            <li>S3client must be pre-configured. User must be able to perform S3 bucket Operations. (# aws s3 ls)</li>
+            <li>
+              To enable Passwordless authentication, AutoPerf Dashboard will ask
+              you for the password.
+            </li>
+            <li>
+              S3client must be pre-configured. User must be able to perform S3
+              bucket Operations. (# aws s3 ls)
+            </li>
           </ol>
           <br />
           <label>Note: -</label>
           <ol>
-            <li>AutoPerf will take care of all configuration like Benchmark tools, autoperf  and pre-requisites packages on S3 Client and S3 Server.</li>
-            <li>While running fio benchmark, you will observe the S3 performance graph (Grafana Dashboard) only on the primary and secondary node of S3 Server respectively. It will not be reflected on your Client server.</li>
-            <li>For the remaining benchmark, you can observe the s3 performance graph (Grafana Dashboard) only on the S3 Client server.</li>
+            <li>
+              AutoPerf will take care of all configuration like Benchmark tools,
+              autoperf and pre-requisites packages on S3 Client and S3 Server.
+            </li>
+            <li>
+              While running fio benchmark, you will observe the S3 performance
+              graph (Grafana Dashboard) only on the primary and secondary node
+              of S3 Server respectively. It will not be reflected on your Client
+              server.
+            </li>
+            <li>
+              For the remaining benchmark, you can observe the s3 performance
+              graph (Grafana Dashboard) only on the S3 Client server.
+            </li>
           </ol>
         </v-card-text>
 
@@ -202,12 +234,7 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            color="primary"
-            @click="showHelp = false"
-          >
-            Ok
-          </v-btn>
+          <v-btn color="primary" @click="showHelp = false"> Ok </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -215,7 +242,8 @@
       v-model="snackbarConfig.show"
       :color="snackbarConfig.color"
       top
-    >{{ snackbarConfig.message }}</v-snackbar>
+      >{{ snackbarConfig.message }}</v-snackbar
+    >
   </div>
 </template>
 
@@ -276,7 +304,7 @@ export default class AutoPerfDashboard extends Vue {
   }
 
   public clearLogPoller() {
-    if(this.scriptExecLogPoller) {
+    if (this.scriptExecLogPoller) {
       clearInterval(this.scriptExecLogPoller);
       this.scriptExecLogPoller = null;
     }
@@ -284,11 +312,11 @@ export default class AutoPerfDashboard extends Vue {
 
   public async showLog(selectedScriptExecLog: any) {
     this.clearLogPoller();
-    if(selectedScriptExecLog.end_time === 0) {
+    if (selectedScriptExecLog.end_time === 0) {
       await this.getScriptExecLogById(selectedScriptExecLog._id);
       this.scriptExecLogPoller = setInterval(async () => {
         await this.getScriptExecLogById(selectedScriptExecLog._id);
-        if(this.selectedScriptExecLog.end_time !== 0) {
+        if (this.selectedScriptExecLog.end_time !== 0) {
           this.clearLogPoller();
         }
       }, 5000);
@@ -310,18 +338,22 @@ export default class AutoPerfDashboard extends Vue {
 
   public async getScriptExecLogs() {
     this.showSnackbar("Fetching last logs...");
-    const res: any = await Api.getAll(apiRegister.script_execution, {user_gid: localStorage.getItem("gid")});
+    const res: any = await Api.getAll(apiRegister.script_execution, {
+      user_gid: localStorage.getItem("gid")
+    });
     if (res && res.data && res.data.result) {
       this.scriptExecLogs = res.data.result;
     }
-    if(this.scriptExecLogs.length > 0) {
+    if (this.scriptExecLogs.length > 0) {
       this.showLog(this.scriptExecLogs[0]);
     }
     this.hideSnackbar();
   }
 
   public async getScriptExecLogById(scriptExecLogId: string) {
-    const res: any = await Api.getAll(apiRegister.script_execution + "/" + scriptExecLogId);
+    const res: any = await Api.getAll(
+      apiRegister.script_execution + "/" + scriptExecLogId
+    );
     if (res && res.data && res.data.result) {
       this.selectedScriptExecLog = res.data.result;
     }
@@ -335,11 +367,9 @@ export default class AutoPerfDashboard extends Vue {
       const scriptArgs: any = {
         benchmark: this.selectedParameters.benchmark,
         configuration: this.selectedParameters.configuration,
-        client: this.selectedParameters.client.value,
-        primary_server: this.selectedParameters.primary_server.value,
-        secondary_server: this.selectedParameters.secondary_server.value,
+        client: this.selectedParameters.client.join(","),
+        primary_server: this.selectedParameters.primary_server.join(","),
         sampling: this.selectedParameters.sampling,
-        client_password: this.selectedParameters.client_password,
         server_password: this.selectedParameters.server_password
       };
       if (scriptArgs.benchmark === "cosbench") {
@@ -387,6 +417,11 @@ export default class AutoPerfDashboard extends Vue {
           isValidBenchmark = false;
         }
       }
+      if (this.selectedParameters.benchmark === "fio") {
+        if (!this.selectedParameters.template) {
+          isValidBenchmark = false;
+        }
+      }
     }
 
     return !(
@@ -394,7 +429,6 @@ export default class AutoPerfDashboard extends Vue {
       this.selectedParameters.configuration &&
       this.selectedParameters.client &&
       this.selectedParameters.primary_server &&
-      this.selectedParameters.secondary_server &&
       this.selectedParameters.sampling
     );
   }

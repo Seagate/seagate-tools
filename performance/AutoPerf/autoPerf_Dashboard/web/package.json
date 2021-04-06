@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "SET NODE_ENV=DEV & node --inspect ./bin/www",
+    "start:linux_dev": "NODE_ENV=DEV node ./bin/www",
+    "start:win_dev": "node ./bin/www",
+    "start:win_dev_inspect": "node --inspect ./bin/www",
     "start:testing": "NODE_ENV=TEST node ./bin/www",
     "start:production": "NODE_ENV=PROD node ./bin/www",
     "pm2": "pm2 start npm --name 'auto-perf-api' -- run start:production",

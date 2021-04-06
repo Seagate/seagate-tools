@@ -1,18 +1,46 @@
 ---
- - name: "[Cosbench]: Cosbench running ( size='4Kb,100Kb,256Kb,1Mb,5Mb,16Mb,36Mb,64Mb' clients=100 samples=1000 bucket=1 )"
-   shell: cd /root/PerfProBenchmark/cosbench; ./s3cosbench_benchmark.sh -nc "100" -ns "1000" -s "4Kb,100Kb,256Kb,1Mb,5Mb,16Mb,36Mb,64Mb" -b 1 -w mixed -t 600
+ - name: "[Cosbench]: Cosbench running with clients=300 bucket=1"
+   shell: cd /root/PerfProBenchmark/cosbench; ./s3cosbench_benchmark.sh -nc "300" -ns {{ item.numsamples }} -s {{ item.objsize }} -b 1 -w mixed -t 600
    delegate_to: "client-1"
+   loop:
+       - { objsize: '4Kb', numsamples: '33000'}
+       - { objsize: '100Kb', numsamples: '130000'}
+       - { objsize: '256Kb', numsamples: '96000'}
+       - { objsize: '1Mb', numsamples: '150000'}
+       - { objsize: '5Mb', numsamples: '82000'}
+       - { objsize: '16Mb', numsamples: '40000'}
+       - { objsize: '36Mb', numsamples: '24000'}
+       - { objsize: '64Mb', numsamples: '15000'}
+       - { objsize: '128Mb', numsamples: '7400'}
+       - { objsize: '256Mb', numsamples: '4600'}
 
- - name: "[Cosbench]: Cosbench running ( size='128Mb,256Mb' clients=100 samples=1000 bucket=1 )"
-   shell: cd /root/PerfProBenchmark/cosbench; ./s3cosbench_benchmark.sh -nc "100" -ns "1000" -s "128Mb,256Mb" -b 1 -w mixed -t 600
+ - name: "[Cosbench]: Cosbench running with clients=300 bucket=10"
+   shell: cd /root/PerfProBenchmark/cosbench; ./s3cosbench_benchmark.sh -nc "300" -ns {{ item.numsamples }} -s {{ item.objsize }} -b 10 -w mixed -t 600
    delegate_to: "client-1"
+   loop:
+       - { objsize: '4Kb', numsamples: '3300'}
+       - { objsize: '100Kb', numsamples: '13000'}
+       - { objsize: '256Kb', numsamples: '9600'}
+       - { objsize: '1Mb', numsamples: '15000'}
+       - { objsize: '5Mb', numsamples: '8200'}
+       - { objsize: '16Mb', numsamples: '4000'}
+       - { objsize: '36Mb', numsamples: '2400'}
+       - { objsize: '64Mb', numsamples: '1500'}
+       - { objsize: '128Mb', numsamples: '740'}
+       - { objsize: '256Mb', numsamples: '460'}
 
- - name: "[Cosbench]: Cosbench running ( size='4Kb,100Kb,256Kb,1Mb,5Mb,16Mb,36Mb' clients=100 samples=100 bucket=10,50 )"
-   shell: cd /root/PerfProBenchmark/cosbench; ./s3cosbench_benchmark.sh -nc "100" -ns "100" -s "4Kb,100Kb,256Kb,1Mb,5Mb,16Mb,36Mb" -b 10,50 -w mixed -t 600
+ - name: "[Cosbench]: Cosbench running with clients=300 bucket=50"
+   shell: cd /root/PerfProBenchmark/cosbench; ./s3cosbench_benchmark.sh -nc "300" -ns {{ item.numsamples }} -s {{ item.objsize }} -b 50 -w mixed -t 600
    delegate_to: "client-1"
-
- - name: "[Cosbench]: Cosbench running ( size='64Mb,128Mb,256Mb' clients=100 samples=100 bucket=10,50 )"
-   shell: cd /root/PerfProBenchmark/cosbench; ./s3cosbench_benchmark.sh -nc "100" -ns "100" -s "64Mb,128Mb,256Mb" -b 10,50 -w mixed -t 600
-   delegate_to: "client-1"
-
+   loop:
+       - { objsize: '4Kb', numsamples: '660'}
+       - { objsize: '100Kb', numsamples: '2600'}
+       - { objsize: '256Kb', numsamples: '1920'}
+       - { objsize: '1Mb', numsamples: '3000'}
+       - { objsize: '5Mb', numsamples: '1640'}
+       - { objsize: '16Mb', numsamples: '800'}
+       - { objsize: '36Mb', numsamples: '480'}
+       - { objsize: '64Mb', numsamples: '300'}
+       - { objsize: '128Mb', numsamples: '148'}
+       - { objsize: '256Mb', numsamples: '92'}
 

@@ -175,9 +175,9 @@ def get_perf_results(task_id):
             for line in f:
                 line_s = line.strip()
                 if line_s:
-                    result.append(line_s)
+                    result.append({'val': line_s})
     else:
-        result = ['N/A']
+        result = [{'val': 'N/A'}]
 
     cache.put(cache_key, result)
     return result

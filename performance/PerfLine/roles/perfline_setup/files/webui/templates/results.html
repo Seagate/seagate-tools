@@ -74,8 +74,16 @@
 
 	<!-- params -->
 	<td>
-		<table>
+		<table ng-if="row.benchmark.s3bench">
 			<tr ng-repeat="(key,val) in row.parameters">
+				<td>
+					<u>{{key}}:</u> <b>{{val}}</b>
+				</td>
+			</tr>
+		</table>
+
+		<table ng-if="row.benchmark.m0crate">
+			<tr ng-repeat="(key,val) in row.m0crate_params">
 				<td>
 					<u>{{key}}:</u> <b>{{val}}</b>
 				</td>
@@ -87,9 +95,9 @@
 	<!-- perf metrics -->
 	<td>
 		<table>
-			<tr ng-repeat="metric in row.perf_metrics">
+			<tr ng-repeat="(k,metric) in row.perf_metrics">
 				<td>
-					{{metric}}
+				{{metric.val}}
 				</td>
 			</tr>
 		</table>

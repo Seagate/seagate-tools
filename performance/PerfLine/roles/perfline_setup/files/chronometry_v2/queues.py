@@ -96,9 +96,14 @@ def layout_init(cli_rows_nr, srv_rows_nr, cols_nr, is_cli_aggr, is_srv_aggr, tit
     plt.suptitle(title)
     return axes
 
-def layout_fini():
+def layout_fini(output_file_path, no_window):
     plt.gcf().align_ylabels()
-    plt.show()
+    if output_file_path:
+        print(f'saving queues into file: {output_file_path}')
+        plt.savefig(output_file_path)
+
+    if not no_window:
+        plt.show()
 
 def connect(db_path):
     return sqlite3.connect(db_path)
@@ -138,7 +143,7 @@ def s3states(df, state):
     mask = df[df.state.str.contains(state)][['pid', 'id']].drop_duplicates()
     return pd.merge(df, mask, on=['pid', 'id'], how='inner')
 
-def s3_queue(conn, ax, hosts, show_title):
+def s3_queue(conn, ax, hosts, time_interval, show_title):
     start = ['START']
     stop = ['COMPLETE']
     ax[0].set_ylabel('S3')
@@ -151,11 +156,38 @@ def s3_queue(conn, ax, hosts, show_title):
         s3p_host = pd.merge(s3p, pids_df, on=['pid'], how='inner')
         s3g_host = pd.merge(s3g, pids_df, on=['pid'], how='inner')
 
+        if time_interval:
+            s3p_host = s3p_host[(s3p_host['time'] >= time_interval['start']) & (s3p_host['time'] <= time_interval['stop'])]
+            s3g_host = s3g_host[(s3g_host['time'] >= time_interval['start']) & (s3g_host['time'] <= time_interval['stop'])]
+
         if show_title:
             ax[i].set_title(f'{host}')
 
         plot(queue(s3p_host, start, stop, label="S3 Put"), ax=ax[i], color='r')
         plot(queue(s3g_host, start, stop, label="S3 Get"), ax=ax[i], color='g')
+
+
+def get_workload_interval(conn):
+    print('getting workload interval')
+    query = '''
+    SELECT
+    client.time as time, client.pid as pid, client.id as id, client.state as state
+    FROM request client
+    JOIN attr ON client.pid=attr.pid and client.id=attr.entity_id
+    WHERE 
+    attr.val in ('M0_OC_READ', 'M0_OC_WRITE') AND
+    client.type_id="client_req"
+    '''
+
+    df = sql.read_sql(query, con=conn)
+
+    if df.empty:
+        return None
+
+    start_ts = df['time'].min()
+    stop_ts = df['time'].max()
+    return {'start': start_ts, 'stop': stop_ts}
+
 
 def client_req(conn, operation):
     query = f'''
@@ -172,7 +204,7 @@ def client_req(conn, operation):
     df = df.drop_duplicates()
     return df
 
-def client_req_queue(conn, ax, hosts, show_title):
+def client_req_queue(conn, ax, hosts, time_interval, show_title):
     start = ['initialised']
     stop = ['stable']
     opcode = 'M0_OC_WRITE'
@@ -184,6 +216,10 @@ def client_req_queue(conn, ax, hosts, show_title):
     for i, (host, pids_df) in enumerate(hosts):
         writes_host = pd.merge(writes, pids_df, on=['pid'], how='inner')
         reads_host = pd.merge(reads, pids_df, on=['pid'], how='inner')
+
+        if time_interval:
+            writes_host = writes_host[(writes_host['time'] >= time_interval['start']) & (writes_host['time'] <= time_interval['stop'])]
+            reads_host = reads_host[(reads_host['time'] >= time_interval['start']) & (reads_host['time'] <= time_interval['stop'])]
 
         if show_title:
             ax[i].set_title(f'{host}')
@@ -221,7 +257,7 @@ def crpc_readv_req(conn):
     df = df.drop_duplicates()
     return df
 
-def crpc_queue(conn, ax, hosts, show_title):
+def crpc_queue(conn, ax, hosts, time_interval, show_title):
     start = ['INITIALISED']
     stop = ['REPLIED']
     ax[0].set_ylabel('CRPC')
@@ -233,13 +269,17 @@ def crpc_queue(conn, ax, hosts, show_title):
         writev_host = pd.merge(writev, pids_df, on=['pid'], how='inner')
         readv_host = pd.merge(readv, pids_df, on=['pid'], how='inner')
 
+        if time_interval:
+            writev_host = writev_host[(writev_host['time'] >= time_interval['start']) & (writev_host['time'] <= time_interval['stop'])]
+            readv_host = readv_host[(readv_host['time'] >= time_interval['start']) & (readv_host['time'] <= time_interval['stop'])]
+
         if show_title:
             ax[i].set_title(f'{host}')
 
         plot(queue(writev_host, start, stop, label="Writev"), ax=ax[i], color='r')
         plot(queue(readv_host, start, stop, label="Readv"), ax=ax[i], color='g')
 
-def srpc_queue(conn, ax, hosts, show_title):
+def srpc_queue(conn, ax, hosts, time_interval, show_title):
     start = ["ACCEPTED"]
     stop = ["REPLIED", "FAILED"]
     ax[0].set_ylabel('SRPC')
@@ -265,12 +305,15 @@ def srpc_queue(conn, ax, hosts, show_title):
     for i, (host, pids_df) in enumerate(hosts):
         srpc_df_host = pd.merge(srpc_df, pids_df, on=['pid'], how='inner')
 
+        if time_interval:
+            srpc_df_host = srpc_df_host[(srpc_df_host['time'] >= time_interval['start']) & (srpc_df_host['time'] <= time_interval['stop'])]
+
         if show_title:
             ax[i].set_title(f'{host}')
 
         plot(queue(srpc_df_host, start, stop, label="SRPC"), ax=ax[i], color='r')
 
-def fom_queue(conn, ax, hosts, show_title):
+def fom_queue(conn, ax, hosts, time_interval, show_title):
     start = ['-1']
     stop = ['finish']
     ax[0].set_ylabel('FOM')
@@ -290,13 +333,17 @@ def fom_queue(conn, ax, hosts, show_title):
         read_foms_df_host = pd.merge(read_foms_df, pids_df, on=['pid'], how='inner')
         write_foms_df_host = pd.merge(write_foms_df, pids_df, on=['pid'], how='inner')
 
+        if time_interval:
+            read_foms_df_host = read_foms_df_host[(read_foms_df_host['time'] >= time_interval['start']) & (read_foms_df_host['time'] <= time_interval['stop'])]
+            write_foms_df_host = write_foms_df_host[(write_foms_df_host['time'] >= time_interval['start']) & (write_foms_df_host['time'] <= time_interval['stop'])]
+
         if show_title:
             ax[i].set_title(f'{host}')
 
         plot(queue(read_foms_df_host, start, stop, label="FOM_READ"), ax=ax[i], color='g')
         plot(queue(write_foms_df_host, start, stop, label="FOM_WRITE"), ax=ax[i], color='r')
 
-def be_queue(conn, ax, hosts, show_title):
+def be_queue(conn, ax, hosts, time_interval, show_title):
     start = ['prepare']
     stop = ['done']
     ax[0].set_ylabel('BE')
@@ -306,12 +353,15 @@ def be_queue(conn, ax, hosts, show_title):
     for i, (host, pids_df) in enumerate(hosts):
         tx_df_host = pd.merge(tx_df, pids_df, on=['pid'], how='inner')
 
+        if time_interval:
+            tx_df_host = tx_df_host[(tx_df_host['time'] >= time_interval['start']) & (tx_df_host['time'] <= time_interval['stop'])]
+
         if show_title:
             ax[i].set_title(f'{host}')
 
         plot(queue(tx_df_host, start, stop, label="TX"), ax=ax[i], color='r')
 
-def stio_queue(conn, ax, hosts, show_title):
+def stio_queue(conn, ax, hosts, time_interval, show_title):
     start = ['M0_AVI_AD_PREPARE']
     stop = ['M0_AVI_AD_ENDIO']
     ax[0].set_ylabel('STOBIO')
@@ -328,6 +378,10 @@ def stio_queue(conn, ax, hosts, show_title):
     for i, (host, pids_df) in enumerate(hosts):
         stio_write_df_host = pd.merge(stio_write_df, pids_df, on=['pid'], how='inner')
         stio_read_df_host = pd.merge(stio_read_df, pids_df, on=['pid'], how='inner')
+
+        if time_interval:
+            stio_write_df_host = stio_write_df_host[(stio_write_df_host['time'] >= time_interval['start']) & (stio_write_df_host['time'] <= time_interval['stop'])]
+            stio_read_df_host = stio_read_df_host[(stio_read_df_host['time'] >= time_interval['start']) & (stio_read_df_host['time'] <= time_interval['stop'])]
 
         if show_title:
             ax[i].set_title(f'{host}')
@@ -362,6 +416,12 @@ Hence, there are four options of how plot could be drawn:
                         help="Show client side queues separately for each node")
     parser.add_argument("-s", "--per-server-host", action='store_true',
                         help="Show server side queues separately for each node")
+    parser.add_argument("-w", "--detect-workload-time", action='store_true',
+                        help="Show data from the automatically detected workload interval")
+    parser.add_argument("--output-file", type=str, default=None,
+                        help="Save picture of queues into file")
+    parser.add_argument("--no-window", action='store_true',
+                        help="Don't show interactive window")
 
     return parser.parse_args()
 
@@ -401,19 +461,24 @@ def main():
 
     cli_hosts = aggregated_pids if cli_aggr else hosts_pids
 
+    time_interval = None
+
+    if args.detect_workload_time:
+        time_interval = get_workload_interval(conn)
+
     for i, layer in enumerate(layers_cli):
         print("drawing {} ".format(layer.__name__))
-        layer(conn, axes[i], cli_hosts, show_cli_title)
+        layer(conn, axes[i], cli_hosts, time_interval, show_cli_title)
         show_cli_title = False
 
     srv_hosts = aggregated_pids if srv_aggr else hosts_pids
 
     for i, layer in enumerate(layers_srv):
         print("drawing {} ".format(layer.__name__))
-        layer(conn, axes[i + len(layers_cli)], srv_hosts, show_srv_title)
+        layer(conn, axes[i + len(layers_cli)], srv_hosts, time_interval, show_srv_title)
         show_srv_title = False
 
-    layout_fini()
+    layout_fini(args.output_file, args.no_window)
     disconnect(conn)
     return
 

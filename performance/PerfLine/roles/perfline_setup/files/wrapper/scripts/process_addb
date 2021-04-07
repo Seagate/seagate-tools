@@ -33,6 +33,14 @@ function main()
         process_motr_addb
     elif [[ "$APP" == "s3server" ]]; then
         process_s3_addb
+    elif [[ "$APP" == "m0crate" ]]; then
+
+        if [[ -z "$M0CRATE_WORKDIR" ]]; then
+            echo "M0CRATE_WORKDIR is not specified"
+            return 1
+        fi
+
+        process_m0crate_addb $M0CRATE_WORKDIR
     else
         echo "unsupported app: $app"
     fi
@@ -61,6 +69,10 @@ parse_params()
             ;;
         --no-m0play-db)
             NO_M0PLAY_DB="1"
+            ;;
+        --m0crate-workdir)
+            M0CRATE_WORKDIR="$2"
+            shift
             ;;
 	--start)
 	    START_TIME="$2"
@@ -128,7 +140,7 @@ function process_s3_addb()
             -- "$addb_stob" > ./dumpc_${host}_${pid}.txt
     done
 
-    # generate motr m0play.db 
+    # generate s3 m0play.db 
     if ls dumpc* &> /dev/null; then
         $TOOLS_DIR/../chronometry_v2/addb2db_multiprocess.sh --dumps ./dumpc*
         scp dumpc* root@${ARTIF_HOST}:${ARTIF_DIR}/$(hostname)
@@ -137,6 +149,29 @@ function process_s3_addb()
 
     popd
     rm -rf $tmp_dir
+}
+
+function process_m0crate_addb()
+{
+    local m0crate_workdir="$1"
+    local host="$(hostname -s)"
+
+    pushd $m0crate_workdir
+
+    for addb_stob in $m0crate_workdir/addb*/o/100000000000000:2; do
+        pid=$(echo $addb_stob | sed -E 's/.*addb_([0-9]+)[/].*/\1/')
+        m0addb2dump -f -- "$addb_stob" > ./dumpc_${host}_${pid}.txt
+    done
+
+    # generate m0crate m0play.db 
+    if ls dumpc* &> /dev/null; then
+        $TOOLS_DIR/../chronometry_v2/addb2db_multiprocess.sh --dumps ./dumpc*
+        scp dumpc* root@${ARTIF_HOST}:${ARTIF_DIR}
+        mv m0play.db m0play.$host.db
+        scp m0play.$host.db root@${ARTIF_HOST}:${ARTIF_DIR}
+    fi
+
+    popd
 }
 
 main "$@"

@@ -2,46 +2,61 @@
 
 function main()
 {
-local artif_host=$1
+    local artif_host=$1
     local artifacts_dir=$2
+    local app=$3 #motr, s3server, m0crate
     shift
     shift
-
-    local app=$1 #motr, s3server
+    shift
+    
     
     if [[ "$app" == "motr" ]]; then
-        shift
-
         for ios_fid in $@; do
-            local ios_dir="/var/motr/m0d-$ios_fid"
+            local ios_dir="/var/log/seagate/motr/trace/m0d-$ios_fid"
 
             if [[ -e $ios_dir ]]; then
                 pushd $ios_dir
 
-                for filename in m0trace.*; do
+                for filename in $(ls m0trace.*); do
                     echo "dump $filename"
                     m0trace -i ${filename} -o ${filename}.txt 2>/dev/null
                 done
 
                 scp m0trace*txt root@${artif_host}:${artifacts_dir}
-		rm -rf m0trace*txt || true
+                rm -rf m0trace*txt || true
                 popd
             fi
         done
     elif [[ "$app" == "s3server" ]]; then
         
-        for s3dir in $(ls /var/motr | grep s3server); do
-            pushd /var/motr/$s3dir
+        for s3dir in $(ls /var/log/seagate/motr | grep s3server); do
+            pushd /var/log/seagate/motr/$s3dir
 
-            for filename in m0trace.*; do
+            for filename in $(ls m0trace.*); do
                 echo "dump $filename"
                 m0trace -i ${filename} -o ${filename}.txt 2>/dev/null
             done
 
             scp m0trace*txt root@${artif_host}:${artifacts_dir}/$(hostname)/$s3dir
-	    rm -rf m0trace*txt || true
+            rm -rf m0trace*txt || true
             popd
         done
+    elif [[ "$app" == "m0crate" ]]; then
+        
+        local m0crate_workdir="$1"
+        shift
+
+        if [[ -e "$m0crate_workdir" ]]; then
+            pushd $m0crate_workdir
+
+            for filename in $(ls m0trace.*); do
+                m0trace -i ${filename} -o ${filename}.txt 2>/dev/null
+            done
+
+            scp m0trace*txt root@${artif_host}:${artifacts_dir}
+            rm -rf m0trace*txt || true
+            popd
+        fi
     else
         echo "unsupported app: $app"
     fi

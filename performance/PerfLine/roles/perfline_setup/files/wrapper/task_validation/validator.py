@@ -30,16 +30,7 @@ def get_schema_motr():
                 'priority': {'type': 'integer', 'min': 1},
                 'batch_id': {'required': False, 'nullable': True},
                 'user': {'type': 'string', 'regex': '.*@seagate\.com'},
-            }
-        },
-        'workload': {
-            'type': 'list',
-            'schema': {
-                'type': 'dict',
-                'schema': {
-                    'cmd': {'type': 'string'},
-        
-                }
+                'send_email': {'type': 'boolean', 'required': False}
             }
         },
         'stats_collection': {
@@ -54,67 +45,85 @@ def get_schema_motr():
          },
         'custom_build': {
             'type': 'dict',
+            'required': False,
             'schema': {
-                'deploybuild': {'type': 'boolean'}, 
-                'motr_repo_path': {'type': 'string', 'required': False, 'nullable': True },
-                'hare_repo_path': {'type': 'string', 'required': False, 'nullable': True },
-                's3server_repo_path': {'type': 'string', 'required': False, 'nullable': True },
-                'hare_commit_id': {'type': 'string', 'required': False, 'nullable': True },
-                'motr_commit_id': {'type': 'string', 'required': False, 'nullable': True },
-                's3server_commit_id': {'type': 'string', 'required': False, 'nullable': True },
+                'motr_repo_path': {'type': 'string', 'empty': False},
+                'hare_repo_path': {'type': 'string', 'empty': False},
+                's3server_repo_path': {'type': 'string', 'empty': False},
+                'hare_commit_id': {'type': 'string', 'empty': False},
+                'motr_commit_id': {'type': 'string', 'empty': False},
+                's3server_commit_id': {'type': 'string', 'empty': False},
             }
          },
-        'benchmark': {
-            'type': 'dict',
-            'schema': {
-                'fio': {'type': 'boolean'},
-                's3bench': {'type': 'boolean' },
-                'm0crate': {'type': 'boolean'},
-            }
-        },
-        'fio_parameter': {
-            'type': 'dict',
-            'schema': {
-                'Duration': {'type': 'integer', 'required': False, 'nullable': True },
-                'BlockSize': {'type': 'string', 'required': False, 'nullable': True },
-                'NumJobs': {'type': 'integer', 'required': False, 'nullable': True },
-                'Template': {'type': 'string', 'required': False, 'nullable': True },
-            }
-        },
-        'parameter': {
-            'type': 'dict',
-            'schema': {
-                'BucketName': {'type': 'string', 'required': False, 'nullable': True },
-                'NumClients': {'type': 'integer', 'required': False, 'nullable': True },
-                'NumSample': {'type': 'integer', 'required': False, 'nullable': True },
-                'ObjSize': {'type': 'string', 'required': False, 'nullable': True },
-                'EndPoint': {'type': 'string', 'required': False, 'nullable': True },
-            }
-        },
-        'm0crate_params': {
-            'type': 'dict',
-            'schema': {
-                'LAYOUT_ID': {'type': 'integer', 'required': False, 'nullable': True },
-                'OPCODE': {'type': 'integer', 'required': False, 'nullable': True },
-                'IOSIZE': {'type': 'string', 'required': False, 'nullable': True },
-                'BLOCK_SIZE': {'type': 'string', 'required': False, 'nullable': True },
-                'BLOCKS_PER_OP': {'type': 'integer', 'required': False, 'nullable': True },
-                'MAX_NR_OPS': {'type': 'integer', 'required': False, 'nullable': True },
-                'NR_OBJS': {'type': 'integer', 'required': False, 'nullable': True },
-                'NR_THREADS': {'type': 'integer', 'required': False, 'nullable': True },
-                'RAND_IO': {'type': 'integer', 'required': False, 'nullable': True },
-                'MODE': {'type': 'integer', 'required': False, 'nullable': True },
-                'THREAD_OPS': {'type': 'string', 'required': False, 'nullable': True },
-            }
-        },
+         'benchmarks': {
+             'type': 'list',
+             'schema': {
+                'type': 'dict', 
+                'oneof': [{
+                            'schema': {
+                                'custom': {
+                                    'type': 'dict',
+                                    'schema': {
+                                        'cmd': {'type': 'string', 'required': True}
+                                    }
+                                }
+                            }
+                },
+                {
+                            'schema': {
+                                'fio': {
+                                    'type': 'dict',
+                                    'schema': {
+                                        'Duration': {'type': 'integer', 'required': True},
+                                        'BlockSize': {'type': 'string', 'required': True, 'empty': False},
+                                        'NumJobs': {'type': 'integer', 'required': True},
+                                        'Template': {'type': 'string', 'required': True, 'empty': False},
+                                        }
+                                }
+                            }
+                },
+                {
+                            'schema': {
+                                's3bench': {
+                                    'type': 'dict',
+                                    'schema': {
+                                        'BucketName': {'type': 'string', 'required': True, 'empty': False},
+                                        'NumClients': {'type': 'integer', 'required': True},
+                                        'NumSample': {'type': 'integer', 'required': True},
+                                        'ObjSize': {'type': 'string', 'required': True, 'empty': False},
+                                        'EndPoint': {'type': 'string', 'required': True, 'empty': False},
+                                    }
+                                }
+                            }
+                },
+                {
+                            'schema': {
+                                'm0crate': {
+                                    'type': 'dict',
+                                    'schema': {
+                                        'LAYOUT_ID': {'type': 'integer', 'required': False},
+                                        'OPCODE': {'type': 'integer', 'required': False},
+                                        'IOSIZE': {'type': 'string', 'required': False, 'empty': False},
+                                        'BLOCK_SIZE': {'type': 'string', 'required': False, 'empty': False},
+                                        'BLOCKS_PER_OP': {'type': 'integer', 'required': False},
+                                        'MAX_NR_OPS': {'type': 'integer', 'required': False},
+                                        'NR_OBJS': {'type': 'integer', 'required': False},
+                                        'NR_THREADS': {'type': 'integer', 'required': False},
+                                        'RAND_IO': {'type': 'integer', 'required': False},
+                                        'MODE': {'type': 'integer', 'required': False},
+                                        'THREAD_OPS': {'type': 'string', 'required': False, 'empty': False},
+                                    }
+                                }
+                            }
+                }]
+             }    
+         },
         'execution_options': {
             'type': 'dict',
             'schema': {
-                'm0trace_files': {'type': 'boolean'},
-                'm0trace_dumps': {'type': 'boolean'},
-                'addb_stobs': {'type': 'boolean'},
-                'addb_dumps': {'type': 'boolean'},
-                'm0play_db': {'type': 'boolean'}
+                'mkfs': {'type': 'boolean'},
+                'm0trace': {'type': 'boolean'},
+                'addb': {'type': 'boolean'}
             }
         }
     }
@@ -122,7 +131,7 @@ def get_schema_motr():
 
 
 def validate_config(config):
-    v = Validator(allow_unknown=True, require_all=True)
+    v = Validator(allow_unknown=False, require_all=True)
     errors = []
     v.validate(config, get_schema_motr())
     errors.append({"Motr requirements": v.errors})

@@ -253,14 +253,29 @@ def results(limit=9999999):
     return response
 
 
+# TODO: check if this function really needed and delete this bad code!
 def define_path_for_report_imgs(tid):
     path_to_stats = f'/var/perfline/result_{tid}/stats'
     path_to_workload = f'/var/perfline/result_{tid}/client'
+    path_to_m0crate_logs = f'/var/perfline/result_{tid}/m0crate'
     nodes_stat_dirs = [join(path_to_stats, f) for f in os.listdir(
         path_to_stats) if isdir(join(path_to_stats, f))]
 
-    workload_files = {f: join(path_to_workload, f) for f in os.listdir(
-        path_to_workload) if isfile(join(path_to_workload, f))}
+    workload_files = {}
+
+    if isdir(path_to_workload):
+        workload_files.update({f: join(path_to_workload, f) for f in os.listdir(
+            path_to_workload) if isfile(join(path_to_workload, f))})
+
+    if isdir(path_to_m0crate_logs):
+        for f in os.listdir(path_to_m0crate_logs):
+            f_path = join(path_to_m0crate_logs, f)
+
+            if isfile(f_path) and f.endswith('.log'):
+                workload_files[f] = f_path
+
+        workload_files.update({f: join(path_to_m0crate_logs, f) for f in os.listdir(
+            path_to_m0crate_logs) if isfile(join(path_to_workload, f))})
 
     iostat_aggegated_imgs = [
         f'{path}/iostat/iostat.aggregated.png' for path in nodes_stat_dirs]

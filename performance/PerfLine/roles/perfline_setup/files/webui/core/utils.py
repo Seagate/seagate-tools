@@ -37,6 +37,7 @@ def tq_task_common_get(elem, r):
 
     elem['benchmark'] = info['info']['conf']['benchmark']
     elem['parameters'] = info['info']['conf']['parameter']
+    elem['m0crate_params'] = info['info']['conf']['m0crate_params']
 
     fmt = '%Y-%m-%d %H:%M:%S.%f'
     hms = '%Y-%m-%d %H:%M:%S'

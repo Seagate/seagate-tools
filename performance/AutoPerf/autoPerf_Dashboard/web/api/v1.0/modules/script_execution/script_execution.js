@@ -44,13 +44,33 @@ class ScriptExecutionService {
     }
 
     async createScriptExecution(user_gid, script_args) {
-        let cmdString = config.s3_workloads_script + ' ' + script_args.benchmark + ' ' + script_args.configuration + ' ' + script_args.client + ' ' + script_args.primary_server + ' ' + script_args.secondary_server + ' ' + script_args.sampling;
+        const nodes = {};
+        const nodeList = script_args.primary_server.split(",");
+        nodeList.forEach((element, index) => {
+            nodes["" + (index + 1)] = element;
+        });
+        const clients = {};
+        const clientList = script_args.client.split(",");
+        clientList.forEach((element, index) => {
+            clients["" + (index + 1)] = element;
+        });
+
+        const scriptArgsJSONObj = {
+            "BENCHMARK": script_args.benchmark,
+            "CONFIGURATION": script_args.configuration,
+            "SAMPLE": script_args.sampling,
+            "SKIPCLEANUP": "no",
+            "KEY": script_args.server_password,
+            "nodes": nodes,
+            "clients": clients
+        };
         if (script_args.benchmark === 'cosbench') {
-            cmdString = cmdString + ' ' + script_args.operation;
+            scriptArgsJSONObj["OPERATION"] = script_args.operation;
         }
         if (script_args.benchmark === 'fio') {
-            cmdString = cmdString + ' ' + script_args.template;
+            scriptArgsJSONObj["TEMPLATE"] = script_args.template;
         }
+        const cmdString = "ansible-playbook -i hosts main.yml --extra-vars '" + JSON.stringify(scriptArgsJSONObj) + "' -v";
 
         try {
             const scriptExec = {
@@ -81,7 +101,7 @@ class ScriptExecutionService {
                 message: error.message,
                 data: JSON.stringify(error),
             };
-        };        
+        };     
     }
 
     async setClientServer(args, logFileStream) {

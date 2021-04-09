@@ -175,9 +175,9 @@ def get_perf_results(task_id):
             for line in f:
                 line_s = line.strip()
                 if line_s:
-                    result.append(line_s)
+                    result.append({'val': line_s})
     else:
-        result = ['N/A']
+        result = [{'val': 'N/A'}]
 
     cache.put(cache_key, result)
     return result
@@ -317,6 +317,11 @@ def serve_report_imgs(tid, node_id, img_type):
     print(imgs_dict)
     path_to_img = imgs_dict.get(img_type)[int(node_id)]
     return send_file(path_to_img, mimetype='image/svg+xml' if img_type == 'blktrace' else 'image')
+
+@app.route('/report/<string:tid>/addb_imgs/<string:filename>')
+def serve_addb_imgs(tid, filename):
+    path_to_img = f'/var/perfline/result_{tid}/stats/addb/{filename}'
+    return send_file(path_to_img, mimetype='image')
 
 
 @app.route('/report/<string:tid>/dstat_imgs/<string:node_id>/<string:img_type>')

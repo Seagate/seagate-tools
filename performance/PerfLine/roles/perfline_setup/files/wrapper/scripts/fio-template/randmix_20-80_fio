@@ -1,0 +1,13 @@
+[global]
+iodepth=16
+direct=1
+ioengine=libaio
+group_reporting
+time_based
+name=randrw
+rw=randrw
+rwmixread=20
+
+
+
+

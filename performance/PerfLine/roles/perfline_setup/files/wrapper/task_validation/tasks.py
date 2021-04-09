@@ -70,7 +70,26 @@ def parse_options(conf, result_dir):
 
     # Benchmark
     if conf['benchmark']['fio']: 
-        options.append('--fio')    
+        options.append('--fio')  
+        # Fio Parameter
+        options.append('-t')
+        options.append(conf['fio_parameter']['Duration'])
+        options.append('-bs')
+        options.append(conf['fio_parameter']['BlockSize'])
+        options.append('-nj')
+        options.append(conf['fio_parameter']['NumJobs'])
+        options.append('-tm')
+        options.append(conf['fio_parameter']['Template'])
+
+    if conf['benchmark']['m0crate']:
+        options.append('--m0crate')
+
+        if conf['m0crate_params']:
+            params_str = ''
+            for param_name, param_val in conf['m0crate_params'].items():
+                params_str += "{}={} ".format(param_name, param_val)
+            options.append('--m0crate-params')
+            options.append(params_str)
 
     if conf['benchmark']['s3bench']:
         options.append('--s3bench')
@@ -78,15 +97,14 @@ def parse_options(conf, result_dir):
         # Parameter
         options.append('-bucket')
         options.append(conf['parameter']['BucketName'])
-
         options.append('-clients')
         options.append(conf['parameter']['NumClients'])
-       
         options.append('-sample')
         options.append(conf['parameter']['NumSample'])
-
         options.append('-size')
         options.append(conf['parameter']['ObjSize'])
+        options.append('-endpoint')
+        options.append(conf['parameter']['EndPoint'])
     # Execution options:
     if 'mkfs' in conf['execution_options']:
         if conf['execution_options']['mkfs']:

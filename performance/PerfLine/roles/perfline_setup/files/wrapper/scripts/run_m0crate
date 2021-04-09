@@ -1,0 +1,132 @@
+#!/usr/bin/env bash
+#
+# Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+
+# set -x
+set -e
+
+SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_DIR="${SCRIPT_PATH%/*}"
+
+_get_cluster_params() {
+    local status=$(hctl status)
+
+    for hn in $(hostname -A); do
+        if echo "$status" | grep $hn > /dev/null; then
+            local host=$hn
+            break
+        fi
+
+    done
+
+    local addr="([0-9]+[.][0-9]+[.][0-9]+[.][0-9]+)"
+    local addr_ext='.* ([0-9]+[.][0-9]+[.][0-9]+[.][0-9]+@.+:[0-9]{5}:[0-9]{2}:).*'
+    local addr_extp='.* ([0-9]+[.][0-9]+[.][0-9]+[.][0-9]+@.+:[0-9]{5}:[0-9]{2}:[0-9]+).*'
+
+    NODE_IP=`echo "$status" | grep "$host" -A 1 | grep -E -o "$addr"`
+    APP_IP_EXT=`echo "$status" | grep $NODE_IP | grep m0_client | sed -E "s/:[0-9]+$/:/" | awk '{print $NF}' | head -1`
+    HALON_IP_EXT=`echo "$status" | grep hax | grep $NODE_IP | awk '{print $4}'`
+    CONFD_IP_EXT=`echo "$status" | grep confd | grep $NODE_IP | awk '{print $4}'`
+
+    MOTR_PORT=`echo "$status" | grep $NODE_IP | grep m0_client | grep unknown \
+        | head -1 | awk '{print $4}' | awk -F: '{print $NF}'`
+
+    CLUSTER_PROFILE=`echo "$status" | grep Profile | awk '{print $2}'`
+    IOS_FID=`echo "$status" | grep "\[.*\].*ioservice" | grep ${NODE_IP} \
+        | awk '{print $3}'`
+
+    MOTR_LOCAL_ADDR_EXT=${APP_IP_EXT}${MOTR_PORT}
+
+    PROCESS_FID=$(echo "$status" | grep m0_client \
+                | grep $MOTR_LOCAL_ADDR_EXT | awk '{print $3}')
+}
+
+_iter_m0crate_params() {
+    local all_params=$(cat ${SCRIPT_DIR}/test_io.yaml.template \
+       | grep -P -o "###__.+=.+__###"                \
+       | sed -E "s/###__(.*=.*)__###/\1/g")
+
+    for param_eq in $all_params; do
+        case $1 in
+            ev) eval $param_eq;;
+            pr) echo $param_eq;;
+            *);;
+        esac
+    done
+}
+
+_set_default_m0crate_params() {
+    MOTR_CONFD_ADDR=$CONFD_IP_EXT
+    MOTR_HA_ADDR=$HALON_IP_EXT
+    PROF=$CLUSTER_PROFILE
+
+    _iter_m0crate_params ev
+}
+
+_parse_m0crate_params() {
+    for x in $@; do
+        eval $x;
+    done
+
+    return 0
+}
+
+_set_m0crate_config_file_params() {
+    local config_file=$1
+
+    local all_params=$(cat ${SCRIPT_DIR}/test_io.yaml.template        \
+               | grep -P -o "###__.+__###"                          \
+               | sed -E "s/###__([^=]*?)={0,1}(.*?){0,1}__###/\1/")
+
+    for param_name in $all_params; do
+        local param_value=${!param_name}
+        echo "set parameter: ${param_name}=${param_value}"
+
+        [[ -n $param_value ]] || {
+            echo "parameter $param_name not found"
+            exit 1
+        }
+
+        sed -i -E "s/###__${param_name}={0,1}(.*?){0,1}__###/${param_value}/" \
+            ${config_file}
+    done
+}
+
+prepare_and_run() {
+
+    random_file="/tmp/128M"
+    rm -f $random_file
+    dd if=/dev/urandom of=$random_file bs=1M count=128 &> /dev/null
+    _set_default_m0crate_params
+    _parse_m0crate_params $@
+
+    local m0crate_conf="$(pwd)/test_io.$(hostname -s).yaml"
+
+    cp $SCRIPT_DIR/test_io.yaml.template $m0crate_conf
+
+    _set_m0crate_config_file_params "$m0crate_conf"
+
+    m0crate -S $m0crate_conf
+    rm -f $random_file
+}
+
+
+_get_cluster_params
+prepare_and_run $@
+

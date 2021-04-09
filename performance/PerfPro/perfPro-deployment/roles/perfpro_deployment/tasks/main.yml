@@ -4,8 +4,9 @@
   when: item not in vars
   with_items: "{{required_vars}}"
 
-- name: "[local-pre-req] : Update Host Files"
-  script: files/update_hosts.sh {{ NODE1 }} {{ NODE2 }} {{ CLIENT }}
+- name: Updating host configuration file
+  include: host_entry.yaml
+
 
 - meta: refresh_inventory
 
@@ -23,7 +24,7 @@
 - name: "[local-pre-req] : Install python library on localhost"
   pip:
     name: requests
-    executable: pip3.3
+    executable: pip3.6
 
 - include: change_pass.yml
   when: CHANGE_PASS == "yes"
@@ -75,10 +76,12 @@
   shell: mkdir -p /opt/isos; cd /opt/isos; for file in $(curl -s {{ BUILD_URL }} | grep href | sed 's/.*href="//' | sed 's/".*//' | grep '^[a-zA-Z].*'); do curl -s -O {{ BUILD_URL }}$file; done 
   delegate_to: "{{ item }}"
   with_items: "{{ groups['nodes'] }}"
-  
+  when: REIMAGE == "yes"
+
 - name: "[prov-prereq] : Dependencies library"
   shell: chmod +x /opt/isos/*.sh; /opt/isos/*.sh
   delegate_to: "srvnode-1"
+  when: REIMAGE == "yes"
 
 - include: inband.yml
 
@@ -115,6 +118,7 @@
 - name: "[deploy] : Deploy Cluster on Primary Node"
   shell: /root/deploy_iso.sh $(ls /opt/isos | grep single.iso) $(ls /opt/isos | grep os) {{ NODE1 }}  {{ NODE2 }}  {{ CLUSTER_PASS }}
   delegate_to: "srvnode-1"
+  when: REIMAGE == "yes"
 
 - include: enable_cross_connect.yml
 

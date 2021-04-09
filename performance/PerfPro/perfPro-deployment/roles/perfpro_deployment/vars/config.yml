@@ -6,10 +6,9 @@ NODES:
   - 3:  # node_number_srvnode-3: hostname of node3 .
 CLIENTS: 
   - 1:  #client_number: hostname of client  
-  - 2: 
 
 # For Build and SystemUnderTest INFO
-BUILD_URL: http://cortx-storage.colo.seagate.com/releases/cortx/github/stable/centos-7.8.2003/140/
+BUILD_URL: 
 CLUSTER_PASS: seagate1
 CHANGE_PASS: 'no'
 PRVSNR_CLI_REPO: https://github.com/Seagate/cortx-prvsnr@cortx-1.0#subdirectory=api/python
@@ -20,7 +19,7 @@ SERVICE_USER:
 SERVICE_PASS:
 
 # For DB related Entries
-PC_FULL: 0 # Select between 30% or 75% for system percentage full 
+PC_FULL: 0 # Select for system percentage full before test. 
 OVERWRITE: False # select True or False to overwrite the DB entries for same Primary Key
 
 #Enter Below details for log collection on NFS repo
@@ -32,7 +31,6 @@ NFS_FOLDER:
 
 #END
 required_vars:
-  - REIMAGE
   - NODES
   - CLIENTS
   - BUILD_URL

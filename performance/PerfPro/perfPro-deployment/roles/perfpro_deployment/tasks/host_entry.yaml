@@ -5,9 +5,6 @@
 # # 2. Host entry for all the S3 Server nodes will be added to the 'hosts' file
 # # 3. Host entry for all the S3 client nodes will be added to the 'hosts' file
 # #######################
-# # Variables 'nodes' and 'clients' need be passed as arguments as per the following example.
-# # --extra-vars '{"nodes":{"1": "node1.loc.seagate.com", "2": "node2.loc.seagate.com","3": "node3.loc.seagate.com" , "clients":{"1": "client1.loc.seagate.com", "2": "client2.loc.seagate.com"}} '
-# #######################
 
  - name : create hosts file from hosts_template.bak
    copy:

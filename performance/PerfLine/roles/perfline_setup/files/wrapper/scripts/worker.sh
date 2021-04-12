@@ -55,8 +55,9 @@ function validate() {
 function build_deploy() {
     pushd $BUILD_DEPLOY_DIR
     ansible-playbook -i hosts run_build_deploy.yml --extra-vars "motr_repo_path=$MOTR_REPO \
-hare_repo_path=$HARE_REPO s3server_repo_path=$S3SERVER_REPO hare_commit_id=$HARE_COMMIT_ID \
-motr_commit_id=$MOTR_COMMIT_ID s3server_commit_id=$S3SERVER_COMMIT_ID" -v
+    hare_repo_path=$HARE_REPO s3server_repo_path=$S3SERVER_REPO hare_commit_id=$HARE_COMMIT_ID \
+    motr_commit_id=$MOTR_COMMIT_ID s3server_commit_id=$S3SERVER_COMMIT_ID github_PAT=$GITHUB_PAT \
+    github_username=$GITHUB_USER build_machine=$BUILD_MACHINE" -v
     popd
 }
 
@@ -607,6 +608,18 @@ while [[ $# -gt 0 ]]; do
             ;;
         --deploybuild)
             BUILD_DEPLOY="1"
+            ;;
+        -token)
+            GITHUB_PAT=$2
+            shift
+            ;;
+        -github_user)
+            GITHUB_USER=$2
+            shift
+            ;;
+        -build_machine)
+            BUILD_MACHINE=$2
+            shift
             ;;
         -motr_repo)
             MOTR_REPO=$2

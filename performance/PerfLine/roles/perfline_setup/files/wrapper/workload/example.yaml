@@ -27,6 +27,9 @@ common:
 
 custom_build:
   deploybuild: false
+  github_PAT: 
+  github_username:
+  build_machine:                     # Build Anywhere (it could be client, any one cortx cluster server or VM)
   motr_repo_path: ""
   hare_repo_path: ""
   s3server_repo_path: ""
@@ -46,6 +49,7 @@ stats_collection:
 benchmark:
   fio: false 
   s3bench: false
+  m0crate: false
 
 fio_parameter:
   Duration:
@@ -59,6 +63,14 @@ parameter:
   NumSample: 
   ObjSize:      
   EndPoint:
+
+m0crate_params:
+  NR_THREADS: 
+  BLOCK_SIZE: 
+  BLOCKS_PER_OP: 
+  IOSIZE: 
+  NR_OBJS: 
+  RAND_IO: 
 
 execution_options:
   mkfs: false

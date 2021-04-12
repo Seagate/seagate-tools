@@ -56,6 +56,9 @@ def get_schema_motr():
             'type': 'dict',
             'schema': {
                 'deploybuild': {'type': 'boolean'}, 
+		'github_PAT': {'type': 'string', 'required': False, 'nullable': True },
+                'github_username': {'type': 'string', 'required': False, 'nullable': True },
+                'build_machine': {'type': 'string', 'required': False, 'nullable': True },
                 'motr_repo_path': {'type': 'string', 'required': False, 'nullable': True },
                 'hare_repo_path': {'type': 'string', 'required': False, 'nullable': True },
                 's3server_repo_path': {'type': 'string', 'required': False, 'nullable': True },

@@ -1,3 +1,5 @@
+{% if blktrace_imgs %}
+
 <h2 align=center>BLKTRACE plots </h2>
 <div class="row">
     {% for node_num in range(node_amount) %}
@@ -6,3 +8,5 @@
         </div>
     {% endfor %}
 </div>
+
+{% endif %}

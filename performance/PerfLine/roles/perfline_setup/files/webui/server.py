@@ -274,9 +274,6 @@ def define_path_for_report_imgs(tid):
             if isfile(f_path) and f.endswith('.log'):
                 workload_files[f] = f_path
 
-        workload_files.update({f: join(path_to_m0crate_logs, f) for f in os.listdir(
-            path_to_m0crate_logs) if isfile(join(path_to_workload, f))})
-
     iostat_aggegated_imgs = [
         f'{path}/iostat/iostat.aggregated.png' for path in nodes_stat_dirs]
 

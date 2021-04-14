@@ -18,7 +18,8 @@ PREREQ_URL: https://raw.githubusercontent.com/Seagate/cortx-prvsnr/cortx-1.0/cli
 SERVICE_USER:
 SERVICE_PASS:
 
-# For DB related Entries
+# For PerfPro Iteration and MongoDB related Entries
+ITERATION: 1 # Select for the number of iteration PerfPro Should run
 PC_FULL: 0 # Select for system percentage full before test. 
 OVERWRITE: False # select True or False to overwrite the DB entries for same Primary Key
 
@@ -38,6 +39,7 @@ required_vars:
   - SATELLITE_UN
   - SATELLITE_PW
   - CHANGE_PASS
+  - ITERATION
   - PC_FULL
   - OVERWRITE
   - NFS_SERVER

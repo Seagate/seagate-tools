@@ -1,4 +1,5 @@
 <template>
+  <!-- 14-apr -->
   <div class="dashboard-padding">
     <v-row>
       <v-col col="12" md="3" sm="5">
@@ -23,6 +24,65 @@
           <!--v-progress-linear v-if="disableForm" indeterminate color="#ffffff"></v-progress-linear-->
           <v-card-text style="padding: 10px">
             <v-select
+              style="margin-top: 5px"
+              v-model="selectedParameters.primary_server"
+              :items="defaultParameters.primary_servers"
+              item-text="label"
+              item-value="value"
+              label="Nodes*"
+              outlined
+              dense
+              multiple
+            ></v-select>
+            <v-select
+              style="margin-top: -15px"
+              v-model="selectedParameters.client"
+              :items="defaultParameters.clients"
+              item-text="label"
+              item-value="value"
+              label="Clients*"
+              outlined
+              dense
+              multiple
+            ></v-select>
+            <v-text-field
+              style="margin-top: -15px"
+              type="password"
+              label="Password*"
+              v-model.trim="selectedParameters.server_password"
+              outlined
+              dense
+            ></v-text-field>
+            <v-select
+              style="margin-top: -15px"
+              :items="defaultParameters.sampling"
+              item-text="label"
+              item-value="value"
+              v-model="selectedParameters.sampling"
+              label="Sampling*"
+              outlined
+              dense
+            ></v-select>
+            <div style="margin-top: -15px">
+              <label for="">Select Benchmark</label>
+              <v-radio-group
+              style="margin-top: 1px"
+              v-model="isBenchmarkSelected"
+              row
+              @change="resetIsBenchmarkSelected"
+            >
+              <v-radio
+                label="Yes"
+                value="yes"
+              ></v-radio>
+              <v-radio
+                label="No"
+                value="no"
+              ></v-radio>
+            </v-radio-group>
+            </div>
+            <div v-if="isBenchmarkSelected === 'yes'">
+              <v-select
               :items="defaultParameters.benchmarks"
               item-text="label"
               item-value="value"
@@ -63,48 +123,32 @@
               outlined
               dense
             ></v-select>
-            <v-select
-              style="margin-top: -15px"
-              v-model="selectedParameters.client"
-              :items="defaultParameters.clients"
-              item-text="label"
-              item-value="value"
-              label="Clients*"
-              outlined
-              dense
-              multiple
-            ></v-select>
-            <v-select
-              style="margin-top: -15px"
-              v-model="selectedParameters.primary_server"
-              :items="defaultParameters.primary_servers"
-              item-text="label"
-              item-value="value"
-              label="Nodes*"
-              outlined
-              dense
-              multiple
-            ></v-select>
-            <v-text-field
-              style="margin-top: -15px"
-              type="password"
-              label="Password*"
-              v-model.trim="selectedParameters.server_password"
-              outlined
-              dense
-            ></v-text-field>
-            <v-select
-              style="margin-top: -15px"
-              :items="defaultParameters.sampling"
-              item-text="label"
-              item-value="value"
-              v-model="selectedParameters.sampling"
-              label="Sampling*"
-              outlined
-              dense
-            ></v-select>
+            </div>
+            <div v-if="isBenchmarkSelected === 'no'" >
+              <v-row>
+                <v-col cols="12">
+                  <v-text-field
+                    style="margin-top: -20px"
+                    label="Time Scale"
+                    type='number'
+                    min="1"
+                    max="60"
+                    hint="Number should be 1 to 60"
+                    :rules="[
+                      () => !!selectedParameters.time_scale || 'This field is required',
+                      () => !!selectedParameters.time_scale && selectedParameters.time_scale <= 60 || 'Time scale must be less than 60',
+                    ]"
+                    required
+                    v-model="selectedParameters.time_scale"
+                  ></v-text-field>
+                </v-col>
+              </v-row>  
+            </div>
+
             <div>
-              <v-btn color="primary" @click="runScript()" v-bind:disabled="btnDisabled">Run Script</v-btn>
+              <v-btn color="primary" @click="runScript()" v-bind:disabled="btnDisabled">
+                {{ isBenchmarkSelected == 'yes' ? 'RUN SCRIPT' : 'START MONITORING' }}
+              </v-btn>
               <v-btn
                 color="primary"
                 @click="clearScriptArgs()"
@@ -256,6 +300,17 @@ import apiRegister from "../../services/api-register";
   name: "auto-perf-dashboard"
 })
 export default class AutoPerfDashboard extends Vue {
+  public isBenchmarkSelected: string = "yes";   // Select Benchmark Option "yes or no"
+
+  public resetIsBenchmarkSelected(){
+    if(this.isBenchmarkSelected == "yes"){
+      this.selectedParameters.time_scale = null
+    }else{
+      this.selectedParameters.benchmark = "";
+      this.selectedParameters.configuration = ""
+    }
+  }
+
   public defaultParameters: any = {
     benchmarks: [],
     operations: [],
@@ -276,7 +331,8 @@ export default class AutoPerfDashboard extends Vue {
     secondary_server: null,
     sampling: "",
     client_password: "",
-    server_password: ""
+    server_password: "",
+    time_scale: null
   };
 
   public disableForm: boolean = true;
@@ -370,7 +426,8 @@ export default class AutoPerfDashboard extends Vue {
         client: this.selectedParameters.client.join(","),
         primary_server: this.selectedParameters.primary_server.join(","),
         sampling: this.selectedParameters.sampling,
-        server_password: this.selectedParameters.server_password
+        server_password: this.selectedParameters.server_password,
+        time_scale: +this.selectedParameters.time_scale
       };
       if (scriptArgs.benchmark === "cosbench") {
         scriptArgs.operation = this.selectedParameters.operation;
@@ -406,30 +463,39 @@ export default class AutoPerfDashboard extends Vue {
     this.selectedParameters.sampling = "";
     this.selectedParameters.client_password = "";
     this.selectedParameters.server_password = "";
+    this.selectedParameters.time_scale = null;
   }
 
   get btnDisabled() {
     let isValidBenchmark = false;
-    if (this.selectedParameters.benchmark) {
-      isValidBenchmark = true;
-      if (this.selectedParameters.benchmark === "cosbench") {
-        if (!this.selectedParameters.operation) {
-          isValidBenchmark = false;
+    if (this.isBenchmarkSelected === "yes") {
+        if (this.selectedParameters.benchmark) {
+          isValidBenchmark = true;
+          if (this.selectedParameters.benchmark === "cosbench") {
+            if (!this.selectedParameters.operation) {
+              isValidBenchmark = false;
+            }
+          }
+          if (this.selectedParameters.benchmark === "fio") {
+            if (!this.selectedParameters.template) {
+              isValidBenchmark = false;
+            }
+          }
         }
+      } else {
+          if (this.selectedParameters.time_scale) {
+              isValidBenchmark = true;
+              console.log('printed', this.selectedParameters.time_scale);
+            }
       }
-      if (this.selectedParameters.benchmark === "fio") {
-        if (!this.selectedParameters.template) {
-          isValidBenchmark = false;
-        }
-      }
-    }
 
     return !(
       isValidBenchmark &&
       this.selectedParameters.configuration &&
       this.selectedParameters.client &&
       this.selectedParameters.primary_server &&
-      this.selectedParameters.sampling
+      this.selectedParameters.sampling ||
+      this.selectedParameters.time_scale
     );
   }
 

@@ -70,7 +70,7 @@ class ScriptExecutionService {
         if (script_args.benchmark === 'fio') {
             scriptArgsJSONObj["TEMPLATE"] = script_args.template;
         }
-        const cmdString = "ansible-playbook -i hosts main.yml --extra-vars '" + JSON.stringify(scriptArgsJSONObj) + "' -v";
+        const cmdString = "ansible-playbook -i hosts deploy_autoperf.yml --extra-vars '" + JSON.stringify(scriptArgsJSONObj) + "' -v";
 
         try {
             const scriptExec = {

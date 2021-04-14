@@ -1,5 +1,4 @@
 <template>
-  <!-- 14-apr -->
   <div class="dashboard-padding">
     <v-row>
       <v-col col="12" md="3" sm="5">
@@ -485,7 +484,6 @@ export default class AutoPerfDashboard extends Vue {
       } else {
           if (this.selectedParameters.time_scale) {
               isValidBenchmark = true;
-              console.log('printed', this.selectedParameters.time_scale);
             }
       }
 

@@ -12,9 +12,7 @@ PERFLINE_DIR="$SCRIPT_DIR/../"
 STAT_DIR="$SCRIPT_DIR/../stat"
 BUILD_DEPLOY_DIR="$SCRIPT_DIR/../../build_deploy"
 STAT_COLLECTION=""
-# NODES="ssc-vm-c-1042.colo.seagate.com,ssc-vm-c-1043.colo.seagate.com"
-# EX_SRV="pdsh -S -w $NODES"
-# HA_TYPE="hare"
+
 MKFS=
 PERF_RESULTS_FILE='perf_results'
 CLIENT_ARTIFACTS_DIR='client'
@@ -340,7 +338,6 @@ function save_m0crate_artifacts()
 
     $EX_SRV "scp -r $m0crate_workdir/m0crate.*.log $(hostname):$(pwd)"
     $EX_SRV "scp -r $m0crate_workdir/test_io.*.yaml $(hostname):$(pwd)"
-    $EX_SRV "scp -r $m0crate_workdir/m0trace.* $(hostname):$(pwd)"
 
     if [[ -n $ADDB_STOBS ]]; then
         $EX_SRV $SCRIPT_DIR/process_addb --host $(hostname) --dir $(pwd) \
@@ -348,7 +345,11 @@ function save_m0crate_artifacts()
             --start $START_TIME --stop $STOP_TIME
     fi
 
-   $EX_SRV "rm -rf $m0crate_workdir"
+    if [[ -n $M0TRACE_FILES ]]; then
+        $EX_SRV $SCRIPT_DIR/save_m0traces $(hostname) $(pwd) "m0crate" "$m0crate_workdir"
+    fi
+
+    $EX_SRV "rm -rf $m0crate_workdir"
 }
 
 function save_stats() {

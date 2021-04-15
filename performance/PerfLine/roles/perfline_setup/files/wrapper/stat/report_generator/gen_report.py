@@ -291,6 +291,35 @@ def parse_dstat_info(nodes_stat_dirs):
     return dstat_net_info
 
 
+def parse_addb_timelines(addb_stat_dir):
+    result = []
+
+    if isdir(addb_stat_dir):
+
+        for op in ('Put', 'Get'):
+
+            tmp_res = {'op_name': op}
+
+            timelines_imgs = sorted([f for f in listdir(addb_stat_dir) if f.startswith('s3_timeline_') and op in f])
+
+            def parse_timeline_name(fname):
+                tmp = fname.split('.')[-2].split('_')
+                info = {'workload_part': tmp[2], 'op': tmp[3],
+                        'pid': tmp[4], 'id': tmp[5], 'fname': fname}
+
+                fname_template = fname.replace('s3', '').replace('.png', '')
+                subreqs_timelines = sorted([f for f in listdir(addb_stat_dir) if f.startswith('motr_timeline_') and fname_template in f])
+                info['subrequests'] = subreqs_timelines
+                return info
+
+            timelines_imgs = list(map(parse_timeline_name, timelines_imgs))
+            tmp_res['imgs'] = timelines_imgs
+            result.append(tmp_res)
+
+
+    return result
+
+
 def parse_addb_info(addb_stat_dir):
     if isdir(addb_stat_dir):
         queues_imgs = [f for f in listdir(addb_stat_dir) if f.startswith('queues_')]
@@ -390,6 +419,7 @@ def main():
 
     # Images for addb queues
     addb_queues, addb_hists = parse_addb_info(addb_stat_dir)
+    timelines_imgs = parse_addb_timelines(addb_stat_dir)
 
     with open(join(report_gen_dir, 'templates/home.html'), 'r') as home:
         home_template = home.read()
@@ -428,6 +458,7 @@ def main():
             blktrace_imgs=blktrace_imgs,
             addb_queues=addb_queues,
             addb_hists=addb_hists,
+            timelines_imgs=timelines_imgs,
             task_id=task_id
         ))
 

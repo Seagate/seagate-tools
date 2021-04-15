@@ -31,6 +31,7 @@ function main()
     check_params
     generate_queue_imgs
     generate_histogram_imgs
+    generate_timeline_imgs
 }
 
 function check_params()
@@ -58,6 +59,44 @@ function generate_histogram_imgs()
 {
     echo "generating histograms..."
     python3 $TOOLS_DIR/system_hist.py -s --db $M0PLAY_DB || true
+}
+
+function parse_val()
+{
+    local param_name="$1"
+    local data_str="$2"
+    local result=$(echo "$data_str" | grep -E -o "${param_name}:\S+" | sed "s/${param_name}://")
+    echo $result
+}
+
+function generate_timeline_imgs()
+{
+    echo "generating timelines..."
+
+    set +e
+
+    $SCRIPT_DIR/req_browser.py $M0PLAY_DB | while read line; do
+        local fields_nr=$(echo "$line" | awk '{print NF}')
+        local workload_part=$(parse_val "time" "$line")
+        local req_type=$(parse_val "s3_op" "$line")
+        local pid=$(parse_val "s3_pid" "$line")
+        local req_id=$(parse_val "s3_reqid" "$line")
+
+        local filename="timeline_${workload_part}_${req_type}_${pid}_${req_id}"
+
+        if [[ "$fields_nr" -gt "4" ]]; then
+            local motr_req_pid=$(parse_val "cli_pid" "$line")
+            local motr_req_id=$(parse_val "cli_reqid" "$line")
+
+            filename="motr_${filename}_${motr_req_pid}_${motr_req_id}"
+            $TOOLS_DIR/req_timelines.py --db $M0PLAY_DB --pid $motr_req_pid --depth 5 --no-window --output-file $filename $motr_req_id
+        else
+            filename="s3_${filename}"
+            $TOOLS_DIR/req_timelines.py --db $M0PLAY_DB --pid $pid --depth 1 --no-window --output-file $filename $req_id
+        fi
+    done
+
+    set -e
 }
 
 parse_params()

@@ -18,3 +18,31 @@
     
 </div>
 {% endif %}
+
+{% for ti in timelines_imgs %}
+
+    {% if ti.imgs %}
+
+    <h2 align=center>ADDB Cortx S3 {{ti.op_name}} timelines</h2>
+    <div class="row">
+    
+        {% for img in ti.imgs %}
+        <h4>{{img.workload_part}}% workload, pid: {{img.pid}}, id: {{img.id}}</h4><br>
+        <img src="/report/{{task_id}}/addb_imgs/{{img.fname}}" alt="S3 PUT req">
+
+        <details>
+            <summary>Expand subrequests ({{img.op}}, pid: {{img.pid}}, id:{{img.id}})</summary>
+
+            {% for subreq_img in img.subrequests %}
+            <img src="/report/{{task_id}}/addb_imgs/{{subreq_img}}" alt="Motr req">
+            {% endfor %}
+
+        </details>
+
+
+        {% endfor %}
+    
+    </div>
+    {% endif %}
+{% endfor %}
+

@@ -1,7 +1,6 @@
 ---
- - name: Updating hosts files
-   script: files/update_hosts.sh {{ NODE1 }} {{ NODE2 }} {{ CLIENT }}
-
+ 
+ 
  - meta: refresh_inventory
 
  - name: Refreshing "known hosts"

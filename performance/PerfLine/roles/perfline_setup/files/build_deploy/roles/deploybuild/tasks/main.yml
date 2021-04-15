@@ -9,7 +9,7 @@
   - name: "Update inventory"
     replace:
      path: "{{ playbook_dir }}/hosts"
-     regexp: "#build-server ansible_host=.*"
+     regexp: ".*build-server ansible_host=.*"
      replace: "build-server ansible_host={{ build_machine }}"
      
   - meta: refresh_inventory 
@@ -52,6 +52,8 @@
   - name: "Login to GitHub Docker Registry"
     shell: echo {{ github_PAT }} | docker login ghcr.io -u {{ github_username }} --password-stdin
     delegate_to: "build-server"
+    when: (github_PAT != "") and (github_username != "")
+    register: gituser
 
   - name: "Git clone custom repo"
     shell: cd /root/cortx/; git clone {{ motr_repo_path }}; git clone {{ hare_repo_path }}; git clone {{ s3server_repo_path }}
@@ -76,7 +78,6 @@
     when: s3server_commit_id != ""
     ignore_errors: true
 
-
   - name: "Creating new Build location"
     file:
        path: /var/artifacts
@@ -84,9 +85,15 @@
        mode: '0755'
     delegate_to: "build-server"
 
-  - name: "Generating new build using docker services"
+  - name: "Generating new build using internal docker services"
     shell: time docker run --rm -v /var/artifacts:/var/artifacts -v /root/cortx:/cortx-workspace ghcr.io/seagate/cortx-re/cortx-build-internal:centos-7.8.2003 make clean io-path 
     delegate_to: "build-server"
+    when: gituser is changed
+
+  - name: "Generating new build using external docker services"
+    shell: time docker run --rm -v /var/artifacts:/var/artifacts -v /root/cortx:/cortx-workspace ghcr.io/seagate/cortx-build:centos-7.8.2003 make clean io-path
+    delegate_to: "build-server"
+    when: gituser is skipped
   
   - name: "Archive New build rpm packages"
     archive: 

@@ -1,0 +1,28 @@
+---
+  - name: "Creating artifacts directory /var/perfline"
+    file:
+      path: /var/perfline
+      state: directory
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['all'] }}"
+
+  - name: "Creating perfline directory /root/perfline"
+    file:
+      path: /root/perfline
+      state: directory
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['all'] }}"
+
+  - name: "Compress directory files/wrapper into files/wrapper.tar.gz"
+    archive:
+      path: "{{ role_path }}/files/wrapper"
+      dest: "{{ role_path }}/files/wrapper.tar.gz"
+
+
+  - name: "Copy perfline wrapper scripts"
+    unarchive:
+      src: "{{ role_path }}/files/wrapper.tar.gz"
+      dest: "{{ perfline_dir }}"
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['all'] }}"
+

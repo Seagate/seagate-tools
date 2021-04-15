@@ -10,3 +10,15 @@
     
 </div>
 {% endif %}
+{% if addb_hists %}
+<h2 align=center>ADDB Cortx histograms</h2>
+<div class="row">
+    
+    {% for img in addb_hists %}
+        <!-- <div class="column"> -->
+        <img src="/report/{{task_id}}/addb_imgs/{{img}}" alt="ADDB hists">
+        <!-- </div> -->
+    {% endfor %}
+    
+</div>
+{% endif %}

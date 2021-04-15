@@ -198,7 +198,6 @@ def parse_report_info(report_dir):
         m0crate_logs = [f for f in listdir(
             m0crate_dir) if isfile(join(m0crate_dir, f)) and f.endswith('.log')]
 
-        
         for m0crate_log in m0crate_logs:
             m0crate_log_path = join(m0crate_dir, m0crate_log)
             m0crate_rw_stats[m0crate_log] = m0crate_log_parser.parse_m0crate_log(m0crate_log_path)
@@ -289,10 +288,12 @@ def parse_dstat_info(nodes_stat_dirs):
 def parse_addb_info(addb_stat_dir):
     if isdir(addb_stat_dir):
         queues_imgs = [f for f in listdir(addb_stat_dir) if f.startswith('queues_')]
+        hist_imgs = [f for f in listdir(addb_stat_dir) if '_histograms' in f]
     else:
         queues_imgs = []
+        hist_imgs = []
 
-    return queues_imgs
+    return queues_imgs, hist_imgs
 
 
 def main():
@@ -350,7 +351,7 @@ def main():
     dstat_net_info = parse_dstat_info(nodes_stat_dirs)
 
     # Images for addb queues
-    addb_queues = parse_addb_info(addb_stat_dir)
+    addb_queues, addb_hists = parse_addb_info(addb_stat_dir)
 
     with open(join(report_gen_dir, 'templates/home.html'), 'r') as home:
         home_template = home.read()
@@ -387,6 +388,7 @@ def main():
             node_amount=node_amount,
             iostat_det_imgs=iostat_det_imgs,
             addb_queues=addb_queues,
+            addb_hists=addb_hists,
             task_id=task_id
         ))
 

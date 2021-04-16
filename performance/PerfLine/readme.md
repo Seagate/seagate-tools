@@ -1,6 +1,6 @@
 
 # Perfline
-This is perfline module that allows to run cortx-motr workloads.
+This is perfline module that allows to run cortx workloads.
 It consists of three modules:
 - wrapper - main functionality, report generator, statistic gather scripts
 - webui - web server for presenting workload result and controlling over new workloads

@@ -47,6 +47,9 @@ def get_schema_motr():
             'type': 'dict',
             'required': False,
             'schema': {
+                'github_PAT': {'type': 'string', 'empty': False},
+                'github_username': {'type': 'string', 'empty': False},
+                'build_machine': {'type': 'string', 'empty': False},
                 'motr_repo_path': {'type': 'string', 'empty': False},
                 'hare_repo_path': {'type': 'string', 'empty': False},
                 's3server_repo_path': {'type': 'string', 'empty': False},

@@ -41,6 +41,12 @@ def parse_options(conf, result_dir):
     
     if 'custom_build' in conf:
        options.append('--deploybuild')
+       options.append('-token')
+       options.append(conf['custom_build']['github_PAT'])
+       options.append('-github_user')
+       options.append(conf['custom_build']['github_username'])
+       options.append('-build_machine')
+       options.append(conf['custom_build']['build_machine'])
        options.append('-motr_repo')
        options.append(conf['custom_build']['motr_repo_path'])
        options.append('-hare_repo')

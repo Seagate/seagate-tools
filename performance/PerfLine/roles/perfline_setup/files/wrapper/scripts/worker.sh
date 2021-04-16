@@ -12,9 +12,7 @@ PERFLINE_DIR="$SCRIPT_DIR/../"
 STAT_DIR="$SCRIPT_DIR/../stat"
 BUILD_DEPLOY_DIR="$SCRIPT_DIR/../../build_deploy"
 STAT_COLLECTION=""
-# NODES="ssc-vm-c-1042.colo.seagate.com,ssc-vm-c-1043.colo.seagate.com"
-# EX_SRV="pdsh -S -w $NODES"
-# HA_TYPE="hare"
+
 MKFS=
 PERF_RESULTS_FILE='perf_results'
 CLIENT_ARTIFACTS_DIR='client'
@@ -50,8 +48,9 @@ function validate() {
 function build_deploy() {
     pushd $BUILD_DEPLOY_DIR
     ansible-playbook -i hosts run_build_deploy.yml --extra-vars "motr_repo_path=$MOTR_REPO \
-hare_repo_path=$HARE_REPO s3server_repo_path=$S3SERVER_REPO hare_commit_id=$HARE_COMMIT_ID \
-motr_commit_id=$MOTR_COMMIT_ID s3server_commit_id=$S3SERVER_COMMIT_ID" -v
+    hare_repo_path=$HARE_REPO s3server_repo_path=$S3SERVER_REPO hare_commit_id=$HARE_COMMIT_ID \
+    motr_commit_id=$MOTR_COMMIT_ID s3server_commit_id=$S3SERVER_COMMIT_ID github_PAT=$GITHUB_PAT \
+    github_username=$GITHUB_USER build_machine=$BUILD_MACHINE" -v
     popd
 }
 
@@ -327,7 +326,6 @@ function save_m0crate_artifacts()
 
     $EX_SRV "scp -r $m0crate_workdir/m0crate.*.log $(hostname):$(pwd)"
     $EX_SRV "scp -r $m0crate_workdir/test_io.*.yaml $(hostname):$(pwd)"
-    $EX_SRV "scp -r $m0crate_workdir/m0trace.* $(hostname):$(pwd)"
 
     if [[ -n $ADDB_DUMPS ]]; then
         $EX_SRV $SCRIPT_DIR/process_addb --host $(hostname) --dir $(pwd) \
@@ -335,7 +333,11 @@ function save_m0crate_artifacts()
             --start $START_TIME --stop $STOP_TIME
     fi
 
-   $EX_SRV "rm -rf $m0crate_workdir"
+    if [[ -n $M0TRACE_FILES ]]; then
+        $EX_SRV $SCRIPT_DIR/save_m0traces $(hostname) $(pwd) "m0crate" "$m0crate_workdir"
+    fi
+
+    $EX_SRV "rm -rf $m0crate_workdir"
 }
 
 function save_stats() {
@@ -598,6 +600,18 @@ while [[ $# -gt 0 ]]; do
             ;;
         --deploybuild)
             BUILD_DEPLOY="1"
+            ;;
+        -token)
+            GITHUB_PAT=$2
+            shift
+            ;;
+        -github_user)
+            GITHUB_USER=$2
+            shift
+            ;;
+        -build_machine)
+            BUILD_MACHINE=$2
+            shift
             ;;
         -motr_repo)
             MOTR_REPO=$2

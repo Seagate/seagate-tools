@@ -33,11 +33,8 @@ def tq_task_common_get(elem, r):
     elem["user"] = info['info']['conf']['common']['user'].\
         replace("@seagate.com", "")
 
-    elem['workload'] = info['info']['conf']['workload']
-
-    elem['benchmark'] = info['info']['conf']['benchmark']
-    elem['parameters'] = info['info']['conf']['parameter']
-    elem['m0crate_params'] = info['info']['conf']['m0crate_params']
+    if 'benchmarks' in info['info']['conf']:
+        elem['benchmarks'] = info['info']['conf']['benchmarks']
 
     fmt = '%Y-%m-%d %H:%M:%S.%f'
     hms = '%Y-%m-%d %H:%M:%S'

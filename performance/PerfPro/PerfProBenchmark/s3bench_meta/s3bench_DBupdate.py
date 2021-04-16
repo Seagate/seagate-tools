@@ -33,6 +33,9 @@ configs_config= makeconfig(Config_path)
 build_url=configs_config.get('BUILD_URL')
 nodes_list=configs_config.get('NODES')
 clients_list=configs_config.get('CLIENTS')
+pc_full=configs_config.get('PC_FULL')
+overwrite=configs_config.get('OVERWRITE')
+iteration=configs_config.get('ITERATION')
 
 nodes_num=len(nodes_list)
 clients_num=len(clients_list)
@@ -53,7 +56,7 @@ def get_release_info(variable):
 
 class s3bench:
 
-    def __init__(self, Log_File, Operation, IOPS, Throughput, Latency, TTFB, Object_Size,Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID):
+    def __init__(self, Log_File, Operation, IOPS, Throughput, Latency, TTFB, Object_Size,Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID,PKey,overwrite):
         self.Log_File = Log_File
         self.Operation = Operation
         self.IOPS = IOPS
@@ -70,37 +73,52 @@ class s3bench:
         self.col = col
         self.Config_ID = Config_ID
         self.Timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.PKey = PKey
+        self.overwrite = overwrite
 
 
     def insert_update(self):# function for inserting and updating mongodb database
+        db = makeconnection()
         action= "Updated"
+        insertentry={} 
+        collection = db[self.col]
         try:
-            pattern = {"Name" : "S3bench","Operation":self.Operation,"Object_Size" : self.Object_Size,"Build" : self.Build,"Version":self.Version,"Branch" : self.Branch ,"OS" : self.OS , "Count_of_Servers": self.nodes_num, "Count_of_Clients": self.clients_num}
-            count_documents= self.col.count_documents(pattern)
+            pattern = {"PKey" : self.PKey}
+            count_documents= collection.count_documents(pattern)
             if count_documents == 0:
-                self.col.insert_one(pattern)
+                insertentry={"NAME" : "S3bench" , "Log_File" : self.Log_File,"IOPS" : self.IOPS,"Throughput" : self.Throughput,"Latency": self.Latency,"TTFB" : self.TTFB,"Timestamp":self.Timestamp, "Config_ID":self.Config_ID,"HOST" : socket.gethostname(), "Operation" : self.Operation , "Object_Size" : self.Object_Size ,"Build" : self.Build , "Version" : self.Version , "Branch" : self.Branch , "OS" : self.OS , "Number_of_Server_Nodes": self.nodes_num , "Number_of_Clients" : self.clients_num , "PKey" : self.PKey  }
+                collection.insert_one(insertentry)
                 action = "Inserted"
-            entry = {"Log_File" : self.Log_File,"IOPS" : self.IOPS,"Throughput" : self.Throughput,"Latency": self.Latency,"TTFB" : self.TTFB,"Timestamp":self.Timestamp, "Config_ID":self.Config_ID,"HOST" : socket.gethostname()}
-            self.col.update_one(pattern, { "$set": entry})
+            elif self.overwrite == True : 
+                insertentry = {"Log_File" : self.Log_File,"IOPS" : self.IOPS,"Throughput" : self.Throughput,"Latency": self.Latency,"TTFB" : self.TTFB,"Timestamp":self.Timestamp, "Config_ID":self.Config_ID,"HOST" : socket.gethostname()}
+                collection.update_one(pattern, { "$set": insertentry})
+                action = "Updated"
+            else:
+                print("'Overwrite' is false in config. Hence, DB not updated")
+                action = "Not Updated"
         except Exception as e:
             print("Unable to insert/update documents into database. Observed following exception:")
             print(e)
         else:
-            print('Data {} :: {} {}\n'.format(action,pattern,entry))
+            print('Data {} :: {} {}\n'.format(action,pattern,insertentry))
 
+           
 
 
 def insertOperations(file,Build,Version,col,Config_ID,Branch,OS):   #function for retriving required data from log files
     _, filename = os.path.split(file)
-    global nodes_num, clients_num
+    global nodes_num, clients_num , pc_full, iteration , overwrite
     oplist = ["Write" , "Read" , "GetObjTag", "HeadObj" , "PutObjTag"]
     Objsize= 1
     obj = "NA"
- 
+    sessions=1
     f = open(file)
     lines = f.readlines()[-150:]
     count=0
     while count<150:
+        if "numClients:" in lines[count].strip().replace(" ", ""):
+            r=lines[count].strip().replace(" ", "").split(":")
+            sessions=r[1]
         if "objectSize(MB):" in lines[count].strip().replace(" ", ""):
             r=lines[count].strip().replace(" ", "").split(":")
             Objsize = float(r[1])
@@ -123,7 +141,8 @@ def insertOperations(file,Build,Version,col,Config_ID,Branch,OS):   #function fo
                     throughput = round(throughput,6)
                 lat={"Max":float(lines[count+4].split(":")[1]),"Avg":float(lines[count+5].split(":")[1]),"Min":float(lines[count+6].split(":")[1])}
                 ttfb={"Max":float(lines[count+7].split(":")[1]),"Avg":float(lines[count+8].split(":")[1]),"Min":float(lines[count+9].split(":")[1])}
-                data = s3bench(filename,opname,iops,throughput,lat,ttfb,obj,Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID)
+                PKey=Version[0]+'_'+Branch[0].upper()+'_'+Build+'_ITR'+str(iteration)+'_'+str(nodes_num)+'N_'+str(clients_num)+'C_'+str(pc_full)+'PC_S3B_'+str(obj)+'_1_'+opname[0].upper()+'_'+sessions
+                data = s3bench(filename,opname,iops,throughput,lat,ttfb,obj,Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID,PKey,overwrite)
                 data.insert_update()
                 count += 9
         count +=1
@@ -201,23 +220,28 @@ def main(argv):
     db = makeconnection() #getting instance of database
 
     Build=get_release_info('BUILD')
+    Build=Build[1:-1]    
     Version=get_release_info('VERSION')
+    Version=Version[1:-1]
     Branch=get_release_info('BRANCH')    
+    Branch=Branch[1:-1]
     OS=get_release_info('OS')
+    OS=OS[1:-1]
 
     #col_config = db[configs_main['config_collection']]
-    col_config='configurations_'+Version[1]
+    col_config='configurations_'+Version[0]
     dic = getconfig()
     Config_ID = "NA"
+    result = db[col_config].find_one(dic)    
     if result:
         Config_ID = result['_id'] # foreign key : it will map entry in configurations to results entry
     
     #col=db[configs_main['db_collection']]
-    col='results_'+Version[1]
+    col='results_'+Version[0]
 
     for f in files:
         insertOperations(f,Build,Version,col,Config_ID,Branch,OS)
-    update_mega_chain(Build,Version, col)
+    #update_mega_chain(Build,Version, col)
 
 if __name__=="__main__":
     main(sys.argv) 

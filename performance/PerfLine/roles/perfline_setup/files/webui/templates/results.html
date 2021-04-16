@@ -24,7 +24,6 @@
       <th>time</th>
 	  <th>info</th>
 	  <th>workload</th>
-	  <th>params</th>
       <th>perf result</th>
       <th>artifacts</th>
     </tr>
@@ -58,39 +57,23 @@
 	<!-- benchmark -->
 	<td>
 		<table>
-			<tr ng-repeat="(key,val) in row.workload">
+			<tr ng-repeat="bench in row.benchmarks">
 				<td>
-				  <u>custom workload:</u> <b>{{val.cmd}}</b>
-				</td>
-			  </tr>
-			<tr ng-repeat="(key,val) in row.benchmark">
-				<td ng-if="val">
-					<u>benchmark:</u> <b>{{key}}</b>
+					<table ng-repeat="(b_name, b_params) in bench">
+						<tr>
+							<th>{{b_name}}:</th>
+						</tr>
+						<tr ng-repeat="(p_name, p_val) in b_params">
+							<td>{{p_name}}:</td>
+							<td>{{p_val}}</td>
+						</tr>
+
+					</table>
 				</td>
 			</tr>
 		</table>
 	</td>
 	<!-- benchmark end -->
-
-	<!-- params -->
-	<td>
-		<table ng-if="row.benchmark.s3bench">
-			<tr ng-repeat="(key,val) in row.parameters">
-				<td>
-					<u>{{key}}:</u> <b>{{val}}</b>
-				</td>
-			</tr>
-		</table>
-
-		<table ng-if="row.benchmark.m0crate">
-			<tr ng-repeat="(key,val) in row.m0crate_params">
-				<td>
-					<u>{{key}}:</u> <b>{{val}}</b>
-				</td>
-			</tr>
-		</table>
-	</td>
-	<!-- params end -->
 
 	<!-- perf metrics -->
 	<td>

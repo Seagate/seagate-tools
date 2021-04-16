@@ -39,7 +39,7 @@ def parse_options(conf, result_dir):
     options.append('--ha_type')
     options.append(config.ha_type)
     
-    if conf['custom_build']['deploybuild']:
+    if 'custom_build' in conf:
        options.append('--deploybuild')
        options.append('-token')
        options.append(conf['custom_build']['github_PAT'])
@@ -60,10 +60,6 @@ def parse_options(conf, result_dir):
        options.append('-s3server_commit_id')
        options.append(conf['custom_build']['s3server_commit_id'])
 
-    for w in conf['workload']:
-        options.append('-w')
-        options.append(w['cmd'])
-
     # Stats collection
     if conf['stats_collection']['iostat']:
         options.append('--iostat')
@@ -74,57 +70,52 @@ def parse_options(conf, result_dir):
     if conf['stats_collection']['glances']:
         options.append('--glances')
 
-    # Benchmark
-    if conf['benchmark']['fio']: 
-        options.append('--fio')  
-        # Fio Parameter
-        options.append('-t')
-        options.append(conf['fio_parameter']['Duration'])
-        options.append('-bs')
-        options.append(conf['fio_parameter']['BlockSize'])
-        options.append('-nj')
-        options.append(conf['fio_parameter']['NumJobs'])
-        options.append('-tm')
-        options.append(conf['fio_parameter']['Template'])
 
-    if conf['benchmark']['m0crate']:
-        options.append('--m0crate')
-
-        if conf['m0crate_params']:
+    # Benchmarks
+    for b in conf['benchmarks']:
+        if 'fio' in b:
+            options.append('--fio')
+            # Fio Parameter
+            options.append('-t')
+            options.append(b['fio']['Duration'])
+            options.append('-bs')
+            options.append(b['fio']['BlockSize'])
+            options.append('-nj')
+            options.append(b['fio']['NumJobs'])
+            options.append('-tm')
+            options.append(b['fio']['Template'])
+        elif 's3bench' in b:
+            options.append('--s3bench')
+            # Parameter
+            options.append('-bucket')
+            options.append(b['s3bench']['BucketName'])
+            options.append('-clients')
+            options.append(b['s3bench']['NumClients'])
+            options.append('-sample')
+            options.append(b['s3bench']['NumSample'])
+            options.append('-size')
+            options.append(b['s3bench']['ObjSize'])
+            options.append('-endpoint')
+            options.append(b['s3bench']['EndPoint'])
+        elif 'm0crate' in b:
+            options.append('--m0crate')
             params_str = ''
-            for param_name, param_val in conf['m0crate_params'].items():
+            for param_name, param_val in b['m0crate'].items():
                 params_str += "{}={} ".format(param_name, param_val)
             options.append('--m0crate-params')
             options.append(params_str)
+        elif 'custom' in b:
+            options.append('-w')
+            options.append(b['custom']['cmd'])
 
-    if conf['benchmark']['s3bench']:
-        options.append('--s3bench')
-    
-        # Parameter
-        options.append('-bucket')
-        options.append(conf['parameter']['BucketName'])
-        options.append('-clients')
-        options.append(conf['parameter']['NumClients'])
-        options.append('-sample')
-        options.append(conf['parameter']['NumSample'])
-        options.append('-size')
-        options.append(conf['parameter']['ObjSize'])
-        options.append('-endpoint')
-        options.append(conf['parameter']['EndPoint'])
     # Execution options:
     if 'mkfs' in conf['execution_options']:
         if conf['execution_options']['mkfs']:
             options.append("--mkfs")
-    if conf['execution_options']['m0trace_files']:
+    if conf['execution_options']['m0trace']:
         options.append("--m0trace-files")
-    if conf['execution_options']['m0trace_dumps']:
-        options.append("--m0trace-dumps")
-    if conf['execution_options']['addb_stobs']:
-        options.append("--addb-stobs")
-    if conf['execution_options']['addb_dumps']:
+    if conf['execution_options']['addb']:
         options.append("--addb-dumps")
-    if conf['execution_options']['m0play_db']:
-        options.append("--m0play-db")
 
     print(options)
     return options

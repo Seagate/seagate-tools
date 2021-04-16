@@ -103,7 +103,7 @@ Workload can be started only from client_node machine
 For starting workload on a cluster you need to run tasks, which describing amount/size of files you want to upload/download and how many clients will perform load.
 You can find examples of such tasks at `/root/perfline/wrapper/workload`
 After you choose/wrote task description, you need to `# cd /root/perfline/wrapper` and than run task with:
-`# python3 perfline.py  -a < workload/<example>.yaml`
+`# ./perfline.py  -a < workload/<example>.yaml`
 or
 `# python3 perfline.py  -a < workload/<example>.yaml`
 

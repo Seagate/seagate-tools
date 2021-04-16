@@ -299,6 +299,34 @@ def parse_addb_info(addb_stat_dir):
 
     return queues_imgs
 
+def detect_iostat_imgs(nodes_stat_dirs):
+    iostat_img_types = set()
+
+    for n_path in nodes_stat_dirs:
+        n_path_iostat = join(n_path, 'iostat')
+
+        if isdir(n_path_iostat):
+            for f in listdir(n_path_iostat):
+                if isfile(join(n_path_iostat, f)) and f.endswith('.png'):
+                    f = f.replace('iostat.','').replace('.png','')
+                    iostat_img_types.add(f)
+
+    return sorted(iostat_img_types)
+
+
+def detect_blktrace_imgs(nodes_stat_dirs):
+    blktrace_img_types = set()
+
+    for n_path in nodes_stat_dirs:
+        n_path_blktrace = join(n_path, 'blktrace')
+
+        if isdir(n_path_blktrace):
+            for f in listdir(n_path_blktrace):
+                if isfile(join(n_path_blktrace, f)) and 'node' in f and 'aggregated' in f:
+                    blktrace_img_types.add('aggregated')
+
+    return sorted(blktrace_img_types)
+
 
 def main():
     report_gen_dir = sys.argv[2]
@@ -324,8 +352,12 @@ def main():
     # Static info
     node_names = [node_path.split('/')[-1] for node_path in nodes_stat_dirs]
     node_amount = len(nodes_stat_dirs)
-    iostat_det_imgs = ['io_rqm', 'svctm', 'iops', 'await', '%util',
-                       'avgqu-sz', 'avgrq-sz', 'io_transfer']
+
+    # Iostat images
+    iostat_imgs = detect_iostat_imgs(nodes_stat_dirs)
+
+    # Blktrace images
+    blktrace_imgs = detect_blktrace_imgs(nodes_stat_dirs)
 
     # Time
     workload_start_time, workload_stop_time, test_start_time, test_stop_time = parse_time(
@@ -390,7 +422,8 @@ def main():
             test_start_time=test_start_time,
             test_stop_time=test_stop_time,
             node_amount=node_amount,
-            iostat_det_imgs=iostat_det_imgs,
+            iostat_imgs=iostat_imgs,
+            blktrace_imgs=blktrace_imgs,
             addb_queues=addb_queues,
             task_id=task_id
         ))

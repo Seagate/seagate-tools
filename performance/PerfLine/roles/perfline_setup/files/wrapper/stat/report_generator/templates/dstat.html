@@ -1,3 +1,5 @@
+{% if dstat_net_info %}
+
 <h2 align=center>DSTAT plots </h2>
 {% for label in dstat_net_info %}
     <div class="row">
@@ -9,3 +11,5 @@
         {% endfor %}
     </div>
 {% endfor %}
+
+{% endif %}

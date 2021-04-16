@@ -56,34 +56,58 @@ Custom build:
 
 For ex:
 ```
-  common:
+common:
   version: 1
-  description: Perf benchmark - s3bench, size=, clients=, num=
+  description: Perf benchmark example
   priority: 1
   batch_id: null
   user: user@seagate.com
   send_email: false
+  
+# Optional section. It may be deleted in case you don't want
+# to build/deploy custom version of Cortx components
+custom_build:
+  github_PAT:
+  github_username:
+  build_machine:                     # Build Anywhere (it could be client, any one cortx cluster server or VM)
+  motr_repo_path: ""
+  hare_repo_path: ""
+  s3server_repo_path: ""
+  hare_commit_id: ""
+  motr_commit_id: ""
+  s3server_commit_id: ""
 
-workload:
-  - cmd: sleep 1
-
-benchmark:
-  fio: false
-  s3bench: True
-
-parameter:
-  BucketName: seagate-b1
-  NumClients: 128
-  NumSample: 2048
-  ObjSize: 128Mb
+stats_collection:
+  iostat: true
+  dstat: true
+  blktrace: true
+  glances: false
+  
+# List of benchmarks and parameters. This section must include
+# at least one benchmark (custom/fio/s3bench/m0crate).
+benchmarks:
+  - custom:
+      cmd: sleep 1
+  - fio:
+      Duration:
+      BlockSize:
+      NumJobs:
+      Template:         #Template for fio like seq_read_fio, seq_write_fio, randmix_80-20_fio, randmix_20-80_fio and rand_fio
+  - s3bench:
+      BucketName: mybucket
+      NumClients: 10
+      NumSample: 100
+      ObjSize: 32Mb
+      EndPoint: https://s3.seagate.com
+  - m0crate:
+      NR_THREADS: 2
+      BLOCK_SIZE: 2m
+      IOSIZE: 4m
 
 execution_options:
   mkfs: false
-  no_m0trace_files: true
-  no_m0trace_dumps: true
-  no_addb_stobs: true
-  no_addb_dumps: true
-  no_m0play_db: true
+  m0trace: false
+  addb: false
 ```
 
 # Starting workload

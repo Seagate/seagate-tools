@@ -294,10 +294,12 @@ def parse_dstat_info(nodes_stat_dirs):
 def parse_addb_info(addb_stat_dir):
     if isdir(addb_stat_dir):
         queues_imgs = [f for f in listdir(addb_stat_dir) if f.startswith('queues_')]
+        hist_imgs = [f for f in listdir(addb_stat_dir) if '_histograms' in f]
     else:
         queues_imgs = []
+        hist_imgs = []
 
-    return queues_imgs
+    return queues_imgs, hist_imgs
 
 def detect_iostat_imgs(nodes_stat_dirs):
     iostat_img_types = set()
@@ -387,7 +389,7 @@ def main():
     dstat_net_info = parse_dstat_info(nodes_stat_dirs)
 
     # Images for addb queues
-    addb_queues = parse_addb_info(addb_stat_dir)
+    addb_queues, addb_hists = parse_addb_info(addb_stat_dir)
 
     with open(join(report_gen_dir, 'templates/home.html'), 'r') as home:
         home_template = home.read()
@@ -425,6 +427,7 @@ def main():
             iostat_imgs=iostat_imgs,
             blktrace_imgs=blktrace_imgs,
             addb_queues=addb_queues,
+            addb_hists=addb_hists,
             task_id=task_id
         ))
 

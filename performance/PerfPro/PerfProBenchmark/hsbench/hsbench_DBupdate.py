@@ -32,6 +32,10 @@ configs_config= makeconfig(Config_path)
 build_url=configs_config.get('BUILD_URL')
 nodes_list=configs_config.get('NODES')
 clients_list=configs_config.get('CLIENTS')
+pc_full=configs_config.get('PC_FULL')
+overwrite=configs_config.get('OVERWRITE')
+iteration=configs_config.get('ITERATION')
+
 
 nodes_num=len(nodes_list)
 clients_num=len(clients_list)
@@ -135,14 +139,14 @@ Parameters : input - (list) list containing file names with specified filter,
              returns - none
 '''
 def push_data(files, host, db, Build, Version, Branch , OS):
-    global nodes_num, clients_num
+    global nodes_num, clients_num, pc_full, iteration , overwrite
     print("logged in from ", host)
     #collection=db[configs_main['db_collection']]
-    collection='results_'+Version[1]
+    collection='results_'+Version[0]
     #col_config = db[configs_main['config_collection']]
-    col_config ='configurations_'+Version[1]
+    col_config ='configurations_'+Version[0]
     dic = getconfig()
-    result = col_config.find_one(dic)  # find entry from configurations collection
+    result = db[col_config].find_one(dic)  # find entry from configurations collection
     Config_ID = "NA"
     if result:
         Config_ID = result['_id'] # foreign key : it will map entry in configurations to results entry
@@ -183,13 +187,18 @@ def push_data(files, host, db, Build, Version, Branch , OS):
                         'OS': OS,
                         'Count_of_Servers': nodes_num, 
                         'Count_of_Clients': clients_num,
+                        'Iteration': iteration,
+                        'Percentage_full' : pc_full ,
                         'Name': 'Hsbench',
                         'Operation': operation,
                         'Object_Size' : obj_size,
                         'Buckets' : buckets,
                         'Objects' : objects,
                         'Sessions' : sessions,
+                        'PKey' : Version[0]+'_'+Branch[0].upper()+'_'+Build+'_ITR'+str(iteration)+'_'+str(nodes_num)+'N_'+str(clients_num)+'C_'+str(pc_full)+'PC_HSB_'+str(obj_size)+'_'+str(buckets)+'_'+operation[0].upper()+'_'+str(sessions) ,
+                        #Version_Branch_Build_Iteration_NodeCount_ClientCount_PercentFull_Benchmark_ObjSize_NoOfBuckets_Operation_Sessions
                     }
+
                     updation_Set = {  
                         'HOST' : host,
                         'IOPS': entry['Iops'],
@@ -203,18 +212,26 @@ def push_data(files, host, db, Build, Version, Branch , OS):
                     }
                     action = "updated"
                     try:
-                        count_documents= collection.count_documents(primary_Set)
+                        pattern = {'PKey' : primary_Set["PKey"]}
+                        count_documents= db[collection].count_documents(pattern)
                         if count_documents == 0:
-                            collection.insert_one(primary_Set)
+                            db[collection].insert_one(primary_Set)
                             action = "inserted"
-                        
-                        collection.update_one(primary_Set,{ "$set": updation_Set})
+                            db[collection].update(pattern,{ "$set": updation_Set})                     
+                        elif overwrite == True :
+                            db[collection].update(pattern,{ "$set": updation_Set})
+                            action= "updated"
+                        else :
+                            print("'Overwrite' is false in config. Hence, DB not updated")
+                            action = "Not Updated"
+
                     except Exception as e:
                         print("Unable to insert/update documents into database. Observed following exception:")
                         print(e)
 
                     print(operation+ " " + action + ' - ' + doc)
-    update_mega_chain(Build, Version, collection)
+
+#    update_mega_chain(Build, Version, collection)
 
 
 def update_mega_chain(build,version, col):
@@ -257,12 +274,19 @@ parameters : input - (String) folder path to required files
 if __name__ == "__main__":
     link = sys.argv[1] #input("Enter the file path - ")
     host =  socket.gethostname() #os.uname()[1]
+
     Build=get_release_info('BUILD')
+    Build=Build[1:-1]
     Version=get_release_info('VERSION')
+    Version=Version[1:-1]
     Branch=get_release_info('BRANCH')
+    Branch=Branch[1:-1]
     OS=get_release_info('OS')
+    OS=OS[1:-1]
+
     db = makeconnection()
     files = get_files(link)
+
     push_data(files, host, db, Build, Version, Branch , OS) 
 
 # End

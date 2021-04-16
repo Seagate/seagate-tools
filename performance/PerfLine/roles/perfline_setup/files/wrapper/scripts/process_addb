@@ -67,9 +67,6 @@ parse_params()
             IO_SERVICES="$2"
             shift
             ;;
-        --no-m0play-db)
-            NO_M0PLAY_DB="1"
-            ;;
         --m0crate-workdir)
             M0CRATE_WORKDIR="$2"
             shift

@@ -555,9 +555,6 @@ def parse_args():
     parser.add_argument("-s", "--save-only", action='store_true', help="Don't show figures, only save")
 
     args = parser.parse_args()
-    # if args.help:
-    #     parser.print_help()
-    #     sys.exit(0)
 
     return args
 

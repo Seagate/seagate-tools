@@ -13,6 +13,7 @@
    shell: systemctl stop ntpd ; /usr/sbin/ntpdate time.seagate.com ; systemctl start ntpd
    delegate_to: "{{ item }}"
    with_items: "{{ groups['all'] }}"
+
  - name: "[pre-requisites]: Required for regression test cases"
    yum:
      name:
@@ -27,8 +28,9 @@
    yum:
      name: go
      state: present
-   delegate_to: "client-1"
- 
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
+
  - name: Pre-requisites python3 library
    pip:
      name: 
@@ -81,7 +83,8 @@
 
  - name: Create S3 account
    command: python3 /root/PerfProBenchmark/S3UserCreation/main_createusers.py /root/PerfProBenchmark/s3account.yml 
-   delegate_to: "client-1"
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
 
  - name: System monitoring started
    command: python3 /root/PerfProBenchmark/system_monitoring/systemMonitoring.py /root/PerfProBenchmark/main.yml 
@@ -92,7 +95,8 @@
 
  - name: Configuration of s3bench benchmark tools  
    command: go get github.com/igneous-systems/s3bench
-   delegate_to: "client-1"
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
 
  - name: copying s3bench_meta binaries file to client server
    copy:
@@ -101,11 +105,13 @@
        owner: root
        group: root
        mode: '0754'
-   delegate_to: "client-1"
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
 
  - name: Make an entry for config.yml on a database
    command: python3 /root/PerfProBenchmark/addconfiguration.py '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'
-   delegate_to: "client-1" 
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
 
  - include: s3bench.yml
 
@@ -119,12 +125,12 @@
    with_items: "{{ groups['nodes'] }}"
 
 #Copying ansible.log for the run to NFS share
-- name: Mounting nfs share
-  shell: mount {{ NFS_SERVER }}:/{{ NFS_EXPORT }} {{ NFS_MOUNT_POINT }}
+ - name: Mounting nfs share
+   shell: mount {{ NFS_SERVER }}:/{{ NFS_EXPORT }} {{ NFS_MOUNT_POINT }}
 
-- name: Copying ansible log to NFS share
-  shell: mkdir -p {{ NFS_MOUNT_POINT }}/{{ NFS_FOLDER }}; echo y | cp /var/log/ansible.log-{{ tstamp.stdout }} {{ NFS_MOUNT_POINT }}/{{ NFS_FOLDER }}/
+ - name: Copying ansible log to NFS share
+   shell: mkdir -p {{ NFS_MOUNT_POINT }}/{{ NFS_FOLDER }}; echo y | cp /var/log/ansible.log-{{ tstamp.stdout }} {{ NFS_MOUNT_POINT }}/{{ NFS_FOLDER }}/
 
-- name: Unmounting NFS share
-  shell:  umount -l {{ NFS_MOUNT_POINT }}
+ - name: Unmounting NFS share
+   shell:  umount -l {{ NFS_MOUNT_POINT }}
 

@@ -64,18 +64,6 @@ For ex:
   user: user@seagate.com
   send_email: false
 
-custom_build:
-  deploybuild: false
-  github_PAT:
-  github_username:
-  build_machine:                     # Build Anywhere (it could be client, any one cortx cluster server or VM)
-  motr_repo_path: ""
-  hare_repo_path: ""
-  s3server_repo_path: ""
-  hare_commit_id: ""
-  motr_commit_id: ""
-  s3server_commit_id: ""
-
 workload:
   - cmd: sleep 1
 

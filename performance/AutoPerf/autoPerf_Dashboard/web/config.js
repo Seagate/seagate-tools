@@ -1,7 +1,5 @@
 require("dotenv").config({ path: __dirname + "/.env" });
-
-const dir = __dirname + "/";
-// const dir = "/root/autoperf-v1.0/";
+const dir = require("path").join(__dirname, "../../");
 
 module.exports = {
   port: process.env[`${process.env.NODE_ENV}_PORT`],
@@ -32,6 +30,7 @@ module.exports = {
     process.env[`${process.env.NODE_ENV}_HARDWARE_RELEASE_CRON`],
   daysDiffForComments:
     process.env[`${process.env.NODE_ENV}_DAYS_DIFF_FOR_COMMENTS`],
+  scripts_dir: dir,
   launch_benchmark_conf_file: dir + "launch_benchmark.conf",
   launch_benchmark_log_file: dir + "launch_benchmark.log",
   s3_workloads_script: dir + "s3workloads.sh",

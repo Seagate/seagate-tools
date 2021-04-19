@@ -21,5 +21,7 @@ export default {
   default_parameters: `/api/${version}/metadata/default_parameters`,
   script_execution: `/api/${version}/script/executions`,
   components: `/api/${version}/component`,
-  managers: `/api/${version}/manager`
+  managers: `/api/${version}/manager`,
+  metadata_node: `/api/${version}/metadata/node`,
+  metadata_client: `/api/${version}/metadata/client`,
 };

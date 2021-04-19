@@ -1,3 +1,4 @@
 ---
 # vars file for perfline_setup
 perfline_dir: /root/perfline
+CLUSTER_PASS: seagate1

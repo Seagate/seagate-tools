@@ -1,10 +1,3 @@
-[local_3rdparty]
-name=CentOS-$releasever - local packages for $basearch
-baseurl=file:///var/artifacts/0/3rd_party
-enabled=1
-gpgcheck=0
-protect=1
-
 [local_iso]
 name=CentOS-$releasever - local packages for $basearch
 baseurl=file:///var/artifacts/0/cortx_iso

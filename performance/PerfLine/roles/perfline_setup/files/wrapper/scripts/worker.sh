@@ -12,9 +12,7 @@ PERFLINE_DIR="$SCRIPT_DIR/../"
 STAT_DIR="$SCRIPT_DIR/../stat"
 BUILD_DEPLOY_DIR="$SCRIPT_DIR/../../build_deploy"
 STAT_COLLECTION=""
-# NODES="ssc-vm-c-1042.colo.seagate.com,ssc-vm-c-1043.colo.seagate.com"
-# EX_SRV="pdsh -S -w $NODES"
-# HA_TYPE="hare"
+
 MKFS=
 PERF_RESULTS_FILE='perf_results'
 CLIENT_ARTIFACTS_DIR='client'
@@ -25,11 +23,6 @@ function validate() {
     local leave=
     if [[ -z "$RESULTS_DIR" ]]; then
 	echo "Result dir parameter is not passed"
-	leave="1"
-    fi
-
-    if [[ -z "$WORKLOADS" ]]; then
-	echo "Application workload is not specified"
 	leave="1"
     fi
 
@@ -55,8 +48,9 @@ function validate() {
 function build_deploy() {
     pushd $BUILD_DEPLOY_DIR
     ansible-playbook -i hosts run_build_deploy.yml --extra-vars "motr_repo_path=$MOTR_REPO \
-hare_repo_path=$HARE_REPO s3server_repo_path=$S3SERVER_REPO hare_commit_id=$HARE_COMMIT_ID \
-motr_commit_id=$MOTR_COMMIT_ID s3server_commit_id=$S3SERVER_COMMIT_ID" -v
+    hare_repo_path=$HARE_REPO s3server_repo_path=$S3SERVER_REPO hare_commit_id=$HARE_COMMIT_ID \
+    motr_commit_id=$MOTR_COMMIT_ID s3server_commit_id=$S3SERVER_COMMIT_ID github_PAT=$GITHUB_PAT \
+    github_username=$GITHUB_USER build_machine=$BUILD_MACHINE" -v
     popd
 }
 
@@ -187,8 +181,6 @@ function run_workloads()
     for ((i = 0; i < $((${#WORKLOADS[*]})); i++)); do
         echo "workload $i"
         local cmd=${WORKLOADS[((i))]}
-        #eval $cmd | tee workload-$i.log        
-        #echo $cmd
         eval $cmd | tee workload-$i.log
 	STATUS=${PIPESTATUS[0]}
     done
@@ -273,11 +265,8 @@ function save_motr_artifacts() {
 
     mkdir -p $dumps_dir
     pushd $dumps_dir
-    if [[ -n $ADDB_STOBS ]] && [[ -n $ADDB_DUMPS ]]; then
-        if [[ -z "$M0PLAY_DB" ]]; then
-            local no_m0play_option="--no-m0play-db"
-        fi
-        $EX_SRV $SCRIPT_DIR/process_addb $no_m0play_option --host $(hostname) --dir $(pwd) --app "motr" --io-services "\"$ios_l\"" --start $START_TIME --stop $STOP_TIME
+    if [[ -n $ADDB_DUMPS ]]; then
+        $EX_SRV $SCRIPT_DIR/process_addb --host $(hostname) --dir $(pwd) --app "motr" --io-services "\"$ios_l\"" --start $START_TIME --stop $STOP_TIME
     fi
     popd # $dumps_dir
 }
@@ -326,11 +315,8 @@ function save_s3srv_artifacts() {
         $EX_SRV $SCRIPT_DIR/save_m0traces $(hostname) $(pwd) "s3server"
     fi
 
-    if [[ -n $ADDB_STOBS ]]; then
-        if [[ -z "$M0PLAY_DB" ]]; then
-            local no_m0play_option="--no-m0play-db"
-        fi
-        $EX_SRV $SCRIPT_DIR/process_addb $no_m0play_option --host $(hostname) --dir $(pwd) --app "s3server" --start $START_TIME --stop $STOP_TIME
+    if [[ -n $ADDB_DUMPS ]]; then
+        $EX_SRV $SCRIPT_DIR/process_addb --host $(hostname) --dir $(pwd) --app "s3server" --start $START_TIME --stop $STOP_TIME
     fi
 }
 
@@ -340,15 +326,18 @@ function save_m0crate_artifacts()
 
     $EX_SRV "scp -r $m0crate_workdir/m0crate.*.log $(hostname):$(pwd)"
     $EX_SRV "scp -r $m0crate_workdir/test_io.*.yaml $(hostname):$(pwd)"
-    $EX_SRV "scp -r $m0crate_workdir/m0trace.* $(hostname):$(pwd)"
 
-    if [[ -n $ADDB_STOBS ]]; then
+    if [[ -n $ADDB_DUMPS ]]; then
         $EX_SRV $SCRIPT_DIR/process_addb --host $(hostname) --dir $(pwd) \
             --app "m0crate" --m0crate-workdir $m0crate_workdir \
             --start $START_TIME --stop $STOP_TIME
     fi
 
-   $EX_SRV "rm -rf $m0crate_workdir"
+    if [[ -n $M0TRACE_FILES ]]; then
+        $EX_SRV $SCRIPT_DIR/save_m0traces $(hostname) $(pwd) "m0crate" "$m0crate_workdir"
+    fi
+
+    $EX_SRV "rm -rf $m0crate_workdir"
 }
 
 function save_stats() {
@@ -421,7 +410,7 @@ function collect_artifacts() {
 
     save_perf_results    
     
-    if [[ -n $ADDB_STOBS ]] && [[ -n $ADDB_DUMPS ]] && [[ -n $M0PLAY_DB ]]; then
+    if [[ -n $ADDB_DUMPS ]]; then
 
         local m0playdb_parts="$m0d/dumps/m0play* $s3srv/*/m0play*"
 
@@ -540,12 +529,16 @@ function main() {
 
     # Start workload time execution measuring
     start_measuring_workload_time
+
     # fio workload
     if [[ -n $FIO ]]; then
         fio_workloads
     fi
-    # Start workload
-    run_workloads
+
+    # Start custom workloads
+    if [[ -n "$WORKLOADS" ]]; then
+        run_workloads
+    fi
     
     # Start s3bench workload
     if [[ -n $S3BENCH ]]; then
@@ -607,6 +600,18 @@ while [[ $# -gt 0 ]]; do
             ;;
         --deploybuild)
             BUILD_DEPLOY="1"
+            ;;
+        -token)
+            GITHUB_PAT=$2
+            shift
+            ;;
+        -github_user)
+            GITHUB_USER=$2
+            shift
+            ;;
+        -build_machine)
+            BUILD_MACHINE=$2
+            shift
             ;;
         -motr_repo)
             MOTR_REPO=$2
@@ -701,17 +706,8 @@ while [[ $# -gt 0 ]]; do
         --m0trace-files)
             M0TRACE_FILES="1"
             ;;
-        --m0trace-dumps)
-            M0TRACE_DUMPS="1"
-            ;;
-        --addb-stobs)
-            ADDB_STOBS="1"
-            ;;
         -d|--addb-dumps)
             ADDB_DUMPS="1"
-            ;;
-        --m0play-db)
-            M0PLAY_DB="1"
             ;;
         --motr-trace)
             MOTR_TRACE="1"

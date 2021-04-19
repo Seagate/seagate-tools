@@ -47,12 +47,12 @@ class ScriptExecutionService {
         const nodes = {};
         const nodeList = script_args.primary_server.split(",");
         nodeList.forEach((element, index) => {
-            nodes["" + (index + 1)] = element;
+            nodes[`${index + 1}`] = element;
         });
         const clients = {};
         const clientList = script_args.client.split(",");
         clientList.forEach((element, index) => {
-            clients["" + (index + 1)] = element;
+            clients[`${index + 1}`] = element;
         });
 
         const scriptArgsJSONObj = {
@@ -70,8 +70,7 @@ class ScriptExecutionService {
         if (script_args.benchmark === 'fio') {
             scriptArgsJSONObj["TEMPLATE"] = script_args.template;
         }
-        const cmdString = "ansible-playbook -i hosts main.yml --extra-vars '" + JSON.stringify(scriptArgsJSONObj) + "' -v";
-
+        const cmdString = "ansible-playbook -i hosts deploy_autoperf.yml --extra-vars '" + JSON.stringify(scriptArgsJSONObj) + "' -v";
         try {
             const scriptExec = {
                 user_gid: user_gid,
@@ -79,8 +78,7 @@ class ScriptExecutionService {
                 start_time: new Date().getTime()
             };
             const scriptExecObj = await db.scriptExecutionDatabase().createScriptExecution(scriptExec);
-            // await setClientServer(args, stream);
-            const childProcess = exec(cmdString);
+            const childProcess = exec(cmdString, { cwd: config.scripts_dir });
             childProcess.stdout.on('data', async (data) => {
                 await db.scriptExecutionDatabase().updateScriptExecution(scriptExecObj._id, data.toString());
             });

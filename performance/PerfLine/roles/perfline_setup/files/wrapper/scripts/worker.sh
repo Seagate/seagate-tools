@@ -604,13 +604,13 @@ function main() {
     
     generate_report
 
+    # Close results dir
+    close_results_dir
+
     # Backup result dir
     if [[ -n $BACKUP_RESULT ]]; then
         do_result_backup
     fi
-
-    # Close results dir
-    close_results_dir
 
     exit $STATUS
 }

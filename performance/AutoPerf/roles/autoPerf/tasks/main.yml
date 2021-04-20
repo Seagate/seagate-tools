@@ -126,7 +126,7 @@
    with_items: "{{ groups['clients'] }}"
 
  - name: Fio Running
-   shell: cd /root/cortx-benchmark/fio; ./run_fio.sh {{ PRIMARY }} {{ DURATION }} {{ IOSIZE }} {{ NUMJOBS }} {{ SAMPLE }} {{ TEMPLATE }}
+   shell: cd /root/cortx-benchmark/fio; ./run_fio.sh {{ nodes['1'] }} {{ DURATION }} {{ IOSIZE }} {{ NUMJOBS }} {{ SAMPLE }} {{ TEMPLATE }}
    when: BENCHMARK == "fio"
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"

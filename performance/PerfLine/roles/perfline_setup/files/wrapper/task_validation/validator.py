@@ -125,8 +125,9 @@ def get_schema_motr():
             'type': 'dict',
             'schema': {
                 'mkfs': {'type': 'boolean'},
-                'm0trace': {'type': 'boolean'},
-                'addb': {'type': 'boolean'}
+                'collect_m0trace': {'type': 'boolean'},
+                'collect_addb': {'type': 'boolean'},
+                'backup_result': {'type': 'boolean'}
             }
         }
     }

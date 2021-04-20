@@ -18,6 +18,8 @@ PERF_RESULTS_FILE='perf_results'
 CLIENT_ARTIFACTS_DIR='client'
 M0CRATE_ARTIFACTS_DIR='m0crate'
 S3BENCH_LOGFILE='workload_s3bench.log'
+BACKUP_NFS_LOCATION='ssc-nfs-srvr2.pun.seagate.com:/mnt/data2/performance-team/perfline-backup'
+BACKUP_MOUNT_POINT='/mnt/perfline_backup'
 
 function validate() {
     local leave=
@@ -500,6 +502,28 @@ function generate_report()
     python3 $STAT_DIR/report_generator/gen_report.py . $STAT_DIR/report_generator
 }
 
+function do_result_backup()
+{
+    result_dir_path=$(dirname ${RESULTS_DIR})
+    cur_result_dir=$(basename ${RESULTS_DIR})
+    pushd $result_dir_path
+
+    echo "Backing up results to NFS Location"
+    if ! mount | grep "$BACKUP_MOUNT_POINT"
+    then
+        mkdir -p $BACKUP_MOUNT_POINT
+        mount $BACKUP_NFS_LOCATION $BACKUP_MOUNT_POINT
+    fi
+    tar -czf /tmp/${cur_result_dir}.tar.gz $cur_result_dir
+    cp /tmp/${cur_result_dir}.tar.gz ${BACKUP_MOUNT_POINT}/
+    tar -xzf ${BACKUP_MOUNT_POINT}/${cur_result_dir}.tar.gz -C ${BACKUP_MOUNT_POINT}/
+    rm -rf $cur_result_dir /tmp/${cur_result_dir}.tar.gz ${BACKUP_MOUNT_POINT}/${cur_result_dir}.tar.gz
+    ln -s ${BACKUP_MOUNT_POINT}/${cur_result_dir} $cur_result_dir
+    echo "Backup complete"
+    popd
+}
+
+
 function main() {
 
     start_measuring_test_time
@@ -579,6 +603,11 @@ function main() {
     stop_measuring_test_time
     
     generate_report
+
+    # Backup result dir
+    if [[ -n $BACKUP_RESULT ]]; then
+        do_result_backup
+    fi
 
     # Close results dir
     close_results_dir
@@ -719,9 +748,12 @@ while [[ $# -gt 0 ]]; do
             M0CRATE_PARAMS="$2"
             shift
             ;;
-	--mkfs)
-	    MKFS="1"
-	    ;;
+        --mkfs)
+            MKFS="1"
+            ;;
+        --backup-result)
+            BACKUP_RESULT="1"
+            ;;
         *)
             echo -e "Invalid option: $1\nUse --help option"
             exit 1

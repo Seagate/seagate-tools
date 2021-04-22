@@ -16,15 +16,16 @@
 </table>
 <br><br><br>
 
+{% if rw_stats or m0crate_rw_stats %}
 <table table-layout=auto align=center cellpadding="5" border="1">
     <tr>
-        <th colspan="3">Report summary</th>
+        <th colspan="3">Workload results</th>
     </tr>
 
     
     {% if rw_stats.params %}
     <tr>
-        <th colspan="3">Parameters</th>
+        <th colspan="3">s3bench parameters</th>
     </tr>
     {% for k, v in rw_stats.params.items() %}
     <tr>
@@ -37,7 +38,7 @@
     
     {% if rw_stats.results %}
     <tr>
-        <th colspan="3">Results</th>
+        <th colspan="3">s3bench results</th>
     </tr>
     {% for res_item in rw_stats.results %}
 
@@ -83,3 +84,5 @@
     {% endfor %}
 
 </table>
+
+{% endif %}

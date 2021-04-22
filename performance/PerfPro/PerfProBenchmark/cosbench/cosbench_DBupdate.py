@@ -33,6 +33,9 @@ configs_config = makeconfig(Config_path)  # getting instance  of config file
 build_url=configs_config.get('BUILD_URL')
 nodes_list=configs_config.get('NODES')
 clients_list=configs_config.get('CLIENTS')
+pc_full=configs_config.get('PC_FULL')
+overwrite=configs_config.get('OVERWRITE')
+iteration=configs_config.get('ITERATION')
 
 nodes_num=len(nodes_list)
 clients_num=len(clients_list)
@@ -55,9 +58,9 @@ def get_release_info(variable):
 
 
 
-def insert_data(file,Build,Version,Config_ID,col,Branch,OS):  # function for retriving required data from log files and update into mongodb
+def insert_data(file,Build,Version,Config_ID,db,col,Branch,OS):  # function for retriving required data from log files and update into mongodb
     _, filename = os.path.split(file)
-    global nodes_num , clients_num
+    global nodes_num , clients_num , pc_full , iteration , overwrite
     with open(file) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         line_count = 0
@@ -78,25 +81,36 @@ def insert_data(file,Build,Version,Config_ID,col,Branch,OS):  # function for ret
                     lat = {"Max": float(row[12]), "Avg": float(row[5])}
                     # check whether entry with same build -object size -buckets-objects-sessions is presernt or not
                     action = "Updated"
-                    entry = {"Name": "Cosbench", "Operation": row[1], "Build": Build, "Version": Version,"Branch": Branch ,"OS": OS, "Count_of_Servers": nodes_num , "Count_of_Clients": clients_num , "Object_Size": attr[1], "Buckets": int(
-                        re.split(" ", attr[2])[1]), "Objects": int(re.split(" ", attr[3])[1]), "Sessions": int(re.split(" ", attr[4])[1])}
-                    
-                    
+                    operation= row[1]
+                    obj_size= attr[1]
+                    buckets= int(re.split(" ", attr[2])[1])
+                    objects= int(re.split(" ", attr[3])[1])
+                    sessions= int(re.split(" ", attr[4])[1])
+                    entry = {"Name": "Cosbench", "Operation": operation, "Build": Build, "Version": Version,"Branch": Branch ,"OS": OS, "Number_of_Server_Nodes": nodes_num , "Number_of_Clients": clients_num , "Object_Size": obj_size, "Buckets": buckets, "Objects": objects, "Sessions": sessions , 'PKey' : Version[0]+'_'+Branch[0].upper()+'_'+Build+'_ITR'+str(iteration)+'_'+str(nodes_num)+'N_'+str(clients_num)+'C_'+str(pc_full)+'PC_COS_'+str(obj_size.replace(" ",""))+'_'+str(buckets)+'_'+operation[0].upper()+'_'+str(sessions) }
+                    update_data = {"Log_File": filename, "Operation": row[1], "IOPS": iops, "Throughput": throughput, "Latency": lat, "HOST": socket.gethostname(), "Config_ID": Config_ID, "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
                     try:
-                        count_documents = col.count_documents(entry)
+                        pattern={'PKey' : entry['PKey']}
+                        count_documents = db[col].count_documents(pattern)
                         if count_documents == 0:
-                            col.insert_one(entry)
+                            db[col].insert_one(entry)
                             action = "Inserted"
-                        update_data = {"Log_File": filename, "Operation": row[1], "IOPS": iops, "Throughput": throughput, "Latency": lat, "HOST": socket.gethostname(),
-                        "Config_ID": Config_ID, "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
-                        col.update_one(entry, {"$set": update_data})
+                        #update_data = {"Log_File": filename, "Operation": row[1], "IOPS": iops, "Throughput": throughput, "Latency": lat, "HOST": socket.gethostname(),
+                        #"Config_ID": Config_ID, "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+                            db[col].update_one(pattern, {"$set": update_data})
+                        elif overwrite == True: 
+                            db[col].update_one(pattern, {"$set": update_data})
+                            action
+                        else :
+                            print("'Overwrite' is false in config. Hence, DB not updated")
+                            action = "Not Updated"
+
                     except Exception as e:
-                        print(
-                            "Unable to insert/update documents into database. Observed following exception:")
+                        print("Unable to insert/update documents into database. Observed following exception:")
                         print(e)
                     else:
                         print('Data {} : {} {} \n'.format(
                             action, entry, update_data))
+          
 
 
 # function to return all file names with perticular extension
@@ -172,25 +186,31 @@ def getconfig():
 def main(argv):
     dic = argv[1]
     files = getallfiles(dic, "workloadtype.csv")
+
     Build=get_release_info('BUILD')
+    Build=Build[1:-1]
     Version=get_release_info('VERSION')
+    Version=Version[1:-1]
     Branch=get_release_info('BRANCH')
+    Branch=Branch[1:-1]
     OS=get_release_info('OS')
+    OS=OS[1:-1]
+
     db = makeconnection()  # getting instance  of database
     #col_config = db[configs_main['config_collection']]
-    col_config='configurations_'+Version[1]
+    col_config='configurations_'+Version[0]
     dic = getconfig()
-    result = col_config.find_one(dic)# find entry from configurations collection
+    result = db[col_config].find_one(dic)# find entry from configurations collection
     Config_ID = "NA"
     if result:
         Config_ID = result['_id']        # foreign key : it will map entry in configurations to results entry
 
     #col = db[configs_main['db_collection']]
-    col ='results_'+Version[1]
-    print(col)
+    col ='results_'+Version[0]
+
     for f in files:
-        insert_data(f,Build,Version,Config_ID,col,Branch,OS)
-    update_mega_chain(Build,Version,col)# update mega entry
+        insert_data(f,Build,Version,Config_ID,db,col,Branch,OS)
+    #update_mega_chain(Build,Version,col)# update mega entry
 
 
 if __name__ == "__main__":

@@ -12,24 +12,19 @@ PERFLINE_DIR="$SCRIPT_DIR/../"
 STAT_DIR="$SCRIPT_DIR/../stat"
 BUILD_DEPLOY_DIR="$SCRIPT_DIR/../../build_deploy"
 STAT_COLLECTION=""
-# NODES="ssc-vm-c-1042.colo.seagate.com,ssc-vm-c-1043.colo.seagate.com"
-# EX_SRV="pdsh -S -w $NODES"
-# HA_TYPE="hare"
+
 MKFS=
 PERF_RESULTS_FILE='perf_results'
 CLIENT_ARTIFACTS_DIR='client'
 M0CRATE_ARTIFACTS_DIR='m0crate'
 S3BENCH_LOGFILE='workload_s3bench.log'
+BACKUP_NFS_LOCATION=''
+BACKUP_MOUNT_POINT='/mnt/perfline_backup'
 
 function validate() {
     local leave=
     if [[ -z "$RESULTS_DIR" ]]; then
 	echo "Result dir parameter is not passed"
-	leave="1"
-    fi
-
-    if [[ -z "$WORKLOADS" ]]; then
-	echo "Application workload is not specified"
 	leave="1"
     fi
 
@@ -55,8 +50,9 @@ function validate() {
 function build_deploy() {
     pushd $BUILD_DEPLOY_DIR
     ansible-playbook -i hosts run_build_deploy.yml --extra-vars "motr_repo_path=$MOTR_REPO \
-hare_repo_path=$HARE_REPO s3server_repo_path=$S3SERVER_REPO hare_commit_id=$HARE_COMMIT_ID \
-motr_commit_id=$MOTR_COMMIT_ID s3server_commit_id=$S3SERVER_COMMIT_ID" -v
+    hare_repo_path=$HARE_REPO s3server_repo_path=$S3SERVER_REPO hare_commit_id=$HARE_COMMIT_ID \
+    motr_commit_id=$MOTR_COMMIT_ID s3server_commit_id=$S3SERVER_COMMIT_ID github_PAT=$GITHUB_PAT \
+    github_username=$GITHUB_USER build_machine=$BUILD_MACHINE" -v
     popd
 }
 
@@ -187,8 +183,6 @@ function run_workloads()
     for ((i = 0; i < $((${#WORKLOADS[*]})); i++)); do
         echo "workload $i"
         local cmd=${WORKLOADS[((i))]}
-        #eval $cmd | tee workload-$i.log        
-        #echo $cmd
         eval $cmd | tee workload-$i.log
 	STATUS=${PIPESTATUS[0]}
     done
@@ -273,11 +267,8 @@ function save_motr_artifacts() {
 
     mkdir -p $dumps_dir
     pushd $dumps_dir
-    if [[ -n $ADDB_STOBS ]] && [[ -n $ADDB_DUMPS ]]; then
-        if [[ -z "$M0PLAY_DB" ]]; then
-            local no_m0play_option="--no-m0play-db"
-        fi
-        $EX_SRV $SCRIPT_DIR/process_addb $no_m0play_option --host $(hostname) --dir $(pwd) --app "motr" --io-services "\"$ios_l\"" --start $START_TIME --stop $STOP_TIME
+    if [[ -n $ADDB_DUMPS ]]; then
+        $EX_SRV $SCRIPT_DIR/process_addb --host $(hostname) --dir $(pwd) --app "motr" --io-services "\"$ios_l\"" --start $START_TIME --stop $STOP_TIME
     fi
     popd # $dumps_dir
 }
@@ -326,11 +317,8 @@ function save_s3srv_artifacts() {
         $EX_SRV $SCRIPT_DIR/save_m0traces $(hostname) $(pwd) "s3server"
     fi
 
-    if [[ -n $ADDB_STOBS ]]; then
-        if [[ -z "$M0PLAY_DB" ]]; then
-            local no_m0play_option="--no-m0play-db"
-        fi
-        $EX_SRV $SCRIPT_DIR/process_addb $no_m0play_option --host $(hostname) --dir $(pwd) --app "s3server" --start $START_TIME --stop $STOP_TIME
+    if [[ -n $ADDB_DUMPS ]]; then
+        $EX_SRV $SCRIPT_DIR/process_addb --host $(hostname) --dir $(pwd) --app "s3server" --start $START_TIME --stop $STOP_TIME
     fi
 }
 
@@ -340,15 +328,18 @@ function save_m0crate_artifacts()
 
     $EX_SRV "scp -r $m0crate_workdir/m0crate.*.log $(hostname):$(pwd)"
     $EX_SRV "scp -r $m0crate_workdir/test_io.*.yaml $(hostname):$(pwd)"
-    $EX_SRV "scp -r $m0crate_workdir/m0trace.* $(hostname):$(pwd)"
 
-    if [[ -n $ADDB_STOBS ]]; then
+    if [[ -n $ADDB_DUMPS ]]; then
         $EX_SRV $SCRIPT_DIR/process_addb --host $(hostname) --dir $(pwd) \
             --app "m0crate" --m0crate-workdir $m0crate_workdir \
             --start $START_TIME --stop $STOP_TIME
     fi
 
-   $EX_SRV "rm -rf $m0crate_workdir"
+    if [[ -n $M0TRACE_FILES ]]; then
+        $EX_SRV $SCRIPT_DIR/save_m0traces $(hostname) $(pwd) "m0crate" "$m0crate_workdir"
+    fi
+
+    $EX_SRV "rm -rf $m0crate_workdir"
 }
 
 function save_stats() {
@@ -421,7 +412,7 @@ function collect_artifacts() {
 
     save_perf_results    
     
-    if [[ -n $ADDB_STOBS ]] && [[ -n $ADDB_DUMPS ]] && [[ -n $M0PLAY_DB ]]; then
+    if [[ -n $ADDB_DUMPS ]]; then
 
         local m0playdb_parts="$m0d/dumps/m0play* $s3srv/*/m0play*"
 
@@ -511,6 +502,28 @@ function generate_report()
     python3 $STAT_DIR/report_generator/gen_report.py . $STAT_DIR/report_generator
 }
 
+function do_result_backup()
+{
+    result_dir_path=$(dirname ${RESULTS_DIR})
+    cur_result_dir=$(basename ${RESULTS_DIR})
+    pushd $result_dir_path
+
+    echo "Backing up results to NFS Location"
+    if ! mount | grep "$BACKUP_MOUNT_POINT"
+    then
+        mkdir -p $BACKUP_MOUNT_POINT
+        mount $BACKUP_NFS_LOCATION $BACKUP_MOUNT_POINT
+    fi
+    tar -czf /tmp/${cur_result_dir}.tar.gz $cur_result_dir
+    cp /tmp/${cur_result_dir}.tar.gz ${BACKUP_MOUNT_POINT}/
+    tar -xzf ${BACKUP_MOUNT_POINT}/${cur_result_dir}.tar.gz -C ${BACKUP_MOUNT_POINT}/
+    rm -rf $cur_result_dir /tmp/${cur_result_dir}.tar.gz ${BACKUP_MOUNT_POINT}/${cur_result_dir}.tar.gz
+    ln -s ${BACKUP_MOUNT_POINT}/${cur_result_dir} $cur_result_dir
+    echo "Backup complete"
+    popd
+}
+
+
 function main() {
 
     start_measuring_test_time
@@ -540,12 +553,16 @@ function main() {
 
     # Start workload time execution measuring
     start_measuring_workload_time
+
     # fio workload
     if [[ -n $FIO ]]; then
         fio_workloads
     fi
-    # Start workload
-    run_workloads
+
+    # Start custom workloads
+    if [[ -n "$WORKLOADS" ]]; then
+        run_workloads
+    fi
     
     # Start s3bench workload
     if [[ -n $S3BENCH ]]; then
@@ -590,6 +607,11 @@ function main() {
     # Close results dir
     close_results_dir
 
+    # Backup result dir
+    if [[ -n $BACKUP_RESULT ]]; then
+        do_result_backup
+    fi
+
     exit $STATUS
 }
 
@@ -607,6 +629,18 @@ while [[ $# -gt 0 ]]; do
             ;;
         --deploybuild)
             BUILD_DEPLOY="1"
+            ;;
+        -token)
+            GITHUB_PAT=$2
+            shift
+            ;;
+        -github_user)
+            GITHUB_USER=$2
+            shift
+            ;;
+        -build_machine)
+            BUILD_MACHINE=$2
+            shift
             ;;
         -motr_repo)
             MOTR_REPO=$2
@@ -701,17 +735,8 @@ while [[ $# -gt 0 ]]; do
         --m0trace-files)
             M0TRACE_FILES="1"
             ;;
-        --m0trace-dumps)
-            M0TRACE_DUMPS="1"
-            ;;
-        --addb-stobs)
-            ADDB_STOBS="1"
-            ;;
         -d|--addb-dumps)
             ADDB_DUMPS="1"
-            ;;
-        --m0play-db)
-            M0PLAY_DB="1"
             ;;
         --motr-trace)
             MOTR_TRACE="1"
@@ -723,9 +748,12 @@ while [[ $# -gt 0 ]]; do
             M0CRATE_PARAMS="$2"
             shift
             ;;
-	--mkfs)
-	    MKFS="1"
-	    ;;
+        --mkfs)
+            MKFS="1"
+            ;;
+        --backup-result)
+            BACKUP_RESULT="1"
+            ;;
         *)
             echo -e "Invalid option: $1\nUse --help option"
             exit 1

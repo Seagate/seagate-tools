@@ -30,6 +30,7 @@ function main()
     parse_params "$@"
     check_params
     generate_queue_imgs
+    generate_histogram_imgs
 }
 
 function check_params()
@@ -47,10 +48,16 @@ function check_params()
 
 function generate_queue_imgs()
 {
-    echo "generating..."
+    echo "generating queues..."
     $TOOLS_DIR/queues.py --db $M0PLAY_DB --no-window --output-file queues_aggr || true
     $TOOLS_DIR/queues.py --db $M0PLAY_DB --no-window -s --output-file queues_srv || true
     $TOOLS_DIR/queues.py --db $M0PLAY_DB --no-window -c --output-file queues_cli || true
+}
+
+function generate_histogram_imgs()
+{
+    echo "generating histograms..."
+    python3 $TOOLS_DIR/system_hist.py -s --db $M0PLAY_DB || true
 }
 
 parse_params()

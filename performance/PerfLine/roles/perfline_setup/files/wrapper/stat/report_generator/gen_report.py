@@ -185,10 +185,14 @@ def parse_report_info(report_dir):
     if isfile(s3bench_log):
         rw_stats = s3bench_log_parser.parse_s3bench_log(s3bench_log)
 
+    workload_filenames = []
+
     # Saving workload filenames
     workload_dir = join(report_dir, 'client')
-    workload_filenames = [f for f in listdir(
-        workload_dir) if isfile(join(workload_dir, f))]
+
+    if isdir(workload_dir):
+        workload_filenames.extend([f for f in listdir(
+            workload_dir) if isfile(join(workload_dir, f))])
 
     #m0crate
     m0crate_dir = join(report_dir, 'm0crate')
@@ -198,7 +202,8 @@ def parse_report_info(report_dir):
         m0crate_logs = [f for f in listdir(
             m0crate_dir) if isfile(join(m0crate_dir, f)) and f.endswith('.log')]
 
-        
+        workload_filenames.extend(m0crate_logs)
+
         for m0crate_log in m0crate_logs:
             m0crate_log_path = join(m0crate_dir, m0crate_log)
             m0crate_rw_stats[m0crate_log] = m0crate_log_parser.parse_m0crate_log(m0crate_log_path)
@@ -289,10 +294,40 @@ def parse_dstat_info(nodes_stat_dirs):
 def parse_addb_info(addb_stat_dir):
     if isdir(addb_stat_dir):
         queues_imgs = [f for f in listdir(addb_stat_dir) if f.startswith('queues_')]
+        hist_imgs = [f for f in listdir(addb_stat_dir) if '_histograms' in f]
     else:
         queues_imgs = []
+        hist_imgs = []
 
-    return queues_imgs
+    return queues_imgs, hist_imgs
+
+def detect_iostat_imgs(nodes_stat_dirs):
+    iostat_img_types = set()
+
+    for n_path in nodes_stat_dirs:
+        n_path_iostat = join(n_path, 'iostat')
+
+        if isdir(n_path_iostat):
+            for f in listdir(n_path_iostat):
+                if isfile(join(n_path_iostat, f)) and f.endswith('.png'):
+                    f = f.replace('iostat.','').replace('.png','')
+                    iostat_img_types.add(f)
+
+    return sorted(iostat_img_types)
+
+
+def detect_blktrace_imgs(nodes_stat_dirs):
+    blktrace_img_types = set()
+
+    for n_path in nodes_stat_dirs:
+        n_path_blktrace = join(n_path, 'blktrace')
+
+        if isdir(n_path_blktrace):
+            for f in listdir(n_path_blktrace):
+                if isfile(join(n_path_blktrace, f)) and 'node' in f and 'aggregated' in f:
+                    blktrace_img_types.add('aggregated')
+
+    return sorted(blktrace_img_types)
 
 
 def main():
@@ -319,8 +354,12 @@ def main():
     # Static info
     node_names = [node_path.split('/')[-1] for node_path in nodes_stat_dirs]
     node_amount = len(nodes_stat_dirs)
-    iostat_det_imgs = ['io_rqm', 'svctm', 'iops', 'await', '%util',
-                       'avgqu-sz', 'avgrq-sz', 'io_transfer']
+
+    # Iostat images
+    iostat_imgs = detect_iostat_imgs(nodes_stat_dirs)
+
+    # Blktrace images
+    blktrace_imgs = detect_blktrace_imgs(nodes_stat_dirs)
 
     # Time
     workload_start_time, workload_stop_time, test_start_time, test_stop_time = parse_time(
@@ -350,7 +389,7 @@ def main():
     dstat_net_info = parse_dstat_info(nodes_stat_dirs)
 
     # Images for addb queues
-    addb_queues = parse_addb_info(addb_stat_dir)
+    addb_queues, addb_hists = parse_addb_info(addb_stat_dir)
 
     with open(join(report_gen_dir, 'templates/home.html'), 'r') as home:
         home_template = home.read()
@@ -385,8 +424,10 @@ def main():
             test_start_time=test_start_time,
             test_stop_time=test_stop_time,
             node_amount=node_amount,
-            iostat_det_imgs=iostat_det_imgs,
+            iostat_imgs=iostat_imgs,
+            blktrace_imgs=blktrace_imgs,
             addb_queues=addb_queues,
+            addb_hists=addb_hists,
             task_id=task_id
         ))
 

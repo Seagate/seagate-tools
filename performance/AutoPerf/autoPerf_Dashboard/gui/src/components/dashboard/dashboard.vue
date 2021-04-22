@@ -14,55 +14,29 @@
               color="#ffffff"
               small
               outlined
-              >Grafana</v-btn
-            >
-            <v-btn small color="#ffffff" @click="showHelp = true" outlined
-              >Help</v-btn
-            >
+            >Grafana</v-btn>
+            <v-btn small color="#ffffff" @click="showHelp = true" outlined>Help</v-btn>
           </v-toolbar>
           <!--v-progress-linear v-if="disableForm" indeterminate color="#ffffff"></v-progress-linear-->
           <v-card-text style="padding: 10px">
             <v-select
-              :items="defaultParameters.benchmarks"
+              style="margin-top: 5px"
+              v-model="selectedParameters.primary_server"
+              :items="defaultParameters.primary_servers"
               item-text="label"
               item-value="value"
-              v-model="selectedParameters.benchmark"
-              label="Benchmark*"
+              label="Nodes*"
               outlined
               dense
+              multiple
             ></v-select>
-            <v-select
-              v-if="selectedParameters.benchmark === 'cosbench'"
-              style="margin-top: -15px"
-              :items="defaultParameters.operations"
-              item-text="label"
-              item-value="value"
-              v-model="selectedParameters.operation"
-              label="Operation*"
-              outlined
-              dense
-            ></v-select>
-            <v-select
-              v-if="selectedParameters.benchmark === 'fio'"
-              style="margin-top: -15px"
-              :items="defaultParameters.templates"
-              item-text="label"
-              item-value="value"
-              v-model="selectedParameters.template"
-              label="Template*"
-              outlined
-              dense
-            ></v-select>
-            <v-select
-              style="margin-top: -15px"
-              :items="defaultParameters.configurations"
-              item-text="label"
-              item-value="value"
-              v-model="selectedParameters.configuration"
-              label="Configuration*"
-              outlined
-              dense
-            ></v-select>
+            <v-btn
+              color="primary"
+              x-small
+              text
+              style="margin-top: -50px;"
+              @click="addNodeDialog = true"
+            >Add Node</v-btn>
             <v-select
               style="margin-top: -15px"
               v-model="selectedParameters.client"
@@ -74,17 +48,13 @@
               dense
               multiple
             ></v-select>
-            <v-select
-              style="margin-top: -15px"
-              v-model="selectedParameters.primary_server"
-              :items="defaultParameters.primary_servers"
-              item-text="label"
-              item-value="value"
-              label="Nodes*"
-              outlined
-              dense
-              multiple
-            ></v-select>
+            <v-btn
+              color="primary"
+              x-small
+              text
+              style="margin-top: -50px;"
+              @click="addClientDialog = true"
+            >Add Client</v-btn>
             <v-text-field
               style="margin-top: -15px"
               type="password"
@@ -103,15 +73,299 @@
               outlined
               dense
             ></v-select>
+            <div style="margin-top: -15px">
+              <label for>Select Benchmark</label>
+              <v-radio-group
+                style="margin-top: 1px"
+                v-model="isBenchmarkSelected"
+                row
+                @change="resetIsBenchmarkSelected"
+              >
+                <v-radio label="Yes" value="yes"></v-radio>
+                <v-radio label="No" value="no"></v-radio>
+              </v-radio-group>
+            </div>
+            <div v-if="isBenchmarkSelected === 'yes'">
+              <v-select
+                :items="defaultParameters.benchmarks"
+                item-text="label"
+                item-value="value"
+                v-model="selectedParameters.benchmark"
+                label="Benchmark*"
+                outlined
+                dense
+                style="margin-top: -8px"
+              ></v-select>
+              <v-select
+                v-if="selectedParameters.benchmark === 'cosbench'"
+                style="margin-top: -15px"
+                :items="defaultParameters.operations"
+                item-text="label"
+                item-value="value"
+                v-model="selectedParameters.operation"
+                label="Operation*"
+                outlined
+                dense
+              ></v-select>
+              <v-select
+                v-if="selectedParameters.benchmark === 'fio'"
+                style="margin-top: -15px"
+                :items="defaultParameters.templates"
+                item-text="label"
+                item-value="value"
+                v-model="selectedParameters.template"
+                label="Template*"
+                outlined
+                dense
+              ></v-select>
+              <v-select
+                style="margin-top: -15px"
+                :items="defaultParameters.configurations"
+                item-text="label"
+                item-value="value"
+                v-model="selectedParameters.configuration"
+                label="Configuration*"
+                outlined
+                dense
+              ></v-select>
+
+              <!-- Add Start -->
+              <div
+                v-if="selectedParameters.benchmark === 's3bench_basic' && selectedParameters.configuration === 'custom'"
+              >
+                <v-text-field
+                  style="margin-top: -15px"
+                  outlined
+                  dense
+                  v-model="selectedParameters.clientCoun"
+                  label="Client Count"
+                  type="number"
+                ></v-text-field>
+                <v-text-field
+                  style="margin-top: -15px"
+                  outlined
+                  dense
+                  v-model="selectedParameters.objectsCount"
+                  label="Objects Count"
+                  type="number"
+                ></v-text-field>
+                <v-text-field
+                  style="margin-top: -15px"
+                  outlined
+                  dense
+                  v-model="selectedParameters.objectSize"
+                  label="Object Size"
+                  type="number"
+                ></v-text-field>
+                <div style="margin-top: -40px" v-if="selectedParameters.objectSize">
+                  <v-radio-group v-model="isObjectSizeSelected" row>
+                    <v-radio label="KB" value="KB"></v-radio>
+                    <v-radio label="MB" value="MB"></v-radio>
+                    <v-radio label="GB" value="GB"></v-radio>
+                  </v-radio-group>
+                </div>
+                <v-text-field
+                  style="margin-top: -5px"
+                  outlined
+                  dense
+                  v-model="selectedParameters.graphSamplingRate"
+                  label="Graph Sampling Rate"
+                  type="number"
+                ></v-text-field>
+              </div>
+
+              <div
+                v-if="selectedParameters.benchmark === 'hsbench' && selectedParameters.configuration === 'custom'"
+              >
+                <v-text-field
+                  style="margin-top: -15px"
+                  outlined
+                  dense
+                  v-model="selectedParameters.bucketsCount"
+                  label="Buckets Count"
+                  type="number"
+                ></v-text-field>
+                <v-text-field
+                  style="margin-top: -15px"
+                  outlined
+                  dense
+                  v-model="selectedParameters.objectsCount"
+                  label="Objects Count"
+                  type="number"
+                ></v-text-field>
+                <v-text-field
+                  style="margin-top: -15px"
+                  outlined
+                  dense
+                  v-model="selectedParameters.objectSize"
+                  label="Object Size"
+                  type="number"
+                ></v-text-field>
+                <div style="margin-top: -40px" v-if="selectedParameters.objectSize">
+                  <v-radio-group v-model="isObjectSizeSelected" row>
+                    <v-radio label="KB" value="KB"></v-radio>
+                    <v-radio label="MB" value="MB"></v-radio>
+                    <v-radio label="GB" value="GB"></v-radio>
+                  </v-radio-group>
+                </div>
+                <v-text-field
+                  style="margin-top: -5px"
+                  outlined
+                  dense
+                  v-model="selectedParameters.clientCoun"
+                  label="Client Count"
+                  type="number"
+                ></v-text-field>
+                <v-text-field
+                  style="margin-top: -15px"
+                  outlined
+                  dense
+                  v-model="selectedParameters.testDuration"
+                  label="Test Duration"
+                  type="number"
+                ></v-text-field>
+                <v-text-field
+                  style="margin-top: -15px"
+                  outlined
+                  dense
+                  v-model="selectedParameters.graphSamplingRate"
+                  label="Graph Sampling Rate"
+                  type="number"
+                ></v-text-field>
+              </div>
+
+              <div
+                v-if="selectedParameters.benchmark === 'cosbench' && selectedParameters.configuration === 'custom'"
+              >
+                <v-text-field
+                  style="margin-top: -15px"
+                  outlined
+                  dense
+                  v-model="selectedParameters.clientCoun"
+                  label="Client Count"
+                  type="number"
+                ></v-text-field>
+                <v-text-field
+                  style="margin-top: -15px"
+                  outlined
+                  dense
+                  v-model="selectedParameters.objectsCount"
+                  label="Objects Count"
+                  type="number"
+                ></v-text-field>
+                <v-text-field
+                  style="margin-top: -15px"
+                  outlined
+                  dense
+                  v-model="selectedParameters.objectSize"
+                  label="Object Size"
+                  type="number"
+                ></v-text-field>
+                <div style="margin-top: -40px" v-if="selectedParameters.objectSize">
+                  <v-radio-group v-model="isObjectSizeSelected" row>
+                    <v-radio label="KB" value="KB"></v-radio>
+                    <v-radio label="MB" value="MB"></v-radio>
+                    <v-radio label="GB" value="GB"></v-radio>
+                  </v-radio-group>
+                </div>
+                <v-text-field
+                  style="margin-top: -5px"
+                  outlined
+                  dense
+                  v-model="selectedParameters.bucketsCount"
+                  label="Buckets Count"
+                  type="number"
+                ></v-text-field>
+                <v-text-field
+                  style="margin-top: -15px"
+                  outlined
+                  dense
+                  v-model="selectedParameters.testDuration"
+                  label="Test Duration"
+                  type="number"
+                ></v-text-field>
+                <v-text-field
+                  style="margin-top: -15px"
+                  outlined
+                  dense
+                  v-model="selectedParameters.graphSamplingRate"
+                  label="Graph Sampling Rate"
+                  type="number"
+                ></v-text-field>
+              </div>
+
+              <div
+                v-if="selectedParameters.benchmark === 'fio' && selectedParameters.configuration === 'custom'"
+              >
+                <v-text-field
+                  style="margin-top: -15px"
+                  outlined
+                  dense
+                  v-model="selectedParameters.testDuration"
+                  label="Test Duration"
+                  type="number"
+                ></v-text-field>
+                <v-text-field
+                  style="margin-top: -15px"
+                  outlined
+                  dense
+                  v-model="selectedParameters.blockSize"
+                  label="Block Size"
+                  type="number"
+                ></v-text-field>
+                <v-text-field
+                  style="margin-top: -15px"
+                  outlined
+                  dense
+                  v-model="selectedParameters.jobsCount"
+                  label="Jobs Count"
+                  type="number"
+                ></v-text-field>
+                <v-text-field
+                  style="margin-top: -15px"
+                  outlined
+                  dense
+                  v-model="selectedParameters.samples"
+                  label="Samples"
+                  type="number"
+                ></v-text-field>
+              </div>
+            </div>
+            <div v-if="isBenchmarkSelected === 'no'">
+              <v-row>
+                <v-col cols="12">
+                  <v-text-field
+                    style="margin-top: -20px"
+                    label="Time Scale"
+                    type="number"
+                    min="1"
+                    max="60"
+                    hint="Number should be 1 to 60"
+                    :rules="[
+                      () => !!selectedParameters.time_scale || 'This field is required',
+                      () => !!selectedParameters.time_scale && selectedParameters.time_scale <= 60 || 'Time scale must be less than 60',
+                    ]"
+                    required
+                    outlined
+                    dense
+                    v-model="selectedParameters.time_scale"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+            </div>
+
             <div>
-              <v-btn color="primary" @click="runScript()" v-bind:disabled="btnDisabled">Run Script</v-btn>
+              <v-btn
+                color="primary"
+                @click="runScript()"
+                v-bind:disabled="btnDisabled"
+              >{{ isBenchmarkSelected == 'yes' ? 'RUN SCRIPT' : 'START MONITORING' }}</v-btn>
               <v-btn
                 color="primary"
                 @click="clearScriptArgs()"
                 style="margin-left: 16px"
                 outlined
-                >Clear</v-btn
-              >
+              >Clear</v-btn>
             </div>
           </v-card-text>
         </v-card>
@@ -132,17 +386,18 @@
                   @click="showLog(scriptExecLog)"
                   style="min-width: 150px"
                 >
-                  <v-list-item-title>{{
+                  <v-list-item-title>
+                    {{
                     scriptExecLog.start_time | fromMillis
-                  }}</v-list-item-title>
+                    }}
+                  </v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>
             <span
               v-if="selectedScriptExecLog"
               style="color: #ffffff; font-size: 18px"
-              >{{ selectedScriptExecLog.start_time | fromMillis }}</span
-            >
+            >{{ selectedScriptExecLog.start_time | fromMillis }}</span>
             <span v-else style="color: #ffffff; font-size: 18px">Terminal</span>
           </v-toolbar>
           <v-card-text
@@ -158,25 +413,19 @@
                 <div style="border: 1px solid #ffffff; font-size: 13px">
                   <p
                     style="color: #99ff33; margin-bottom: 0; text-align: center"
-                  >
-                    * Auto-Perf Terminal *
-                  </p>
+                  >* Auto-Perf Terminal *</p>
                   <p
                     style="color: #fffc33; margin-bottom: 0; text-align: center"
-                  >
-                    (View Script execution logs)
-                  </p>
+                  >(View Script execution logs)</p>
                 </div>
               </v-col>
             </v-row>
             <v-row>
-              <v-col
-                class="py-0"
-                style="padding-left: 17px; padding-right: 13px"
-              >
-                <div id="logArea" class="terminal">
-                  {{ selectedScriptExecLog ? selectedScriptExecLog.log : "" }}
-                </div>
+              <v-col class="py-0" style="padding-left: 17px; padding-right: 13px">
+                <div
+                  id="logArea"
+                  class="terminal"
+                >{{ selectedScriptExecLog ? selectedScriptExecLog.log : "" }}</div>
               </v-col>
             </v-row>
           </v-card-text>
@@ -185,18 +434,13 @@
     </v-row>
     <v-dialog v-model="showHelp" width="900">
       <v-card>
-        <v-card-title
-          class="headline"
-          style="background-color: #6ebe49; color: #ffffff"
-        >
-          Help
-        </v-card-title>
+        <v-card-title class="headline" style="background-color: #6ebe49; color: #ffffff">Help</v-card-title>
 
         <v-card-text style="margin-top: 15px">
-          <label
-            >Pre-requisite steps to perform AutoPerf s3 performance
-            testing:</label
-          >
+          <label>
+            Pre-requisite steps to perform AutoPerf s3 performance
+            testing:
+          </label>
           <ol>
             <li>S3Cluster should be configured with latest build.</li>
             <li>S3Cluster is stable and in running state.</li>
@@ -220,7 +464,7 @@
             <li>
               While running fio benchmark, you will observe the S3 performance
               graph (Grafana Dashboard) only on the primary and secondary node
-              of S3 Server respectively. It will not be reflected on your Client
+              of S3 Server respectively. It will not be reflected on your Client
               server.
             </li>
             <li>
@@ -234,7 +478,53 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary" @click="showHelp = false"> Ok </v-btn>
+          <v-btn color="primary" @click="showHelp = false">Ok</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="addNodeDialog" width="500" persistent>
+      <v-card>
+        <v-card-title class="headline" style="background-color: #6ebe49; color: #ffffff">Add Node</v-card-title>
+
+        <v-card-text>
+          <v-text-field
+            class="mt-5"
+            label="Node*"
+            v-model.trim="addMetadataForm.node"
+            outlined
+            dense
+          ></v-text-field>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="addNode()" :disabled="!addMetadataForm.node">Add</v-btn>
+          <v-btn color="primary" @click="cancelAddNode()" class="ml-4 mr-2" outlined>Cancel</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="addClientDialog" width="500" persistent>
+      <v-card>
+        <v-card-title class="headline" style="background-color: #6ebe49; color: #ffffff">Add Client</v-card-title>
+
+        <v-card-text>
+          <v-text-field
+            class="mt-5"
+            label="Client*"
+            v-model.trim="addMetadataForm.client"
+            outlined
+            dense
+          ></v-text-field>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="addClient()" :disabled="!addMetadataForm.client">Add</v-btn>
+          <v-btn color="primary" @click="cancelAddClient()" class="ml-4 mr-2" outlined>Cancel</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -242,8 +532,7 @@
       v-model="snackbarConfig.show"
       :color="snackbarConfig.color"
       top
-      >{{ snackbarConfig.message }}</v-snackbar
-    >
+    >{{ snackbarConfig.message }}</v-snackbar>
   </div>
 </template>
 
@@ -256,6 +545,28 @@ import apiRegister from "../../services/api-register";
   name: "auto-perf-dashboard"
 })
 export default class AutoPerfDashboard extends Vue {
+  public isBenchmarkSelected: string = "yes"; // Select Benchmark Option "yes or no"
+  public isObjectSizeSelected: string = "KB"; // Select Object size Option "KB or MB or GB"
+
+  public resetIsBenchmarkSelected() {
+    if (this.isBenchmarkSelected == "yes") {
+      this.selectedParameters.time_scale = null;
+    } else {
+      this.selectedParameters.benchmark = "";
+      this.selectedParameters.configuration = "";
+      this.selectedParameters.operation = "";
+      this.selectedParameters.clientCoun = null;
+      this.selectedParameters.objectsCount = null;
+      this.selectedParameters.objectSize = null;
+      this.selectedParameters.bucketsCount = null;
+      this.selectedParameters.testDuration = null;
+      this.selectedParameters.graphSamplingRate = null;
+      this.selectedParameters.blockSize = null;
+      this.selectedParameters.jobsCount = null;
+      this.selectedParameters.samples = null;
+    }
+  }
+
   public defaultParameters: any = {
     benchmarks: [],
     operations: [],
@@ -276,7 +587,17 @@ export default class AutoPerfDashboard extends Vue {
     secondary_server: null,
     sampling: "",
     client_password: "",
-    server_password: ""
+    server_password: "",
+    time_scale: null,
+    clientCoun: null,
+    objectsCount: null,
+    objectSize: null,
+    bucketsCount: null,
+    testDuration: null,
+    graphSamplingRate: null,
+    blockSize: null,
+    jobsCount: null,
+    samples: null
   };
 
   public disableForm: boolean = true;
@@ -288,6 +609,13 @@ export default class AutoPerfDashboard extends Vue {
 
   public isGoToDashboard: boolean = false;
   public showHelp: boolean = false;
+  public addNodeDialog: boolean = false;
+  public addClientDialog: boolean = false;
+
+  public addMetadataForm: any = {
+    node: "",
+    client: ""
+  };
 
   public scriptExecLogs: any[] = [];
 
@@ -365,23 +693,74 @@ export default class AutoPerfDashboard extends Vue {
     this.disableForm = true;
     try {
       const scriptArgs: any = {
-        benchmark: this.selectedParameters.benchmark,
-        configuration: this.selectedParameters.configuration,
         client: this.selectedParameters.client.join(","),
         primary_server: this.selectedParameters.primary_server.join(","),
         sampling: this.selectedParameters.sampling,
         server_password: this.selectedParameters.server_password
       };
-      if (scriptArgs.benchmark === "cosbench") {
-        scriptArgs.operation = this.selectedParameters.operation;
+      if (this.isBenchmarkSelected === "yes") {
+        scriptArgs["is_benchmark_selected"] = true;
+        scriptArgs["benchmark"] = this.selectedParameters.benchmark;
+        scriptArgs["configuration"] = this.selectedParameters.configuration;
+        if (
+          scriptArgs.benchmark === "s3bench_basic" &&
+          scriptArgs.configuration === "custom"
+        ) {
+          scriptArgs.clientCoun = this.selectedParameters.clientCoun;
+          scriptArgs.objectsCount = this.selectedParameters.objectsCount;
+          scriptArgs.objectSize =
+            this.selectedParameters.objectSize + this.isObjectSizeSelected;
+          scriptArgs.graphSamplingRate = this.selectedParameters.graphSamplingRate;
+        }
+        if (
+          scriptArgs.benchmark === "hsbench" &&
+          scriptArgs.configuration === "custom"
+        ) {
+          scriptArgs.bucketsCount = this.selectedParameters.bucketsCount;
+          scriptArgs.objectsCount = this.selectedParameters.objectsCount;
+          scriptArgs.objectSize =
+            this.selectedParameters.objectSize + this.isObjectSizeSelected;
+          scriptArgs.clientCoun = this.selectedParameters.clientCoun;
+          scriptArgs.testDuration = this.selectedParameters.testDuration;
+          scriptArgs.graphSamplingRate = this.selectedParameters.graphSamplingRate;
+        }
+        if (
+          scriptArgs.benchmark === "cosbench" &&
+          scriptArgs.configuration === "custom"
+        ) {
+          scriptArgs.clientCoun = this.selectedParameters.clientCoun;
+          scriptArgs.objectsCount = this.selectedParameters.objectsCount;
+          scriptArgs.objectSize =
+            this.selectedParameters.objectSize + this.isObjectSizeSelected;
+          scriptArgs.bucketsCount = this.selectedParameters.bucketsCount;
+          scriptArgs.testDuration = this.selectedParameters.testDuration;
+          scriptArgs.graphSamplingRate = this.selectedParameters.graphSamplingRate;
+        }
+        if (
+          scriptArgs.benchmark === "fio" &&
+          scriptArgs.configuration === "custom"
+        ) {
+          scriptArgs.testDuration = this.selectedParameters.testDuration;
+          scriptArgs.blockSize = this.selectedParameters.blockSize;
+          scriptArgs.jobsCount = this.selectedParameters.jobsCount;
+          scriptArgs.samples = this.selectedParameters.samples;
+        }
+        if (scriptArgs.benchmark === "cosbench") {
+          scriptArgs.operation = this.selectedParameters.operation;
+        }
+        if (scriptArgs.benchmark === "fio") {
+          scriptArgs.template = this.selectedParameters.template;
+        }
+      } else {
+        scriptArgs["is_benchmark_selected"] = false;
+        scriptArgs["time_scale"] = this.selectedParameters.time_scale;
       }
-      if (scriptArgs.benchmark === "fio") {
-        scriptArgs.template = this.selectedParameters.template;
-      }
+
       res = await Api.post(apiRegister.script_execution, {
         script_name: "s3workloads",
         script_args: scriptArgs
       });
+      // console.log("Passing final scriptArgs", scriptArgs);
     } catch (err) {
       res = err;
     }
@@ -406,30 +785,128 @@ export default class AutoPerfDashboard extends Vue {
     this.selectedParameters.sampling = "";
     this.selectedParameters.client_password = "";
     this.selectedParameters.server_password = "";
+    this.selectedParameters.time_scale = null;
+    this.selectedParameters.clientCoun = null;
+    this.selectedParameters.objectsCount = null;
+    this.selectedParameters.objectSize = null;
+    this.selectedParameters.bucketsCount = null;
+    this.selectedParameters.testDuration = null;
+    this.selectedParameters.graphSamplingRate = null;
+    this.selectedParameters.blockSize = null;
+    this.selectedParameters.jobsCount = null;
+    this.selectedParameters.samples = null;
   }
 
   get btnDisabled() {
     let isValidBenchmark = false;
-    if (this.selectedParameters.benchmark) {
-      isValidBenchmark = true;
-      if (this.selectedParameters.benchmark === "cosbench") {
-        if (!this.selectedParameters.operation) {
-          isValidBenchmark = false;
+    if (this.isBenchmarkSelected === "yes") {
+      if (this.selectedParameters.benchmark) {
+        isValidBenchmark = true;
+        if (
+          this.selectedParameters.benchmark === "s3bench_basic" &&
+          this.selectedParameters.configuration === "custom"
+        ) {
+          if (!this.selectedParameters.clientCoun) {
+            isValidBenchmark = false;
+          }
+          if (!this.selectedParameters.objectsCount) {
+            isValidBenchmark = false;
+          }
+          if (!this.selectedParameters.objectSize) {
+            isValidBenchmark = false;
+          }
+          if (!this.selectedParameters.graphSamplingRate) {
+            isValidBenchmark = false;
+          }
+        }
+
+        if (
+          this.selectedParameters.benchmark === "hsbench" &&
+          this.selectedParameters.configuration === "custom"
+        ) {
+          if (!this.selectedParameters.bucketsCount) {
+            isValidBenchmark = false;
+          }
+          if (!this.selectedParameters.objectsCount) {
+            isValidBenchmark = false;
+          }
+          if (!this.selectedParameters.objectSize) {
+            isValidBenchmark = false;
+          }
+          if (!this.selectedParameters.clientCoun) {
+            isValidBenchmark = false;
+          }
+          if (!this.selectedParameters.testDuration) {
+            isValidBenchmark = false;
+          }
+          if (!this.selectedParameters.graphSamplingRate) {
+            isValidBenchmark = false;
+          }
+        }
+        if (this.selectedParameters.benchmark === "cosbench") {
+          if (!this.selectedParameters.operation) {
+            isValidBenchmark = false;
+          }
+        }
+        if (
+          this.selectedParameters.benchmark === "cosbench" &&
+          this.selectedParameters.configuration === "custom"
+        ) {
+          if (!this.selectedParameters.clientCoun) {
+            isValidBenchmark = false;
+          }
+          if (!this.selectedParameters.objectsCount) {
+            isValidBenchmark = false;
+          }
+          if (!this.selectedParameters.objectSize) {
+            isValidBenchmark = false;
+          }
+          if (!this.selectedParameters.bucketsCount) {
+            isValidBenchmark = false;
+          }
+          if (!this.selectedParameters.testDuration) {
+            isValidBenchmark = false;
+          }
+          if (!this.selectedParameters.graphSamplingRate) {
+            isValidBenchmark = false;
+          }
+        }
+        if (this.selectedParameters.benchmark === "fio") {
+          if (!this.selectedParameters.template) {
+            isValidBenchmark = false;
+          }
+          if (
+            this.selectedParameters.benchmark === "fio" &&
+            this.selectedParameters.configuration === "custom"
+          ) {
+            if (!this.selectedParameters.testDuration) {
+              isValidBenchmark = false;
+            }
+            if (!this.selectedParameters.blockSize) {
+              isValidBenchmark = false;
+            }
+            if (!this.selectedParameters.jobsCount) {
+              isValidBenchmark = false;
+            }
+            if (!this.selectedParameters.samples) {
+              isValidBenchmark = false;
+            }
+          }
         }
       }
-      if (this.selectedParameters.benchmark === "fio") {
-        if (!this.selectedParameters.template) {
-          isValidBenchmark = false;
-        }
+    } else {
+      if (this.selectedParameters.time_scale) {
+        isValidBenchmark = true;
       }
     }
 
     return !(
-      isValidBenchmark &&
-      this.selectedParameters.configuration &&
-      this.selectedParameters.client &&
-      this.selectedParameters.primary_server &&
-      this.selectedParameters.sampling
+      (isValidBenchmark &&
+        this.selectedParameters.configuration &&
+        this.selectedParameters.client &&
+        this.selectedParameters.primary_server &&
+        this.selectedParameters.sampling) ||
+      this.selectedParameters.time_scale
     );
   }
 
@@ -440,6 +917,46 @@ export default class AutoPerfDashboard extends Vue {
       ":3000/d/1U980bWGk/cortx-autoperf?orgId=1&refresh=5s&var-int=eno1&var-path=%2F&var-server=" +
       this.selectedParameters.client
     );
+  }
+
+  public async addNode() {
+    this.addNodeDialog = false;
+    this.showSnackbar("Adding Node...");
+    const res: any = await Api.post(apiRegister.metadata_node, {
+      node: this.addMetadataForm.node
+    });
+    this.addMetadataForm.node = "";
+    if (res && res.data) {
+      this.hideSnackbar();
+      await this.getDefaultParameters();
+    } else {
+      this.hideSnackbar();
+    }
+  }
+
+  public cancelAddNode() {
+    this.addMetadataForm.node = "";
+    this.addNodeDialog = false;
+  }
+
+  public async addClient() {
+    this.addClientDialog = false;
+    this.showSnackbar("Adding Client...");
+    const res: any = await Api.post(apiRegister.metadata_client, {
+      client: this.addMetadataForm.client
+    });
+    this.addMetadataForm.client = "";
+    if (res && res.data) {
+      this.hideSnackbar();
+      await this.getDefaultParameters();
+    } else {
+      this.hideSnackbar();
+    }
+  }
+
+  public cancelAddClient() {
+    this.addMetadataForm.client = "";
+    this.addClientDialog = false;
   }
 
   private showSnackbar(message: string, isSuccess: boolean = true) {
@@ -454,6 +971,7 @@ export default class AutoPerfDashboard extends Vue {
   }
 
   private prepareDropdowns(defaultParameters: any) {
+    this.clearDropdowns();
     defaultParameters.benchmarks.forEach((benchmark: string) => {
       this.defaultParameters.benchmarks.push({
         label: benchmark,
@@ -502,6 +1020,17 @@ export default class AutoPerfDashboard extends Vue {
         value: samplingItem
       });
     });
+  }
+
+  private clearDropdowns() {
+    this.defaultParameters.benchmarks = [];
+    this.defaultParameters.operations = [];
+    this.defaultParameters.templates = [];
+    this.defaultParameters.configurations = [];
+    this.defaultParameters.clients = [];
+    this.defaultParameters.primary_servers = [];
+    this.defaultParameters.secondary_servers = [];
+    this.defaultParameters.sampling = [];
   }
 }
 </script>

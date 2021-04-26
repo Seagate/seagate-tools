@@ -214,6 +214,17 @@ function s3bench_workloads()
     popd
 }
 
+function run_lnet_workloads()
+{
+    mkdir -p $CLIENT_ARTIFACTS_DIR
+    pushd $CLIENT_ARTIFACTS_DIR
+    START_TIME=`date +%s000000000`
+    $SCRIPT_DIR/lnet_workload.sh $NODES $LNET_OPS | tee lnet_workload.log
+    STATUS=${PIPESTATUS[0]}
+    STOP_TIME=`date +%s000000000`
+    popd
+}
+
 function m0crate_workload()
 {
     START_TIME=`date +%s000000000`
@@ -553,6 +564,11 @@ function main() {
 
     # Start workload time execution measuring
     start_measuring_workload_time
+    
+    # lnet workload
+    if [[ -n $LNET ]]; then
+        run_lnet_workloads
+    fi
 
     # fio workload
     if [[ -n $FIO ]]; then
@@ -714,6 +730,13 @@ while [[ $# -gt 0 ]]; do
             HA_TYPE=$2
             shift
             ;;
+        --lnet)
+            LNET="1"
+            ;;
+        -ops)
+            LNET_OPS=$2
+            shift
+            ;;       
         --fio)                 
             FIO="1"
             ;;

@@ -543,6 +543,11 @@ function main() {
         build_deploy       
     fi
 
+    # lnet workload
+    if [[ -n $LNET ]]; then
+        run_lnet_workloads
+    fi
+
     if [[ -n $MKFS ]]; then
 	# Stop cluster 
 	stop_cluster
@@ -565,11 +570,6 @@ function main() {
     # Start workload time execution measuring
     start_measuring_workload_time
     
-    # lnet workload
-    if [[ -n $LNET ]]; then
-        run_lnet_workloads
-    fi
-
     # fio workload
     if [[ -n $FIO ]]; then
         fio_workloads

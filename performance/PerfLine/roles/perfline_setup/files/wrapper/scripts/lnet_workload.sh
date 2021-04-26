@@ -4,10 +4,10 @@ set -x
 
 NODES=$1
 OPS_TYPES=$2
+
 for i in ${OPS_TYPES//,/ }
 do
      echo $i : $NODES
-
      pdsh -S -w $NODES modprobe lnet_selftest
      lnet_ips=$(pdsh -S -w $NODES 'lctl list_nids' | cut -d '.' -f4 | cut -d '@' -f1 | paste -sd ',')
      lnet_net=$(pdsh -S -w $NODES 'lctl list_nids' | cut -d ' ' -f2 | cut -d '.' -f1,2,3 | head -1)

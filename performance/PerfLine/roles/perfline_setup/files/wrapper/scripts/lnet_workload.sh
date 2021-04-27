@@ -20,7 +20,7 @@ do
          lst add_batch bulk_$i
          lst add_test --concurrency 8 --batch bulk_$i --from client --to server brw $i size=1M
          lst run bulk_$i
-         lst stat client server & sleep 30; kill $!
+         lst stat client server & sleep 60; kill $!
          lst stop bulk_$i
      else
          lst add_batch $i

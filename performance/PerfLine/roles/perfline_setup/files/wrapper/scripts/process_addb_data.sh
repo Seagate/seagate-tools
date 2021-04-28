@@ -75,7 +75,7 @@ function generate_timeline_imgs()
 
     set +e
 
-    $SCRIPT_DIR/req_browser.py $M0PLAY_DB | while read line; do
+    $SCRIPT_DIR/req_browser.py --db $M0PLAY_DB | while read line; do
         local fields_nr=$(echo "$line" | awk '{print NF}')
         local workload_part=$(parse_val "time" "$line")
         local req_type=$(parse_val "s3_op" "$line")

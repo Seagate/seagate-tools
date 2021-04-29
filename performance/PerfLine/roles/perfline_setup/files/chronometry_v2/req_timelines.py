@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 #
 # Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
 #
@@ -70,6 +71,11 @@ def parse_args():
                         help="Display the first E lines in depth of client request")
     parser.add_argument("request_id", type=str, help="Request id")
 
+    parser.add_argument("--output-file", type=str, default=None,
+                        help="Save picture of timelines into file")
+    parser.add_argument("--no-window", action='store_true',
+                        help="Don't show interactive window")
+
     return parser.parse_args()
 
 
@@ -102,6 +108,7 @@ if __name__ == '__main__':
     process_req(req_d[0]['pid1'], req_d[0]['mid1'], "client", 0, args.depth)
 
     ref_time = prepare_time_table(time_table)
-    draw_timelines(time_table, None, ref_time, 0, "ms", False, args.maximize)
+    draw_timelines(time_table, None, ref_time, 0, "ms", False, args.maximize,
+                   no_window=args.no_window, filename=args.output_file)
 
     db_close()

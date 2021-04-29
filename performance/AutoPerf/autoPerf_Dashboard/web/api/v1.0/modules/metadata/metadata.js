@@ -63,6 +63,56 @@ class MetadataService {
             return error;
         }
     }
+
+    async addNode(gid, node) {
+        try {
+            const properties = propertiesReader(config.launch_benchmark_conf_file);
+            let nodes = properties.get('primaryserver').replace(/['"]+/g, '');
+            const isNodeExist = nodes.split(' ').includes(node);
+            
+            if(!isNodeExist) {
+                nodes = `"${nodes} ${node}"`;
+                properties.set('primaryserver', nodes);
+                await properties.save(config.launch_benchmark_conf_file);
+            }
+
+            return {
+                statusCode: statusCode.created,
+                message: "Node added successfully."
+            };
+        } catch (error) {
+            throw {
+                statusCode: error.statusCode,
+                message: error.message,
+                data: JSON.stringify(error),
+            };
+        }
+    }
+
+    async addClient(gid, client) {
+        try {
+            const properties = propertiesReader(config.launch_benchmark_conf_file);
+            let clients = properties.get('clients').replace(/['"]+/g, '');
+            const isClientExist = clients.split(' ').includes(client);
+            
+            if(!isClientExist) {
+                clients = `"${clients} ${client}"`;
+                properties.set('clients', clients);
+                await properties.save(config.launch_benchmark_conf_file);
+            }
+
+            return {
+                statusCode: statusCode.created,
+                message: "Client added successfully."
+            };
+        } catch (error) {
+            throw {
+                statusCode: error.statusCode,
+                message: error.message,
+                data: JSON.stringify(error),
+            };
+        }
+    }
 }
 
 module.exports = {

@@ -31,10 +31,6 @@
 
 - meta: refresh_inventory
 
-- name: "[local-pre-req] : Refreshing 'known hosts'"
-  command: sed -i "/{{ hostvars[item]['ansible_host'] }}/d" /root/.ssh/known_hosts
-  with_items: "{{ groups['all'] }}"
-
 - name: "[local-pre-req] : Enable Passwordless SSH"
   script: files/passwordless_ssh.sh {{ hostvars[item]['ansible_user'] }} {{ hostvars[item]['ansible_host'] }} {{ CLUSTER_PASS }}
   ignore_errors: true
@@ -62,11 +58,6 @@
   when: CHANGE_PASS == "yes" and REIMAGE == "yes"
   
 - meta: refresh_inventory
-
-- name: "[reimage] : Refresh 'known hosts'"
-  command: sed -i "/{{ hostvars[item]['ansible_host'] }}/d" /root/.ssh/known_hosts 
-  with_items: "{{ groups['all'] }}"
-  when: REIMAGE == "yes"
 
 - name: "[reimage] : Enable Passwordless SSH"
   script: files/passwordless_ssh.sh {{ hostvars[item]['ansible_user'] }} {{ hostvars[item]['ansible_host'] }} {{ CLUSTER_PASS }}

@@ -74,6 +74,16 @@ def get_schema_motr():
                 },
                 {
                             'schema': {
+                                'lnet': {
+                                    'type': 'dict',
+                                    'schema': {
+                                        'LNET_OPS': {'type': 'string', 'required': True, 'empty': False},
+                                        }
+                                }
+                            }
+                },
+                {
+                            'schema': {
                                 'fio': {
                                     'type': 'dict',
                                     'schema': {

@@ -73,6 +73,10 @@ def parse_options(conf, result_dir):
 
     # Benchmarks
     for b in conf['benchmarks']:
+        if 'lnet' in b:
+            options.append('--lnet')
+            options.append('-ops')
+            options.append(b['lnet']['LNET_OPS'])
         if 'fio' in b:
             options.append('--fio')
             # Fio Parameter

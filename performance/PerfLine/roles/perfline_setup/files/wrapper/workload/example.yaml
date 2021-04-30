@@ -50,6 +50,8 @@ stats_collection:
 benchmarks:
   - custom:
       cmd: sleep 1
+  - lnet:
+      LNET_OPS:              # user can pass value operation separated by ',' Ex: read,write,ping
   - fio:
       Duration:
       BlockSize:

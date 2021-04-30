@@ -102,7 +102,8 @@ def draw_queue_line(queue, offset):
         plt.text(x,offset+y/mx, f"{round(y,2)} |{round(a,2)}|")
 
 def draw_timelines(time_table, queue_table, client_start_time, queue_start_time,
-                   time_unit: str, show_queues: bool, maximize: bool):
+                   time_unit: str, show_queues: bool, maximize: bool,
+                   no_window = False, filename = None):
     cursor={"x0":0, "y0":0, "x1": 0, "y1": 0, "on": False}
     undo=[]
     def onpress(event):
@@ -137,7 +138,7 @@ def draw_timelines(time_table, queue_table, client_start_time, queue_start_time,
             return
         cursor.update({ "x0": event.xdata, "y0": event.ydata })
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=(20, 10))
     fig.canvas.mpl_connect('key_press_event', onpress)
     fig.canvas.mpl_connect('button_press_event', onclick)
     fig.canvas.mpl_connect('button_release_event', onrelease)
@@ -169,7 +170,12 @@ def draw_timelines(time_table, queue_table, client_start_time, queue_start_time,
     if maximize:
         mng = plt.get_current_fig_manager()
         mng.window.maximize()
-    plt.show()
+    
+    if filename is not None:
+        plt.savefig(filename)
+
+    if not no_window:
+        plt.show()
 
 def fill_queue_table(queue_table, queue_start_time, qrange: int):
     for q_conf in [["runq", "wail", "fom-active"],

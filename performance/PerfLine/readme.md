@@ -78,9 +78,9 @@ custom_build:
   s3server_commit_id: ""
 
 stats_collection:
-  iostat: true
-  dstat: true
-  blktrace: true
+  iostat: false
+  dstat: false
+  blktrace: false
   glances: false
   
 # List of benchmarks and parameters. This section must include
@@ -88,6 +88,8 @@ stats_collection:
 benchmarks:
   - custom:
       cmd: sleep 1
+  - lnet:
+      LNET_OPS: read,write,ping              # user can pass value operation separated by ',' Ex: read,write,ping
   - fio:
       Duration:
       BlockSize:
@@ -106,8 +108,9 @@ benchmarks:
 
 execution_options:
   mkfs: false
-  m0trace: false
-  addb: false
+  collect_m0trace: false
+  collect_addb: false
+  backup_result: false
 ```
 
 # Starting workload
@@ -137,242 +140,3 @@ If you go to report page you could see detailed report for executed task, includ
     `...`
     `server_ep = {'host': '0.0.0.0', 'port': 'new_port'}`
 
-
-# Re-organized and renamed PerfLine
-```
-.
-├── ansible.cfg
-├── callbacks
-│   └── anstomlog.py
-├── inventories
-│   └── perfline_hosts
-│       └── hosts
-├── readme.md
-├── roles
-│   └── perfline_setup
-│       ├── files
-│       │   ├── build_deploy
-│       │   │   ├── ansible.cfg
-│       │   │   ├── callbacks
-│       │   │   │   └── anstomlog.py
-│       │   │   ├── roles
-│       │   │   │   └── deploybuild
-│       │   │   │       ├── files
-│       │   │   │       │   └── local.repo
-│       │   │   │       └── tasks
-│       │   │   │           └── main.yml
-│       │   │   └── run_build_deploy.yml
-│       │   ├── chronometry
-│       │   │   ├── addb2db.py
-│       │   │   ├── addb2new.py
-│       │   │   ├── common
-│       │   │   │   ├── common_funcs
-│       │   │   │   ├── patch_motr_role_mappings
-│       │   │   │   ├── remote_execution
-│       │   │   │   ├── sw_ver_check_funcs
-│       │   │   │   └── timeout_funcs
-│       │   │   ├── corruption_workload
-│       │   │   ├── endless_m0crate
-│       │   │   ├── endless_s3bench
-│       │   │   ├── fio_tests
-│       │   │   ├── fom_req.py
-│       │   │   ├── fom_req.sh
-│       │   │   ├── get_hw_conf.exp
-│       │   │   ├── hist__client_req.py
-│       │   │   ├── hist__fom_req.py
-│       │   │   ├── hist__fom_req_r.py
-│       │   │   ├── hist__fom_to_rpc.py
-│       │   │   ├── hist__ioo_req.py
-│       │   │   ├── hist.py
-│       │   │   ├── hist__s3req.py
-│       │   │   ├── hist__srpc_to_crpc.py
-│       │   │   ├── hist__stio_req.py
-│       │   │   ├── io_req.py
-│       │   │   ├── ios-hist.sh
-│       │   │   ├── io_workload
-│       │   │   ├── kill_endless_m0crate
-│       │   │   ├── md_req.py
-│       │   │   ├── no_motr_trace.patch
-│       │   │   ├── p0
-│       │   │   ├── p0_hare
-│       │   │   ├── queues.py
-│       │   │   ├── req_utils.py
-│       │   │   ├── restart_ios.sh
-│       │   │   ├── run_corruption_task
-│       │   │   ├── run_s3_corruption
-│       │   │   ├── run_s3_task
-│       │   │   ├── run_task
-│       │   │   ├── s3_build_fix
-│       │   │   │   ├── BUILD.template
-│       │   │   │   ├── headers.template
-│       │   │   │   ├── libs.template
-│       │   │   │   └── rebuildall.sh
-│       │   │   ├── s3_corruption_workload
-│       │   │   ├── s3_req.py
-│       │   │   ├── s3server_integration
-│       │   │   │   ├── check_and_create_s3_cred
-│       │   │   │   ├── functions
-│       │   │   │   ├── patch_haproxy_config
-│       │   │   │   ├── s3cli_aws
-│       │   │   │   ├── s3cli_configure_aws
-│       │   │   │   ├── s3cli_patch_hosts
-│       │   │   │   ├── s3cli_s3bench
-│       │   │   │   ├── s3_create_user
-│       │   │   │   ├── s3_overrides.py
-│       │   │   │   └── s3srv_build_prepare
-│       │   │   ├── s3_workload
-│       │   │   ├── task_queue
-│       │   │   │   ├── batch_enqueue
-│       │   │   │   ├── batch_results
-│       │   │   │   ├── config.py
-│       │   │   │   ├── config.yaml
-│       │   │   │   ├── issues.txt
-│       │   │   │   ├── m0crate.corruption.sample.yaml
-│       │   │   │   ├── motr.sample.yaml
-│       │   │   │   ├── print_task_results
-│       │   │   │   ├── s3bench.corruption.sample.yaml
-│       │   │   │   ├── s3.sample.yaml
-│       │   │   │   ├── st.sh
-│       │   │   │   ├── task_queue.py
-│       │   │   │   ├── task_queue.sh
-│       │   │   │   ├── tasks.py
-│       │   │   │   └── validator.py
-│       │   │   └── test_io.yaml.template
-│       │   ├── chronometry_v2
-│       │   │   ├── addb2db_multiprocess.sh
-│       │   │   ├── addb2db.py
-│       │   │   ├── hist.py
-│       │   │   ├── queues.py
-│       │   │   ├── req_graph.py
-│       │   │   ├── req_timelines.py
-│       │   │   └── req_utils.py
-│       │   ├── filter.py
-│       │   ├── glances.tar.gz
-│       │   ├── huey_consumer
-│       │   ├── local.repo
-│       │   ├── main.py
-│       │   ├── passwordless_ssh.sh
-│       │   ├── perfline.service
-│       │   ├── perfline-ui.service
-│       │   ├── record.py
-│       │   ├── webui
-│       │   │   ├── config.py
-│       │   │   ├── core
-│       │   │   │   ├── cache.py
-│       │   │   │   ├── __init__.py
-│       │   │   │   ├── pl_api.py
-│       │   │   │   └── utils.py
-│       │   │   ├── install-systemd-service
-│       │   │   ├── perfline_proxy.sh
-│       │   │   ├── perf_result_parser.py
-│       │   │   ├── pl-web-ctl
-│       │   │   ├── pl-web.service.template
-│       │   │   ├── server.py
-│       │   │   ├── stats
-│       │   │   ├── stats.py
-│       │   │   ├── styles
-│       │   │   │   └── report.css
-│       │   │   ├── task_templates
-│       │   │   │   └── s3bench.yaml
-│       │   │   └── templates
-│       │   │       ├── artifacts.html
-│       │   │       ├── gif
-│       │   │       │   ├── beavis.gif
-│       │   │       │   ├── dog.gif
-│       │   │       │   └── spinner.gif
-│       │   │       ├── index.html
-│       │   │       ├── log.html
-│       │   │       ├── queue.html
-│       │   │       ├── results.html
-│       │   │       ├── scripts
-│       │   │       │   ├── angular.min.js
-│       │   │       │   ├── angular-route.min.js
-│       │   │       │   ├── bootstrap.min.css
-│       │   │       │   ├── bootstrap.min.js
-│       │   │       │   ├── jquery.min.js
-│       │   │       │   └── ui-bootstrap-tpls-2.5.0.min.js
-│       │   │       ├── stats.html
-│       │   │       └── task.html
-│       │   ├── wrapper
-│       │   │   ├── perfline.py
-│       │   │   ├── run_pl
-│       │   │   ├── scripts
-│       │   │   │   ├── fio-template
-│       │   │   │   │   ├── rand_fio
-│       │   │   │   │   ├── randmix_20-80_fio
-│       │   │   │   │   ├── randmix_80-20_fio
-│       │   │   │   │   ├── seq_read_fio
-│       │   │   │   │   └── seq_write_fio
-│       │   │   │   ├── merge_m0playdb
-│       │   │   │   ├── process_addb
-│       │   │   │   ├── process_addb_data.sh
-│       │   │   │   ├── run_fiobenchmark.sh
-│       │   │   │   ├── run_m0crate
-│       │   │   │   ├── s3bench_run.sh
-│       │   │   │   ├── save_m0traces
-│       │   │   │   ├── test_io.yaml.template
-│       │   │   │   ├── wait_s3_listeners.sh
-│       │   │   │   └── worker.sh
-│       │   │   ├── stat
-│       │   │   │   ├── 5u84stats.sh
-│       │   │   │   ├── collect_static_info.sh
-│       │   │   │   ├── extract_disks.py
-│       │   │   │   ├── report_generator
-│       │   │   │   │   ├── gen_pages
-│       │   │   │   │   │   └── gen_home.html
-│       │   │   │   │   ├── gen_report.py
-│       │   │   │   │   ├── m0crate_log_parser.py
-│       │   │   │   │   ├── s3bench_log_parser.py
-│       │   │   │   │   ├── styles
-│       │   │   │   │   │   └── stats.css
-│       │   │   │   │   └── templates
-│       │   │   │   │       ├── addb.html
-│       │   │   │   │       ├── blktrace.html
-│       │   │   │   │       ├── common_info.html
-│       │   │   │   │       ├── dstat.html
-│       │   │   │   │       ├── home.html
-│       │   │   │   │       ├── iostat.html
-│       │   │   │   │       ├── navigation.html
-│       │   │   │   │       ├── report_summary.html
-│       │   │   │   │       ├── text_cluster.html
-│       │   │   │   │       ├── text_commit_info.html
-│       │   │   │   │       ├── text_cpu.html
-│       │   │   │   │       ├── text_disks_mapping.html
-│       │   │   │   │       ├── text_haproxy.html
-│       │   │   │   │       ├── text_hosts.html
-│       │   │   │   │       ├── text_info.html
-│       │   │   │   │       ├── text_interfaces.html
-│       │   │   │   │       ├── text_lnet.html
-│       │   │   │   │       ├── text_memory.html
-│       │   │   │   │       ├── text_motr.html
-│       │   │   │   │       ├── text_multipath.html
-│       │   │   │   │       ├── text_nodes_mapping.html
-│       │   │   │   │       └── text_s3_config.html
-│       │   │   │   ├── start_stats_service.sh
-│       │   │   │   └── stop_stats_service.sh
-│       │   │   ├── sys
-│       │   │   │   └── config.py
-│       │   │   ├── task_validation
-│       │   │   │   ├── tasks.py
-│       │   │   │   └── validator.py
-│       │   │   └── workload
-│       │   │       ├── example.yaml
-│       │   │       ├── m0crate.128m.yaml
-│       │   │       ├── m0crate.16m.yaml
-│       │   │       ├── m0crate.1m.yaml
-│       │   │       ├── m0crate.256k.yaml
-│       │   │       ├── perfline.task.yaml
-│       │   │       ├── s3bench.32mb.yaml
-│       │   │       ├── s3bench.yaml
-│       │   │       └── sleep.yaml
-│       ├── handlers
-│       │   └── main.yml
-│       ├── tasks
-│       │   ├── enable_passwordless.yml
-│       │   ├── main.yml
-│       │   ├── pre-req_perfline.yml
-│       │   └── taskq.yml
-│       └── vars
-│           └── main.yml
-└── run_perfline.yml
-```

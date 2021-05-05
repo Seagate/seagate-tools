@@ -73,6 +73,10 @@ def parse_options(conf, result_dir):
 
     # Benchmarks
     for b in conf['benchmarks']:
+        if 'lnet' in b:
+            options.append('--lnet')
+            options.append('-ops')
+            options.append(b['lnet']['LNET_OPS'])
         if 'fio' in b:
             options.append('--fio')
             # Fio Parameter
@@ -112,10 +116,12 @@ def parse_options(conf, result_dir):
     if 'mkfs' in conf['execution_options']:
         if conf['execution_options']['mkfs']:
             options.append("--mkfs")
-    if conf['execution_options']['m0trace']:
+    if conf['execution_options']['collect_m0trace']:
         options.append("--m0trace-files")
-    if conf['execution_options']['addb']:
+    if conf['execution_options']['collect_addb']:
         options.append("--addb-dumps")
+    if conf['execution_options']['backup_result']:
+        options.append("--backup-result")
 
     print(options)
     return options

@@ -40,9 +40,9 @@ custom_build:
 
 
 stats_collection:
-  iostat: true
-  dstat: true
-  blktrace: true
+  iostat: false
+  dstat: false
+  blktrace: false
   glances: false
 
 # List of benchmarks and parameters. This section must include
@@ -50,6 +50,8 @@ stats_collection:
 benchmarks:
   - custom:
       cmd: sleep 1
+  - lnet:
+      LNET_OPS:              # user can pass value operation separated by ',' Ex: read,write,ping
   - fio:
       Duration:
       BlockSize:
@@ -68,5 +70,6 @@ benchmarks:
 
 execution_options:
   mkfs: false
-  m0trace: false
-  addb: false
+  collect_m0trace: false
+  collect_addb: false
+  backup_result: false

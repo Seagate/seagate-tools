@@ -107,9 +107,9 @@
     delegate_to: "client-1"
 
   - name: Start perfline-ui service
-    systemd: state=started name=perfline-ui daemon_reload=yes
+    systemd: state=restarted name=perfline-ui daemon_reload=yes
     delegate_to: "client-1"
 
   - name: Start perfline service
-    systemd: state=started name=perfline daemon_reload=yes
+    systemd: state=restarted name=perfline daemon_reload=yes
     delegate_to: "client-1"

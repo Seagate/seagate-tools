@@ -1,8 +1,0 @@
-Op-Type,Sample-Type,Op-Count,Byte-Count,Avg-ResTime,Avg-ProcTime,Throughput,Bandwidth,Succ-Ratio
-init,write,0,0,N/A,N/A,0,0,N/A
-prepare,write,16384,1048576000000,3001.3,1332.84,33.47,2142340322.36,100%
-read,write,read,write,3898,3917,249472000000,250688000000,1759.42,3301.54,705.87,1520.9,19.7,19.79,1260516276.78,1266690557.46,100%
-100%
-cleanup,delete,16384,0,419.07,419.07,240.64,0,100%
-cleanup,delete,16384,0,1988.25,1988.25,50.38,0,100%
-dispose,delete,0,0,N/A,N/A,0,0,N/A

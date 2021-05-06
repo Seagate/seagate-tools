@@ -1,0 +1,108 @@
+[ %!s(MISSING) ] Generating in-memory sample data...
+Done (1.066213104s)
+[ 2021-02-11 15:42:06.035531138 +0000 UTC m=+1.140667988 ] Running Write test...
+[ 2021-02-11 15:42:12.768646086 +0000 UTC m=+7.873783123 ] operation Write(1) completed in 6.73301s|%!s(<nil>)
+[ 2021-02-11 15:42:16.75160519 +0000 UTC m=+11.856742201 ] operation Write(2) completed in 3.98290s|%!s(<nil>)
+[ 2021-02-11 15:42:19.76896605 +0000 UTC m=+14.874103085 ] operation Write(3) completed in 3.01735s|%!s(<nil>)
+[ 2021-02-11 15:42:22.782606541 +0000 UTC m=+17.887743577 ] operation Write(4) completed in 3.01368s|%!s(<nil>)
+[ 2021-02-11 15:42:33.522052575 +0000 UTC m=+28.627189624 ] operation Write(5) completed in 10.73941s|%!s(<nil>)
+[ 2021-02-11 15:42:36.844935586 +0000 UTC m=+31.950072594 ] operation Write(6) completed in 3.32292s|%!s(<nil>)
+[ 2021-02-11 15:42:40.210110423 +0000 UTC m=+35.315247459 ] operation Write(7) completed in 3.36511s|%!s(<nil>)
+[ 2021-02-11 15:42:43.496726822 +0000 UTC m=+38.601863857 ] operation Write(8) completed in 3.28666s|%!s(<nil>)
+[ 2021-02-11 15:42:46.777957857 +0000 UTC m=+41.883094894 ] operation Write(9) completed in 3.28122s|%!s(<nil>)
+[ 2021-02-11 15:42:50.089961124 +0000 UTC m=+45.195098110 ] operation Write(10) completed in 3.31200s|%!s(<nil>)
+[ 2021-02-11 15:42:53.393302412 +0000 UTC m=+48.498439425 ] operation Write(11) completed in 3.30329s|%!s(<nil>)
+[ 2021-02-11 15:42:56.647052452 +0000 UTC m=+51.752189465 ] operation Write(12) completed in 3.25379s|%!s(<nil>)
+[ 2021-02-11 15:42:59.923631312 +0000 UTC m=+55.028768323 ] operation Write(13) completed in 3.27657s|%!s(<nil>)
+[ 2021-02-11 15:43:02.97154 +0000 UTC m=+58.076676978 ] operation Write(14) completed in 3.04790s|%!s(<nil>)
+[ 2021-02-11 15:43:06.141769314 +0000 UTC m=+61.246906349 ] operation Write(15) completed in 3.17018s|%!s(<nil>)
+[ 2021-02-11 15:43:09.16093479 +0000 UTC m=+64.266071831 ] operation Write(16) completed in 3.01916s|%!s(<nil>)
+[ 2021-02-11 15:43:12.178841422 +0000 UTC m=+67.283978456 ] operation Write(17) completed in 3.01794s|%!s(<nil>)
+[ 2021-02-11 15:43:15.23167756 +0000 UTC m=+70.336814562 ] operation Write(18) completed in 3.05283s|%!s(<nil>)
+[ 2021-02-11 15:43:18.512307986 +0000 UTC m=+73.617444918 ] operation Write(19) completed in 3.28063s|%!s(<nil>)
+[ 2021-02-11 15:43:21.575153028 +0000 UTC m=+76.680289923 ] operation Write(20) completed in 3.06285s|%!s(<nil>)
+[ 2021-02-11 15:43:21.575224646 +0000 UTC m=+76.680361515 ] Running Read test...
+[ 2021-02-11 15:43:22.135596548 +0000 UTC m=+77.240733464 ] operation Read(1) completed in 0.56021s|%!s(<nil>)
+[ 2021-02-11 15:43:22.549126546 +0000 UTC m=+77.654263556 ] operation Read(2) completed in 0.41351s|%!s(<nil>)
+[ 2021-02-11 15:43:23.027349056 +0000 UTC m=+78.132486065 ] operation Read(3) completed in 0.47825s|%!s(<nil>)
+[ 2021-02-11 15:43:23.476924552 +0000 UTC m=+78.582061568 ] operation Read(4) completed in 0.44961s|%!s(<nil>)
+[ 2021-02-11 15:43:23.874192808 +0000 UTC m=+78.979329693 ] operation Read(5) completed in 0.39724s|%!s(<nil>)
+[ 2021-02-11 15:43:24.301914047 +0000 UTC m=+79.407051060 ] operation Read(6) completed in 0.42775s|%!s(<nil>)
+[ 2021-02-11 15:43:24.688853141 +0000 UTC m=+79.793990177 ] operation Read(7) completed in 0.38694s|%!s(<nil>)
+[ 2021-02-11 15:43:25.063428755 +0000 UTC m=+80.168565765 ] operation Read(8) completed in 0.37457s|%!s(<nil>)
+[ 2021-02-11 15:43:25.437746332 +0000 UTC m=+80.542883368 ] operation Read(9) completed in 0.37431s|%!s(<nil>)
+[ 2021-02-11 15:43:25.877810665 +0000 UTC m=+80.982947677 ] operation Read(10) completed in 0.44001s|%!s(<nil>)
+[ 2021-02-11 15:43:26.226496554 +0000 UTC m=+81.331633567 ] operation Read(11) completed in 0.34870s|%!s(<nil>)
+[ 2021-02-11 15:43:26.610010005 +0000 UTC m=+81.715147014 ] operation Read(12) completed in 0.38356s|%!s(<nil>)
+[ 2021-02-11 15:43:27.004085127 +0000 UTC m=+82.109222090 ] operation Read(13) completed in 0.39403s|%!s(<nil>)
+[ 2021-02-11 15:43:27.440805465 +0000 UTC m=+82.545942348 ] operation Read(14) completed in 0.43672s|%!s(<nil>)
+[ 2021-02-11 15:43:27.835474339 +0000 UTC m=+82.940611257 ] operation Read(15) completed in 0.39469s|%!s(<nil>)
+[ 2021-02-11 15:43:28.201589412 +0000 UTC m=+83.306726394 ] operation Read(16) completed in 0.36608s|%!s(<nil>)
+[ 2021-02-11 15:43:28.567503024 +0000 UTC m=+83.672639953 ] operation Read(17) completed in 0.36595s|%!s(<nil>)
+[ 2021-02-11 15:43:29.023353374 +0000 UTC m=+84.128490367 ] operation Read(18) completed in 0.45580s|%!s(<nil>)
+[ 2021-02-11 15:43:29.409163749 +0000 UTC m=+84.514300757 ] operation Read(19) completed in 0.38586s|%!s(<nil>)
+[ 2021-02-11 15:43:29.788018329 +0000 UTC m=+84.893155161 ] operation Read(20) completed in 0.37886s|%!s(<nil>)
+Cleaning up 20 objects...
+Deleting a batch of 20 objects in range {0, 19}... Succeeded
+Successfully deleted 20/20 objects in 651.351273ms
+ Version:                    -
+ Parameters:                
+    numClients:                 1
+    numSamples:                 20
+    objectSize (MB):            128.000
+    sampleReads:                1
+    clientDelay:                1
+    readObj:                    true
+    headObj:                    false
+    putObjTag:                  false
+    getObjTag:                  false
+    bucket:                     seagate-13195
+    deleteAtOnce:               1000
+    endpoints:                 
+       https://s3.seagate.com
+    jsonOutput:                 false
+    numTags:                    10
+    objectNamePrefix:           loadgen
+    reportFormat:               Version;Parameters;Parameters:numClients;Parameters:numSamples;Parameters:objectSize (MB);Parameters:sampleReads;Parameters:clientDelay;Parameters:readObj;Parameters:headObj;Parameters:putObjTag;Parameters:getObjTag;Tests:Operation;Tests:Total Requests Count;Tests:Errors Count;Tests:Total Throughput (MB/s);Tests:Duration Max;Tests:Duration Avg;Tests:Duration Min;Tests:Ttfb Max;Tests:Ttfb Avg;Tests:Ttfb Min;-Tests:Duration 25th-ile;-Tests:Duration 50th-ile;-Tests:Duration 75th-ile;-Tests:Ttfb 25th-ile;-Tests:Ttfb 50th-ile;-Tests:Ttfb 75th-ile;
+    skipRead:                   false
+    skipWrite:                  false
+    tagNamePrefix:              tag_name_
+    tagValPrefix:               tag_val_
+    validate:                   false
+    verbose:                    true
+ Tests:                     
+    Operation:                  Write
+    Total Requests Count:       20
+    Errors Count:               0
+    Total Throughput (MB/s):    33.889
+    Duration Max:               10.739
+    Duration Avg:               3.777
+    Duration Min:               3.014
+    Ttfb Max:                   10.739
+    Ttfb Avg:                   3.777
+    Ttfb Min:                   3.014
+    Duration 90th-ile:          6.733
+    Duration 99th-ile:          10.739
+    Errors:                     []
+    Total Duration (s):         75.540
+    Total Transferred (MB):     2560.000
+    Ttfb 90th-ile:              6.733
+    Ttfb 99th-ile:              10.739
+
+    Operation:                  Read
+    Total Requests Count:       20
+    Errors Count:               0
+    Total Throughput (MB/s):    311.708
+    Duration Max:               0.560
+    Duration Avg:               0.411
+    Duration Min:               0.349
+    Ttfb Max:                   0.187
+    Ttfb Avg:                   0.132
+    Ttfb Min:                   0.103
+    Duration 90th-ile:          0.478
+    Duration 99th-ile:          0.560
+    Errors:                     []
+    Total Duration (s):         8.213
+    Total Transferred (MB):     2560.000
+    Ttfb 90th-ile:              0.175
+    Ttfb 99th-ile:              0.187

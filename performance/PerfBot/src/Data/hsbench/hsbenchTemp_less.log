@@ -1,0 +1,73 @@
+    - 2020/12/10 13:27:39 Loop: 0, Int: 552, Dur(s): 1.0, Mode: PUT, Ops: 0, MB/s: 0.00, IO/s: 0, Lat(ms): [ min: 0.0, avg: 0.0, 99%: 0.0, max: 0.0 ], Slowdowns: 0
+    - 2020/12/10 13:27:39 Loop: 0, Int: 553, Dur(s): 1.0, Mode: PUT, Ops: 1, MB/s: 256.00, IO/s: 1, Lat(ms): [ min: 22746.4, avg: 22746.4, 99%: 22746.4, max: 22746.4 ], Slowdowns: 0
+    - 2020/12/10 13:27:41 Loop: 0, Int: 554, Dur(s): 1.0, Mode: PUT, Ops: 2, MB/s: 512.00, IO/s: 2, Lat(ms): [ min: 11500.2, avg: 12020.7, 99%: 12541.2, max: 12541.2 ], Slowdowns: 0
+    - 2020/12/10 13:27:41 Loop: 0, Int: 555, Dur(s): 1.0, Mode: PUT, Ops: 2, MB/s: 512.00, IO/s: 2, Lat(ms): [ min: 20795.8, avg: 21947.8, 99%: 23099.7, max: 23099.7 ], Slowdowns: 0
+    - 2020/12/10 13:27:41 Loop: 0, Int: 556, Dur(s): 1.0, Mode: PUT, Ops: 0, MB/s: 0.00, IO/s: 0, Lat(ms): [ min: 0.0, avg: 0.0, 99%: 0.0, max: 0.0 ], Slowdowns: 0
+    - 2020/12/10 13:27:47 Loop: 0, Int: 557, Dur(s): 1.0, Mode: PUT, Ops: 7, MB/s: 1792.00, IO/s: 7, Lat(ms): [ min: 14046.5, avg: 17913.1, 99%: 25169.2, max: 25169.2 ], Slowdowns: 0
+    - 2020/12/10 13:27:49 Loop: 0, Int: 558, Dur(s): 1.0, Mode: PUT, Ops: 26, MB/s: 6656.00, IO/s: 26, Lat(ms): [ min: 14030.9, avg: 19750.7, 99%: 25729.7, max: 25729.7 ], Slowdowns: 0
+    - 2020/12/10 13:27:51 Loop: 0, Int: 559, Dur(s): 1.0, Mode: PUT, Ops: 28, MB/s: 7168.00, IO/s: 28, Lat(ms): [ min: 14230.7, avg: 17396.2, 99%: 26473.4, max: 26473.4 ], Slowdowns: 0
+    - 2020/12/10 13:27:54 Loop: 0, Int: 560, Dur(s): 1.0, Mode: PUT, Ops: 5, MB/s: 1280.00, IO/s: 5, Lat(ms): [ min: 15240.7, avg: 15510.9, 99%: 15899.6, max: 15899.6 ], Slowdowns: 0
+    - 2020/12/10 13:27:57 Loop: 0, Int: 561, Dur(s): 1.0, Mode: PUT, Ops: 3, MB/s: 768.00, IO/s: 3, Lat(ms): [ min: 16201.7, avg: 16449.6, 99%: 16816.2, max: 16816.2 ], Slowdowns: 0
+    - 2020/12/10 13:28:04 Loop: 0, Int: 562, Dur(s): 1.0, Mode: PUT, Ops: 14, MB/s: 3584.00, IO/s: 14, Lat(ms): [ min: 11130.7, avg: 15636.1, 99%: 17590.1, max: 17590.1 ], Slowdowns: 0
+    - 2020/12/10 13:28:04 Loop: 0, Int: 563, Dur(s): 1.0, Mode: PUT, Ops: 3, MB/s: 768.00, IO/s: 3, Lat(ms): [ min: 9816.0, avg: 13664.4, 99%: 18569.0, max: 18569.0 ], Slowdowns: 0
+    - 2020/12/10 13:28:04 Loop: 0, Int: 564, Dur(s): 1.0, Mode: PUT, Ops: 1, MB/s: 256.00, IO/s: 1, Lat(ms): [ min: 19142.7, avg: 19142.7, 99%: 19142.7, max: 19142.7 ], Slowdowns: 0
+    - 2020/12/10 13:28:05 Loop: 0, Int: 565, Dur(s): 1.0, Mode: PUT, Ops: 4, MB/s: 1024.00, IO/s: 4, Lat(ms): [ min: 9364.4, avg: 14873.9, 99%: 20415.4, max: 20415.4 ], Slowdowns: 0
+    - 2020/12/10 13:28:05 Loop: 0, Int: 566, Dur(s): 1.0, Mode: PUT, Ops: 4, MB/s: 1024.00, IO/s: 4, Lat(ms): [ min: 8997.0, avg: 15139.2, 99%: 21497.3, max: 21497.3 ], Slowdowns: 0
+    - 2020/12/10 13:28:05 Loop: 0, Int: 567, Dur(s): 1.0, Mode: PUT, Ops: 8, MB/s: 2048.00, IO/s: 8, Lat(ms): [ min: 8512.6, avg: 12285.9, 99%: 22266.1, max: 22266.1 ], Slowdowns: 0
+    - 2020/12/10 13:28:05 Loop: 0, Int: 568, Dur(s): 1.0, Mode: PUT, Ops: 24, MB/s: 6144.00, IO/s: 24, Lat(ms): [ min: 8259.6, avg: 10932.7, 99%: 22725.5, max: 22725.5 ], Slowdowns: 0
+    - 2020/12/10 13:28:05 Loop: 0, Int: 569, Dur(s): 1.0, Mode: PUT, Ops: 7, MB/s: 1792.00, IO/s: 7, Lat(ms): [ min: 6925.1, avg: 8991.9, 99%: 14890.4, max: 14890.4 ], Slowdowns: 0
+    - 2020/12/10 13:28:05 Loop: 0, Int: 570, Dur(s): 1.0, Mode: PUT, Ops: 4, MB/s: 1024.00, IO/s: 4, Lat(ms): [ min: 8150.6, avg: 10091.5, 99%: 15659.3, max: 15659.3 ], Slowdowns: 0
+    - 2020/12/10 13:28:05 Loop: 0, Int: 571, Dur(s): 1.0, Mode: PUT, Ops: 1, MB/s: 256.00, IO/s: 1, Lat(ms): [ min: 7954.7, avg: 7954.7, 99%: 7954.7, max: 7954.7 ], Slowdowns: 0
+    - 2020/12/10 13:28:05 Loop: 0, Int: 572, Dur(s): 1.0, Mode: PUT, Ops: 1, MB/s: 256.00, IO/s: 1, Lat(ms): [ min: 7093.6, avg: 7093.6, 99%: 7093.6, max: 7093.6 ], Slowdowns: 0
+    - 2020/12/10 13:28:05 Loop: 0, Int: 573, Dur(s): 1.0, Mode: PUT, Ops: 4, MB/s: 1024.00, IO/s: 4, Lat(ms): [ min: 7678.7, avg: 11836.1, 99%: 16190.7, max: 16190.7 ], Slowdowns: 0
+    - 2020/12/10 13:28:05 Loop: 0, Int: 574, Dur(s): 1.0, Mode: PUT, Ops: 1, MB/s: 256.00, IO/s: 1, Lat(ms): [ min: 8671.5, avg: 8671.5, 99%: 8671.5, max: 8671.5 ], Slowdowns: 0
+    - 2020/12/10 13:28:05 Loop: 0, Int: 575, Dur(s): 1.0, Mode: PUT, Ops: 5, MB/s: 1280.00, IO/s: 5, Lat(ms): [ min: 8393.4, avg: 14024.1, 99%: 17806.1, max: 17806.1 ], Slowdowns: 0
+    - 2020/12/10 13:28:05 Loop: 0, Int: 576, Dur(s): 1.0, Mode: PUT, Ops: 3, MB/s: 768.00, IO/s: 3, Lat(ms): [ min: 8582.9, avg: 15295.4, 99%: 18840.0, max: 18840.0 ], Slowdowns: 0
+    - 2020/12/10 13:28:05 Loop: 0, Int: 577, Dur(s): 1.0, Mode: PUT, Ops: 9, MB/s: 2304.00, IO/s: 9, Lat(ms): [ min: 9634.6, avg: 16870.6, 99%: 19236.1, max: 19236.1 ], Slowdowns: 0
+    - 2020/12/10 13:28:06 Loop: 0, Int: 578, Dur(s): 1.0, Mode: PUT, Ops: 23, MB/s: 5888.00, IO/s: 23, Lat(ms): [ min: 9497.7, avg: 15034.2, 99%: 20112.3, max: 20112.3 ], Slowdowns: 0
+    - 2020/12/10 13:28:09 Loop: 0, Int: 579, Dur(s): 1.0, Mode: PUT, Ops: 13, MB/s: 3328.00, IO/s: 13, Lat(ms): [ min: 8676.5, avg: 14559.9, 99%: 20246.2, max: 20246.2 ], Slowdowns: 0
+    - 2020/12/10 13:28:11 Loop: 0, Int: 580, Dur(s): 1.0, Mode: PUT, Ops: 3, MB/s: 768.00, IO/s: 3, Lat(ms): [ min: 9404.0, avg: 13299.2, 99%: 20694.6, max: 20694.6 ], Slowdowns: 0
+    - 2020/12/10 13:28:12 Loop: 0, Int: 581, Dur(s): 1.0, Mode: PUT, Ops: 1, MB/s: 256.00, IO/s: 1, Lat(ms): [ min: 21093.9, avg: 21093.9, 99%: 21093.9, max: 21093.9 ], Slowdowns: 0
+    - 2020/12/10 13:28:12 Loop: 0, Int: 582, Dur(s): 1.0, Mode: PUT, Ops: 1, MB/s: 256.00, IO/s: 1, Lat(ms): [ min: 9543.1, avg: 9543.1, 99%: 9543.1, max: 9543.1 ], Slowdowns: 0
+    - 2020/12/10 13:28:12 Loop: 0, Int: 583, Dur(s): 1.0, Mode: PUT, Ops: 4, MB/s: 1024.00, IO/s: 4, Lat(ms): [ min: 9926.7, avg: 13209.4, 99%: 22575.3, max: 22575.3 ], Slowdowns: 0
+    - 2020/12/10 13:28:12 Loop: 0, Int: 584, Dur(s): 1.0, Mode: PUT, Ops: 0, MB/s: 0.00, IO/s: 0, Lat(ms): [ min: 0.0, avg: 0.0, 99%: 0.0, max: 0.0 ], Slowdowns: 0
+    - 2020/12/10 13:28:12 Loop: 0, Int: 585, Dur(s): 1.0, Mode: PUT, Ops: 1, MB/s: 256.00, IO/s: 1, Lat(ms): [ min: 10197.0, avg: 10197.0, 99%: 10197.0, max: 10197.0 ], Slowdowns: 0
+    - 2020/12/10 13:28:12 Loop: 0, Int: 586, Dur(s): 1.0, Mode: PUT, Ops: 1, MB/s: 256.00, IO/s: 1, Lat(ms): [ min: 11438.8, avg: 11438.8, 99%: 11438.8, max: 11438.8 ], Slowdowns: 0
+    - 2020/12/10 13:28:13 Loop: 0, Int: 587, Dur(s): 1.0, Mode: PUT, Ops: 2, MB/s: 512.00, IO/s: 2, Lat(ms): [ min: 12091.2, avg: 18798.5, 99%: 25505.8, max: 25505.8 ], Slowdowns: 0
+    - 2020/12/10 13:28:13 Loop: 0, Int: 588, Dur(s): 1.0, Mode: PUT, Ops: 0, MB/s: 0.00, IO/s: 0, Lat(ms): [ min: 0.0, avg: 0.0, 99%: 0.0, max: 0.0 ], Slowdowns: 0
+    - 2020/12/10 13:28:13 Loop: 0, Int: 589, Dur(s): 1.0, Mode: PUT, Ops: 2, MB/s: 512.00, IO/s: 2, Lat(ms): [ min: 26450.3, avg: 26781.9, 99%: 27113.5, max: 27113.5 ], Slowdowns: 0
+    - 2020/12/10 13:28:13 Loop: 0, Int: 590, Dur(s): 1.0, Mode: PUT, Ops: 1, MB/s: 256.00, IO/s: 1, Lat(ms): [ min: 12417.1, avg: 12417.1, 99%: 12417.1, max: 12417.1 ], Slowdowns: 0
+    - 2020/12/10 13:28:16 Loop: 0, Int: 591, Dur(s): 1.0, Mode: PUT, Ops: 4, MB/s: 1024.00, IO/s: 4, Lat(ms): [ min: 13150.3, avg: 25035.9, 99%: 29230.2, max: 29230.2 ], Slowdowns: 0
+    - 2020/12/10 13:28:17 Loop: 0, Int: 592, Dur(s): 1.0, Mode: PUT, Ops: 9, MB/s: 2304.00, IO/s: 9, Lat(ms): [ min: 14215.0, avg: 24719.5, 99%: 30222.6, max: 30222.6 ], Slowdowns: 0
+    - 2020/12/10 13:28:22 Loop: 0, Int: 593, Dur(s): 1.0, Mode: PUT, Ops: 44, MB/s: 11264.00, IO/s: 44, Lat(ms): [ min: 14929.3, avg: 20044.9, 99%: 31192.4, max: 31192.4 ], Slowdowns: 0
+    - 2020/12/10 13:28:22 Loop: 0, Int: 594, Dur(s): 1.0, Mode: PUT, Ops: 7, MB/s: 1792.00, IO/s: 7, Lat(ms): [ min: 15173.0, avg: 18618.4, 99%: 27047.5, max: 27047.5 ], Slowdowns: 0
+    - 2020/12/10 13:28:22 Loop: 0, Int: 595, Dur(s): 1.0, Mode: PUT, Ops: 14, MB/s: 3584.00, IO/s: 14, Lat(ms): [ min: 15610.4, avg: 18918.3, 99%: 30089.2, max: 30089.2 ], Slowdowns: 0
+    - 2020/12/10 13:28:22 Loop: 0, Int: 596, Dur(s): 1.0, Mode: PUT, Ops: 4, MB/s: 1024.00, IO/s: 4, Lat(ms): [ min: 16666.0, avg: 16933.3, 99%: 17107.2, max: 17107.2 ], Slowdowns: 0
+    - 2020/12/10 13:28:22 Loop: 0, Int: 597, Dur(s): 1.0, Mode: PUT, Ops: 0, MB/s: 0.00, IO/s: 0, Lat(ms): [ min: 0.0, avg: 0.0, 99%: 0.0, max: 0.0 ], Slowdowns: 0
+    - 2020/12/10 13:28:22 Loop: 0, Int: 598, Dur(s): 1.0, Mode: PUT, Ops: 2, MB/s: 512.00, IO/s: 2, Lat(ms): [ min: 18056.6, avg: 18323.7, 99%: 18590.9, max: 18590.9 ], Slowdowns: 0
+    - 2020/12/10 13:28:22 Loop: 0, Int: 599, Dur(s): 1.0, Mode: PUT, Ops: 6, MB/s: 1536.00, IO/s: 6, Lat(ms): [ min: 8529.1, avg: 15336.1, 99%: 19427.4, max: 19427.4 ], Slowdowns: 0
+    - 2020/12/10 13:28:22 Loop: 0, Int: TOTAL, Dur(s): 611.3, Mode: PUT, Ops: 3773, MB/s: 1579.97, IO/s: 6, Lat(ms): [ min: 5942.6, avg: 16055.6, 99%: 28680.7, max: 32953.1 ], Slowdowns: 0
+    - 2020/12/10 13:28:22 Running Loop 0 BUCKET LIST TEST
+    - 2020/12/10 13:28:22 Loop: 0, Int: TOTAL, Dur(s): 0.3, Mode: LIST, Ops: 50, MB/s: 0.00, IO/s: 196, Lat(ms): [ min: 81.8, avg: 205.4, 99%: 253.3, max: 253.3 ], Slowdowns:0
+    - 2020/12/10 13:28:22 Running Loop 0 OBJECT GET TEST
+    - 2020/12/10 13:28:26 Loop: 0, Int: 0, Dur(s): 1.0, Mode: GET, Ops: 44, MB/s: 11264.00, IO/s: 44, Lat(ms): [ min: 431.5, avg: 720.0, 99%: 995.5, max: 995.5 ], Slowdowns: 0
+    - 2020/12/10 13:28:27 Loop: 0, Int: 1, Dur(s): 1.0, Mode: GET, Ops: 74, MB/s: 18944.00, IO/s: 74, Lat(ms): [ min: 774.1, avg: 1215.3, 99%: 1629.0, max: 1957.5 ], Slowdowns: 0
+    - 2020/12/10 13:28:31 Loop: 0, Int: 2, Dur(s): 1.0, Mode: GET, Ops: 49, MB/s: 12544.00, IO/s: 49, Lat(ms): [ min: 1014.0, avg: 1444.5, 99%: 1981.0, max: 1981.0 ], Slowdowns: 0
+    - 2020/12/10 13:28:32 Loop: 0, Int: 3, Dur(s): 1.0, Mode: GET, Ops: 47, MB/s: 12032.00, IO/s: 47, Lat(ms): [ min: 1501.5, avg: 1978.5, 99%: 2881.5, max: 2881.5 ], Slowdowns: 0
+    - 2020/12/10 13:28:34 Loop: 0, Int: 4, Dur(s): 1.0, Mode: GET, Ops: 33, MB/s: 8448.00, IO/s: 33, Lat(ms): [ min: 1724.0, avg: 2314.4, 99%: 3306.7, max: 3306.7 ], Slowdowns: 0
+    - 2020/12/10 13:28:36 Loop: 0, Int: 5, Dur(s): 1.0, Mode: GET, Ops: 26, MB/s: 6656.00, IO/s: 26, Lat(ms): [ min: 1646.1, avg: 2514.6, 99%: 3879.4, max: 3879.4 ], Slowdowns: 0
+    - 2020/12/10 13:28:39 Loop: 0, Int: 6, Dur(s): 1.0, Mode: GET, Ops: 37, MB/s: 9472.00, IO/s: 37, Lat(ms): [ min: 1628.9, avg: 2822.2, 99%: 3796.2, max: 3796.2 ], Slowdowns: 0
+    - 2020/12/10 13:28:39 Loop: 0, Int: 7, Dur(s): 1.0, Mode: GET, Ops: 25, MB/s: 6400.00, IO/s: 25, Lat(ms): [ min: 2054.0, avg: 3328.1, 99%: 4691.6, max: 4691.6 ], Slowdowns: 0
+    - 2020/12/10 13:28:39 download err%!(EXTRA *s3err.RequestFailure=InternalError: We encountered an internal error. Please try again.
+    -   status code: 500, request id: baad7e8e-c38a-45ea-ade7-c2809cc87c0e, host id: )
+    - 2020/12/10 13:28:40 download err%!(EXTRA *s3err.RequestFailure=InternalError: We encountered an internal error. Please try again.
+    -   status code: 500, request id: e905a6c9-50a7-4336-a445-22c9e25bb321, host id: )
+    - 2020/12/10 13:28:40 download err%!(EXTRA *s3err.RequestFailure=InternalError: We encountered an internal error. Please try again.
+    -   status code: 500, request id: 95b9cade-5d02-4412-85b8-d2e222953a64, host id: )
+    - 2020/12/10 13:28:40 download err%!(EXTRA *s3err.RequestFailure=InternalError: We encountered an internal error. Please try again.
+    -   status code: 500, request id: 0307b145-28ab-4206-9688-a98cbca68ca2, host id: )
+    - 2020/12/10 13:28:40 Loop: 0, Int: 8, Dur(s): 1.0, Mode: GET, Ops: 23, MB/s: 5888.00, IO/s: 23, Lat(ms): [ min: 2035.4, avg: 3248.0, 99%: 5149.9, max: 5149.9 ], Slowdowns: 0
+    - 2020/12/10 13:28:40 Loop: 0, Int: 9, Dur(s): 1.0, Mode: GET, Ops: 34, MB/s: 8704.00, IO/s: 34, Lat(ms): [ min: 1902.3, avg: 3448.4, 99%: 6400.8, max: 6400.8 ], Slowdowns: 0
+    - 2020/12/10 13:28:40 download err%!(EXTRA *s3err.RequestFailure=InternalError: We encountered an internal error. Please try again.
+    -   status code: 500, request id: ee73c1c8-d293-4e9e-ba4c-91978e57d9c7, host id: )
+    - 2020/12/10 13:28:40 Loop: 0, Int: 10, Dur(s): 1.0

@@ -1,0 +1,1903 @@
+
+2021-02-16 23:36:00,154 p=97534 u=root n=ansible | Using /etc/ansible/ansible.cfg as config file
+2021-02-16 23:36:00,474 p=97534 u=root n=ansible | Tuesday 16 February 2021  23:36:00 +0530 (0:00:00.026)       0:00:00.026 ****** 
+2021-02-16 23:36:00,632 p=97534 u=root n=ansible | localhost | CHANGED | 157ms
+2021-02-16 23:36:00,632 p=97534 u=root n=ansible | {
+2021-02-16 23:36:00,632 p=97534 u=root n=ansible |   - stdout: ""
+2021-02-16 23:36:00,633 p=97534 u=root n=ansible |   - rc: 0
+2021-02-16 23:36:00,633 p=97534 u=root n=ansible |   - stderr: yes: standard output: Broken pipe
+2021-02-16 23:36:00,633 p=97534 u=root n=ansible |             yes: write error
+2021-02-16 23:36:00,633 p=97534 u=root n=ansible |   - stderr_lines: [ 
+2021-02-16 23:36:00,633 p=97534 u=root n=ansible |     - yes: standard output: Broken pipe
+2021-02-16 23:36:00,633 p=97534 u=root n=ansible |     - yes: write error
+2021-02-16 23:36:00,634 p=97534 u=root n=ansible |    ]
+2021-02-16 23:36:00,634 p=97534 u=root n=ansible |   - changed: True
+2021-02-16 23:36:00,634 p=97534 u=root n=ansible | }
+2021-02-16 23:36:00,655 p=97534 u=root n=ansible | Tuesday 16 February 2021  23:36:00 +0530 (0:00:00.180)       0:00:00.207 ****** 
+2021-02-16 23:36:01,751 p=97534 u=root n=ansible | [DEPRECATION WARNING]: The __init__.pyc callback plugin should be updated to 
+use the _get_item_label method instead. This feature will be removed in version
+ 2.11. Deprecation warnings can be disabled by setting 
+deprecation_warnings=False in ansible.cfg.
+2021-02-16 23:36:01,752 p=97534 u=root n=ansible | localhost | CHANGED - item=serversecondary | 1.09s
+2021-02-16 23:36:01,752 p=97534 u=root n=ansible | localhost | CHANGED - item=serverprimary | 1.09s
+2021-02-16 23:36:01,753 p=97534 u=root n=ansible | localhost | CHANGED - item=serverclient | 1.09s
+2021-02-16 23:36:01,754 p=97534 u=root n=ansible | [WARNING]: Consider using the replace, lineinfile or template module rather
+than running 'sed'.  If you need to use command because replace, lineinfile or
+template is insufficient you can add 'warn: false' to this command task or set
+'command_warnings=False' in ansible.cfg to get rid of this message.
+
+2021-02-16 23:36:01,756 p=97534 u=root n=ansible | {
+2021-02-16 23:36:01,756 p=97534 u=root n=ansible |   - msg: All items completed
+2021-02-16 23:36:01,756 p=97534 u=root n=ansible |   - changed: True
+2021-02-16 23:36:01,757 p=97534 u=root n=ansible |   - results: [ 
+2021-02-16 23:36:01,757 p=97534 u=root n=ansible |     - {
+2021-02-16 23:36:01,757 p=97534 u=root n=ansible |     - stdout: ""
+2021-02-16 23:36:01,757 p=97534 u=root n=ansible |     - rc: 0
+2021-02-16 23:36:01,757 p=97534 u=root n=ansible |     - stderr: ""
+2021-02-16 23:36:01,757 p=97534 u=root n=ansible |     - start: 2021-02-16 23:36:01.142008
+2021-02-16 23:36:01,757 p=97534 u=root n=ansible |     - end: 2021-02-16 23:36:01.150742
+2021-02-16 23:36:01,758 p=97534 u=root n=ansible |     - stderr_lines: []
+2021-02-16 23:36:01,758 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:36:01,758 p=97534 u=root n=ansible |     - delta: 0:00:00.008734
+2021-02-16 23:36:01,758 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:36:01,758 p=97534 u=root n=ansible |     - item: serversecondary
+2021-02-16 23:36:01,758 p=97534 u=root n=ansible |     - cmd: [ 
+2021-02-16 23:36:01,758 p=97534 u=root n=ansible |       - sed
+2021-02-16 23:36:01,759 p=97534 u=root n=ansible |       - -i
+2021-02-16 23:36:01,759 p=97534 u=root n=ansible |       - /sm20-r1.pun.seagate.com/d
+2021-02-16 23:36:01,759 p=97534 u=root n=ansible |       - /root/.ssh/known_hosts
+2021-02-16 23:36:01,759 p=97534 u=root n=ansible |      ]
+2021-02-16 23:36:01,759 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:36:01,759 p=97534 u=root n=ansible |   }
+2021-02-16 23:36:01,759 p=97534 u=root n=ansible |     - {
+2021-02-16 23:36:01,760 p=97534 u=root n=ansible |     - stdout: ""
+2021-02-16 23:36:01,760 p=97534 u=root n=ansible |     - rc: 0
+2021-02-16 23:36:01,760 p=97534 u=root n=ansible |     - stderr: ""
+2021-02-16 23:36:01,760 p=97534 u=root n=ansible |     - start: 2021-02-16 23:36:01.420918
+2021-02-16 23:36:01,760 p=97534 u=root n=ansible |     - end: 2021-02-16 23:36:01.428641
+2021-02-16 23:36:01,760 p=97534 u=root n=ansible |     - stderr_lines: []
+2021-02-16 23:36:01,760 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:36:01,761 p=97534 u=root n=ansible |     - delta: 0:00:00.007723
+2021-02-16 23:36:01,761 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:36:01,761 p=97534 u=root n=ansible |     - item: serverprimary
+2021-02-16 23:36:01,761 p=97534 u=root n=ansible |     - cmd: [ 
+2021-02-16 23:36:01,761 p=97534 u=root n=ansible |       - sed
+2021-02-16 23:36:01,761 p=97534 u=root n=ansible |       - -i
+2021-02-16 23:36:01,761 p=97534 u=root n=ansible |       - /sm13-r1.pun.seagate.com/d
+2021-02-16 23:36:01,762 p=97534 u=root n=ansible |       - /root/.ssh/known_hosts
+2021-02-16 23:36:01,762 p=97534 u=root n=ansible |      ]
+2021-02-16 23:36:01,762 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:36:01,762 p=97534 u=root n=ansible |   }
+2021-02-16 23:36:01,762 p=97534 u=root n=ansible |     - {
+2021-02-16 23:36:01,762 p=97534 u=root n=ansible |     - stdout: ""
+2021-02-16 23:36:01,762 p=97534 u=root n=ansible |     - rc: 0
+2021-02-16 23:36:01,763 p=97534 u=root n=ansible |     - stderr: ""
+2021-02-16 23:36:01,763 p=97534 u=root n=ansible |     - start: 2021-02-16 23:36:01.696897
+2021-02-16 23:36:01,763 p=97534 u=root n=ansible |     - end: 2021-02-16 23:36:01.704887
+2021-02-16 23:36:01,763 p=97534 u=root n=ansible |     - stderr_lines: []
+2021-02-16 23:36:01,763 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:36:01,763 p=97534 u=root n=ansible |     - delta: 0:00:00.007990
+2021-02-16 23:36:01,763 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:36:01,764 p=97534 u=root n=ansible |     - item: serverclient
+2021-02-16 23:36:01,764 p=97534 u=root n=ansible |     - cmd: [ 
+2021-02-16 23:36:01,764 p=97534 u=root n=ansible |       - sed
+2021-02-16 23:36:01,764 p=97534 u=root n=ansible |       - -i
+2021-02-16 23:36:01,764 p=97534 u=root n=ansible |       - /sm35-r1.pun.seagate.com/d
+2021-02-16 23:36:01,764 p=97534 u=root n=ansible |       - /root/.ssh/known_hosts
+2021-02-16 23:36:01,764 p=97534 u=root n=ansible |      ]
+2021-02-16 23:36:01,764 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:36:01,765 p=97534 u=root n=ansible |   }
+2021-02-16 23:36:01,765 p=97534 u=root n=ansible |    ]
+2021-02-16 23:36:01,765 p=97534 u=root n=ansible | }
+2021-02-16 23:36:01,772 p=97534 u=root n=ansible | Tuesday 16 February 2021  23:36:01 +0530 (0:00:01.116)       0:00:01.323 ****** 
+2021-02-16 23:36:03,792 p=97534 u=root n=ansible | localhost | CHANGED - item=serversecondary | 2.02s
+2021-02-16 23:36:03,793 p=97534 u=root n=ansible | localhost | CHANGED - item=serverprimary | 2.02s
+2021-02-16 23:36:03,793 p=97534 u=root n=ansible | localhost | CHANGED - item=serverclient | 2.02s
+2021-02-16 23:36:03,794 p=97534 u=root n=ansible | {
+2021-02-16 23:36:03,794 p=97534 u=root n=ansible |   - msg: All items completed
+2021-02-16 23:36:03,794 p=97534 u=root n=ansible |   - changed: True
+2021-02-16 23:36:03,794 p=97534 u=root n=ansible |   - results: [ 
+2021-02-16 23:36:03,795 p=97534 u=root n=ansible |     - {
+2021-02-16 23:36:03,795 p=97534 u=root n=ansible |     - stdout: spawn ssh-copy-id root@sm20-r1.pun.seagate.com
+2021-02-16 23:36:03,795 p=97534 u=root n=ansible |               /bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/root/.ssh/id_rsa.pub"
+2021-02-16 23:36:03,795 p=97534 u=root n=ansible |               The authenticity of host 'sm20-r1.pun.seagate.com (10.237.65.228)' can't be established.
+2021-02-16 23:36:03,795 p=97534 u=root n=ansible |               ECDSA key fingerprint is SHA256:8Rp1gpvWcLRE+xJU65BzWBw/INFmD9+pz+yW4WelhUw.
+2021-02-16 23:36:03,795 p=97534 u=root n=ansible |               ECDSA key fingerprint is MD5:0d:1d:f3:92:b0:f5:a9:16:07:ce:e0:03:58:11:9c:52.
+2021-02-16 23:36:03,796 p=97534 u=root n=ansible |               Are you sure you want to continue connecting (yes/no)? yes
+2021-02-16 23:36:03,796 p=97534 u=root n=ansible |               /bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
+2021-02-16 23:36:03,796 p=97534 u=root n=ansible |               /bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
+2021-02-16 23:36:03,796 p=97534 u=root n=ansible |               root@sm20-r1.pun.seagate.com's password: 
+2021-02-16 23:36:03,796 p=97534 u=root n=ansible |               
+2021-02-16 23:36:03,796 p=97534 u=root n=ansible |               Number of key(s) added: 1
+2021-02-16 23:36:03,797 p=97534 u=root n=ansible |               
+2021-02-16 23:36:03,797 p=97534 u=root n=ansible |               Now try logging into the machine, with:   "ssh 'root@sm20-r1.pun.seagate.com'"
+2021-02-16 23:36:03,797 p=97534 u=root n=ansible |               and check to make sure that only the key(s) you wanted were added.
+2021-02-16 23:36:03,797 p=97534 u=root n=ansible |     - rc: 0
+2021-02-16 23:36:03,797 p=97534 u=root n=ansible |     - stderr: ""
+2021-02-16 23:36:03,797 p=97534 u=root n=ansible |     - stderr_lines: []
+2021-02-16 23:36:03,798 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:36:03,798 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:36:03,798 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:36:03,798 p=97534 u=root n=ansible |     - item: serversecondary
+2021-02-16 23:36:03,798 p=97534 u=root n=ansible |   }
+2021-02-16 23:36:03,798 p=97534 u=root n=ansible |     - {
+2021-02-16 23:36:03,799 p=97534 u=root n=ansible |     - stdout: spawn ssh-copy-id root@sm13-r1.pun.seagate.com
+2021-02-16 23:36:03,799 p=97534 u=root n=ansible |               /bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/root/.ssh/id_rsa.pub"
+2021-02-16 23:36:03,799 p=97534 u=root n=ansible |               The authenticity of host 'sm13-r1.pun.seagate.com (10.237.66.43)' can't be established.
+2021-02-16 23:36:03,799 p=97534 u=root n=ansible |               ECDSA key fingerprint is SHA256:ZM8HJQ03BTfchtQ3ogbSfHAHvYgYdUh9u4Nt5kXiuK0.
+2021-02-16 23:36:03,799 p=97534 u=root n=ansible |               ECDSA key fingerprint is MD5:cc:f9:87:ef:bf:0e:89:84:69:85:33:c0:24:cf:12:39.
+2021-02-16 23:36:03,799 p=97534 u=root n=ansible |               Are you sure you want to continue connecting (yes/no)? yes
+2021-02-16 23:36:03,800 p=97534 u=root n=ansible |               /bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
+2021-02-16 23:36:03,800 p=97534 u=root n=ansible |               /bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
+2021-02-16 23:36:03,800 p=97534 u=root n=ansible |               root@sm13-r1.pun.seagate.com's password: 
+2021-02-16 23:36:03,800 p=97534 u=root n=ansible |               
+2021-02-16 23:36:03,800 p=97534 u=root n=ansible |               Number of key(s) added: 1
+2021-02-16 23:36:03,800 p=97534 u=root n=ansible |               
+2021-02-16 23:36:03,801 p=97534 u=root n=ansible |               Now try logging into the machine, with:   "ssh 'root@sm13-r1.pun.seagate.com'"
+2021-02-16 23:36:03,801 p=97534 u=root n=ansible |               and check to make sure that only the key(s) you wanted were added.
+2021-02-16 23:36:03,801 p=97534 u=root n=ansible |     - rc: 0
+2021-02-16 23:36:03,801 p=97534 u=root n=ansible |     - stderr: ""
+2021-02-16 23:36:03,801 p=97534 u=root n=ansible |     - stderr_lines: []
+2021-02-16 23:36:03,801 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:36:03,801 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:36:03,802 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:36:03,802 p=97534 u=root n=ansible |     - item: serverprimary
+2021-02-16 23:36:03,802 p=97534 u=root n=ansible |   }
+2021-02-16 23:36:03,802 p=97534 u=root n=ansible |     - {
+2021-02-16 23:36:03,802 p=97534 u=root n=ansible |     - stdout: spawn ssh-copy-id root@sm35-r1.pun.seagate.com
+2021-02-16 23:36:03,802 p=97534 u=root n=ansible |               /bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/root/.ssh/id_rsa.pub"
+2021-02-16 23:36:03,803 p=97534 u=root n=ansible |               The authenticity of host 'sm35-r1.pun.seagate.com (10.237.66.25)' can't be established.
+2021-02-16 23:36:03,803 p=97534 u=root n=ansible |               ECDSA key fingerprint is SHA256:44YD1Keix9VUur8+RSN2nYoFi6JjlV/hIzBVpTHGY90.
+2021-02-16 23:36:03,803 p=97534 u=root n=ansible |               ECDSA key fingerprint is MD5:b4:0f:96:95:88:18:36:68:5d:45:19:89:4f:0e:ab:5b.
+2021-02-16 23:36:03,803 p=97534 u=root n=ansible |               Are you sure you want to continue connecting (yes/no)? yes
+2021-02-16 23:36:03,803 p=97534 u=root n=ansible |               /bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
+2021-02-16 23:36:03,803 p=97534 u=root n=ansible |               /bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
+2021-02-16 23:36:03,803 p=97534 u=root n=ansible |               root@sm35-r1.pun.seagate.com's password: 
+2021-02-16 23:36:03,804 p=97534 u=root n=ansible |               
+2021-02-16 23:36:03,804 p=97534 u=root n=ansible |               Number of key(s) added: 1
+2021-02-16 23:36:03,804 p=97534 u=root n=ansible |               
+2021-02-16 23:36:03,804 p=97534 u=root n=ansible |               Now try logging into the machine, with:   "ssh 'root@sm35-r1.pun.seagate.com'"
+2021-02-16 23:36:03,804 p=97534 u=root n=ansible |               and check to make sure that only the key(s) you wanted were added.
+2021-02-16 23:36:03,804 p=97534 u=root n=ansible |     - rc: 0
+2021-02-16 23:36:03,805 p=97534 u=root n=ansible |     - stderr: ""
+2021-02-16 23:36:03,805 p=97534 u=root n=ansible |     - stderr_lines: []
+2021-02-16 23:36:03,805 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:36:03,805 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:36:03,805 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:36:03,805 p=97534 u=root n=ansible |     - item: serverclient
+2021-02-16 23:36:03,805 p=97534 u=root n=ansible |   }
+2021-02-16 23:36:03,806 p=97534 u=root n=ansible |    ]
+2021-02-16 23:36:03,806 p=97534 u=root n=ansible | }
+2021-02-16 23:36:03,866 p=97534 u=root n=ansible | Tuesday 16 February 2021  23:36:03 +0530 (0:00:02.094)       0:00:03.417 ****** 
+2021-02-16 23:36:06,724 p=97534 u=root n=ansible | localhost | CHANGED - item=serversecondary | 2.86s
+2021-02-16 23:36:06,725 p=97534 u=root n=ansible | localhost | CHANGED - item=serverprimary | 2.86s
+2021-02-16 23:36:06,725 p=97534 u=root n=ansible | localhost | CHANGED - item=serverclient | 2.86s
+2021-02-16 23:36:06,727 p=97534 u=root n=ansible | {
+2021-02-16 23:36:06,727 p=97534 u=root n=ansible |   - msg: All items completed
+2021-02-16 23:36:06,727 p=97534 u=root n=ansible |   - changed: True
+2021-02-16 23:36:06,728 p=97534 u=root n=ansible |   - results: [ 
+2021-02-16 23:36:06,728 p=97534 u=root n=ansible |     - {
+2021-02-16 23:36:06,728 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:36:06,728 p=97534 u=root n=ansible |     - repo: influxdb
+2021-02-16 23:36:06,728 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:36:06,728 p=97534 u=root n=ansible |     - state: present
+2021-02-16 23:36:06,728 p=97534 u=root n=ansible |     - item: serversecondary
+2021-02-16 23:36:06,729 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:36:06,729 p=97534 u=root n=ansible |     - diff: {
+2021-02-16 23:36:06,729 p=97534 u=root n=ansible |       - after: [influxdb]
+2021-02-16 23:36:06,729 p=97534 u=root n=ansible | baseurl = https://repos.influxdata.com/rhel/\$releasever/\$basearch/stable
+2021-02-16 23:36:06,729 p=97534 u=root n=ansible | enabled = 1
+2021-02-16 23:36:06,729 p=97534 u=root n=ansible | gpgcheck = 1
+2021-02-16 23:36:06,729 p=97534 u=root n=ansible | gpgkey = https://repos.influxdata.com/influxdb.key
+2021-02-16 23:36:06,730 p=97534 u=root n=ansible | name = InfluxDB Repository - RHEL \$releasever
+2021-02-16 23:36:06,730 p=97534 u=root n=ansible | 
+2021-02-16 23:36:06,730 p=97534 u=root n=ansible | 
+2021-02-16 23:36:06,730 p=97534 u=root n=ansible |       - after_header: /etc/yum.repos.d/influxdb.repo
+2021-02-16 23:36:06,730 p=97534 u=root n=ansible |       - before_header: /etc/yum.repos.d/influxdb.repo
+2021-02-16 23:36:06,730 p=97534 u=root n=ansible |       - before: ""
+2021-02-16 23:36:06,730 p=97534 u=root n=ansible |     }
+2021-02-16 23:36:06,731 p=97534 u=root n=ansible |   }
+2021-02-16 23:36:06,731 p=97534 u=root n=ansible |     - {
+2021-02-16 23:36:06,731 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:36:06,731 p=97534 u=root n=ansible |     - repo: influxdb
+2021-02-16 23:36:06,731 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:36:06,731 p=97534 u=root n=ansible |     - state: present
+2021-02-16 23:36:06,731 p=97534 u=root n=ansible |     - item: serverprimary
+2021-02-16 23:36:06,732 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:36:06,732 p=97534 u=root n=ansible |     - diff: {
+2021-02-16 23:36:06,732 p=97534 u=root n=ansible |       - after: [influxdb]
+2021-02-16 23:36:06,732 p=97534 u=root n=ansible | baseurl = https://repos.influxdata.com/rhel/\$releasever/\$basearch/stable
+2021-02-16 23:36:06,732 p=97534 u=root n=ansible | enabled = 1
+2021-02-16 23:36:06,732 p=97534 u=root n=ansible | gpgcheck = 1
+2021-02-16 23:36:06,732 p=97534 u=root n=ansible | gpgkey = https://repos.influxdata.com/influxdb.key
+2021-02-16 23:36:06,733 p=97534 u=root n=ansible | name = InfluxDB Repository - RHEL \$releasever
+2021-02-16 23:36:06,733 p=97534 u=root n=ansible | 
+2021-02-16 23:36:06,733 p=97534 u=root n=ansible | 
+2021-02-16 23:36:06,733 p=97534 u=root n=ansible |       - after_header: /etc/yum.repos.d/influxdb.repo
+2021-02-16 23:36:06,733 p=97534 u=root n=ansible |       - before_header: /etc/yum.repos.d/influxdb.repo
+2021-02-16 23:36:06,733 p=97534 u=root n=ansible |       - before: ""
+2021-02-16 23:36:06,733 p=97534 u=root n=ansible |     }
+2021-02-16 23:36:06,734 p=97534 u=root n=ansible |   }
+2021-02-16 23:36:06,734 p=97534 u=root n=ansible |     - {
+2021-02-16 23:36:06,734 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:36:06,734 p=97534 u=root n=ansible |     - repo: influxdb
+2021-02-16 23:36:06,734 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:36:06,734 p=97534 u=root n=ansible |     - state: present
+2021-02-16 23:36:06,734 p=97534 u=root n=ansible |     - item: serverclient
+2021-02-16 23:36:06,734 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:36:06,735 p=97534 u=root n=ansible |     - diff: {
+2021-02-16 23:36:06,735 p=97534 u=root n=ansible |       - after: [influxdb]
+2021-02-16 23:36:06,735 p=97534 u=root n=ansible | baseurl = https://repos.influxdata.com/rhel/\$releasever/\$basearch/stable
+2021-02-16 23:36:06,735 p=97534 u=root n=ansible | enabled = 1
+2021-02-16 23:36:06,735 p=97534 u=root n=ansible | gpgcheck = 1
+2021-02-16 23:36:06,735 p=97534 u=root n=ansible | gpgkey = https://repos.influxdata.com/influxdb.key
+2021-02-16 23:36:06,735 p=97534 u=root n=ansible | name = InfluxDB Repository - RHEL \$releasever
+2021-02-16 23:36:06,736 p=97534 u=root n=ansible | 
+2021-02-16 23:36:06,736 p=97534 u=root n=ansible | 
+2021-02-16 23:36:06,736 p=97534 u=root n=ansible |       - after_header: /etc/yum.repos.d/influxdb.repo
+2021-02-16 23:36:06,736 p=97534 u=root n=ansible |       - before_header: /etc/yum.repos.d/influxdb.repo
+2021-02-16 23:36:06,736 p=97534 u=root n=ansible |       - before: ""
+2021-02-16 23:36:06,736 p=97534 u=root n=ansible |     }
+2021-02-16 23:36:06,736 p=97534 u=root n=ansible |   }
+2021-02-16 23:36:06,736 p=97534 u=root n=ansible |    ]
+2021-02-16 23:36:06,737 p=97534 u=root n=ansible | }
+2021-02-16 23:36:06,753 p=97534 u=root n=ansible | Tuesday 16 February 2021  23:36:06 +0530 (0:00:02.886)       0:00:06.304 ****** 
+2021-02-16 23:36:20,947 p=97534 u=root n=ansible | localhost -> sm35-r1.pun.seagate.com | SUCCESS | 14.19s
+2021-02-16 23:36:20,948 p=97534 u=root n=ansible | {
+2021-02-16 23:36:20,949 p=97534 u=root n=ansible |   - rc: 0
+2021-02-16 23:36:20,949 p=97534 u=root n=ansible |   - msg: ""
+2021-02-16 23:36:20,949 p=97534 u=root n=ansible |   - _ansible_delegated_vars: {
+2021-02-16 23:36:20,949 p=97534 u=root n=ansible |     - ansible_port: None
+2021-02-16 23:36:20,949 p=97534 u=root n=ansible |     - ansible_host: sm35-r1.pun.seagate.com
+2021-02-16 23:36:20,949 p=97534 u=root n=ansible |     - ansible_user: root
+2021-02-16 23:36:20,950 p=97534 u=root n=ansible |   }
+2021-02-16 23:36:20,950 p=97534 u=root n=ansible |   - changed: False
+2021-02-16 23:36:20,950 p=97534 u=root n=ansible |   - results: [ 
+2021-02-16 23:36:20,950 p=97534 u=root n=ansible |     - golang-1.15.5-1.el7.x86_64 providing go is already installed
+2021-02-16 23:36:20,950 p=97534 u=root n=ansible |     - git-1.8.3.1-23.el7_8.x86_64 providing git is already installed
+2021-02-16 23:36:20,950 p=97534 u=root n=ansible |     - bc-1.06.95-13.el7.x86_64 providing bc is already installed
+2021-02-16 23:36:20,951 p=97534 u=root n=ansible |    ]
+2021-02-16 23:36:20,951 p=97534 u=root n=ansible | }
+2021-02-16 23:36:20,981 p=97534 u=root n=ansible | Tuesday 16 February 2021  23:36:20 +0530 (0:00:14.227)       0:00:20.532 ****** 
+2021-02-16 23:38:40,587 p=97534 u=root n=ansible | localhost | CHANGED - item=serversecondary | 2m20s
+2021-02-16 23:38:40,587 p=97534 u=root n=ansible | localhost | CHANGED - item=serverprimary | 2m20s
+2021-02-16 23:38:40,588 p=97534 u=root n=ansible | localhost | CHANGED - item=serverclient | 2m20s
+2021-02-16 23:38:40,591 p=97534 u=root n=ansible | {
+2021-02-16 23:38:40,591 p=97534 u=root n=ansible |   - msg: All items completed
+2021-02-16 23:38:40,591 p=97534 u=root n=ansible |   - changed: True
+2021-02-16 23:38:40,592 p=97534 u=root n=ansible |   - results: [ 
+2021-02-16 23:38:40,592 p=97534 u=root n=ansible |     - {
+2021-02-16 23:38:40,592 p=97534 u=root n=ansible |     - rc: 0
+2021-02-16 23:38:40,592 p=97534 u=root n=ansible |     - msg: warning: /var/cache/yum/x86_64/7/influxdb/packages/telegraf-1.17.2-1.x86_64.rpm: Header V4 RSA/SHA256 Signature, key ID 2582e0c5: NOKEY
+2021-02-16 23:38:40,592 p=97534 u=root n=ansible |            Importing GPG key 0x2582E0C5:
+2021-02-16 23:38:40,592 p=97534 u=root n=ansible |             Userid     : "InfluxDB Packaging Service <support@influxdb.com>"
+2021-02-16 23:38:40,593 p=97534 u=root n=ansible |             Fingerprint: 05ce 1508 5fc0 9d18 e99e fb22 684a 14cf 2582 e0c5
+2021-02-16 23:38:40,593 p=97534 u=root n=ansible |             From       : https://repos.influxdata.com/influxdb.key
+2021-02-16 23:38:40,593 p=97534 u=root n=ansible |     - results: [ Loaded plugins: fastestmirror, product-id, search-disabled-repos, subscription-
+2021-02-16 23:38:40,593 p=97534 u=root n=ansible |                   : manager
+2021-02-16 23:38:40,593 p=97534 u=root n=ansible |     Loading mirror speeds from cached hostfile
+2021-02-16 23:38:40,593 p=97534 u=root n=ansible |     Resolving Dependencies
+2021-02-16 23:38:40,593 p=97534 u=root n=ansible |     --> Running transaction check
+2021-02-16 23:38:40,594 p=97534 u=root n=ansible |     ---> Package telegraf.x86_64 0:1.17.2-1 will be installed
+2021-02-16 23:38:40,594 p=97534 u=root n=ansible |     --> Finished Dependency Resolution
+2021-02-16 23:38:40,594 p=97534 u=root n=ansible |     
+2021-02-16 23:38:40,594 p=97534 u=root n=ansible |     Dependencies Resolved
+2021-02-16 23:38:40,594 p=97534 u=root n=ansible |     
+2021-02-16 23:38:40,594 p=97534 u=root n=ansible |     ================================================================================
+2021-02-16 23:38:40,594 p=97534 u=root n=ansible |      Package           Arch            Version              Repository         Size
+2021-02-16 23:38:40,595 p=97534 u=root n=ansible |     ================================================================================
+2021-02-16 23:38:40,595 p=97534 u=root n=ansible |     Installing:
+2021-02-16 23:38:40,595 p=97534 u=root n=ansible |      telegraf          x86_64          1.17.2-1             influxdb           21 M
+2021-02-16 23:38:40,595 p=97534 u=root n=ansible |     
+2021-02-16 23:38:40,595 p=97534 u=root n=ansible |     Transaction Summary
+2021-02-16 23:38:40,595 p=97534 u=root n=ansible |     ================================================================================
+2021-02-16 23:38:40,595 p=97534 u=root n=ansible |     Install  1 Package
+2021-02-16 23:38:40,596 p=97534 u=root n=ansible |     
+2021-02-16 23:38:40,596 p=97534 u=root n=ansible |     Total download size: 21 M
+2021-02-16 23:38:40,596 p=97534 u=root n=ansible |     Installed size: 21 M
+2021-02-16 23:38:40,596 p=97534 u=root n=ansible |     Downloading packages:
+2021-02-16 23:38:40,596 p=97534 u=root n=ansible |     Public key for telegraf-1.17.2-1.x86_64.rpm is not installed
+2021-02-16 23:38:40,596 p=97534 u=root n=ansible |     Retrieving key from https://repos.influxdata.com/influxdb.key
+2021-02-16 23:38:40,596 p=97534 u=root n=ansible |     Running transaction check
+2021-02-16 23:38:40,597 p=97534 u=root n=ansible |     Running transaction test
+2021-02-16 23:38:40,597 p=97534 u=root n=ansible |     Transaction test succeeded
+2021-02-16 23:38:40,597 p=97534 u=root n=ansible |     Running transaction
+2021-02-16 23:38:40,597 p=97534 u=root n=ansible |       Installing : telegraf-1.17.2-1.x86_64                                     1/1 
+2021-02-16 23:38:40,597 p=97534 u=root n=ansible |     Created symlink from /etc/systemd/system/multi-user.target.wants/telegraf.service to /usr/lib/systemd/system/telegraf.service.
+2021-02-16 23:38:40,597 p=97534 u=root n=ansible |     Loaded plugins: fastestmirror, product-id, subscription-manager
+2021-02-16 23:38:40,597 p=97534 u=root n=ansible |       Verifying  : telegraf-1.17.2-1.x86_64                                     1/1 
+2021-02-16 23:38:40,597 p=97534 u=root n=ansible |     
+2021-02-16 23:38:40,598 p=97534 u=root n=ansible |     Installed:
+2021-02-16 23:38:40,598 p=97534 u=root n=ansible |       telegraf.x86_64 0:1.17.2-1                                                    
+2021-02-16 23:38:40,598 p=97534 u=root n=ansible |     
+2021-02-16 23:38:40,598 p=97534 u=root n=ansible |     Complete! ]
+2021-02-16 23:38:40,598 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:38:40,598 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:38:40,598 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:38:40,599 p=97534 u=root n=ansible |     - item: serversecondary
+2021-02-16 23:38:40,599 p=97534 u=root n=ansible |     - obsoletes: {
+2021-02-16 23:38:40,599 p=97534 u=root n=ansible |       - libfastjson: {
+2021-02-16 23:38:40,599 p=97534 u=root n=ansible |         - repo: @anaconda
+2021-02-16 23:38:40,599 p=97534 u=root n=ansible |         - version: 0.99.4-3.el7
+2021-02-16 23:38:40,599 p=97534 u=root n=ansible |         - dist: x86_64
+2021-02-16 23:38:40,599 p=97534 u=root n=ansible |       }
+2021-02-16 23:38:40,599 p=97534 u=root n=ansible |     }
+2021-02-16 23:38:40,600 p=97534 u=root n=ansible |     - changes: {
+2021-02-16 23:38:40,600 p=97534 u=root n=ansible |       - updated: []
+2021-02-16 23:38:40,600 p=97534 u=root n=ansible |       - installed: [ telegraf ]
+2021-02-16 23:38:40,600 p=97534 u=root n=ansible |     }
+2021-02-16 23:38:40,600 p=97534 u=root n=ansible |   }
+2021-02-16 23:38:40,600 p=97534 u=root n=ansible |     - {
+2021-02-16 23:38:40,600 p=97534 u=root n=ansible |     - rc: 0
+2021-02-16 23:38:40,600 p=97534 u=root n=ansible |     - msg: Existing lock /var/run/yum.pid: another copy is running as pid 284051.
+2021-02-16 23:38:40,601 p=97534 u=root n=ansible |            Another app is currently holding the yum lock; waiting for it to exit...
+2021-02-16 23:38:40,601 p=97534 u=root n=ansible |              The other application is: yum
+2021-02-16 23:38:40,601 p=97534 u=root n=ansible |                Memory :  32 M RSS (475 MB VSZ)
+2021-02-16 23:38:40,601 p=97534 u=root n=ansible |                Started: Tue Feb 16 23:37:12 2021 - 00:01 ago
+2021-02-16 23:38:40,601 p=97534 u=root n=ansible |                State  : Running, pid: 284051
+2021-02-16 23:38:40,601 p=97534 u=root n=ansible |            warning: /var/cache/yum/x86_64/7/influxdb/packages/telegraf-1.17.2-1.x86_64.rpm: Header V4 RSA/SHA256 Signature, key ID 2582e0c5: NOKEY
+2021-02-16 23:38:40,601 p=97534 u=root n=ansible |            Importing GPG key 0x2582E0C5:
+2021-02-16 23:38:40,602 p=97534 u=root n=ansible |             Userid     : "InfluxDB Packaging Service <support@influxdb.com>"
+2021-02-16 23:38:40,602 p=97534 u=root n=ansible |             Fingerprint: 05ce 1508 5fc0 9d18 e99e fb22 684a 14cf 2582 e0c5
+2021-02-16 23:38:40,602 p=97534 u=root n=ansible |             From       : https://repos.influxdata.com/influxdb.key
+2021-02-16 23:38:40,602 p=97534 u=root n=ansible |     - results: [ Loaded plugins: fastestmirror, product-id, search-disabled-repos, subscription-
+2021-02-16 23:38:40,602 p=97534 u=root n=ansible |                   : manager
+2021-02-16 23:38:40,602 p=97534 u=root n=ansible |     Loading mirror speeds from cached hostfile
+2021-02-16 23:38:40,602 p=97534 u=root n=ansible |     Resolving Dependencies
+2021-02-16 23:38:40,602 p=97534 u=root n=ansible |     --> Running transaction check
+2021-02-16 23:38:40,603 p=97534 u=root n=ansible |     ---> Package telegraf.x86_64 0:1.17.2-1 will be installed
+2021-02-16 23:38:40,603 p=97534 u=root n=ansible |     --> Finished Dependency Resolution
+2021-02-16 23:38:40,603 p=97534 u=root n=ansible |     
+2021-02-16 23:38:40,603 p=97534 u=root n=ansible |     Dependencies Resolved
+2021-02-16 23:38:40,603 p=97534 u=root n=ansible |     
+2021-02-16 23:38:40,603 p=97534 u=root n=ansible |     ================================================================================
+2021-02-16 23:38:40,603 p=97534 u=root n=ansible |      Package           Arch            Version              Repository         Size
+2021-02-16 23:38:40,604 p=97534 u=root n=ansible |     ================================================================================
+2021-02-16 23:38:40,604 p=97534 u=root n=ansible |     Installing:
+2021-02-16 23:38:40,604 p=97534 u=root n=ansible |      telegraf          x86_64          1.17.2-1             influxdb           21 M
+2021-02-16 23:38:40,604 p=97534 u=root n=ansible |     
+2021-02-16 23:38:40,604 p=97534 u=root n=ansible |     Transaction Summary
+2021-02-16 23:38:40,604 p=97534 u=root n=ansible |     ================================================================================
+2021-02-16 23:38:40,604 p=97534 u=root n=ansible |     Install  1 Package
+2021-02-16 23:38:40,604 p=97534 u=root n=ansible |     
+2021-02-16 23:38:40,605 p=97534 u=root n=ansible |     Total download size: 21 M
+2021-02-16 23:38:40,605 p=97534 u=root n=ansible |     Installed size: 21 M
+2021-02-16 23:38:40,605 p=97534 u=root n=ansible |     Downloading packages:
+2021-02-16 23:38:40,605 p=97534 u=root n=ansible |     Public key for telegraf-1.17.2-1.x86_64.rpm is not installed
+2021-02-16 23:38:40,605 p=97534 u=root n=ansible |     Retrieving key from https://repos.influxdata.com/influxdb.key
+2021-02-16 23:38:40,605 p=97534 u=root n=ansible |     Running transaction check
+2021-02-16 23:38:40,605 p=97534 u=root n=ansible |     Running transaction test
+2021-02-16 23:38:40,606 p=97534 u=root n=ansible |     Transaction test succeeded
+2021-02-16 23:38:40,606 p=97534 u=root n=ansible |     Running transaction
+2021-02-16 23:38:40,606 p=97534 u=root n=ansible |       Installing : telegraf-1.17.2-1.x86_64                                     1/1 
+2021-02-16 23:38:40,606 p=97534 u=root n=ansible |     Created symlink from /etc/systemd/system/multi-user.target.wants/telegraf.service to /usr/lib/systemd/system/telegraf.service.
+2021-02-16 23:38:40,606 p=97534 u=root n=ansible |     Loaded plugins: fastestmirror, product-id, subscription-manager
+2021-02-16 23:38:40,606 p=97534 u=root n=ansible |       Verifying  : telegraf-1.17.2-1.x86_64                                     1/1 
+2021-02-16 23:38:40,606 p=97534 u=root n=ansible |     
+2021-02-16 23:38:40,606 p=97534 u=root n=ansible |     Installed:
+2021-02-16 23:38:40,607 p=97534 u=root n=ansible |       telegraf.x86_64 0:1.17.2-1                                                    
+2021-02-16 23:38:40,607 p=97534 u=root n=ansible |     
+2021-02-16 23:38:40,607 p=97534 u=root n=ansible |     Complete! ]
+2021-02-16 23:38:40,607 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:38:40,607 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:38:40,607 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:38:40,607 p=97534 u=root n=ansible |     - item: serverprimary
+2021-02-16 23:38:40,607 p=97534 u=root n=ansible |     - obsoletes: {
+2021-02-16 23:38:40,608 p=97534 u=root n=ansible |       - libfastjson: {
+2021-02-16 23:38:40,608 p=97534 u=root n=ansible |         - repo: @anaconda
+2021-02-16 23:38:40,608 p=97534 u=root n=ansible |         - version: 0.99.4-3.el7
+2021-02-16 23:38:40,608 p=97534 u=root n=ansible |         - dist: x86_64
+2021-02-16 23:38:40,608 p=97534 u=root n=ansible |       }
+2021-02-16 23:38:40,608 p=97534 u=root n=ansible |     }
+2021-02-16 23:38:40,608 p=97534 u=root n=ansible |     - changes: {
+2021-02-16 23:38:40,608 p=97534 u=root n=ansible |       - updated: []
+2021-02-16 23:38:40,609 p=97534 u=root n=ansible |       - installed: [ telegraf ]
+2021-02-16 23:38:40,609 p=97534 u=root n=ansible |     }
+2021-02-16 23:38:40,609 p=97534 u=root n=ansible |   }
+2021-02-16 23:38:40,609 p=97534 u=root n=ansible |     - {
+2021-02-16 23:38:40,609 p=97534 u=root n=ansible |     - rc: 0
+2021-02-16 23:38:40,609 p=97534 u=root n=ansible |     - msg: warning: /var/cache/yum/x86_64/7/influxdb/packages/telegraf-1.17.2-1.x86_64.rpm: Header V4 RSA/SHA256 Signature, key ID 2582e0c5: NOKEY
+2021-02-16 23:38:40,609 p=97534 u=root n=ansible |            Importing GPG key 0x2582E0C5:
+2021-02-16 23:38:40,609 p=97534 u=root n=ansible |             Userid     : "InfluxDB Packaging Service <support@influxdb.com>"
+2021-02-16 23:38:40,609 p=97534 u=root n=ansible |             Fingerprint: 05ce 1508 5fc0 9d18 e99e fb22 684a 14cf 2582 e0c5
+2021-02-16 23:38:40,610 p=97534 u=root n=ansible |             From       : https://repos.influxdata.com/influxdb.key
+2021-02-16 23:38:40,610 p=97534 u=root n=ansible |     - results: [ Loaded plugins: fastestmirror, product-id, search-disabled-repos, subscription-
+2021-02-16 23:38:40,610 p=97534 u=root n=ansible |                   : manager
+2021-02-16 23:38:40,610 p=97534 u=root n=ansible |     Loading mirror speeds from cached hostfile
+2021-02-16 23:38:40,610 p=97534 u=root n=ansible |     Resolving Dependencies
+2021-02-16 23:38:40,610 p=97534 u=root n=ansible |     --> Running transaction check
+2021-02-16 23:38:40,610 p=97534 u=root n=ansible |     ---> Package telegraf.x86_64 0:1.17.2-1 will be installed
+2021-02-16 23:38:40,610 p=97534 u=root n=ansible |     --> Finished Dependency Resolution
+2021-02-16 23:38:40,611 p=97534 u=root n=ansible |     
+2021-02-16 23:38:40,611 p=97534 u=root n=ansible |     Dependencies Resolved
+2021-02-16 23:38:40,611 p=97534 u=root n=ansible |     
+2021-02-16 23:38:40,611 p=97534 u=root n=ansible |     ================================================================================
+2021-02-16 23:38:40,611 p=97534 u=root n=ansible |      Package           Arch            Version              Repository         Size
+2021-02-16 23:38:40,611 p=97534 u=root n=ansible |     ================================================================================
+2021-02-16 23:38:40,611 p=97534 u=root n=ansible |     Installing:
+2021-02-16 23:38:40,611 p=97534 u=root n=ansible |      telegraf          x86_64          1.17.2-1             influxdb           21 M
+2021-02-16 23:38:40,612 p=97534 u=root n=ansible |     
+2021-02-16 23:38:40,612 p=97534 u=root n=ansible |     Transaction Summary
+2021-02-16 23:38:40,612 p=97534 u=root n=ansible |     ================================================================================
+2021-02-16 23:38:40,612 p=97534 u=root n=ansible |     Install  1 Package
+2021-02-16 23:38:40,612 p=97534 u=root n=ansible |     
+2021-02-16 23:38:40,612 p=97534 u=root n=ansible |     Total download size: 21 M
+2021-02-16 23:38:40,612 p=97534 u=root n=ansible |     Installed size: 21 M
+2021-02-16 23:38:40,612 p=97534 u=root n=ansible |     Downloading packages:
+2021-02-16 23:38:40,613 p=97534 u=root n=ansible |     Public key for telegraf-1.17.2-1.x86_64.rpm is not installed
+2021-02-16 23:38:40,613 p=97534 u=root n=ansible |     Retrieving key from https://repos.influxdata.com/influxdb.key
+2021-02-16 23:38:40,613 p=97534 u=root n=ansible |     Running transaction check
+2021-02-16 23:38:40,613 p=97534 u=root n=ansible |     Running transaction test
+2021-02-16 23:38:40,613 p=97534 u=root n=ansible |     Transaction test succeeded
+2021-02-16 23:38:40,613 p=97534 u=root n=ansible |     Running transaction
+2021-02-16 23:38:40,613 p=97534 u=root n=ansible |       Installing : telegraf-1.17.2-1.x86_64                                     1/1 
+2021-02-16 23:38:40,613 p=97534 u=root n=ansible |     Created symlink from /etc/systemd/system/multi-user.target.wants/telegraf.service to /usr/lib/systemd/system/telegraf.service.
+2021-02-16 23:38:40,614 p=97534 u=root n=ansible |     Loaded plugins: fastestmirror, product-id, subscription-manager
+2021-02-16 23:38:40,614 p=97534 u=root n=ansible |       Verifying  : telegraf-1.17.2-1.x86_64                                     1/1 
+2021-02-16 23:38:40,614 p=97534 u=root n=ansible |     
+2021-02-16 23:38:40,614 p=97534 u=root n=ansible |     Installed:
+2021-02-16 23:38:40,614 p=97534 u=root n=ansible |       telegraf.x86_64 0:1.17.2-1                                                    
+2021-02-16 23:38:40,614 p=97534 u=root n=ansible |     
+2021-02-16 23:38:40,614 p=97534 u=root n=ansible |     Complete! ]
+2021-02-16 23:38:40,614 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:38:40,615 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:38:40,615 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:38:40,615 p=97534 u=root n=ansible |     - item: serverclient
+2021-02-16 23:38:40,615 p=97534 u=root n=ansible |     - obsoletes: {
+2021-02-16 23:38:40,615 p=97534 u=root n=ansible |       - python2-s3transfer: {
+2021-02-16 23:38:40,615 p=97534 u=root n=ansible |         - repo: @/python2-s3transfer-0.1.10-1.el7.noarch
+2021-02-16 23:38:40,615 p=97534 u=root n=ansible |         - version: 0.1.10-1.el7
+2021-02-16 23:38:40,615 p=97534 u=root n=ansible |         - dist: noarch
+2021-02-16 23:38:40,616 p=97534 u=root n=ansible |       }
+2021-02-16 23:38:40,616 p=97534 u=root n=ansible |     }
+2021-02-16 23:38:40,616 p=97534 u=root n=ansible |     - changes: {
+2021-02-16 23:38:40,616 p=97534 u=root n=ansible |       - updated: []
+2021-02-16 23:38:40,616 p=97534 u=root n=ansible |       - installed: [ telegraf ]
+2021-02-16 23:38:40,616 p=97534 u=root n=ansible |     }
+2021-02-16 23:38:40,616 p=97534 u=root n=ansible |   }
+2021-02-16 23:38:40,616 p=97534 u=root n=ansible |    ]
+2021-02-16 23:38:40,616 p=97534 u=root n=ansible | }
+2021-02-16 23:38:40,632 p=97534 u=root n=ansible | Tuesday 16 February 2021  23:38:40 +0530 (0:02:19.651)       0:02:40.183 ****** 
+2021-02-16 23:38:42,720 p=97534 u=root n=ansible | localhost -> sm35-r1.pun.seagate.com | CHANGED | 2.09s
+2021-02-16 23:38:42,721 p=97534 u=root n=ansible | {
+2021-02-16 23:38:42,721 p=97534 u=root n=ansible |   - uid: 0
+2021-02-16 23:38:42,721 p=97534 u=root n=ansible |   - _ansible_delegated_vars: {
+2021-02-16 23:38:42,721 p=97534 u=root n=ansible |     - ansible_port: None
+2021-02-16 23:38:42,722 p=97534 u=root n=ansible |     - ansible_host: sm35-r1.pun.seagate.com
+2021-02-16 23:38:42,722 p=97534 u=root n=ansible |     - ansible_user: root
+2021-02-16 23:38:42,722 p=97534 u=root n=ansible |   }
+2021-02-16 23:38:42,722 p=97534 u=root n=ansible |   - dest: /root/
+2021-02-16 23:38:42,722 p=97534 u=root n=ansible |   - owner: root
+2021-02-16 23:38:42,722 p=97534 u=root n=ansible |   - size: 4096
+2021-02-16 23:38:42,722 p=97534 u=root n=ansible |   - src: /root/.ansible/tmp/ansible-tmp-1613498920.71-98074-135952054386691/source
+2021-02-16 23:38:42,723 p=97534 u=root n=ansible |   - group: root
+2021-02-16 23:38:42,723 p=97534 u=root n=ansible |   - changed: True
+2021-02-16 23:38:42,723 p=97534 u=root n=ansible |   - extract_results: {
+2021-02-16 23:38:42,723 p=97534 u=root n=ansible |     - rc: 0
+2021-02-16 23:38:42,723 p=97534 u=root n=ansible |     - cmd: [ 
+2021-02-16 23:38:42,723 p=97534 u=root n=ansible |       - /usr/bin/gtar
+2021-02-16 23:38:42,723 p=97534 u=root n=ansible |       - --extract
+2021-02-16 23:38:42,723 p=97534 u=root n=ansible |       - -C
+2021-02-16 23:38:42,724 p=97534 u=root n=ansible |       - /root/
+2021-02-16 23:38:42,724 p=97534 u=root n=ansible |       - -z
+2021-02-16 23:38:42,724 p=97534 u=root n=ansible |       - -f
+2021-02-16 23:38:42,724 p=97534 u=root n=ansible |       - /root/.ansible/tmp/ansible-tmp-1613498920.71-98074-135952054386691/source
+2021-02-16 23:38:42,724 p=97534 u=root n=ansible |      ]
+2021-02-16 23:38:42,724 p=97534 u=root n=ansible |     - out: ""
+2021-02-16 23:38:42,724 p=97534 u=root n=ansible |     - err: ""
+2021-02-16 23:38:42,725 p=97534 u=root n=ansible |   }
+2021-02-16 23:38:42,725 p=97534 u=root n=ansible |   - state: directory
+2021-02-16 23:38:42,725 p=97534 u=root n=ansible |   - handler: TgzArchive
+2021-02-16 23:38:42,725 p=97534 u=root n=ansible |   - mode: 0550
+2021-02-16 23:38:42,725 p=97534 u=root n=ansible |   - gid: 0
+2021-02-16 23:38:42,725 p=97534 u=root n=ansible | }
+2021-02-16 23:38:42,750 p=97534 u=root n=ansible | Tuesday 16 February 2021  23:38:42 +0530 (0:00:02.118)       0:02:42.302 ****** 
+2021-02-16 23:38:45,443 p=97534 u=root n=ansible | localhost | CHANGED - item=serversecondary | 2.69s
+2021-02-16 23:38:45,443 p=97534 u=root n=ansible | localhost | CHANGED - item=serverprimary | 2.69s
+2021-02-16 23:38:45,444 p=97534 u=root n=ansible | localhost | CHANGED - item=serverclient | 2.69s
+2021-02-16 23:38:45,445 p=97534 u=root n=ansible | {
+2021-02-16 23:38:45,445 p=97534 u=root n=ansible |   - msg: All items completed
+2021-02-16 23:38:45,445 p=97534 u=root n=ansible |   - changed: True
+2021-02-16 23:38:45,445 p=97534 u=root n=ansible |   - results: [ 
+2021-02-16 23:38:45,446 p=97534 u=root n=ansible |     - {
+2021-02-16 23:38:45,446 p=97534 u=root n=ansible |     - msg: 1 replacements made
+2021-02-16 23:38:45,446 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:38:45,446 p=97534 u=root n=ansible |     - backup_file: /etc/telegraf/telegraf.conf.121114.2021-02-16@23:38:12~
+2021-02-16 23:38:45,446 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:38:45,446 p=97534 u=root n=ansible |     - item: serversecondary
+2021-02-16 23:38:45,447 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:38:45,447 p=97534 u=root n=ansible |   }
+2021-02-16 23:38:45,447 p=97534 u=root n=ansible |     - {
+2021-02-16 23:38:45,447 p=97534 u=root n=ansible |     - msg: 1 replacements made
+2021-02-16 23:38:45,447 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:38:45,447 p=97534 u=root n=ansible |     - backup_file: /etc/telegraf/telegraf.conf.290708.2021-02-16@23:38:18~
+2021-02-16 23:38:45,447 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:38:45,448 p=97534 u=root n=ansible |     - item: serverprimary
+2021-02-16 23:38:45,448 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:38:45,448 p=97534 u=root n=ansible |   }
+2021-02-16 23:38:45,448 p=97534 u=root n=ansible |     - {
+2021-02-16 23:38:45,448 p=97534 u=root n=ansible |     - msg: 1 replacements made
+2021-02-16 23:38:45,448 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:38:45,448 p=97534 u=root n=ansible |     - backup_file: /etc/telegraf/telegraf.conf.67141.2021-02-16@23:38:56~
+2021-02-16 23:38:45,449 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:38:45,449 p=97534 u=root n=ansible |     - item: serverclient
+2021-02-16 23:38:45,449 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:38:45,449 p=97534 u=root n=ansible |   }
+2021-02-16 23:38:45,449 p=97534 u=root n=ansible |    ]
+2021-02-16 23:38:45,449 p=97534 u=root n=ansible | }
+2021-02-16 23:38:45,477 p=97534 u=root n=ansible | Tuesday 16 February 2021  23:38:45 +0530 (0:00:02.726)       0:02:45.028 ****** 
+2021-02-16 23:38:47,716 p=97534 u=root n=ansible | localhost | CHANGED - item=serversecondary | 2.24s
+2021-02-16 23:38:47,717 p=97534 u=root n=ansible | localhost | CHANGED - item=serverprimary | 2.24s
+2021-02-16 23:38:47,717 p=97534 u=root n=ansible | localhost | CHANGED - item=serverclient | 2.24s
+2021-02-16 23:38:47,718 p=97534 u=root n=ansible | {
+2021-02-16 23:38:47,718 p=97534 u=root n=ansible |   - msg: All items completed
+2021-02-16 23:38:47,718 p=97534 u=root n=ansible |   - changed: True
+2021-02-16 23:38:47,718 p=97534 u=root n=ansible |   - results: [ 
+2021-02-16 23:38:47,719 p=97534 u=root n=ansible |     - {
+2021-02-16 23:38:47,719 p=97534 u=root n=ansible |     - msg: 1 replacements made
+2021-02-16 23:38:47,719 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:38:47,719 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:38:47,719 p=97534 u=root n=ansible |     - item: serversecondary
+2021-02-16 23:38:47,719 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:38:47,719 p=97534 u=root n=ansible |   }
+2021-02-16 23:38:47,720 p=97534 u=root n=ansible |     - {
+2021-02-16 23:38:47,720 p=97534 u=root n=ansible |     - msg: 1 replacements made
+2021-02-16 23:38:47,720 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:38:47,720 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:38:47,720 p=97534 u=root n=ansible |     - item: serverprimary
+2021-02-16 23:38:47,720 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:38:47,720 p=97534 u=root n=ansible |   }
+2021-02-16 23:38:47,721 p=97534 u=root n=ansible |     - {
+2021-02-16 23:38:47,721 p=97534 u=root n=ansible |     - msg: 1 replacements made
+2021-02-16 23:38:47,721 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:38:47,721 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:38:47,721 p=97534 u=root n=ansible |     - item: serverclient
+2021-02-16 23:38:47,721 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:38:47,721 p=97534 u=root n=ansible |   }
+2021-02-16 23:38:47,722 p=97534 u=root n=ansible |    ]
+2021-02-16 23:38:47,722 p=97534 u=root n=ansible | }
+2021-02-16 23:38:47,750 p=97534 u=root n=ansible | Tuesday 16 February 2021  23:38:47 +0530 (0:00:02.272)       0:02:47.301 ****** 
+2021-02-16 23:38:50,263 p=97534 u=root n=ansible | localhost | CHANGED - item=serversecondary | 2.51s
+2021-02-16 23:38:50,264 p=97534 u=root n=ansible | localhost | CHANGED - item=serverprimary | 2.51s
+2021-02-16 23:38:50,264 p=97534 u=root n=ansible | localhost | CHANGED - item=serverclient | 2.51s
+2021-02-16 23:38:50,266 p=97534 u=root n=ansible | {
+2021-02-16 23:38:50,266 p=97534 u=root n=ansible |   - msg: All items completed
+2021-02-16 23:38:50,267 p=97534 u=root n=ansible |   - changed: True
+2021-02-16 23:38:50,267 p=97534 u=root n=ansible |   - results: [ 
+2021-02-16 23:38:50,267 p=97534 u=root n=ansible |     - {
+2021-02-16 23:38:50,267 p=97534 u=root n=ansible |     - msg: Block inserted
+2021-02-16 23:38:50,267 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:38:50,267 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:38:50,268 p=97534 u=root n=ansible |     - item: serversecondary
+2021-02-16 23:38:50,268 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:38:50,268 p=97534 u=root n=ansible |     - diff: [ 
+2021-02-16 23:38:50,268 p=97534 u=root n=ansible |       - {
+2021-02-16 23:38:50,268 p=97534 u=root n=ansible |       - after: ""
+2021-02-16 23:38:50,268 p=97534 u=root n=ansible |       - after_header: /etc/telegraf/telegraf.conf (content)
+2021-02-16 23:38:50,268 p=97534 u=root n=ansible |       - before_header: /etc/telegraf/telegraf.conf (content)
+2021-02-16 23:38:50,269 p=97534 u=root n=ansible |       - before: ""
+2021-02-16 23:38:50,269 p=97534 u=root n=ansible |     }
+2021-02-16 23:38:50,269 p=97534 u=root n=ansible |       - {
+2021-02-16 23:38:50,269 p=97534 u=root n=ansible |       - after_header: /etc/telegraf/telegraf.conf (file attributes)
+2021-02-16 23:38:50,269 p=97534 u=root n=ansible |       - before_header: /etc/telegraf/telegraf.conf (file attributes)
+2021-02-16 23:38:50,269 p=97534 u=root n=ansible |     }
+2021-02-16 23:38:50,269 p=97534 u=root n=ansible |      ]
+2021-02-16 23:38:50,270 p=97534 u=root n=ansible |   }
+2021-02-16 23:38:50,270 p=97534 u=root n=ansible |     - {
+2021-02-16 23:38:50,270 p=97534 u=root n=ansible |     - msg: Block inserted
+2021-02-16 23:38:50,270 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:38:50,270 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:38:50,270 p=97534 u=root n=ansible |     - item: serverprimary
+2021-02-16 23:38:50,270 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:38:50,271 p=97534 u=root n=ansible |     - diff: [ 
+2021-02-16 23:38:50,271 p=97534 u=root n=ansible |       - {
+2021-02-16 23:38:50,271 p=97534 u=root n=ansible |       - after: ""
+2021-02-16 23:38:50,271 p=97534 u=root n=ansible |       - after_header: /etc/telegraf/telegraf.conf (content)
+2021-02-16 23:38:50,271 p=97534 u=root n=ansible |       - before_header: /etc/telegraf/telegraf.conf (content)
+2021-02-16 23:38:50,271 p=97534 u=root n=ansible |       - before: ""
+2021-02-16 23:38:50,271 p=97534 u=root n=ansible |     }
+2021-02-16 23:38:50,272 p=97534 u=root n=ansible |       - {
+2021-02-16 23:38:50,272 p=97534 u=root n=ansible |       - after_header: /etc/telegraf/telegraf.conf (file attributes)
+2021-02-16 23:38:50,272 p=97534 u=root n=ansible |       - before_header: /etc/telegraf/telegraf.conf (file attributes)
+2021-02-16 23:38:50,272 p=97534 u=root n=ansible |     }
+2021-02-16 23:38:50,272 p=97534 u=root n=ansible |      ]
+2021-02-16 23:38:50,272 p=97534 u=root n=ansible |   }
+2021-02-16 23:38:50,272 p=97534 u=root n=ansible |     - {
+2021-02-16 23:38:50,273 p=97534 u=root n=ansible |     - msg: Block inserted
+2021-02-16 23:38:50,273 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:38:50,273 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:38:50,273 p=97534 u=root n=ansible |     - item: serverclient
+2021-02-16 23:38:50,273 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:38:50,273 p=97534 u=root n=ansible |     - diff: [ 
+2021-02-16 23:38:50,273 p=97534 u=root n=ansible |       - {
+2021-02-16 23:38:50,274 p=97534 u=root n=ansible |       - after: ""
+2021-02-16 23:38:50,274 p=97534 u=root n=ansible |       - after_header: /etc/telegraf/telegraf.conf (content)
+2021-02-16 23:38:50,274 p=97534 u=root n=ansible |       - before_header: /etc/telegraf/telegraf.conf (content)
+2021-02-16 23:38:50,274 p=97534 u=root n=ansible |       - before: ""
+2021-02-16 23:38:50,274 p=97534 u=root n=ansible |     }
+2021-02-16 23:38:50,274 p=97534 u=root n=ansible |       - {
+2021-02-16 23:38:50,274 p=97534 u=root n=ansible |       - after_header: /etc/telegraf/telegraf.conf (file attributes)
+2021-02-16 23:38:50,275 p=97534 u=root n=ansible |       - before_header: /etc/telegraf/telegraf.conf (file attributes)
+2021-02-16 23:38:50,275 p=97534 u=root n=ansible |     }
+2021-02-16 23:38:50,275 p=97534 u=root n=ansible |      ]
+2021-02-16 23:38:50,275 p=97534 u=root n=ansible |   }
+2021-02-16 23:38:50,275 p=97534 u=root n=ansible |    ]
+2021-02-16 23:38:50,275 p=97534 u=root n=ansible | }
+2021-02-16 23:38:50,293 p=97534 u=root n=ansible | Tuesday 16 February 2021  23:38:50 +0530 (0:00:02.543)       0:02:49.845 ****** 
+2021-02-16 23:38:50,331 p=97534 u=root n=ansible | localhost -> sm35-r1.pun.seagate.com | SUCCESS | 38ms
+2021-02-16 23:38:50,332 p=97534 u=root n=ansible | {
+2021-02-16 23:38:50,333 p=97534 u=root n=ansible |   - ansible_included_var_files: [ /root/seagate-tools/performance/AutoPerf/roles/autoPerf/vars/short.yml ]
+2021-02-16 23:38:50,333 p=97534 u=root n=ansible |   - _ansible_delegated_vars: {
+2021-02-16 23:38:50,333 p=97534 u=root n=ansible |     - ansible_port: None
+2021-02-16 23:38:50,333 p=97534 u=root n=ansible |     - ansible_host: sm35-r1.pun.seagate.com
+2021-02-16 23:38:50,333 p=97534 u=root n=ansible |     - ansible_user: root
+2021-02-16 23:38:50,333 p=97534 u=root n=ansible |   }
+2021-02-16 23:38:50,333 p=97534 u=root n=ansible |   - changed: False
+2021-02-16 23:38:50,334 p=97534 u=root n=ansible |   - ansible_facts: {
+2021-02-16 23:38:50,334 p=97534 u=root n=ansible |     - IOSIZE: 1Mb,4Mb,8Mb
+2021-02-16 23:38:50,334 p=97534 u=root n=ansible |     - CLIENTS: 32
+2021-02-16 23:38:50,334 p=97534 u=root n=ansible |     - NUMJOBS: 16
+2021-02-16 23:38:50,334 p=97534 u=root n=ansible |     - DURATION: 300
+2021-02-16 23:38:50,334 p=97534 u=root n=ansible |     - BUCKETS: 4
+2021-02-16 23:38:50,335 p=97534 u=root n=ansible |     - NUMSAMPLES: 2048,4096
+2021-02-16 23:38:50,335 p=97534 u=root n=ansible |   }
+2021-02-16 23:38:50,335 p=97534 u=root n=ansible | }
+2021-02-16 23:38:50,361 p=97534 u=root n=ansible | Tuesday 16 February 2021  23:38:50 +0530 (0:00:00.068)       0:02:49.913 ****** 
+2021-02-16 23:38:55,111 p=97534 u=root n=ansible | localhost | CHANGED - item=serversecondary | 4.75s
+2021-02-16 23:38:55,112 p=97534 u=root n=ansible | localhost | CHANGED - item=serverprimary | 4.75s
+2021-02-16 23:38:55,112 p=97534 u=root n=ansible | localhost | CHANGED - item=serverclient | 4.75s
+2021-02-16 23:38:55,134 p=97534 u=root n=ansible | {
+2021-02-16 23:38:55,134 p=97534 u=root n=ansible |   - msg: All items completed
+2021-02-16 23:38:55,134 p=97534 u=root n=ansible |   - changed: True
+2021-02-16 23:38:55,134 p=97534 u=root n=ansible |   - results: [ 
+2021-02-16 23:38:55,135 p=97534 u=root n=ansible |     - {
+2021-02-16 23:38:55,135 p=97534 u=root n=ansible |     - status: {
+2021-02-16 23:38:55,135 p=97534 u=root n=ansible |       - ExecStart: { path=/usr/bin/telegraf ; argv[]=/usr/bin/telegraf -config /etc/telegraf/telegraf.conf -config-directory /etc/telegraf/telegraf.d $TELEGRAF_OPTS ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }
+2021-02-16 23:38:55,135 p=97534 u=root n=ansible |       - TimeoutStopUSec: 1min 30s
+2021-02-16 23:38:55,135 p=97534 u=root n=ansible |       - UMask: 0022
+2021-02-16 23:38:55,135 p=97534 u=root n=ansible |       - GuessMainPID: yes
+2021-02-16 23:38:55,135 p=97534 u=root n=ansible |       - ExecMainCode: 0
+2021-02-16 23:38:55,135 p=97534 u=root n=ansible |       - UnitFileState: enabled
+2021-02-16 23:38:55,136 p=97534 u=root n=ansible |       - ExecMainPID: 0
+2021-02-16 23:38:55,136 p=97534 u=root n=ansible |       - LimitSIGPENDING: 1541413
+2021-02-16 23:38:55,136 p=97534 u=root n=ansible |       - FileDescriptorStoreMax: 0
+2021-02-16 23:38:55,136 p=97534 u=root n=ansible |       - LoadState: loaded
+2021-02-16 23:38:55,136 p=97534 u=root n=ansible |       - ProtectHome: no
+2021-02-16 23:38:55,136 p=97534 u=root n=ansible |       - ConditionTimestampMonotonic: 0
+2021-02-16 23:38:55,136 p=97534 u=root n=ansible |       - StartLimitInterval: 10000000
+2021-02-16 23:38:55,136 p=97534 u=root n=ansible |       - WatchdogTimestampMonotonic: 0
+2021-02-16 23:38:55,137 p=97534 u=root n=ansible |       - LimitSTACK: 18446744073709551615
+2021-02-16 23:38:55,137 p=97534 u=root n=ansible |       - LimitLOCKS: 18446744073709551615
+2021-02-16 23:38:55,137 p=97534 u=root n=ansible |       - AllowIsolate: no
+2021-02-16 23:38:55,137 p=97534 u=root n=ansible |       - IgnoreOnSnapshot: no
+2021-02-16 23:38:55,137 p=97534 u=root n=ansible |       - CanIsolate: no
+2021-02-16 23:38:55,137 p=97534 u=root n=ansible |       - ActiveEnterTimestampMonotonic: 0
+2021-02-16 23:38:55,137 p=97534 u=root n=ansible |       - User: telegraf
+2021-02-16 23:38:55,137 p=97534 u=root n=ansible |       - EnvironmentFile: /etc/default/telegraf (ignore_errors=yes)
+2021-02-16 23:38:55,138 p=97534 u=root n=ansible |       - CPUSchedulingPriority: 0
+2021-02-16 23:38:55,138 p=97534 u=root n=ansible |       - KillSignal: 15
+2021-02-16 23:38:55,138 p=97534 u=root n=ansible |       - LimitFSIZE: 18446744073709551615
+2021-02-16 23:38:55,138 p=97534 u=root n=ansible |       - IgnoreOnIsolate: no
+2021-02-16 23:38:55,138 p=97534 u=root n=ansible |       - LimitCPU: 18446744073709551615
+2021-02-16 23:38:55,138 p=97534 u=root n=ansible |       - MemoryLimit: 18446744073709551615
+2021-02-16 23:38:55,138 p=97534 u=root n=ansible |       - CanStart: yes
+2021-02-16 23:38:55,138 p=97534 u=root n=ansible |       - JobTimeoutAction: none
+2021-02-16 23:38:55,138 p=97534 u=root n=ansible |       - PrivateTmp: no
+2021-02-16 23:38:55,139 p=97534 u=root n=ansible |       - Before: multi-user.target shutdown.target
+2021-02-16 23:38:55,139 p=97534 u=root n=ansible |       - LimitAS: 18446744073709551615
+2021-02-16 23:38:55,139 p=97534 u=root n=ansible |       - RootDirectoryStartOnly: no
+2021-02-16 23:38:55,139 p=97534 u=root n=ansible |       - InactiveExitTimestampMonotonic: 0
+2021-02-16 23:38:55,139 p=97534 u=root n=ansible |       - SendSIGHUP: no
+2021-02-16 23:38:55,139 p=97534 u=root n=ansible |       - ExecMainStartTimestampMonotonic: 0
+2021-02-16 23:38:55,139 p=97534 u=root n=ansible |       - Type: simple
+2021-02-16 23:38:55,139 p=97534 u=root n=ansible |       - SyslogPriority: 30
+2021-02-16 23:38:55,140 p=97534 u=root n=ansible |       - SameProcessGroup: no
+2021-02-16 23:38:55,140 p=97534 u=root n=ansible |       - LimitNPROC: 1541413
+2021-02-16 23:38:55,140 p=97534 u=root n=ansible |       - RuntimeDirectoryMode: 0755
+2021-02-16 23:38:55,140 p=97534 u=root n=ansible |       - NonBlocking: no
+2021-02-16 23:38:55,140 p=97534 u=root n=ansible |       - InactiveEnterTimestampMonotonic: 0
+2021-02-16 23:38:55,140 p=97534 u=root n=ansible |       - RefuseManualStop: no
+2021-02-16 23:38:55,140 p=97534 u=root n=ansible |       - CapabilityBoundingSet: 18446744073709551615
+2021-02-16 23:38:55,140 p=97534 u=root n=ansible |       - TTYReset: no
+2021-02-16 23:38:55,140 p=97534 u=root n=ansible |       - OOMScoreAdjust: 0
+2021-02-16 23:38:55,141 p=97534 u=root n=ansible |       - LimitRSS: 18446744073709551615
+2021-02-16 23:38:55,141 p=97534 u=root n=ansible |       - RefuseManualStart: no
+2021-02-16 23:38:55,141 p=97534 u=root n=ansible |       - KillMode: control-group
+2021-02-16 23:38:55,141 p=97534 u=root n=ansible |       - SyslogLevelPrefix: yes
+2021-02-16 23:38:55,141 p=97534 u=root n=ansible |       - Documentation: https://github.com/influxdata/telegraf
+2021-02-16 23:38:55,141 p=97534 u=root n=ansible |       - LimitRTPRIO: 0
+2021-02-16 23:38:55,141 p=97534 u=root n=ansible |       - Delegate: no
+2021-02-16 23:38:55,141 p=97534 u=root n=ansible |       - ExecReload: { path=/bin/kill ; argv[]=/bin/kill -HUP $MAINPID ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }
+2021-02-16 23:38:55,142 p=97534 u=root n=ansible |       - SecureBits: 0
+2021-02-16 23:38:55,142 p=97534 u=root n=ansible |       - LimitCORE: 18446744073709551615
+2021-02-16 23:38:55,142 p=97534 u=root n=ansible |       - JobTimeoutUSec: 0
+2021-02-16 23:38:55,142 p=97534 u=root n=ansible |       - CPUSchedulingResetOnFork: no
+2021-02-16 23:38:55,142 p=97534 u=root n=ansible |       - Result: success
+2021-02-16 23:38:55,142 p=97534 u=root n=ansible |       - CPUShares: 18446744073709551615
+2021-02-16 23:38:55,142 p=97534 u=root n=ansible |       - ConditionResult: no
+2021-02-16 23:38:55,142 p=97534 u=root n=ansible |       - TTYVTDisallocate: no
+2021-02-16 23:38:55,143 p=97534 u=root n=ansible |       - MainPID: 0
+2021-02-16 23:38:55,143 p=97534 u=root n=ansible |       - StartupBlockIOWeight: 18446744073709551615
+2021-02-16 23:38:55,143 p=97534 u=root n=ansible |       - FragmentPath: /usr/lib/systemd/system/telegraf.service
+2021-02-16 23:38:55,143 p=97534 u=root n=ansible |       - StartupCPUShares: 18446744073709551615
+2021-02-16 23:38:55,143 p=97534 u=root n=ansible |       - WatchdogUSec: 0
+2021-02-16 23:38:55,143 p=97534 u=root n=ansible |       - ActiveState: inactive
+2021-02-16 23:38:55,143 p=97534 u=root n=ansible |       - Nice: 0
+2021-02-16 23:38:55,143 p=97534 u=root n=ansible |       - LimitDATA: 18446744073709551615
+2021-02-16 23:38:55,143 p=97534 u=root n=ansible |       - UnitFilePreset: disabled
+2021-02-16 23:38:55,144 p=97534 u=root n=ansible |       - MemoryCurrent: 18446744073709551615
+2021-02-16 23:38:55,144 p=97534 u=root n=ansible |       - LimitRTTIME: 18446744073709551615
+2021-02-16 23:38:55,144 p=97534 u=root n=ansible |       - WantedBy: multi-user.target
+2021-02-16 23:38:55,144 p=97534 u=root n=ansible |       - TasksCurrent: 18446744073709551615
+2021-02-16 23:38:55,144 p=97534 u=root n=ansible |       - RestartUSec: 100ms
+2021-02-16 23:38:55,144 p=97534 u=root n=ansible |       - Transient: no
+2021-02-16 23:38:55,144 p=97534 u=root n=ansible |       - CPUAccounting: no
+2021-02-16 23:38:55,144 p=97534 u=root n=ansible |       - RemainAfterExit: no
+2021-02-16 23:38:55,144 p=97534 u=root n=ansible |       - Restart: on-failure
+2021-02-16 23:38:55,145 p=97534 u=root n=ansible |       - CPUSchedulingPolicy: 0
+2021-02-16 23:38:55,145 p=97534 u=root n=ansible |       - LimitNOFILE: 4096
+2021-02-16 23:38:55,145 p=97534 u=root n=ansible |       - CanReload: yes
+2021-02-16 23:38:55,145 p=97534 u=root n=ansible |       - StatusErrno: 0
+2021-02-16 23:38:55,145 p=97534 u=root n=ansible |       - TimerSlackNSec: 50000
+2021-02-16 23:38:55,145 p=97534 u=root n=ansible |       - SystemCallErrorNumber: 0
+2021-02-16 23:38:55,145 p=97534 u=root n=ansible |       - TasksAccounting: no
+2021-02-16 23:38:55,145 p=97534 u=root n=ansible |       - NeedDaemonReload: no
+2021-02-16 23:38:55,145 p=97534 u=root n=ansible |       - TTYVHangup: no
+2021-02-16 23:38:55,146 p=97534 u=root n=ansible |       - StandardInput: null
+2021-02-16 23:38:55,146 p=97534 u=root n=ansible |       - AssertTimestampMonotonic: 0
+2021-02-16 23:38:55,146 p=97534 u=root n=ansible |       - DefaultDependencies: yes
+2021-02-16 23:38:55,146 p=97534 u=root n=ansible |       - Requires: system.slice basic.target
+2021-02-16 23:38:55,146 p=97534 u=root n=ansible |       - TasksMax: 18446744073709551615
+2021-02-16 23:38:55,146 p=97534 u=root n=ansible |       - CPUQuotaPerSecUSec: infinity
+2021-02-16 23:38:55,146 p=97534 u=root n=ansible |       - ExecMainStatus: 0
+2021-02-16 23:38:55,146 p=97534 u=root n=ansible |       - LimitMEMLOCK: 65536
+2021-02-16 23:38:55,146 p=97534 u=root n=ansible |       - StopWhenUnneeded: no
+2021-02-16 23:38:55,147 p=97534 u=root n=ansible |       - LimitMSGQUEUE: 819200
+2021-02-16 23:38:55,147 p=97534 u=root n=ansible |       - AmbientCapabilities: 0
+2021-02-16 23:38:55,147 p=97534 u=root n=ansible |       - Slice: system.slice
+2021-02-16 23:38:55,147 p=97534 u=root n=ansible |       - ExecMainExitTimestampMonotonic: 0
+2021-02-16 23:38:55,147 p=97534 u=root n=ansible |       - NotifyAccess: none
+2021-02-16 23:38:55,147 p=97534 u=root n=ansible |       - PermissionsStartOnly: no
+2021-02-16 23:38:55,147 p=97534 u=root n=ansible |       - BlockIOAccounting: no
+2021-02-16 23:38:55,147 p=97534 u=root n=ansible |       - CanStop: yes
+2021-02-16 23:38:55,147 p=97534 u=root n=ansible |       - NoNewPrivileges: no
+2021-02-16 23:38:55,148 p=97534 u=root n=ansible |       - OnFailureJobMode: replace
+2021-02-16 23:38:55,148 p=97534 u=root n=ansible |       - AssertResult: no
+2021-02-16 23:38:55,148 p=97534 u=root n=ansible |       - SubState: dead
+2021-02-16 23:38:55,148 p=97534 u=root n=ansible |       - TimeoutStartUSec: 1min 30s
+2021-02-16 23:38:55,148 p=97534 u=root n=ansible |       - StartLimitBurst: 5
+2021-02-16 23:38:55,148 p=97534 u=root n=ansible |       - LimitNICE: 0
+2021-02-16 23:38:55,148 p=97534 u=root n=ansible |       - After: basic.target network.target system.slice systemd-journald.socket
+2021-02-16 23:38:55,148 p=97534 u=root n=ansible |       - FailureAction: none
+2021-02-16 23:38:55,148 p=97534 u=root n=ansible |       - StartLimitAction: none
+2021-02-16 23:38:55,149 p=97534 u=root n=ansible |       - Conflicts: shutdown.target
+2021-02-16 23:38:55,149 p=97534 u=root n=ansible |       - StandardOutput: journal
+2021-02-16 23:38:55,149 p=97534 u=root n=ansible |       - MountFlags: 0
+2021-02-16 23:38:55,149 p=97534 u=root n=ansible |       - DevicePolicy: auto
+2021-02-16 23:38:55,149 p=97534 u=root n=ansible |       - StandardError: inherit
+2021-02-16 23:38:55,149 p=97534 u=root n=ansible |       - SendSIGKILL: yes
+2021-02-16 23:38:55,149 p=97534 u=root n=ansible |       - MemoryAccounting: no
+2021-02-16 23:38:55,149 p=97534 u=root n=ansible |       - IgnoreSIGPIPE: yes
+2021-02-16 23:38:55,149 p=97534 u=root n=ansible |       - IOScheduling: 0
+2021-02-16 23:38:55,150 p=97534 u=root n=ansible |       - PrivateNetwork: no
+2021-02-16 23:38:55,150 p=97534 u=root n=ansible |       - ActiveExitTimestampMonotonic: 0
+2021-02-16 23:38:55,150 p=97534 u=root n=ansible |       - ControlPID: 0
+2021-02-16 23:38:55,150 p=97534 u=root n=ansible |       - BlockIOWeight: 18446744073709551615
+2021-02-16 23:38:55,150 p=97534 u=root n=ansible |       - Description: The plugin-driven server agent for reporting metrics into InfluxDB
+2021-02-16 23:38:55,150 p=97534 u=root n=ansible |       - Names: telegraf.service
+2021-02-16 23:38:55,150 p=97534 u=root n=ansible |       - ProtectSystem: no
+2021-02-16 23:38:55,150 p=97534 u=root n=ansible |       - PrivateDevices: no
+2021-02-16 23:38:55,150 p=97534 u=root n=ansible |       - Id: telegraf.service
+2021-02-16 23:38:55,151 p=97534 u=root n=ansible |     }
+2021-02-16 23:38:55,151 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:38:55,151 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:38:55,151 p=97534 u=root n=ansible |     - state: started
+2021-02-16 23:38:55,151 p=97534 u=root n=ansible |     - item: serversecondary
+2021-02-16 23:38:55,151 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:38:55,151 p=97534 u=root n=ansible |     - name: telegraf
+2021-02-16 23:38:55,151 p=97534 u=root n=ansible |   }
+2021-02-16 23:38:55,151 p=97534 u=root n=ansible |     - {
+2021-02-16 23:38:55,152 p=97534 u=root n=ansible |     - status: {
+2021-02-16 23:38:55,152 p=97534 u=root n=ansible |       - ExecStart: { path=/usr/bin/telegraf ; argv[]=/usr/bin/telegraf -config /etc/telegraf/telegraf.conf -config-directory /etc/telegraf/telegraf.d $TELEGRAF_OPTS ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }
+2021-02-16 23:38:55,152 p=97534 u=root n=ansible |       - TimeoutStopUSec: 1min 30s
+2021-02-16 23:38:55,152 p=97534 u=root n=ansible |       - UMask: 0022
+2021-02-16 23:38:55,152 p=97534 u=root n=ansible |       - GuessMainPID: yes
+2021-02-16 23:38:55,152 p=97534 u=root n=ansible |       - ExecMainCode: 0
+2021-02-16 23:38:55,152 p=97534 u=root n=ansible |       - UnitFileState: enabled
+2021-02-16 23:38:55,152 p=97534 u=root n=ansible |       - ExecMainPID: 0
+2021-02-16 23:38:55,152 p=97534 u=root n=ansible |       - LimitSIGPENDING: 1541038
+2021-02-16 23:38:55,153 p=97534 u=root n=ansible |       - FileDescriptorStoreMax: 0
+2021-02-16 23:38:55,153 p=97534 u=root n=ansible |       - LoadState: loaded
+2021-02-16 23:38:55,153 p=97534 u=root n=ansible |       - ProtectHome: no
+2021-02-16 23:38:55,153 p=97534 u=root n=ansible |       - ConditionTimestampMonotonic: 0
+2021-02-16 23:38:55,153 p=97534 u=root n=ansible |       - StartLimitInterval: 10000000
+2021-02-16 23:38:55,153 p=97534 u=root n=ansible |       - WatchdogTimestampMonotonic: 0
+2021-02-16 23:38:55,153 p=97534 u=root n=ansible |       - LimitSTACK: 18446744073709551615
+2021-02-16 23:38:55,153 p=97534 u=root n=ansible |       - LimitLOCKS: 18446744073709551615
+2021-02-16 23:38:55,153 p=97534 u=root n=ansible |       - AllowIsolate: no
+2021-02-16 23:38:55,154 p=97534 u=root n=ansible |       - IgnoreOnSnapshot: no
+2021-02-16 23:38:55,154 p=97534 u=root n=ansible |       - CanIsolate: no
+2021-02-16 23:38:55,154 p=97534 u=root n=ansible |       - ActiveEnterTimestampMonotonic: 0
+2021-02-16 23:38:55,154 p=97534 u=root n=ansible |       - User: telegraf
+2021-02-16 23:38:55,154 p=97534 u=root n=ansible |       - EnvironmentFile: /etc/default/telegraf (ignore_errors=yes)
+2021-02-16 23:38:55,154 p=97534 u=root n=ansible |       - CPUSchedulingPriority: 0
+2021-02-16 23:38:55,154 p=97534 u=root n=ansible |       - KillSignal: 15
+2021-02-16 23:38:55,154 p=97534 u=root n=ansible |       - LimitFSIZE: 18446744073709551615
+2021-02-16 23:38:55,154 p=97534 u=root n=ansible |       - IgnoreOnIsolate: no
+2021-02-16 23:38:55,155 p=97534 u=root n=ansible |       - LimitCPU: 18446744073709551615
+2021-02-16 23:38:55,155 p=97534 u=root n=ansible |       - MemoryLimit: 18446744073709551615
+2021-02-16 23:38:55,155 p=97534 u=root n=ansible |       - CanStart: yes
+2021-02-16 23:38:55,155 p=97534 u=root n=ansible |       - JobTimeoutAction: none
+2021-02-16 23:38:55,155 p=97534 u=root n=ansible |       - PrivateTmp: no
+2021-02-16 23:38:55,155 p=97534 u=root n=ansible |       - Before: multi-user.target shutdown.target
+2021-02-16 23:38:55,155 p=97534 u=root n=ansible |       - LimitAS: 18446744073709551615
+2021-02-16 23:38:55,155 p=97534 u=root n=ansible |       - RootDirectoryStartOnly: no
+2021-02-16 23:38:55,155 p=97534 u=root n=ansible |       - InactiveExitTimestampMonotonic: 0
+2021-02-16 23:38:55,156 p=97534 u=root n=ansible |       - SendSIGHUP: no
+2021-02-16 23:38:55,156 p=97534 u=root n=ansible |       - ExecMainStartTimestampMonotonic: 0
+2021-02-16 23:38:55,156 p=97534 u=root n=ansible |       - Type: simple
+2021-02-16 23:38:55,156 p=97534 u=root n=ansible |       - SyslogPriority: 30
+2021-02-16 23:38:55,156 p=97534 u=root n=ansible |       - SameProcessGroup: no
+2021-02-16 23:38:55,156 p=97534 u=root n=ansible |       - LimitNPROC: 1541038
+2021-02-16 23:38:55,156 p=97534 u=root n=ansible |       - RuntimeDirectoryMode: 0755
+2021-02-16 23:38:55,156 p=97534 u=root n=ansible |       - NonBlocking: no
+2021-02-16 23:38:55,156 p=97534 u=root n=ansible |       - InactiveEnterTimestampMonotonic: 0
+2021-02-16 23:38:55,156 p=97534 u=root n=ansible |       - RefuseManualStop: no
+2021-02-16 23:38:55,157 p=97534 u=root n=ansible |       - CapabilityBoundingSet: 18446744073709551615
+2021-02-16 23:38:55,157 p=97534 u=root n=ansible |       - TTYReset: no
+2021-02-16 23:38:55,157 p=97534 u=root n=ansible |       - OOMScoreAdjust: 0
+2021-02-16 23:38:55,157 p=97534 u=root n=ansible |       - LimitRSS: 18446744073709551615
+2021-02-16 23:38:55,157 p=97534 u=root n=ansible |       - RefuseManualStart: no
+2021-02-16 23:38:55,157 p=97534 u=root n=ansible |       - KillMode: control-group
+2021-02-16 23:38:55,157 p=97534 u=root n=ansible |       - SyslogLevelPrefix: yes
+2021-02-16 23:38:55,157 p=97534 u=root n=ansible |       - Documentation: https://github.com/influxdata/telegraf
+2021-02-16 23:38:55,157 p=97534 u=root n=ansible |       - LimitRTPRIO: 0
+2021-02-16 23:38:55,158 p=97534 u=root n=ansible |       - Delegate: no
+2021-02-16 23:38:55,158 p=97534 u=root n=ansible |       - ExecReload: { path=/bin/kill ; argv[]=/bin/kill -HUP $MAINPID ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }
+2021-02-16 23:38:55,158 p=97534 u=root n=ansible |       - SecureBits: 0
+2021-02-16 23:38:55,158 p=97534 u=root n=ansible |       - LimitCORE: 18446744073709551615
+2021-02-16 23:38:55,158 p=97534 u=root n=ansible |       - JobTimeoutUSec: 0
+2021-02-16 23:38:55,158 p=97534 u=root n=ansible |       - CPUSchedulingResetOnFork: no
+2021-02-16 23:38:55,158 p=97534 u=root n=ansible |       - Result: success
+2021-02-16 23:38:55,158 p=97534 u=root n=ansible |       - CPUShares: 18446744073709551615
+2021-02-16 23:38:55,158 p=97534 u=root n=ansible |       - ConditionResult: no
+2021-02-16 23:38:55,158 p=97534 u=root n=ansible |       - TTYVTDisallocate: no
+2021-02-16 23:38:55,159 p=97534 u=root n=ansible |       - MainPID: 0
+2021-02-16 23:38:55,159 p=97534 u=root n=ansible |       - StartupBlockIOWeight: 18446744073709551615
+2021-02-16 23:38:55,159 p=97534 u=root n=ansible |       - FragmentPath: /usr/lib/systemd/system/telegraf.service
+2021-02-16 23:38:55,159 p=97534 u=root n=ansible |       - StartupCPUShares: 18446744073709551615
+2021-02-16 23:38:55,159 p=97534 u=root n=ansible |       - WatchdogUSec: 0
+2021-02-16 23:38:55,159 p=97534 u=root n=ansible |       - ActiveState: inactive
+2021-02-16 23:38:55,159 p=97534 u=root n=ansible |       - Nice: 0
+2021-02-16 23:38:55,159 p=97534 u=root n=ansible |       - LimitDATA: 18446744073709551615
+2021-02-16 23:38:55,159 p=97534 u=root n=ansible |       - UnitFilePreset: disabled
+2021-02-16 23:38:55,160 p=97534 u=root n=ansible |       - MemoryCurrent: 18446744073709551615
+2021-02-16 23:38:55,160 p=97534 u=root n=ansible |       - LimitRTTIME: 18446744073709551615
+2021-02-16 23:38:55,160 p=97534 u=root n=ansible |       - WantedBy: multi-user.target
+2021-02-16 23:38:55,160 p=97534 u=root n=ansible |       - TasksCurrent: 18446744073709551615
+2021-02-16 23:38:55,160 p=97534 u=root n=ansible |       - RestartUSec: 100ms
+2021-02-16 23:38:55,160 p=97534 u=root n=ansible |       - Transient: no
+2021-02-16 23:38:55,160 p=97534 u=root n=ansible |       - CPUAccounting: no
+2021-02-16 23:38:55,160 p=97534 u=root n=ansible |       - RemainAfterExit: no
+2021-02-16 23:38:55,160 p=97534 u=root n=ansible |       - Restart: on-failure
+2021-02-16 23:38:55,160 p=97534 u=root n=ansible |       - CPUSchedulingPolicy: 0
+2021-02-16 23:38:55,161 p=97534 u=root n=ansible |       - LimitNOFILE: 4096
+2021-02-16 23:38:55,161 p=97534 u=root n=ansible |       - CanReload: yes
+2021-02-16 23:38:55,161 p=97534 u=root n=ansible |       - StatusErrno: 0
+2021-02-16 23:38:55,161 p=97534 u=root n=ansible |       - TimerSlackNSec: 50000
+2021-02-16 23:38:55,161 p=97534 u=root n=ansible |       - SystemCallErrorNumber: 0
+2021-02-16 23:38:55,161 p=97534 u=root n=ansible |       - TasksAccounting: no
+2021-02-16 23:38:55,161 p=97534 u=root n=ansible |       - NeedDaemonReload: no
+2021-02-16 23:38:55,161 p=97534 u=root n=ansible |       - TTYVHangup: no
+2021-02-16 23:38:55,161 p=97534 u=root n=ansible |       - StandardInput: null
+2021-02-16 23:38:55,162 p=97534 u=root n=ansible |       - AssertTimestampMonotonic: 0
+2021-02-16 23:38:55,162 p=97534 u=root n=ansible |       - DefaultDependencies: yes
+2021-02-16 23:38:55,162 p=97534 u=root n=ansible |       - Requires: basic.target system.slice
+2021-02-16 23:38:55,162 p=97534 u=root n=ansible |       - TasksMax: 18446744073709551615
+2021-02-16 23:38:55,162 p=97534 u=root n=ansible |       - CPUQuotaPerSecUSec: infinity
+2021-02-16 23:38:55,162 p=97534 u=root n=ansible |       - ExecMainStatus: 0
+2021-02-16 23:38:55,162 p=97534 u=root n=ansible |       - LimitMEMLOCK: 65536
+2021-02-16 23:38:55,162 p=97534 u=root n=ansible |       - StopWhenUnneeded: no
+2021-02-16 23:38:55,162 p=97534 u=root n=ansible |       - LimitMSGQUEUE: 819200
+2021-02-16 23:38:55,163 p=97534 u=root n=ansible |       - AmbientCapabilities: 0
+2021-02-16 23:38:55,163 p=97534 u=root n=ansible |       - Slice: system.slice
+2021-02-16 23:38:55,163 p=97534 u=root n=ansible |       - ExecMainExitTimestampMonotonic: 0
+2021-02-16 23:38:55,163 p=97534 u=root n=ansible |       - NotifyAccess: none
+2021-02-16 23:38:55,163 p=97534 u=root n=ansible |       - PermissionsStartOnly: no
+2021-02-16 23:38:55,163 p=97534 u=root n=ansible |       - BlockIOAccounting: no
+2021-02-16 23:38:55,163 p=97534 u=root n=ansible |       - CanStop: yes
+2021-02-16 23:38:55,163 p=97534 u=root n=ansible |       - NoNewPrivileges: no
+2021-02-16 23:38:55,163 p=97534 u=root n=ansible |       - OnFailureJobMode: replace
+2021-02-16 23:38:55,163 p=97534 u=root n=ansible |       - AssertResult: no
+2021-02-16 23:38:55,164 p=97534 u=root n=ansible |       - SubState: dead
+2021-02-16 23:38:55,164 p=97534 u=root n=ansible |       - TimeoutStartUSec: 1min 30s
+2021-02-16 23:38:55,164 p=97534 u=root n=ansible |       - StartLimitBurst: 5
+2021-02-16 23:38:55,164 p=97534 u=root n=ansible |       - LimitNICE: 0
+2021-02-16 23:38:55,164 p=97534 u=root n=ansible |       - After: system.slice network.target systemd-journald.socket basic.target
+2021-02-16 23:38:55,164 p=97534 u=root n=ansible |       - FailureAction: none
+2021-02-16 23:38:55,164 p=97534 u=root n=ansible |       - StartLimitAction: none
+2021-02-16 23:38:55,164 p=97534 u=root n=ansible |       - Conflicts: shutdown.target
+2021-02-16 23:38:55,164 p=97534 u=root n=ansible |       - StandardOutput: journal
+2021-02-16 23:38:55,165 p=97534 u=root n=ansible |       - MountFlags: 0
+2021-02-16 23:38:55,165 p=97534 u=root n=ansible |       - DevicePolicy: auto
+2021-02-16 23:38:55,165 p=97534 u=root n=ansible |       - StandardError: inherit
+2021-02-16 23:38:55,165 p=97534 u=root n=ansible |       - SendSIGKILL: yes
+2021-02-16 23:38:55,165 p=97534 u=root n=ansible |       - MemoryAccounting: no
+2021-02-16 23:38:55,165 p=97534 u=root n=ansible |       - IgnoreSIGPIPE: yes
+2021-02-16 23:38:55,165 p=97534 u=root n=ansible |       - IOScheduling: 0
+2021-02-16 23:38:55,165 p=97534 u=root n=ansible |       - PrivateNetwork: no
+2021-02-16 23:38:55,165 p=97534 u=root n=ansible |       - ActiveExitTimestampMonotonic: 0
+2021-02-16 23:38:55,165 p=97534 u=root n=ansible |       - ControlPID: 0
+2021-02-16 23:38:55,166 p=97534 u=root n=ansible |       - BlockIOWeight: 18446744073709551615
+2021-02-16 23:38:55,166 p=97534 u=root n=ansible |       - Description: The plugin-driven server agent for reporting metrics into InfluxDB
+2021-02-16 23:38:55,166 p=97534 u=root n=ansible |       - Names: telegraf.service
+2021-02-16 23:38:55,166 p=97534 u=root n=ansible |       - ProtectSystem: no
+2021-02-16 23:38:55,166 p=97534 u=root n=ansible |       - PrivateDevices: no
+2021-02-16 23:38:55,166 p=97534 u=root n=ansible |       - Id: telegraf.service
+2021-02-16 23:38:55,166 p=97534 u=root n=ansible |     }
+2021-02-16 23:38:55,166 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:38:55,166 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:38:55,166 p=97534 u=root n=ansible |     - state: started
+2021-02-16 23:38:55,167 p=97534 u=root n=ansible |     - item: serverprimary
+2021-02-16 23:38:55,167 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:38:55,167 p=97534 u=root n=ansible |     - name: telegraf
+2021-02-16 23:38:55,167 p=97534 u=root n=ansible |   }
+2021-02-16 23:38:55,167 p=97534 u=root n=ansible |     - {
+2021-02-16 23:38:55,167 p=97534 u=root n=ansible |     - status: {
+2021-02-16 23:38:55,167 p=97534 u=root n=ansible |       - ExecStart: { path=/usr/bin/telegraf ; argv[]=/usr/bin/telegraf -config /etc/telegraf/telegraf.conf -config-directory /etc/telegraf/telegraf.d $TELEGRAF_OPTS ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }
+2021-02-16 23:38:55,167 p=97534 u=root n=ansible |       - TimeoutStopUSec: 1min 30s
+2021-02-16 23:38:55,167 p=97534 u=root n=ansible |       - UMask: 0022
+2021-02-16 23:38:55,167 p=97534 u=root n=ansible |       - GuessMainPID: yes
+2021-02-16 23:38:55,168 p=97534 u=root n=ansible |       - ExecMainCode: 0
+2021-02-16 23:38:55,168 p=97534 u=root n=ansible |       - UnitFileState: enabled
+2021-02-16 23:38:55,168 p=97534 u=root n=ansible |       - ExecMainPID: 0
+2021-02-16 23:38:55,168 p=97534 u=root n=ansible |       - LimitSIGPENDING: 642410
+2021-02-16 23:38:55,168 p=97534 u=root n=ansible |       - FileDescriptorStoreMax: 0
+2021-02-16 23:38:55,168 p=97534 u=root n=ansible |       - LoadState: loaded
+2021-02-16 23:38:55,168 p=97534 u=root n=ansible |       - ProtectHome: no
+2021-02-16 23:38:55,168 p=97534 u=root n=ansible |       - ConditionTimestampMonotonic: 0
+2021-02-16 23:38:55,168 p=97534 u=root n=ansible |       - StartLimitInterval: 10000000
+2021-02-16 23:38:55,168 p=97534 u=root n=ansible |       - WatchdogTimestampMonotonic: 0
+2021-02-16 23:38:55,169 p=97534 u=root n=ansible |       - LimitSTACK: 18446744073709551615
+2021-02-16 23:38:55,169 p=97534 u=root n=ansible |       - LimitLOCKS: 18446744073709551615
+2021-02-16 23:38:55,169 p=97534 u=root n=ansible |       - AllowIsolate: no
+2021-02-16 23:38:55,169 p=97534 u=root n=ansible |       - IgnoreOnSnapshot: no
+2021-02-16 23:38:55,169 p=97534 u=root n=ansible |       - CanIsolate: no
+2021-02-16 23:38:55,169 p=97534 u=root n=ansible |       - ActiveEnterTimestampMonotonic: 0
+2021-02-16 23:38:55,169 p=97534 u=root n=ansible |       - User: telegraf
+2021-02-16 23:38:55,169 p=97534 u=root n=ansible |       - EnvironmentFile: /etc/default/telegraf (ignore_errors=yes)
+2021-02-16 23:38:55,169 p=97534 u=root n=ansible |       - CPUSchedulingPriority: 0
+2021-02-16 23:38:55,169 p=97534 u=root n=ansible |       - KillSignal: 15
+2021-02-16 23:38:55,170 p=97534 u=root n=ansible |       - LimitFSIZE: 18446744073709551615
+2021-02-16 23:38:55,170 p=97534 u=root n=ansible |       - IgnoreOnIsolate: no
+2021-02-16 23:38:55,170 p=97534 u=root n=ansible |       - LimitCPU: 18446744073709551615
+2021-02-16 23:38:55,170 p=97534 u=root n=ansible |       - MemoryLimit: 18446744073709551615
+2021-02-16 23:38:55,170 p=97534 u=root n=ansible |       - CanStart: yes
+2021-02-16 23:38:55,170 p=97534 u=root n=ansible |       - JobTimeoutAction: none
+2021-02-16 23:38:55,170 p=97534 u=root n=ansible |       - PrivateTmp: no
+2021-02-16 23:38:55,170 p=97534 u=root n=ansible |       - Before: multi-user.target shutdown.target
+2021-02-16 23:38:55,170 p=97534 u=root n=ansible |       - LimitAS: 18446744073709551615
+2021-02-16 23:38:55,171 p=97534 u=root n=ansible |       - RootDirectoryStartOnly: no
+2021-02-16 23:38:55,171 p=97534 u=root n=ansible |       - InactiveExitTimestampMonotonic: 0
+2021-02-16 23:38:55,171 p=97534 u=root n=ansible |       - SendSIGHUP: no
+2021-02-16 23:38:55,171 p=97534 u=root n=ansible |       - ExecMainStartTimestampMonotonic: 0
+2021-02-16 23:38:55,171 p=97534 u=root n=ansible |       - Type: simple
+2021-02-16 23:38:55,171 p=97534 u=root n=ansible |       - SyslogPriority: 30
+2021-02-16 23:38:55,171 p=97534 u=root n=ansible |       - SameProcessGroup: no
+2021-02-16 23:38:55,171 p=97534 u=root n=ansible |       - LimitNPROC: 642410
+2021-02-16 23:38:55,171 p=97534 u=root n=ansible |       - RuntimeDirectoryMode: 0755
+2021-02-16 23:38:55,171 p=97534 u=root n=ansible |       - NonBlocking: no
+2021-02-16 23:38:55,172 p=97534 u=root n=ansible |       - InactiveEnterTimestampMonotonic: 0
+2021-02-16 23:38:55,172 p=97534 u=root n=ansible |       - RefuseManualStop: no
+2021-02-16 23:38:55,172 p=97534 u=root n=ansible |       - CapabilityBoundingSet: 18446744073709551615
+2021-02-16 23:38:55,172 p=97534 u=root n=ansible |       - TTYReset: no
+2021-02-16 23:38:55,172 p=97534 u=root n=ansible |       - OOMScoreAdjust: 0
+2021-02-16 23:38:55,172 p=97534 u=root n=ansible |       - LimitRSS: 18446744073709551615
+2021-02-16 23:38:55,172 p=97534 u=root n=ansible |       - RefuseManualStart: no
+2021-02-16 23:38:55,172 p=97534 u=root n=ansible |       - KillMode: control-group
+2021-02-16 23:38:55,172 p=97534 u=root n=ansible |       - SyslogLevelPrefix: yes
+2021-02-16 23:38:55,172 p=97534 u=root n=ansible |       - Documentation: https://github.com/influxdata/telegraf
+2021-02-16 23:38:55,173 p=97534 u=root n=ansible |       - LimitRTPRIO: 0
+2021-02-16 23:38:55,173 p=97534 u=root n=ansible |       - Delegate: no
+2021-02-16 23:38:55,173 p=97534 u=root n=ansible |       - ExecReload: { path=/bin/kill ; argv[]=/bin/kill -HUP $MAINPID ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }
+2021-02-16 23:38:55,173 p=97534 u=root n=ansible |       - SecureBits: 0
+2021-02-16 23:38:55,173 p=97534 u=root n=ansible |       - LimitCORE: 18446744073709551615
+2021-02-16 23:38:55,173 p=97534 u=root n=ansible |       - JobTimeoutUSec: 0
+2021-02-16 23:38:55,173 p=97534 u=root n=ansible |       - CPUSchedulingResetOnFork: no
+2021-02-16 23:38:55,173 p=97534 u=root n=ansible |       - Result: success
+2021-02-16 23:38:55,173 p=97534 u=root n=ansible |       - CPUShares: 18446744073709551615
+2021-02-16 23:38:55,173 p=97534 u=root n=ansible |       - ConditionResult: no
+2021-02-16 23:38:55,174 p=97534 u=root n=ansible |       - TTYVTDisallocate: no
+2021-02-16 23:38:55,174 p=97534 u=root n=ansible |       - MainPID: 0
+2021-02-16 23:38:55,174 p=97534 u=root n=ansible |       - StartupBlockIOWeight: 18446744073709551615
+2021-02-16 23:38:55,174 p=97534 u=root n=ansible |       - FragmentPath: /usr/lib/systemd/system/telegraf.service
+2021-02-16 23:38:55,174 p=97534 u=root n=ansible |       - StartupCPUShares: 18446744073709551615
+2021-02-16 23:38:55,174 p=97534 u=root n=ansible |       - WatchdogUSec: 0
+2021-02-16 23:38:55,174 p=97534 u=root n=ansible |       - ActiveState: inactive
+2021-02-16 23:38:55,174 p=97534 u=root n=ansible |       - Nice: 0
+2021-02-16 23:38:55,174 p=97534 u=root n=ansible |       - LimitDATA: 18446744073709551615
+2021-02-16 23:38:55,174 p=97534 u=root n=ansible |       - UnitFilePreset: disabled
+2021-02-16 23:38:55,175 p=97534 u=root n=ansible |       - MemoryCurrent: 18446744073709551615
+2021-02-16 23:38:55,175 p=97534 u=root n=ansible |       - LimitRTTIME: 18446744073709551615
+2021-02-16 23:38:55,175 p=97534 u=root n=ansible |       - WantedBy: multi-user.target
+2021-02-16 23:38:55,175 p=97534 u=root n=ansible |       - TasksCurrent: 18446744073709551615
+2021-02-16 23:38:55,175 p=97534 u=root n=ansible |       - RestartUSec: 100ms
+2021-02-16 23:38:55,175 p=97534 u=root n=ansible |       - Transient: no
+2021-02-16 23:38:55,175 p=97534 u=root n=ansible |       - CPUAccounting: no
+2021-02-16 23:38:55,175 p=97534 u=root n=ansible |       - RemainAfterExit: no
+2021-02-16 23:38:55,175 p=97534 u=root n=ansible |       - Restart: on-failure
+2021-02-16 23:38:55,175 p=97534 u=root n=ansible |       - CPUSchedulingPolicy: 0
+2021-02-16 23:38:55,176 p=97534 u=root n=ansible |       - LimitNOFILE: 4096
+2021-02-16 23:38:55,176 p=97534 u=root n=ansible |       - CanReload: yes
+2021-02-16 23:38:55,176 p=97534 u=root n=ansible |       - StatusErrno: 0
+2021-02-16 23:38:55,176 p=97534 u=root n=ansible |       - TimerSlackNSec: 50000
+2021-02-16 23:38:55,176 p=97534 u=root n=ansible |       - SystemCallErrorNumber: 0
+2021-02-16 23:38:55,176 p=97534 u=root n=ansible |       - TasksAccounting: no
+2021-02-16 23:38:55,176 p=97534 u=root n=ansible |       - NeedDaemonReload: no
+2021-02-16 23:38:55,176 p=97534 u=root n=ansible |       - TTYVHangup: no
+2021-02-16 23:38:55,176 p=97534 u=root n=ansible |       - StandardInput: null
+2021-02-16 23:38:55,176 p=97534 u=root n=ansible |       - AssertTimestampMonotonic: 0
+2021-02-16 23:38:55,177 p=97534 u=root n=ansible |       - DefaultDependencies: yes
+2021-02-16 23:38:55,177 p=97534 u=root n=ansible |       - Requires: basic.target system.slice
+2021-02-16 23:38:55,177 p=97534 u=root n=ansible |       - TasksMax: 18446744073709551615
+2021-02-16 23:38:55,177 p=97534 u=root n=ansible |       - CPUQuotaPerSecUSec: infinity
+2021-02-16 23:38:55,177 p=97534 u=root n=ansible |       - ExecMainStatus: 0
+2021-02-16 23:38:55,177 p=97534 u=root n=ansible |       - LimitMEMLOCK: 65536
+2021-02-16 23:38:55,177 p=97534 u=root n=ansible |       - StopWhenUnneeded: no
+2021-02-16 23:38:55,177 p=97534 u=root n=ansible |       - LimitMSGQUEUE: 819200
+2021-02-16 23:38:55,177 p=97534 u=root n=ansible |       - AmbientCapabilities: 0
+2021-02-16 23:38:55,177 p=97534 u=root n=ansible |       - Slice: system.slice
+2021-02-16 23:38:55,178 p=97534 u=root n=ansible |       - ExecMainExitTimestampMonotonic: 0
+2021-02-16 23:38:55,178 p=97534 u=root n=ansible |       - CollectMode: inactive
+2021-02-16 23:38:55,178 p=97534 u=root n=ansible |       - NotifyAccess: none
+2021-02-16 23:38:55,178 p=97534 u=root n=ansible |       - PermissionsStartOnly: no
+2021-02-16 23:38:55,178 p=97534 u=root n=ansible |       - BlockIOAccounting: no
+2021-02-16 23:38:55,178 p=97534 u=root n=ansible |       - CanStop: yes
+2021-02-16 23:38:55,178 p=97534 u=root n=ansible |       - NoNewPrivileges: no
+2021-02-16 23:38:55,178 p=97534 u=root n=ansible |       - OnFailureJobMode: replace
+2021-02-16 23:38:55,178 p=97534 u=root n=ansible |       - AssertResult: no
+2021-02-16 23:38:55,178 p=97534 u=root n=ansible |       - SubState: dead
+2021-02-16 23:38:55,178 p=97534 u=root n=ansible |       - TimeoutStartUSec: 1min 30s
+2021-02-16 23:38:55,179 p=97534 u=root n=ansible |       - StartLimitBurst: 5
+2021-02-16 23:38:55,179 p=97534 u=root n=ansible |       - LimitNICE: 0
+2021-02-16 23:38:55,179 p=97534 u=root n=ansible |       - After: network.target basic.target system.slice systemd-journald.socket
+2021-02-16 23:38:55,179 p=97534 u=root n=ansible |       - FailureAction: none
+2021-02-16 23:38:55,179 p=97534 u=root n=ansible |       - StartLimitAction: none
+2021-02-16 23:38:55,179 p=97534 u=root n=ansible |       - Conflicts: shutdown.target
+2021-02-16 23:38:55,179 p=97534 u=root n=ansible |       - StandardOutput: journal
+2021-02-16 23:38:55,179 p=97534 u=root n=ansible |       - MountFlags: 0
+2021-02-16 23:38:55,179 p=97534 u=root n=ansible |       - DevicePolicy: auto
+2021-02-16 23:38:55,179 p=97534 u=root n=ansible |       - StandardError: inherit
+2021-02-16 23:38:55,180 p=97534 u=root n=ansible |       - SendSIGKILL: yes
+2021-02-16 23:38:55,180 p=97534 u=root n=ansible |       - MemoryAccounting: no
+2021-02-16 23:38:55,180 p=97534 u=root n=ansible |       - IgnoreSIGPIPE: yes
+2021-02-16 23:38:55,180 p=97534 u=root n=ansible |       - IOScheduling: 0
+2021-02-16 23:38:55,180 p=97534 u=root n=ansible |       - PrivateNetwork: no
+2021-02-16 23:38:55,180 p=97534 u=root n=ansible |       - ActiveExitTimestampMonotonic: 0
+2021-02-16 23:38:55,180 p=97534 u=root n=ansible |       - ControlPID: 0
+2021-02-16 23:38:55,180 p=97534 u=root n=ansible |       - BlockIOWeight: 18446744073709551615
+2021-02-16 23:38:55,180 p=97534 u=root n=ansible |       - Description: The plugin-driven server agent for reporting metrics into InfluxDB
+2021-02-16 23:38:55,180 p=97534 u=root n=ansible |       - Names: telegraf.service
+2021-02-16 23:38:55,181 p=97534 u=root n=ansible |       - ProtectSystem: no
+2021-02-16 23:38:55,181 p=97534 u=root n=ansible |       - PrivateDevices: no
+2021-02-16 23:38:55,181 p=97534 u=root n=ansible |       - Id: telegraf.service
+2021-02-16 23:38:55,181 p=97534 u=root n=ansible |     }
+2021-02-16 23:38:55,181 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:38:55,181 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:38:55,181 p=97534 u=root n=ansible |     - state: started
+2021-02-16 23:38:55,181 p=97534 u=root n=ansible |     - item: serverclient
+2021-02-16 23:38:55,181 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:38:55,181 p=97534 u=root n=ansible |     - name: telegraf
+2021-02-16 23:38:55,181 p=97534 u=root n=ansible |   }
+2021-02-16 23:38:55,182 p=97534 u=root n=ansible |    ]
+2021-02-16 23:38:55,182 p=97534 u=root n=ansible | }
+2021-02-16 23:38:55,196 p=97534 u=root n=ansible | Tuesday 16 February 2021  23:38:55 +0530 (0:00:04.834)       0:02:54.747 ****** 
+2021-02-16 23:46:43,847 p=97534 u=root n=ansible | localhost -> sm35-r1.pun.seagate.com | CHANGED | 7m49s
+2021-02-16 23:46:43,849 p=97534 u=root n=ansible | {
+2021-02-16 23:46:43,849 p=97534 u=root n=ansible |   - stdout: Loaded plugins: fastestmirror, product-id, search-disabled-repos, subscription-
+2021-02-16 23:46:43,849 p=97534 u=root n=ansible |                           : manager
+2021-02-16 23:46:43,849 p=97534 u=root n=ansible |             Loading mirror speeds from cached hostfile
+2021-02-16 23:46:43,849 p=97534 u=root n=ansible |             Package golang-1.15.5-1.el7.x86_64 already installed and latest version
+2021-02-16 23:46:43,849 p=97534 u=root n=ansible |             Nothing to do
+2021-02-16 23:46:43,850 p=97534 u=root n=ansible |             Installing s3bench tools
+2021-02-16 23:46:43,850 p=97534 u=root n=ansible |             make_bucket: seagate-2518
+2021-02-16 23:46:43,850 p=97534 u=root n=ansible |             S3Benchmark is running for object size : 1Mb, Clients: 32
+2021-02-16 23:46:43,850 p=97534 u=root n=ansible |             /root/go/bin/s3bench -accessKey=AKIA3MdunbjOS56HNwusQRLxoA  -accessSecret=BxKwGO8UKjkmCPcKKeG7R999grQPz2QaXa95GF8y -bucket=seagate-2518 -endpoint https://s3.seagate.com -numClients 32 -numSamples 2048 -objectSize 1048576 -verbose > /root/cortx-benchmark/s3bench_basic/benchmark.log/16-02-2021_23:39:19_object_1Mb_numclient_2048/s3bench_Numclients_32\_NS_2048\_size_1Mb.log
+2021-02-16 23:46:43,850 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,850 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,851 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,851 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,851 p=97534 u=root n=ansible |             S3Benchmark is completed for object size : 1Mb
+2021-02-16 23:46:43,851 p=97534 u=root n=ansible |             S3Benchmark is running for object size : 4Mb, Clients: 32
+2021-02-16 23:46:43,851 p=97534 u=root n=ansible |             /root/go/bin/s3bench -accessKey=AKIA3MdunbjOS56HNwusQRLxoA  -accessSecret=BxKwGO8UKjkmCPcKKeG7R999grQPz2QaXa95GF8y -bucket=seagate-21321 -endpoint https://s3.seagate.com -numClients 32 -numSamples 2048 -objectSize 4194304 -verbose > /root/cortx-benchmark/s3bench_basic/benchmark.log/16-02-2021_23:40:16_object_4Mb_numclient_2048/s3bench_Numclients_32\_NS_2048\_size_4Mb.log
+2021-02-16 23:46:43,851 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,851 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,852 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,852 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,852 p=97534 u=root n=ansible |             S3Benchmark is completed for object size : 4Mb
+2021-02-16 23:46:43,852 p=97534 u=root n=ansible |             S3Benchmark is running for object size : 8Mb, Clients: 32
+2021-02-16 23:46:43,852 p=97534 u=root n=ansible |             /root/go/bin/s3bench -accessKey=AKIA3MdunbjOS56HNwusQRLxoA  -accessSecret=BxKwGO8UKjkmCPcKKeG7R999grQPz2QaXa95GF8y -bucket=seagate-26521 -endpoint https://s3.seagate.com -numClients 32 -numSamples 2048 -objectSize 8388608 -verbose > /root/cortx-benchmark/s3bench_basic/benchmark.log/16-02-2021_23:41:15_object_8Mb_numclient_2048/s3bench_Numclients_32\_NS_2048\_size_8Mb.log
+2021-02-16 23:46:43,852 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,852 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,853 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,853 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,853 p=97534 u=root n=ansible |             S3Benchmark is completed for object size : 8Mb
+2021-02-16 23:46:43,853 p=97534 u=root n=ansible |             S3Benchmark is completed for number of clients : 32
+2021-02-16 23:46:43,853 p=97534 u=root n=ansible |             S3Benchmark is completed for number of Samples : 2048
+2021-02-16 23:46:43,853 p=97534 u=root n=ansible |             S3Benchmark is running for object size : 1Mb, Clients: 32
+2021-02-16 23:46:43,853 p=97534 u=root n=ansible |             /root/go/bin/s3bench -accessKey=AKIA3MdunbjOS56HNwusQRLxoA  -accessSecret=BxKwGO8UKjkmCPcKKeG7R999grQPz2QaXa95GF8y -bucket=seagate-2962 -endpoint https://s3.seagate.com -numClients 32 -numSamples 4096 -objectSize 1048576 -verbose > /root/cortx-benchmark/s3bench_basic/benchmark.log/16-02-2021_23:42:10_object_1Mb_numclient_4096/s3bench_Numclients_32\_NS_4096\_size_1Mb.log
+2021-02-16 23:46:43,854 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,854 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,854 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,854 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,854 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,854 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,854 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,855 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,855 p=97534 u=root n=ansible |             S3Benchmark is completed for object size : 1Mb
+2021-02-16 23:46:43,855 p=97534 u=root n=ansible |             S3Benchmark is running for object size : 4Mb, Clients: 32
+2021-02-16 23:46:43,855 p=97534 u=root n=ansible |             /root/go/bin/s3bench -accessKey=AKIA3MdunbjOS56HNwusQRLxoA  -accessSecret=BxKwGO8UKjkmCPcKKeG7R999grQPz2QaXa95GF8y -bucket=seagate-19948 -endpoint https://s3.seagate.com -numClients 32 -numSamples 4096 -objectSize 4194304 -verbose > /root/cortx-benchmark/s3bench_basic/benchmark.log/16-02-2021_23:43:40_object_4Mb_numclient_4096/s3bench_Numclients_32\_NS_4096\_size_4Mb.log
+2021-02-16 23:46:43,855 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,855 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,855 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,855 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,856 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,856 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,856 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,856 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,856 p=97534 u=root n=ansible |             S3Benchmark is completed for object size : 4Mb
+2021-02-16 23:46:43,856 p=97534 u=root n=ansible |             S3Benchmark is running for object size : 8Mb, Clients: 32
+2021-02-16 23:46:43,856 p=97534 u=root n=ansible |             /root/go/bin/s3bench -accessKey=AKIA3MdunbjOS56HNwusQRLxoA  -accessSecret=BxKwGO8UKjkmCPcKKeG7R999grQPz2QaXa95GF8y -bucket=seagate-20494 -endpoint https://s3.seagate.com -numClients 32 -numSamples 4096 -objectSize 8388608 -verbose > /root/cortx-benchmark/s3bench_basic/benchmark.log/16-02-2021_23:45:23_object_8Mb_numclient_4096/s3bench_Numclients_32\_NS_4096\_size_8Mb.log
+2021-02-16 23:46:43,857 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,857 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,857 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,857 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,857 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,857 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,857 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,857 p=97534 u=root n=ansible |             Read Data captured for Latency, Throughput and IOPS...
+2021-02-16 23:46:43,858 p=97534 u=root n=ansible |             S3Benchmark is completed for object size : 8Mb
+2021-02-16 23:46:43,858 p=97534 u=root n=ansible |             S3Benchmark is completed for number of clients : 32
+2021-02-16 23:46:43,858 p=97534 u=root n=ansible |             S3Benchmark is completed for number of Samples : 4096
+2021-02-16 23:46:43,858 p=97534 u=root n=ansible |             Successfully completed
+2021-02-16 23:46:43,858 p=97534 u=root n=ansible |   - rc: 0
+2021-02-16 23:46:43,858 p=97534 u=root n=ansible |   - stderr: (standard_in) 1: syntax error
+2021-02-16 23:46:43,858 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,859 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,859 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,859 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,859 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,859 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,859 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,859 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,860 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,860 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,860 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,860 p=97534 u=root n=ansible |             make_bucket failed: s3://seagate-21321 An error occurred (ServiceUnavailable) when calling the CreateBucket operation (reached max retries: 4): Reduce your request rate
+2021-02-16 23:46:43,860 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,860 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,860 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,860 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,861 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,861 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,861 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,861 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,861 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,861 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,861 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,862 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,862 p=97534 u=root n=ansible |             make_bucket failed: s3://seagate-26521 An error occurred (ServiceUnavailable) when calling the CreateBucket operation (reached max retries: 4): Reduce your request rate
+2021-02-16 23:46:43,862 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,862 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,862 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,862 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,862 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,862 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,863 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,863 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,863 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,863 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,863 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,863 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,863 p=97534 u=root n=ansible |             make_bucket failed: s3://seagate-2962 An error occurred (ServiceUnavailable) when calling the CreateBucket operation (reached max retries: 4): Reduce your request rate
+2021-02-16 23:46:43,864 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,864 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,864 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,864 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,864 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,864 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,864 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,864 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,865 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,865 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,865 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,865 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,865 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,865 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,865 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,865 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,866 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,866 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,866 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,866 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,866 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,866 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,866 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,866 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,867 p=97534 u=root n=ansible |             make_bucket failed: s3://seagate-19948 An error occurred (ServiceUnavailable) when calling the CreateBucket operation (reached max retries: 4): Reduce your request rate
+2021-02-16 23:46:43,867 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,867 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,867 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,867 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,867 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,867 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,867 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,868 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,868 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,868 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,868 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,868 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,868 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,868 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,868 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,869 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,869 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,869 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,869 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,869 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,869 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,869 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,869 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,870 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,870 p=97534 u=root n=ansible |             make_bucket failed: s3://seagate-20494 An error occurred (ServiceUnavailable) when calling the CreateBucket operation (reached max retries: 4): Reduce your request rate
+2021-02-16 23:46:43,870 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,870 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,870 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,870 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,870 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,870 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,871 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,871 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,871 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,871 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,871 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,871 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,871 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,871 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,872 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,872 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,872 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,872 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,872 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,872 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,872 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,872 p=97534 u=root n=ansible |             (standard_in) 1: syntax error
+2021-02-16 23:46:43,873 p=97534 u=root n=ansible |             (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,873 p=97534 u=root n=ansible |             (standard_in) 2: syntax error
+2021-02-16 23:46:43,873 p=97534 u=root n=ansible |   - start: 2021-02-16 23:39:06.515409
+2021-02-16 23:46:43,873 p=97534 u=root n=ansible |   - end: 2021-02-16 23:46:54.570968
+2021-02-16 23:46:43,873 p=97534 u=root n=ansible |   - stderr_lines: [ 
+2021-02-16 23:46:43,873 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,873 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,873 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,874 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,874 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,874 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,874 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,874 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,874 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,874 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,874 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,875 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,875 p=97534 u=root n=ansible |     - make_bucket failed: s3://seagate-21321 An error occurred (ServiceUnavailable) when calling the CreateBucket operation (reached max retries: 4): Reduce your request rate
+2021-02-16 23:46:43,875 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,875 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,875 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,875 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,875 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,875 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,876 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,876 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,876 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,876 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,876 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,876 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,876 p=97534 u=root n=ansible |     - make_bucket failed: s3://seagate-26521 An error occurred (ServiceUnavailable) when calling the CreateBucket operation (reached max retries: 4): Reduce your request rate
+2021-02-16 23:46:43,876 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,876 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,877 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,877 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,877 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,877 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,877 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,877 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,877 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,877 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,878 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,878 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,878 p=97534 u=root n=ansible |     - make_bucket failed: s3://seagate-2962 An error occurred (ServiceUnavailable) when calling the CreateBucket operation (reached max retries: 4): Reduce your request rate
+2021-02-16 23:46:43,878 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,878 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,878 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,878 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,878 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,878 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,879 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,879 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,879 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,879 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,879 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,879 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,879 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,879 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,880 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,880 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,880 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,880 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,880 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,880 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,880 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,880 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,880 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,881 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,881 p=97534 u=root n=ansible |     - make_bucket failed: s3://seagate-19948 An error occurred (ServiceUnavailable) when calling the CreateBucket operation (reached max retries: 4): Reduce your request rate
+2021-02-16 23:46:43,881 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,881 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,881 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,881 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,881 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,881 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,882 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,882 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,882 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,882 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,882 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,882 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,882 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,882 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,883 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,883 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,883 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,883 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,883 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,883 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,883 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,883 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,883 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,884 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,884 p=97534 u=root n=ansible |     - make_bucket failed: s3://seagate-20494 An error occurred (ServiceUnavailable) when calling the CreateBucket operation (reached max retries: 4): Reduce your request rate
+2021-02-16 23:46:43,884 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,884 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,884 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,884 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,884 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,884 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,885 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,885 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,885 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,885 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,885 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,885 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,885 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,885 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,885 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,886 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,886 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,886 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,886 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,886 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,886 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,886 p=97534 u=root n=ansible |     - (standard_in) 1: syntax error
+2021-02-16 23:46:43,886 p=97534 u=root n=ansible |     - (standard_in) 1: illegal character: :
+2021-02-16 23:46:43,886 p=97534 u=root n=ansible |     - (standard_in) 2: syntax error
+2021-02-16 23:46:43,887 p=97534 u=root n=ansible |    ]
+2021-02-16 23:46:43,887 p=97534 u=root n=ansible |   - changed: True
+2021-02-16 23:46:43,887 p=97534 u=root n=ansible |   - _ansible_delegated_vars: {
+2021-02-16 23:46:43,887 p=97534 u=root n=ansible |     - ansible_port: None
+2021-02-16 23:46:43,887 p=97534 u=root n=ansible |     - ansible_host: sm35-r1.pun.seagate.com
+2021-02-16 23:46:43,887 p=97534 u=root n=ansible |     - ansible_user: root
+2021-02-16 23:46:43,887 p=97534 u=root n=ansible |   }
+2021-02-16 23:46:43,887 p=97534 u=root n=ansible |   - cmd: cd /root/cortx-benchmark/s3bench_basic; ./run_s3benchmark.sh -nc 32 -ns 2048,4096 -s 1Mb,4Mb,8Mb -sm 5 -cl no
+2021-02-16 23:46:43,887 p=97534 u=root n=ansible |   - delta: 0:07:48.055559
+2021-02-16 23:46:43,888 p=97534 u=root n=ansible | }
+2021-02-16 23:46:43,900 p=97534 u=root n=ansible | Tuesday 16 February 2021  23:46:43 +0530 (0:07:48.704)       0:10:43.451 ****** 
+2021-02-16 23:46:43,925 p=97534 u=root n=ansible | localhost | SKIPPED | 25ms
+2021-02-16 23:46:43,937 p=97534 u=root n=ansible | Tuesday 16 February 2021  23:46:43 +0530 (0:00:00.036)       0:10:43.488 ****** 
+2021-02-16 23:46:43,957 p=97534 u=root n=ansible | localhost | SKIPPED | 20ms
+2021-02-16 23:46:43,970 p=97534 u=root n=ansible | Tuesday 16 February 2021  23:46:43 +0530 (0:00:00.033)       0:10:43.521 ****** 
+2021-02-16 23:46:43,990 p=97534 u=root n=ansible | localhost | SKIPPED | 20ms
+2021-02-16 23:46:44,004 p=97534 u=root n=ansible | Tuesday 16 February 2021  23:46:44 +0530 (0:00:00.034)       0:10:43.556 ****** 
+2021-02-16 23:46:44,024 p=97534 u=root n=ansible | localhost | SKIPPED | 20ms
+2021-02-16 23:46:44,052 p=97534 u=root n=ansible | Tuesday 16 February 2021  23:46:44 +0530 (0:00:00.047)       0:10:43.603 ****** 
+2021-02-16 23:46:48,059 p=97534 u=root n=ansible | localhost | CHANGED - item=serversecondary | 4.01s
+2021-02-16 23:46:48,060 p=97534 u=root n=ansible | localhost | CHANGED - item=serverprimary | 4.01s
+2021-02-16 23:46:48,060 p=97534 u=root n=ansible | localhost | SUCCESS - item=serverclient | 4.01s
+2021-02-16 23:46:48,083 p=97534 u=root n=ansible | {
+2021-02-16 23:46:48,084 p=97534 u=root n=ansible |   - msg: All items completed
+2021-02-16 23:46:48,084 p=97534 u=root n=ansible |   - changed: True
+2021-02-16 23:46:48,084 p=97534 u=root n=ansible |   - results: [ 
+2021-02-16 23:46:48,084 p=97534 u=root n=ansible |     - {
+2021-02-16 23:46:48,084 p=97534 u=root n=ansible |     - status: {
+2021-02-16 23:46:48,084 p=97534 u=root n=ansible |       - ExecStart: { path=/usr/bin/telegraf ; argv[]=/usr/bin/telegraf -config /etc/telegraf/telegraf.conf -config-directory /etc/telegraf/telegraf.d $TELEGRAF_OPTS ; ignore_errors=no ; start_time=[Tue 2021-02-16 23:38:20 IST] ; stop_time=[n/a] ; pid=122383 ; code=(null) ; status=0/0 }
+2021-02-16 23:46:48,084 p=97534 u=root n=ansible |       - TimeoutStopUSec: 1min 30s
+2021-02-16 23:46:48,085 p=97534 u=root n=ansible |       - ControlGroup: /system.slice/telegraf.service
+2021-02-16 23:46:48,085 p=97534 u=root n=ansible |       - UMask: 0022
+2021-02-16 23:46:48,085 p=97534 u=root n=ansible |       - GuessMainPID: yes
+2021-02-16 23:46:48,085 p=97534 u=root n=ansible |       - ExecMainCode: 0
+2021-02-16 23:46:48,085 p=97534 u=root n=ansible |       - UnitFileState: enabled
+2021-02-16 23:46:48,085 p=97534 u=root n=ansible |       - ExecMainPID: 122383
+2021-02-16 23:46:48,085 p=97534 u=root n=ansible |       - LimitSIGPENDING: 1541413
+2021-02-16 23:46:48,085 p=97534 u=root n=ansible |       - FileDescriptorStoreMax: 0
+2021-02-16 23:46:48,086 p=97534 u=root n=ansible |       - LoadState: loaded
+2021-02-16 23:46:48,086 p=97534 u=root n=ansible |       - ProtectHome: no
+2021-02-16 23:46:48,086 p=97534 u=root n=ansible |       - ConditionTimestampMonotonic: 387875824492
+2021-02-16 23:46:48,086 p=97534 u=root n=ansible |       - StartLimitInterval: 10000000
+2021-02-16 23:46:48,086 p=97534 u=root n=ansible |       - WatchdogTimestampMonotonic: 387875825641
+2021-02-16 23:46:48,086 p=97534 u=root n=ansible |       - LimitSTACK: 18446744073709551615
+2021-02-16 23:46:48,086 p=97534 u=root n=ansible |       - SubState: running
+2021-02-16 23:46:48,086 p=97534 u=root n=ansible |       - StandardError: inherit
+2021-02-16 23:46:48,086 p=97534 u=root n=ansible |       - IgnoreOnSnapshot: no
+2021-02-16 23:46:48,087 p=97534 u=root n=ansible |       - CanIsolate: no
+2021-02-16 23:46:48,087 p=97534 u=root n=ansible |       - EnvironmentFile: /etc/default/telegraf (ignore_errors=yes)
+2021-02-16 23:46:48,087 p=97534 u=root n=ansible |       - CPUSchedulingPriority: 0
+2021-02-16 23:46:48,087 p=97534 u=root n=ansible |       - KillSignal: 15
+2021-02-16 23:46:48,087 p=97534 u=root n=ansible |       - LimitFSIZE: 18446744073709551615
+2021-02-16 23:46:48,087 p=97534 u=root n=ansible |       - IgnoreOnIsolate: no
+2021-02-16 23:46:48,087 p=97534 u=root n=ansible |       - LimitCPU: 18446744073709551615
+2021-02-16 23:46:48,087 p=97534 u=root n=ansible |       - AssertTimestamp: Tue 2021-02-16 23:38:20 IST
+2021-02-16 23:46:48,088 p=97534 u=root n=ansible |       - WatchdogTimestamp: Tue 2021-02-16 23:38:20 IST
+2021-02-16 23:46:48,088 p=97534 u=root n=ansible |       - ActiveEnterTimestamp: Tue 2021-02-16 23:38:20 IST
+2021-02-16 23:46:48,088 p=97534 u=root n=ansible |       - MemoryLimit: 18446744073709551615
+2021-02-16 23:46:48,088 p=97534 u=root n=ansible |       - CanStart: yes
+2021-02-16 23:46:48,088 p=97534 u=root n=ansible |       - JobTimeoutAction: none
+2021-02-16 23:46:48,088 p=97534 u=root n=ansible |       - PrivateTmp: no
+2021-02-16 23:46:48,088 p=97534 u=root n=ansible |       - Before: multi-user.target shutdown.target
+2021-02-16 23:46:48,088 p=97534 u=root n=ansible |       - LimitAS: 18446744073709551615
+2021-02-16 23:46:48,088 p=97534 u=root n=ansible |       - RootDirectoryStartOnly: no
+2021-02-16 23:46:48,089 p=97534 u=root n=ansible |       - InactiveExitTimestampMonotonic: 387875825672
+2021-02-16 23:46:48,089 p=97534 u=root n=ansible |       - SendSIGHUP: no
+2021-02-16 23:46:48,089 p=97534 u=root n=ansible |       - TimeoutStartUSec: 1min 30s
+2021-02-16 23:46:48,089 p=97534 u=root n=ansible |       - Type: simple
+2021-02-16 23:46:48,089 p=97534 u=root n=ansible |       - SyslogPriority: 30
+2021-02-16 23:46:48,089 p=97534 u=root n=ansible |       - SameProcessGroup: no
+2021-02-16 23:46:48,089 p=97534 u=root n=ansible |       - LimitNPROC: 1541413
+2021-02-16 23:46:48,089 p=97534 u=root n=ansible |       - RuntimeDirectoryMode: 0755
+2021-02-16 23:46:48,090 p=97534 u=root n=ansible |       - NonBlocking: no
+2021-02-16 23:46:48,090 p=97534 u=root n=ansible |       - InactiveEnterTimestampMonotonic: 0
+2021-02-16 23:46:48,090 p=97534 u=root n=ansible |       - LimitLOCKS: 18446744073709551615
+2021-02-16 23:46:48,090 p=97534 u=root n=ansible |       - RefuseManualStop: no
+2021-02-16 23:46:48,090 p=97534 u=root n=ansible |       - ExecMainStartTimestamp: Tue 2021-02-16 23:38:20 IST
+2021-02-16 23:46:48,090 p=97534 u=root n=ansible |       - CapabilityBoundingSet: 18446744073709551615
+2021-02-16 23:46:48,090 p=97534 u=root n=ansible |       - TTYReset: no
+2021-02-16 23:46:48,090 p=97534 u=root n=ansible |       - OOMScoreAdjust: 0
+2021-02-16 23:46:48,090 p=97534 u=root n=ansible |       - LimitRSS: 18446744073709551615
+2021-02-16 23:46:48,091 p=97534 u=root n=ansible |       - RefuseManualStart: no
+2021-02-16 23:46:48,091 p=97534 u=root n=ansible |       - KillMode: control-group
+2021-02-16 23:46:48,091 p=97534 u=root n=ansible |       - SyslogLevelPrefix: yes
+2021-02-16 23:46:48,091 p=97534 u=root n=ansible |       - Documentation: https://github.com/influxdata/telegraf
+2021-02-16 23:46:48,091 p=97534 u=root n=ansible |       - LimitRTPRIO: 0
+2021-02-16 23:46:48,091 p=97534 u=root n=ansible |       - Delegate: no
+2021-02-16 23:46:48,091 p=97534 u=root n=ansible |       - ExecReload: { path=/bin/kill ; argv[]=/bin/kill -HUP $MAINPID ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }
+2021-02-16 23:46:48,091 p=97534 u=root n=ansible |       - SecureBits: 0
+2021-02-16 23:46:48,092 p=97534 u=root n=ansible |       - LimitCORE: 18446744073709551615
+2021-02-16 23:46:48,092 p=97534 u=root n=ansible |       - JobTimeoutUSec: 0
+2021-02-16 23:46:48,092 p=97534 u=root n=ansible |       - CPUSchedulingResetOnFork: no
+2021-02-16 23:46:48,092 p=97534 u=root n=ansible |       - Result: success
+2021-02-16 23:46:48,092 p=97534 u=root n=ansible |       - CPUShares: 18446744073709551615
+2021-02-16 23:46:48,092 p=97534 u=root n=ansible |       - RemainAfterExit: no
+2021-02-16 23:46:48,092 p=97534 u=root n=ansible |       - ConditionResult: yes
+2021-02-16 23:46:48,092 p=97534 u=root n=ansible |       - TTYVTDisallocate: no
+2021-02-16 23:46:48,092 p=97534 u=root n=ansible |       - MainPID: 122383
+2021-02-16 23:46:48,093 p=97534 u=root n=ansible |       - StartupBlockIOWeight: 18446744073709551615
+2021-02-16 23:46:48,093 p=97534 u=root n=ansible |       - InactiveExitTimestamp: Tue 2021-02-16 23:38:20 IST
+2021-02-16 23:46:48,093 p=97534 u=root n=ansible |       - FragmentPath: /usr/lib/systemd/system/telegraf.service
+2021-02-16 23:46:48,093 p=97534 u=root n=ansible |       - StartupCPUShares: 18446744073709551615
+2021-02-16 23:46:48,093 p=97534 u=root n=ansible |       - WatchdogUSec: 0
+2021-02-16 23:46:48,093 p=97534 u=root n=ansible |       - ActiveState: active
+2021-02-16 23:46:48,093 p=97534 u=root n=ansible |       - Nice: 0
+2021-02-16 23:46:48,093 p=97534 u=root n=ansible |       - LimitDATA: 18446744073709551615
+2021-02-16 23:46:48,093 p=97534 u=root n=ansible |       - UnitFilePreset: disabled
+2021-02-16 23:46:48,094 p=97534 u=root n=ansible |       - MemoryCurrent: 18446744073709551615
+2021-02-16 23:46:48,094 p=97534 u=root n=ansible |       - LimitRTTIME: 18446744073709551615
+2021-02-16 23:46:48,094 p=97534 u=root n=ansible |       - WantedBy: multi-user.target
+2021-02-16 23:46:48,094 p=97534 u=root n=ansible |       - TasksCurrent: 18446744073709551615
+2021-02-16 23:46:48,094 p=97534 u=root n=ansible |       - RestartUSec: 100ms
+2021-02-16 23:46:48,094 p=97534 u=root n=ansible |       - ConditionTimestamp: Tue 2021-02-16 23:38:20 IST
+2021-02-16 23:46:48,094 p=97534 u=root n=ansible |       - CPUAccounting: no
+2021-02-16 23:46:48,094 p=97534 u=root n=ansible |       - CPUSchedulingPolicy: 0
+2021-02-16 23:46:48,094 p=97534 u=root n=ansible |       - AllowIsolate: no
+2021-02-16 23:46:48,095 p=97534 u=root n=ansible |       - Restart: on-failure
+2021-02-16 23:46:48,095 p=97534 u=root n=ansible |       - User: telegraf
+2021-02-16 23:46:48,095 p=97534 u=root n=ansible |       - LimitNOFILE: 4096
+2021-02-16 23:46:48,095 p=97534 u=root n=ansible |       - SendSIGKILL: yes
+2021-02-16 23:46:48,095 p=97534 u=root n=ansible |       - StatusErrno: 0
+2021-02-16 23:46:48,095 p=97534 u=root n=ansible |       - StartLimitBurst: 5
+2021-02-16 23:46:48,095 p=97534 u=root n=ansible |       - SystemCallErrorNumber: 0
+2021-02-16 23:46:48,095 p=97534 u=root n=ansible |       - TasksAccounting: no
+2021-02-16 23:46:48,095 p=97534 u=root n=ansible |       - NeedDaemonReload: no
+2021-02-16 23:46:48,096 p=97534 u=root n=ansible |       - TTYVHangup: no
+2021-02-16 23:46:48,096 p=97534 u=root n=ansible |       - StandardInput: null
+2021-02-16 23:46:48,096 p=97534 u=root n=ansible |       - AssertTimestampMonotonic: 387875824492
+2021-02-16 23:46:48,096 p=97534 u=root n=ansible |       - DefaultDependencies: yes
+2021-02-16 23:46:48,096 p=97534 u=root n=ansible |       - Requires: system.slice basic.target
+2021-02-16 23:46:48,096 p=97534 u=root n=ansible |       - TasksMax: 18446744073709551615
+2021-02-16 23:46:48,096 p=97534 u=root n=ansible |       - CPUQuotaPerSecUSec: infinity
+2021-02-16 23:46:48,096 p=97534 u=root n=ansible |       - ExecMainStatus: 0
+2021-02-16 23:46:48,096 p=97534 u=root n=ansible |       - LimitMEMLOCK: 65536
+2021-02-16 23:46:48,097 p=97534 u=root n=ansible |       - StopWhenUnneeded: no
+2021-02-16 23:46:48,097 p=97534 u=root n=ansible |       - LimitMSGQUEUE: 819200
+2021-02-16 23:46:48,097 p=97534 u=root n=ansible |       - AmbientCapabilities: 0
+2021-02-16 23:46:48,097 p=97534 u=root n=ansible |       - Slice: system.slice
+2021-02-16 23:46:48,097 p=97534 u=root n=ansible |       - ExecMainExitTimestampMonotonic: 0
+2021-02-16 23:46:48,097 p=97534 u=root n=ansible |       - NotifyAccess: none
+2021-02-16 23:46:48,097 p=97534 u=root n=ansible |       - PermissionsStartOnly: no
+2021-02-16 23:46:48,097 p=97534 u=root n=ansible |       - BlockIOAccounting: no
+2021-02-16 23:46:48,097 p=97534 u=root n=ansible |       - CanStop: yes
+2021-02-16 23:46:48,098 p=97534 u=root n=ansible |       - NoNewPrivileges: no
+2021-02-16 23:46:48,098 p=97534 u=root n=ansible |       - OnFailureJobMode: replace
+2021-02-16 23:46:48,098 p=97534 u=root n=ansible |       - AssertResult: yes
+2021-02-16 23:46:48,098 p=97534 u=root n=ansible |       - ActiveEnterTimestampMonotonic: 387875825672
+2021-02-16 23:46:48,098 p=97534 u=root n=ansible |       - ExecMainStartTimestampMonotonic: 387875825568
+2021-02-16 23:46:48,098 p=97534 u=root n=ansible |       - TimerSlackNSec: 50000
+2021-02-16 23:46:48,098 p=97534 u=root n=ansible |       - LimitNICE: 0
+2021-02-16 23:46:48,098 p=97534 u=root n=ansible |       - After: basic.target network.target system.slice systemd-journald.socket
+2021-02-16 23:46:48,098 p=97534 u=root n=ansible |       - FailureAction: none
+2021-02-16 23:46:48,098 p=97534 u=root n=ansible |       - StartLimitAction: none
+2021-02-16 23:46:48,099 p=97534 u=root n=ansible |       - Conflicts: shutdown.target
+2021-02-16 23:46:48,099 p=97534 u=root n=ansible |       - StandardOutput: journal
+2021-02-16 23:46:48,099 p=97534 u=root n=ansible |       - MountFlags: 0
+2021-02-16 23:46:48,099 p=97534 u=root n=ansible |       - DevicePolicy: auto
+2021-02-16 23:46:48,099 p=97534 u=root n=ansible |       - MemoryAccounting: no
+2021-02-16 23:46:48,099 p=97534 u=root n=ansible |       - IgnoreSIGPIPE: yes
+2021-02-16 23:46:48,099 p=97534 u=root n=ansible |       - Transient: no
+2021-02-16 23:46:48,099 p=97534 u=root n=ansible |       - IOScheduling: 0
+2021-02-16 23:46:48,099 p=97534 u=root n=ansible |       - PrivateNetwork: no
+2021-02-16 23:46:48,100 p=97534 u=root n=ansible |       - ActiveExitTimestampMonotonic: 0
+2021-02-16 23:46:48,100 p=97534 u=root n=ansible |       - CanReload: yes
+2021-02-16 23:46:48,100 p=97534 u=root n=ansible |       - PrivateDevices: no
+2021-02-16 23:46:48,100 p=97534 u=root n=ansible |       - BlockIOWeight: 18446744073709551615
+2021-02-16 23:46:48,100 p=97534 u=root n=ansible |       - Description: The plugin-driven server agent for reporting metrics into InfluxDB
+2021-02-16 23:46:48,100 p=97534 u=root n=ansible |       - Names: telegraf.service
+2021-02-16 23:46:48,100 p=97534 u=root n=ansible |       - ProtectSystem: no
+2021-02-16 23:46:48,100 p=97534 u=root n=ansible |       - ControlPID: 0
+2021-02-16 23:46:48,100 p=97534 u=root n=ansible |       - Id: telegraf.service
+2021-02-16 23:46:48,101 p=97534 u=root n=ansible |     }
+2021-02-16 23:46:48,101 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:46:48,101 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:46:48,101 p=97534 u=root n=ansible |     - state: stopped
+2021-02-16 23:46:48,101 p=97534 u=root n=ansible |     - item: serversecondary
+2021-02-16 23:46:48,101 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:46:48,101 p=97534 u=root n=ansible |     - name: telegraf
+2021-02-16 23:46:48,101 p=97534 u=root n=ansible |   }
+2021-02-16 23:46:48,101 p=97534 u=root n=ansible |     - {
+2021-02-16 23:46:48,102 p=97534 u=root n=ansible |     - status: {
+2021-02-16 23:46:48,102 p=97534 u=root n=ansible |       - ExecStart: { path=/usr/bin/telegraf ; argv[]=/usr/bin/telegraf -config /etc/telegraf/telegraf.conf -config-directory /etc/telegraf/telegraf.d $TELEGRAF_OPTS ; ignore_errors=no ; start_time=[Tue 2021-02-16 23:38:27 IST] ; stop_time=[n/a] ; pid=292065 ; code=(null) ; status=0/0 }
+2021-02-16 23:46:48,102 p=97534 u=root n=ansible |       - TimeoutStopUSec: 1min 30s
+2021-02-16 23:46:48,102 p=97534 u=root n=ansible |       - ControlGroup: /system.slice/telegraf.service
+2021-02-16 23:46:48,102 p=97534 u=root n=ansible |       - UMask: 0022
+2021-02-16 23:46:48,102 p=97534 u=root n=ansible |       - GuessMainPID: yes
+2021-02-16 23:46:48,102 p=97534 u=root n=ansible |       - ExecMainCode: 0
+2021-02-16 23:46:48,102 p=97534 u=root n=ansible |       - UnitFileState: enabled
+2021-02-16 23:46:48,102 p=97534 u=root n=ansible |       - ExecMainPID: 292065
+2021-02-16 23:46:48,103 p=97534 u=root n=ansible |       - LimitSIGPENDING: 1541038
+2021-02-16 23:46:48,103 p=97534 u=root n=ansible |       - FileDescriptorStoreMax: 0
+2021-02-16 23:46:48,103 p=97534 u=root n=ansible |       - LoadState: loaded
+2021-02-16 23:46:48,103 p=97534 u=root n=ansible |       - ProtectHome: no
+2021-02-16 23:46:48,103 p=97534 u=root n=ansible |       - ConditionTimestampMonotonic: 387871535011
+2021-02-16 23:46:48,103 p=97534 u=root n=ansible |       - StartLimitInterval: 10000000
+2021-02-16 23:46:48,103 p=97534 u=root n=ansible |       - WatchdogTimestampMonotonic: 387871536174
+2021-02-16 23:46:48,103 p=97534 u=root n=ansible |       - LimitSTACK: 18446744073709551615
+2021-02-16 23:46:48,103 p=97534 u=root n=ansible |       - SubState: running
+2021-02-16 23:46:48,103 p=97534 u=root n=ansible |       - StandardError: inherit
+2021-02-16 23:46:48,104 p=97534 u=root n=ansible |       - IgnoreOnSnapshot: no
+2021-02-16 23:46:48,104 p=97534 u=root n=ansible |       - CanIsolate: no
+2021-02-16 23:46:48,104 p=97534 u=root n=ansible |       - EnvironmentFile: /etc/default/telegraf (ignore_errors=yes)
+2021-02-16 23:46:48,104 p=97534 u=root n=ansible |       - CPUSchedulingPriority: 0
+2021-02-16 23:46:48,104 p=97534 u=root n=ansible |       - KillSignal: 15
+2021-02-16 23:46:48,104 p=97534 u=root n=ansible |       - LimitFSIZE: 18446744073709551615
+2021-02-16 23:46:48,104 p=97534 u=root n=ansible |       - IgnoreOnIsolate: no
+2021-02-16 23:46:48,104 p=97534 u=root n=ansible |       - LimitCPU: 18446744073709551615
+2021-02-16 23:46:48,104 p=97534 u=root n=ansible |       - AssertTimestamp: Tue 2021-02-16 23:38:27 IST
+2021-02-16 23:46:48,105 p=97534 u=root n=ansible |       - WatchdogTimestamp: Tue 2021-02-16 23:38:27 IST
+2021-02-16 23:46:48,105 p=97534 u=root n=ansible |       - ActiveEnterTimestamp: Tue 2021-02-16 23:38:27 IST
+2021-02-16 23:46:48,105 p=97534 u=root n=ansible |       - MemoryLimit: 18446744073709551615
+2021-02-16 23:46:48,105 p=97534 u=root n=ansible |       - CanStart: yes
+2021-02-16 23:46:48,105 p=97534 u=root n=ansible |       - JobTimeoutAction: none
+2021-02-16 23:46:48,105 p=97534 u=root n=ansible |       - PrivateTmp: no
+2021-02-16 23:46:48,105 p=97534 u=root n=ansible |       - Before: multi-user.target shutdown.target
+2021-02-16 23:46:48,105 p=97534 u=root n=ansible |       - LimitAS: 18446744073709551615
+2021-02-16 23:46:48,105 p=97534 u=root n=ansible |       - RootDirectoryStartOnly: no
+2021-02-16 23:46:48,105 p=97534 u=root n=ansible |       - InactiveExitTimestampMonotonic: 387871536203
+2021-02-16 23:46:48,106 p=97534 u=root n=ansible |       - SendSIGHUP: no
+2021-02-16 23:46:48,106 p=97534 u=root n=ansible |       - TimeoutStartUSec: 1min 30s
+2021-02-16 23:46:48,106 p=97534 u=root n=ansible |       - Type: simple
+2021-02-16 23:46:48,106 p=97534 u=root n=ansible |       - SyslogPriority: 30
+2021-02-16 23:46:48,106 p=97534 u=root n=ansible |       - SameProcessGroup: no
+2021-02-16 23:46:48,106 p=97534 u=root n=ansible |       - LimitNPROC: 1541038
+2021-02-16 23:46:48,106 p=97534 u=root n=ansible |       - RuntimeDirectoryMode: 0755
+2021-02-16 23:46:48,106 p=97534 u=root n=ansible |       - NonBlocking: no
+2021-02-16 23:46:48,106 p=97534 u=root n=ansible |       - InactiveEnterTimestampMonotonic: 0
+2021-02-16 23:46:48,107 p=97534 u=root n=ansible |       - LimitLOCKS: 18446744073709551615
+2021-02-16 23:46:48,107 p=97534 u=root n=ansible |       - RefuseManualStop: no
+2021-02-16 23:46:48,107 p=97534 u=root n=ansible |       - ExecMainStartTimestamp: Tue 2021-02-16 23:38:27 IST
+2021-02-16 23:46:48,107 p=97534 u=root n=ansible |       - CapabilityBoundingSet: 18446744073709551615
+2021-02-16 23:46:48,107 p=97534 u=root n=ansible |       - TTYReset: no
+2021-02-16 23:46:48,107 p=97534 u=root n=ansible |       - OOMScoreAdjust: 0
+2021-02-16 23:46:48,107 p=97534 u=root n=ansible |       - LimitRSS: 18446744073709551615
+2021-02-16 23:46:48,107 p=97534 u=root n=ansible |       - RefuseManualStart: no
+2021-02-16 23:46:48,107 p=97534 u=root n=ansible |       - KillMode: control-group
+2021-02-16 23:46:48,107 p=97534 u=root n=ansible |       - SyslogLevelPrefix: yes
+2021-02-16 23:46:48,108 p=97534 u=root n=ansible |       - Documentation: https://github.com/influxdata/telegraf
+2021-02-16 23:46:48,108 p=97534 u=root n=ansible |       - LimitRTPRIO: 0
+2021-02-16 23:46:48,108 p=97534 u=root n=ansible |       - Delegate: no
+2021-02-16 23:46:48,108 p=97534 u=root n=ansible |       - ExecReload: { path=/bin/kill ; argv[]=/bin/kill -HUP $MAINPID ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }
+2021-02-16 23:46:48,108 p=97534 u=root n=ansible |       - SecureBits: 0
+2021-02-16 23:46:48,108 p=97534 u=root n=ansible |       - LimitCORE: 18446744073709551615
+2021-02-16 23:46:48,108 p=97534 u=root n=ansible |       - JobTimeoutUSec: 0
+2021-02-16 23:46:48,108 p=97534 u=root n=ansible |       - CPUSchedulingResetOnFork: no
+2021-02-16 23:46:48,108 p=97534 u=root n=ansible |       - Result: success
+2021-02-16 23:46:48,109 p=97534 u=root n=ansible |       - CPUShares: 18446744073709551615
+2021-02-16 23:46:48,109 p=97534 u=root n=ansible |       - RemainAfterExit: no
+2021-02-16 23:46:48,109 p=97534 u=root n=ansible |       - ConditionResult: yes
+2021-02-16 23:46:48,109 p=97534 u=root n=ansible |       - TTYVTDisallocate: no
+2021-02-16 23:46:48,109 p=97534 u=root n=ansible |       - MainPID: 292065
+2021-02-16 23:46:48,109 p=97534 u=root n=ansible |       - StartupBlockIOWeight: 18446744073709551615
+2021-02-16 23:46:48,109 p=97534 u=root n=ansible |       - InactiveExitTimestamp: Tue 2021-02-16 23:38:27 IST
+2021-02-16 23:46:48,109 p=97534 u=root n=ansible |       - FragmentPath: /usr/lib/systemd/system/telegraf.service
+2021-02-16 23:46:48,109 p=97534 u=root n=ansible |       - StartupCPUShares: 18446744073709551615
+2021-02-16 23:46:48,109 p=97534 u=root n=ansible |       - WatchdogUSec: 0
+2021-02-16 23:46:48,110 p=97534 u=root n=ansible |       - ActiveState: active
+2021-02-16 23:46:48,110 p=97534 u=root n=ansible |       - Nice: 0
+2021-02-16 23:46:48,110 p=97534 u=root n=ansible |       - LimitDATA: 18446744073709551615
+2021-02-16 23:46:48,110 p=97534 u=root n=ansible |       - UnitFilePreset: disabled
+2021-02-16 23:46:48,110 p=97534 u=root n=ansible |       - MemoryCurrent: 18446744073709551615
+2021-02-16 23:46:48,110 p=97534 u=root n=ansible |       - LimitRTTIME: 18446744073709551615
+2021-02-16 23:46:48,110 p=97534 u=root n=ansible |       - WantedBy: multi-user.target
+2021-02-16 23:46:48,110 p=97534 u=root n=ansible |       - TasksCurrent: 18446744073709551615
+2021-02-16 23:46:48,110 p=97534 u=root n=ansible |       - RestartUSec: 100ms
+2021-02-16 23:46:48,111 p=97534 u=root n=ansible |       - ConditionTimestamp: Tue 2021-02-16 23:38:27 IST
+2021-02-16 23:46:48,111 p=97534 u=root n=ansible |       - CPUAccounting: no
+2021-02-16 23:46:48,111 p=97534 u=root n=ansible |       - CPUSchedulingPolicy: 0
+2021-02-16 23:46:48,111 p=97534 u=root n=ansible |       - AllowIsolate: no
+2021-02-16 23:46:48,111 p=97534 u=root n=ansible |       - Restart: on-failure
+2021-02-16 23:46:48,111 p=97534 u=root n=ansible |       - User: telegraf
+2021-02-16 23:46:48,111 p=97534 u=root n=ansible |       - LimitNOFILE: 4096
+2021-02-16 23:46:48,111 p=97534 u=root n=ansible |       - SendSIGKILL: yes
+2021-02-16 23:46:48,111 p=97534 u=root n=ansible |       - StatusErrno: 0
+2021-02-16 23:46:48,111 p=97534 u=root n=ansible |       - StartLimitBurst: 5
+2021-02-16 23:46:48,112 p=97534 u=root n=ansible |       - SystemCallErrorNumber: 0
+2021-02-16 23:46:48,112 p=97534 u=root n=ansible |       - TasksAccounting: no
+2021-02-16 23:46:48,112 p=97534 u=root n=ansible |       - NeedDaemonReload: no
+2021-02-16 23:46:48,112 p=97534 u=root n=ansible |       - TTYVHangup: no
+2021-02-16 23:46:48,112 p=97534 u=root n=ansible |       - StandardInput: null
+2021-02-16 23:46:48,112 p=97534 u=root n=ansible |       - AssertTimestampMonotonic: 387871535012
+2021-02-16 23:46:48,112 p=97534 u=root n=ansible |       - DefaultDependencies: yes
+2021-02-16 23:46:48,112 p=97534 u=root n=ansible |       - Requires: basic.target system.slice
+2021-02-16 23:46:48,112 p=97534 u=root n=ansible |       - TasksMax: 18446744073709551615
+2021-02-16 23:46:48,113 p=97534 u=root n=ansible |       - CPUQuotaPerSecUSec: infinity
+2021-02-16 23:46:48,113 p=97534 u=root n=ansible |       - ExecMainStatus: 0
+2021-02-16 23:46:48,113 p=97534 u=root n=ansible |       - LimitMEMLOCK: 65536
+2021-02-16 23:46:48,113 p=97534 u=root n=ansible |       - StopWhenUnneeded: no
+2021-02-16 23:46:48,113 p=97534 u=root n=ansible |       - LimitMSGQUEUE: 819200
+2021-02-16 23:46:48,113 p=97534 u=root n=ansible |       - AmbientCapabilities: 0
+2021-02-16 23:46:48,113 p=97534 u=root n=ansible |       - Slice: system.slice
+2021-02-16 23:46:48,113 p=97534 u=root n=ansible |       - ExecMainExitTimestampMonotonic: 0
+2021-02-16 23:46:48,113 p=97534 u=root n=ansible |       - NotifyAccess: none
+2021-02-16 23:46:48,113 p=97534 u=root n=ansible |       - PermissionsStartOnly: no
+2021-02-16 23:46:48,114 p=97534 u=root n=ansible |       - BlockIOAccounting: no
+2021-02-16 23:46:48,114 p=97534 u=root n=ansible |       - CanStop: yes
+2021-02-16 23:46:48,114 p=97534 u=root n=ansible |       - NoNewPrivileges: no
+2021-02-16 23:46:48,114 p=97534 u=root n=ansible |       - OnFailureJobMode: replace
+2021-02-16 23:46:48,114 p=97534 u=root n=ansible |       - AssertResult: yes
+2021-02-16 23:46:48,114 p=97534 u=root n=ansible |       - ActiveEnterTimestampMonotonic: 387871536203
+2021-02-16 23:46:48,114 p=97534 u=root n=ansible |       - ExecMainStartTimestampMonotonic: 387871536102
+2021-02-16 23:46:48,114 p=97534 u=root n=ansible |       - TimerSlackNSec: 50000
+2021-02-16 23:46:48,114 p=97534 u=root n=ansible |       - LimitNICE: 0
+2021-02-16 23:46:48,114 p=97534 u=root n=ansible |       - After: system.slice network.target systemd-journald.socket basic.target
+2021-02-16 23:46:48,115 p=97534 u=root n=ansible |       - FailureAction: none
+2021-02-16 23:46:48,115 p=97534 u=root n=ansible |       - StartLimitAction: none
+2021-02-16 23:46:48,115 p=97534 u=root n=ansible |       - Conflicts: shutdown.target
+2021-02-16 23:46:48,115 p=97534 u=root n=ansible |       - StandardOutput: journal
+2021-02-16 23:46:48,115 p=97534 u=root n=ansible |       - MountFlags: 0
+2021-02-16 23:46:48,115 p=97534 u=root n=ansible |       - DevicePolicy: auto
+2021-02-16 23:46:48,115 p=97534 u=root n=ansible |       - MemoryAccounting: no
+2021-02-16 23:46:48,115 p=97534 u=root n=ansible |       - IgnoreSIGPIPE: yes
+2021-02-16 23:46:48,115 p=97534 u=root n=ansible |       - Transient: no
+2021-02-16 23:46:48,115 p=97534 u=root n=ansible |       - IOScheduling: 0
+2021-02-16 23:46:48,116 p=97534 u=root n=ansible |       - PrivateNetwork: no
+2021-02-16 23:46:48,116 p=97534 u=root n=ansible |       - ActiveExitTimestampMonotonic: 0
+2021-02-16 23:46:48,116 p=97534 u=root n=ansible |       - CanReload: yes
+2021-02-16 23:46:48,116 p=97534 u=root n=ansible |       - PrivateDevices: no
+2021-02-16 23:46:48,116 p=97534 u=root n=ansible |       - BlockIOWeight: 18446744073709551615
+2021-02-16 23:46:48,116 p=97534 u=root n=ansible |       - Description: The plugin-driven server agent for reporting metrics into InfluxDB
+2021-02-16 23:46:48,116 p=97534 u=root n=ansible |       - Names: telegraf.service
+2021-02-16 23:46:48,116 p=97534 u=root n=ansible |       - ProtectSystem: no
+2021-02-16 23:46:48,116 p=97534 u=root n=ansible |       - ControlPID: 0
+2021-02-16 23:46:48,116 p=97534 u=root n=ansible |       - Id: telegraf.service
+2021-02-16 23:46:48,117 p=97534 u=root n=ansible |     }
+2021-02-16 23:46:48,117 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:46:48,117 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:46:48,117 p=97534 u=root n=ansible |     - state: stopped
+2021-02-16 23:46:48,117 p=97534 u=root n=ansible |     - item: serverprimary
+2021-02-16 23:46:48,117 p=97534 u=root n=ansible |     - changed: True
+2021-02-16 23:46:48,117 p=97534 u=root n=ansible |     - name: telegraf
+2021-02-16 23:46:48,117 p=97534 u=root n=ansible |   }
+2021-02-16 23:46:48,117 p=97534 u=root n=ansible |     - {
+2021-02-16 23:46:48,117 p=97534 u=root n=ansible |     - status: {
+2021-02-16 23:46:48,118 p=97534 u=root n=ansible |       - ExecStart: { path=/usr/bin/telegraf ; argv[]=/usr/bin/telegraf -config /etc/telegraf/telegraf.conf -config-directory /etc/telegraf/telegraf.d $TELEGRAF_OPTS ; ignore_errors=no ; start_time=[Tue 2021-02-16 23:45:23 IST] ; stop_time=[Tue 2021-02-16 23:46:54 IST] ; pid=70461 ; code=exited ; status=0 }
+2021-02-16 23:46:48,118 p=97534 u=root n=ansible |       - TimeoutStopUSec: 1min 30s
+2021-02-16 23:46:48,118 p=97534 u=root n=ansible |       - UMask: 0022
+2021-02-16 23:46:48,118 p=97534 u=root n=ansible |       - GuessMainPID: yes
+2021-02-16 23:46:48,118 p=97534 u=root n=ansible |       - ActiveExitTimestamp: Tue 2021-02-16 23:46:54 IST
+2021-02-16 23:46:48,118 p=97534 u=root n=ansible |       - ExecMainCode: 1
+2021-02-16 23:46:48,118 p=97534 u=root n=ansible |       - UnitFileState: enabled
+2021-02-16 23:46:48,118 p=97534 u=root n=ansible |       - ExecMainPID: 70461
+2021-02-16 23:46:48,118 p=97534 u=root n=ansible |       - LimitSIGPENDING: 642410
+2021-02-16 23:46:48,118 p=97534 u=root n=ansible |       - FileDescriptorStoreMax: 0
+2021-02-16 23:46:48,119 p=97534 u=root n=ansible |       - LoadState: loaded
+2021-02-16 23:46:48,119 p=97534 u=root n=ansible |       - ProtectHome: no
+2021-02-16 23:46:48,119 p=97534 u=root n=ansible |       - ConditionTimestampMonotonic: 2880060028068
+2021-02-16 23:46:48,119 p=97534 u=root n=ansible |       - TTYVHangup: no
+2021-02-16 23:46:48,119 p=97534 u=root n=ansible |       - WatchdogTimestampMonotonic: 0
+2021-02-16 23:46:48,119 p=97534 u=root n=ansible |       - LimitSTACK: 18446744073709551615
+2021-02-16 23:46:48,119 p=97534 u=root n=ansible |       - SubState: dead
+2021-02-16 23:46:48,119 p=97534 u=root n=ansible |       - AllowIsolate: no
+2021-02-16 23:46:48,119 p=97534 u=root n=ansible |       - IgnoreOnSnapshot: no
+2021-02-16 23:46:48,119 p=97534 u=root n=ansible |       - CanIsolate: no
+2021-02-16 23:46:48,120 p=97534 u=root n=ansible |       - EnvironmentFile: /etc/default/telegraf (ignore_errors=yes)
+2021-02-16 23:46:48,120 p=97534 u=root n=ansible |       - CPUSchedulingPriority: 0
+2021-02-16 23:46:48,120 p=97534 u=root n=ansible |       - KillSignal: 15
+2021-02-16 23:46:48,120 p=97534 u=root n=ansible |       - LimitFSIZE: 18446744073709551615
+2021-02-16 23:46:48,120 p=97534 u=root n=ansible |       - IgnoreOnIsolate: no
+2021-02-16 23:46:48,120 p=97534 u=root n=ansible |       - LimitCPU: 18446744073709551615
+2021-02-16 23:46:48,120 p=97534 u=root n=ansible |       - AssertTimestamp: Tue 2021-02-16 23:45:23 IST
+2021-02-16 23:46:48,120 p=97534 u=root n=ansible |       - ActiveEnterTimestamp: Tue 2021-02-16 23:45:23 IST
+2021-02-16 23:46:48,120 p=97534 u=root n=ansible |       - MemoryLimit: 18446744073709551615
+2021-02-16 23:46:48,120 p=97534 u=root n=ansible |       - CanStart: yes
+2021-02-16 23:46:48,121 p=97534 u=root n=ansible |       - JobTimeoutAction: none
+2021-02-16 23:46:48,121 p=97534 u=root n=ansible |       - PrivateTmp: no
+2021-02-16 23:46:48,121 p=97534 u=root n=ansible |       - Before: multi-user.target shutdown.target
+2021-02-16 23:46:48,121 p=97534 u=root n=ansible |       - LimitAS: 18446744073709551615
+2021-02-16 23:46:48,121 p=97534 u=root n=ansible |       - RootDirectoryStartOnly: no
+2021-02-16 23:46:48,121 p=97534 u=root n=ansible |       - InactiveExitTimestampMonotonic: 2880060029073
+2021-02-16 23:46:48,121 p=97534 u=root n=ansible |       - SendSIGHUP: no
+2021-02-16 23:46:48,121 p=97534 u=root n=ansible |       - TimeoutStartUSec: 1min 30s
+2021-02-16 23:46:48,121 p=97534 u=root n=ansible |       - Type: simple
+2021-02-16 23:46:48,121 p=97534 u=root n=ansible |       - SyslogPriority: 30
+2021-02-16 23:46:48,122 p=97534 u=root n=ansible |       - SameProcessGroup: no
+2021-02-16 23:46:48,122 p=97534 u=root n=ansible |       - LimitNPROC: 642410
+2021-02-16 23:46:48,122 p=97534 u=root n=ansible |       - RuntimeDirectoryMode: 0755
+2021-02-16 23:46:48,122 p=97534 u=root n=ansible |       - NonBlocking: no
+2021-02-16 23:46:48,122 p=97534 u=root n=ansible |       - InactiveEnterTimestampMonotonic: 2880150647853
+2021-02-16 23:46:48,122 p=97534 u=root n=ansible |       - LimitLOCKS: 18446744073709551615
+2021-02-16 23:46:48,122 p=97534 u=root n=ansible |       - RefuseManualStop: no
+2021-02-16 23:46:48,122 p=97534 u=root n=ansible |       - ExecMainStartTimestamp: Tue 2021-02-16 23:45:23 IST
+2021-02-16 23:46:48,122 p=97534 u=root n=ansible |       - CapabilityBoundingSet: 18446744073709551615
+2021-02-16 23:46:48,122 p=97534 u=root n=ansible |       - TTYReset: no
+2021-02-16 23:46:48,123 p=97534 u=root n=ansible |       - OOMScoreAdjust: 0
+2021-02-16 23:46:48,123 p=97534 u=root n=ansible |       - LimitRSS: 18446744073709551615
+2021-02-16 23:46:48,123 p=97534 u=root n=ansible |       - RefuseManualStart: no
+2021-02-16 23:46:48,123 p=97534 u=root n=ansible |       - KillMode: control-group
+2021-02-16 23:46:48,123 p=97534 u=root n=ansible |       - SyslogLevelPrefix: yes
+2021-02-16 23:46:48,123 p=97534 u=root n=ansible |       - Documentation: https://github.com/influxdata/telegraf
+2021-02-16 23:46:48,123 p=97534 u=root n=ansible |       - LimitRTPRIO: 0
+2021-02-16 23:46:48,123 p=97534 u=root n=ansible |       - Delegate: no
+2021-02-16 23:46:48,123 p=97534 u=root n=ansible |       - ExecReload: { path=/bin/kill ; argv[]=/bin/kill -HUP $MAINPID ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }
+2021-02-16 23:46:48,123 p=97534 u=root n=ansible |       - SecureBits: 0
+2021-02-16 23:46:48,124 p=97534 u=root n=ansible |       - LimitCORE: 18446744073709551615
+2021-02-16 23:46:48,124 p=97534 u=root n=ansible |       - JobTimeoutUSec: 0
+2021-02-16 23:46:48,124 p=97534 u=root n=ansible |       - CPUSchedulingResetOnFork: no
+2021-02-16 23:46:48,124 p=97534 u=root n=ansible |       - Result: success
+2021-02-16 23:46:48,124 p=97534 u=root n=ansible |       - CPUShares: 18446744073709551615
+2021-02-16 23:46:48,124 p=97534 u=root n=ansible |       - RemainAfterExit: no
+2021-02-16 23:46:48,124 p=97534 u=root n=ansible |       - ConditionResult: yes
+2021-02-16 23:46:48,124 p=97534 u=root n=ansible |       - TTYVTDisallocate: no
+2021-02-16 23:46:48,124 p=97534 u=root n=ansible |       - MainPID: 0
+2021-02-16 23:46:48,124 p=97534 u=root n=ansible |       - StartupBlockIOWeight: 18446744073709551615
+2021-02-16 23:46:48,124 p=97534 u=root n=ansible |       - InactiveExitTimestamp: Tue 2021-02-16 23:45:23 IST
+2021-02-16 23:46:48,125 p=97534 u=root n=ansible |       - FragmentPath: /usr/lib/systemd/system/telegraf.service
+2021-02-16 23:46:48,125 p=97534 u=root n=ansible |       - StartupCPUShares: 18446744073709551615
+2021-02-16 23:46:48,125 p=97534 u=root n=ansible |       - WatchdogUSec: 0
+2021-02-16 23:46:48,125 p=97534 u=root n=ansible |       - ActiveState: inactive
+2021-02-16 23:46:48,125 p=97534 u=root n=ansible |       - Nice: 0
+2021-02-16 23:46:48,125 p=97534 u=root n=ansible |       - LimitDATA: 18446744073709551615
+2021-02-16 23:46:48,125 p=97534 u=root n=ansible |       - UnitFilePreset: disabled
+2021-02-16 23:46:48,125 p=97534 u=root n=ansible |       - MemoryCurrent: 18446744073709551615
+2021-02-16 23:46:48,125 p=97534 u=root n=ansible |       - LimitRTTIME: 18446744073709551615
+2021-02-16 23:46:48,125 p=97534 u=root n=ansible |       - WantedBy: multi-user.target
+2021-02-16 23:46:48,126 p=97534 u=root n=ansible |       - TasksCurrent: 18446744073709551615
+2021-02-16 23:46:48,126 p=97534 u=root n=ansible |       - RestartUSec: 100ms
+2021-02-16 23:46:48,126 p=97534 u=root n=ansible |       - ConditionTimestamp: Tue 2021-02-16 23:45:23 IST
+2021-02-16 23:46:48,126 p=97534 u=root n=ansible |       - CPUAccounting: no
+2021-02-16 23:46:48,126 p=97534 u=root n=ansible |       - CPUSchedulingPolicy: 0
+2021-02-16 23:46:48,126 p=97534 u=root n=ansible |       - Restart: on-failure
+2021-02-16 23:46:48,126 p=97534 u=root n=ansible |       - User: telegraf
+2021-02-16 23:46:48,126 p=97534 u=root n=ansible |       - LimitNOFILE: 4096
+2021-02-16 23:46:48,126 p=97534 u=root n=ansible |       - CanReload: yes
+2021-02-16 23:46:48,126 p=97534 u=root n=ansible |       - StatusErrno: 0
+2021-02-16 23:46:48,126 p=97534 u=root n=ansible |       - StartLimitBurst: 5
+2021-02-16 23:46:48,127 p=97534 u=root n=ansible |       - SystemCallErrorNumber: 0
+2021-02-16 23:46:48,127 p=97534 u=root n=ansible |       - TasksAccounting: no
+2021-02-16 23:46:48,127 p=97534 u=root n=ansible |       - NeedDaemonReload: no
+2021-02-16 23:46:48,127 p=97534 u=root n=ansible |       - StartLimitInterval: 10000000
+2021-02-16 23:46:48,127 p=97534 u=root n=ansible |       - InactiveEnterTimestamp: Tue 2021-02-16 23:46:54 IST
+2021-02-16 23:46:48,127 p=97534 u=root n=ansible |       - StandardInput: null
+2021-02-16 23:46:48,127 p=97534 u=root n=ansible |       - AssertTimestampMonotonic: 2880060028069
+2021-02-16 23:46:48,127 p=97534 u=root n=ansible |       - DefaultDependencies: yes
+2021-02-16 23:46:48,127 p=97534 u=root n=ansible |       - Requires: basic.target system.slice
+2021-02-16 23:46:48,127 p=97534 u=root n=ansible |       - TasksMax: 18446744073709551615
+2021-02-16 23:46:48,128 p=97534 u=root n=ansible |       - CPUQuotaPerSecUSec: infinity
+2021-02-16 23:46:48,128 p=97534 u=root n=ansible |       - ExecMainStatus: 0
+2021-02-16 23:46:48,128 p=97534 u=root n=ansible |       - LimitMEMLOCK: 65536
+2021-02-16 23:46:48,128 p=97534 u=root n=ansible |       - StopWhenUnneeded: no
+2021-02-16 23:46:48,128 p=97534 u=root n=ansible |       - LimitMSGQUEUE: 819200
+2021-02-16 23:46:48,128 p=97534 u=root n=ansible |       - AmbientCapabilities: 0
+2021-02-16 23:46:48,128 p=97534 u=root n=ansible |       - Slice: system.slice
+2021-02-16 23:46:48,128 p=97534 u=root n=ansible |       - ExecMainExitTimestampMonotonic: 2880150647653
+2021-02-16 23:46:48,128 p=97534 u=root n=ansible |       - CollectMode: inactive
+2021-02-16 23:46:48,128 p=97534 u=root n=ansible |       - NotifyAccess: none
+2021-02-16 23:46:48,128 p=97534 u=root n=ansible |       - PermissionsStartOnly: no
+2021-02-16 23:46:48,129 p=97534 u=root n=ansible |       - BlockIOAccounting: no
+2021-02-16 23:46:48,129 p=97534 u=root n=ansible |       - CanStop: yes
+2021-02-16 23:46:48,129 p=97534 u=root n=ansible |       - NoNewPrivileges: no
+2021-02-16 23:46:48,129 p=97534 u=root n=ansible |       - OnFailureJobMode: replace
+2021-02-16 23:46:48,129 p=97534 u=root n=ansible |       - AssertResult: yes
+2021-02-16 23:46:48,129 p=97534 u=root n=ansible |       - ActiveEnterTimestampMonotonic: 2880060029073
+2021-02-16 23:46:48,129 p=97534 u=root n=ansible |       - ExecMainStartTimestampMonotonic: 2880060028973
+2021-02-16 23:46:48,129 p=97534 u=root n=ansible |       - TimerSlackNSec: 50000
+2021-02-16 23:46:48,129 p=97534 u=root n=ansible |       - LimitNICE: 0
+2021-02-16 23:46:48,129 p=97534 u=root n=ansible |       - After: network.target basic.target system.slice systemd-journald.socket
+2021-02-16 23:46:48,130 p=97534 u=root n=ansible |       - FailureAction: none
+2021-02-16 23:46:48,130 p=97534 u=root n=ansible |       - StartLimitAction: none
+2021-02-16 23:46:48,130 p=97534 u=root n=ansible |       - Conflicts: shutdown.target
+2021-02-16 23:46:48,130 p=97534 u=root n=ansible |       - StandardOutput: journal
+2021-02-16 23:46:48,130 p=97534 u=root n=ansible |       - MountFlags: 0
+2021-02-16 23:46:48,130 p=97534 u=root n=ansible |       - DevicePolicy: auto
+2021-02-16 23:46:48,130 p=97534 u=root n=ansible |       - StandardError: inherit
+2021-02-16 23:46:48,130 p=97534 u=root n=ansible |       - SendSIGKILL: yes
+2021-02-16 23:46:48,130 p=97534 u=root n=ansible |       - MemoryAccounting: no
+2021-02-16 23:46:48,130 p=97534 u=root n=ansible |       - IgnoreSIGPIPE: yes
+2021-02-16 23:46:48,130 p=97534 u=root n=ansible |       - Transient: no
+2021-02-16 23:46:48,131 p=97534 u=root n=ansible |       - IOScheduling: 0
+2021-02-16 23:46:48,131 p=97534 u=root n=ansible |       - PrivateNetwork: no
+2021-02-16 23:46:48,131 p=97534 u=root n=ansible |       - ActiveExitTimestampMonotonic: 2880150641601
+2021-02-16 23:46:48,131 p=97534 u=root n=ansible |       - ExecMainExitTimestamp: Tue 2021-02-16 23:46:54 IST
+2021-02-16 23:46:48,131 p=97534 u=root n=ansible |       - PrivateDevices: no
+2021-02-16 23:46:48,131 p=97534 u=root n=ansible |       - BlockIOWeight: 18446744073709551615
+2021-02-16 23:46:48,131 p=97534 u=root n=ansible |       - Description: The plugin-driven server agent for reporting metrics into InfluxDB
+2021-02-16 23:46:48,131 p=97534 u=root n=ansible |       - Names: telegraf.service
+2021-02-16 23:46:48,131 p=97534 u=root n=ansible |       - ProtectSystem: no
+2021-02-16 23:46:48,131 p=97534 u=root n=ansible |       - ControlPID: 0
+2021-02-16 23:46:48,132 p=97534 u=root n=ansible |       - Id: telegraf.service
+2021-02-16 23:46:48,132 p=97534 u=root n=ansible |     }
+2021-02-16 23:46:48,132 p=97534 u=root n=ansible |     - ansible_loop_var: item
+2021-02-16 23:46:48,132 p=97534 u=root n=ansible |     - failed: False
+2021-02-16 23:46:48,132 p=97534 u=root n=ansible |     - state: stopped
+2021-02-16 23:46:48,132 p=97534 u=root n=ansible |     - item: serverclient
+2021-02-16 23:46:48,132 p=97534 u=root n=ansible |     - changed: False
+2021-02-16 23:46:48,132 p=97534 u=root n=ansible |     - name: telegraf
+2021-02-16 23:46:48,132 p=97534 u=root n=ansible |   }
+2021-02-16 23:46:48,132 p=97534 u=root n=ansible |    ]
+2021-02-16 23:46:48,132 p=97534 u=root n=ansible | }
+2021-02-16 23:46:48,139 p=97534 u=root n=ansible | -- Play recap --
+2021-02-16 23:46:48,139 p=97534 u=root n=ansible | localhost                  : ok=14   changed=12   unreachable=0    failed=0   
+2021-02-16 23:46:48,139 p=97534 u=root n=ansible | Tuesday 16 February 2021  23:46:48 +0530 (0:00:04.087)       0:10:47.690 ****** 
+2021-02-16 23:46:48,139 p=97534 u=root n=ansible | =============================================================================== 
+2021-02-16 23:46:48,139 p=97534 u=root n=ansible | autoPerf : s3benchmark Running ---------------------------------------- 468.70s
+2021-02-16 23:46:48,139 p=97534 u=root n=ansible | autoPerf : Installation of telegraf on s3server ----------------------- 139.65s
+2021-02-16 23:46:48,140 p=97534 u=root n=ansible | autoPerf : Pre-requisites packages for autoperf deployment ------------- 14.23s
+2021-02-16 23:46:48,140 p=97534 u=root n=ansible | autoPerf : Telegraf monitoring start ------------------------------------ 4.83s
+2021-02-16 23:46:48,140 p=97534 u=root n=ansible | autoPerf : Telegraf monitoring stop ------------------------------------- 4.09s
+2021-02-16 23:46:48,140 p=97534 u=root n=ansible | autoPerf : Add Telegraf repository -------------------------------------- 2.89s
+2021-02-16 23:46:48,140 p=97534 u=root n=ansible | autoPerf : Uncomment configuration file telegraf "inputs.net" ----------- 2.73s
+2021-02-16 23:46:48,140 p=97534 u=root n=ansible | autoPerf : Added influxdb details "outputs.influxdb" -------------------- 2.54s
+2021-02-16 23:46:48,140 p=97534 u=root n=ansible | autoPerf : Uncomment configuration file telegraf "inputs.netstat" ------- 2.27s
+2021-02-16 23:46:48,140 p=97534 u=root n=ansible | autoPerf : Copying benchmark script to Client --------------------------- 2.12s
+2021-02-16 23:46:48,140 p=97534 u=root n=ansible | autoPerf : Enabled passwordless authentication -------------------------- 2.09s
+2021-02-16 23:46:48,141 p=97534 u=root n=ansible | autoPerf : Refreshing "known hosts" ------------------------------------- 1.12s
+2021-02-16 23:46:48,141 p=97534 u=root n=ansible | autoPerf : Updating hosts files ----------------------------------------- 0.18s
+2021-02-16 23:46:48,141 p=97534 u=root n=ansible | autoPerf : Include yml file for short configuration --------------------- 0.07s
+2021-02-16 23:46:48,141 p=97534 u=root n=ansible | autoPerf : failover-failback while running s3bench ---------------------- 0.05s
+2021-02-16 23:46:48,141 p=97534 u=root n=ansible | autoPerf : HSbenchmark Running ------------------------------------------ 0.04s
+2021-02-16 23:46:48,141 p=97534 u=root n=ansible | autoPerf : Fio Running -------------------------------------------------- 0.03s
+2021-02-16 23:46:48,141 p=97534 u=root n=ansible | autoPerf : Cosbench Running --------------------------------------------- 0.03s

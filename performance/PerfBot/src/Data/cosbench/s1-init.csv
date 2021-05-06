@@ -1,0 +1,5 @@
+Timestamp,Op-Count,Byte-Count,Avg-ResTime,Avg-ProcTime,Throughput,Bandwidth,Succ-Ratio,Version-Info,,
+,init-write,init-write,init-write,init-write,init-write,init-write,init-write,Min-Version,Version,Max-Version
+09:37:23,0,0,N/A,N/A,0,0,N/A,0,0,0
+09:37:28,0,0,N/A,N/A,0,0,N/A,1,1,1
+09:37:33,0,0,N/A,N/A,0,0,N/A,2,2,2

@@ -1,7 +1,6 @@
 #!/bin/bash
 set -x
 
-#NODES=sm20-r4.pun.seagate.com,sm27-r4.pun.seagate.com,sm34-r4.pun.seagate.com
 nodes=$1
 flag=0
 
@@ -16,6 +15,7 @@ done
 if [ $flag -eq 1 ]
 then
    pdsh -S -w $nodes "cat /root/testfile >> /etc/hosts"
+   echo "/etc/hosts file configured successfully"
 else
    echo "Host entry is already exist"
 fi

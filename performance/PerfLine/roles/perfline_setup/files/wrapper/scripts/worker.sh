@@ -92,7 +92,8 @@ function restart_hare() {
         ssh $PRIMARY_NODE 'hctl bootstrap /var/lib/hare/cluster.yaml'
     fi
     wait_for_cluster_start
-    
+    $SCRIPT_DIR/hostconfig.sh $NODES
+     
 }
 
 function restart_pcs() {

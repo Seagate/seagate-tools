@@ -128,6 +128,13 @@
                 outlined
                 dense
               ></v-select>
+              <v-btn
+                color="primary"
+                x-small
+                text
+                style="margin-top: -50px;"
+                @click="configHelpTextDialog = true"
+              >Help*</v-btn>
 
               <!-- Add Start -->
               <div
@@ -528,6 +535,32 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="configHelpTextDialog" width="650" persistent>
+      <v-card>
+        <v-card-title
+          class="headline"
+          style="background-color: #6ebe49; color: #ffffff"
+        >Configuration</v-card-title>
+
+        <div>
+          <v-data-table
+            :headers="headers"
+            :items="desserts"
+            hide-default-footer
+            class="elevation-1"
+          >
+            <template v-slot:header.name="{ header }">{{ header.text.toUpperCase() }}</template>
+          </v-data-table>
+        </div>
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <!-- <v-btn color="primary" @click="addNode()" :disabled="!addMetadataForm.node">Add</v-btn> -->
+          <v-btn color="primary" @click="cancleConfigHelpTextDialog()" class="ml-4 mr-2" outlined>Ok</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-snackbar
       v-model="snackbarConfig.show"
       :color="snackbarConfig.color"
@@ -600,6 +633,54 @@ export default class AutoPerfDashboard extends Vue {
     samples: null
   };
 
+  public headers: any[] = [
+    { text: "", value: "name" },
+    { text: "BUCKETS", value: "buckets" },
+    { text: "CLIENTS", value: "clients" },
+    { text: "NUMJOBS", value: "numjobs" },
+    { text: "NUMSAMPLES", value: "numsamples" },
+    { text: "IOSIZE", value: "iosize" },
+    { text: "DURATION", value: "duration" },
+  ];
+
+  public desserts: any[] = [
+    {
+      name: "SHORT",
+      buckets: "4",
+      clients: "32",
+      numjobs: "16",
+      numsamples: "2048, 4096",
+      iosize: "1Mb, 4Mb, 8Mb",
+      duration: "300"
+    },
+    {
+      name: "LONG",
+      buckets: "8",
+      clients: "64",
+      numjobs: "32",
+      numsamples: "2048, 4096",
+      iosize: "32Mb, 64Mb",
+      duration: "600"
+    },
+    {
+      name: "SMALL",
+      buckets: "16",
+      clients: "128, 256",
+      numjobs: "16",
+      numsamples: "4096",
+      iosize: "4Mb, 16Mb, 32Mb",
+      duration: "300"
+    },
+    {
+      name: "LARGE",
+      buckets: "32",
+      clients: "128, 256",
+      numjobs: "16",
+      numsamples: "4096",
+      iosize: "64Mb, 128Mb, 256Mb",
+      duration: "600"
+    }
+  ];
   public disableForm: boolean = true;
   public snackbarConfig: any = {
     show: true,
@@ -610,6 +691,7 @@ export default class AutoPerfDashboard extends Vue {
   public isGoToDashboard: boolean = false;
   public showHelp: boolean = false;
   public addNodeDialog: boolean = false;
+  public configHelpTextDialog: boolean = false;
   public addClientDialog: boolean = false;
 
   public addMetadataForm: any = {
@@ -938,7 +1020,9 @@ export default class AutoPerfDashboard extends Vue {
     this.addMetadataForm.node = "";
     this.addNodeDialog = false;
   }
-
+  public cancleConfigHelpTextDialog() {
+    this.configHelpTextDialog = false;
+  }
   public async addClient() {
     this.addClientDialog = false;
     this.showSnackbar("Adding Client...");

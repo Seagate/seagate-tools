@@ -239,19 +239,22 @@ app.controller('addTaskCC', function($scope, $http, $routeParams) {
                url: "/addtask",
                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                transformRequest: function(obj) {
-               return "config=" + encodeURIComponent($scope.task); 
+               return "config=" + encodeURIComponent(document.getElementById("config").value); 
          }
         }).then(function (response) {
              if (response.data.includes("Validation failed with the following errors")){
-                 $scope.errorMsg = "Sorry! Unable to trigger workload"
+                 $scope.errorMsg = "Sorry! Unable to trigger workload";
+                 console.log(response.data);
                  $scope.errorLog = response.data;
-             } else {
+             } else if (response.data[1].state.includes("ENQUEUED")) {
                  $scope.successMsg = "Successfully workload has been triggered";
                  $scope.task_id = "Task Id: " + response.data[0].task_id;
                  $scope.state = "Task state: " + response.data[1].state;
                  setTimeout(function(){
                      window.location.href = '#!/queue';
          }, 5000);
+             } else {
+                 $scope.errorMsg = "Oops! something went wrong";
              }
         });
     };

@@ -40,6 +40,7 @@
        - pymongo==3.11.0
        - pandas==1.0.5
        - datetime==4.3
+       - yq
      executable: pip3
    delegate_to: "{{ item }}"
    with_items: "{{ groups['all'] }}"

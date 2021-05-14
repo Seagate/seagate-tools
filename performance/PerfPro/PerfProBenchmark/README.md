@@ -78,12 +78,13 @@ Log collection to NFS repo :
 ```
    1. In the config.yml file please update the following as per the NFS server details
 
-      #Enter Below details for log collection on NFS repo
+      # Enter Below details for log collection on NFS repo
       NFS_SERVER: <nfs.server.lab.com>
       NFS_EXPORT: </exportname>
       NFS_MOUNT_POINT: </mnt/mountpoint>
       NFS_FOLDER: <foldername/> 
-      #End of NFS config
+      # End of NFS config
+      # WARNING: Mounting NFS share/export on commonly used mount points like /mnt may fail or may cause disruptions to othere services using it.
 
    2. Make sure the "NFS_FOLDER" is created inside the "NFS_EXPORT"
 

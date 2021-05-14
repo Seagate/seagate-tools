@@ -373,7 +373,7 @@ def queue(limit=9999999):
 @app.route('/api/task/<string:task>')
 def loadtask(task: str):
     try:
-        with open(f"task_templates/{task}.yaml", "r") as f:
+        with open(f"/root/perfline/wrapper/workload/{task}.yaml", "r") as f:
             data = {
                 "task": "".join(f.readlines())
             }
@@ -387,11 +387,13 @@ def loadtask(task: str):
     return response
 
 
-@app.route('/addtask', methods=['POST'])
+@app.route('/addtask', methods = ["POST"])
 def addtask():
     config: str = request.form['config']
-    pl_api.add_task(config)
-    return redirect("/#!/queue")
+    result = pl_api.add_task(config)
+    print(f'response from perfline: |{result}|')
+    response = make_response(f'{result}')
+    return response
 
 
 @app.route('/api/log/<string:morelines>')

@@ -4,3 +4,4 @@ Pipfile.lock
 Data/
 Input/
 ParsedData/
+.vscode/

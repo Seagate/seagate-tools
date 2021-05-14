@@ -16,6 +16,7 @@ STAT_COLLECTION=""
 MKFS=
 PERF_RESULTS_FILE='perf_results'
 CLIENT_ARTIFACTS_DIR='client'
+LNET_WORKLOG='lnet_workload.log'
 M0CRATE_ARTIFACTS_DIR='m0crate'
 S3BENCH_LOGFILE='workload_s3bench.log'
 BACKUP_NFS_LOCATION='ssc-nfs-srvr2.pun.seagate.com:/mnt/data2/performance-team/perfline-backup'
@@ -194,7 +195,7 @@ function run_lnet_workloads()
     mkdir -p $CLIENT_ARTIFACTS_DIR
     pushd $CLIENT_ARTIFACTS_DIR
     START_TIME=`date +%s000000000`
-    $SCRIPT_DIR/lnet_workload.sh $NODES $LNET_OPS | tee lnet_workload.log
+    ssh $PRIMARY_NODE "$SCRIPT_DIR/lnet_workload.sh $NODES $LNET_OPS" | tee $LNET_WORKLOG
     STATUS=${PIPESTATUS[0]}
     STOP_TIME=`date +%s000000000`
     popd
@@ -518,6 +519,10 @@ function main() {
     stop_cluster
     cleanup_logs
 
+    # Create artifacts folder
+    create_results_dir
+   
+    # Deploy build
     if [[ -n $BUILD_DEPLOY ]]; then
         build_deploy       
     fi
@@ -539,7 +544,7 @@ function main() {
     restart_cluster
 
     # Create artifacts folder
-    create_results_dir
+    #create_results_dir
 
     # @artem -- place code below
     # Start stat utilities

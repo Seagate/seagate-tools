@@ -43,7 +43,8 @@ def print_info(tid, state, info=None):
 
 def validation_failed(errors):
     print('Validation failed with the following errors:')
-    pprint(errors)
+    print(json.dumps(errors));
+#    pprint(errors)
 
 def task_add():
     config = yaml.safe_load(sys.stdin.read())

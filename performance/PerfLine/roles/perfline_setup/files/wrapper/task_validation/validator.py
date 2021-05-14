@@ -148,5 +148,5 @@ def validate_config(config):
     v = Validator(allow_unknown=False, require_all=True)
     errors = []
     v.validate(config, get_schema_motr())
-    errors.append({"Motr requirements": v.errors})
+    errors.append({"User workload": v.errors})
     return errors

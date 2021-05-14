@@ -30,6 +30,7 @@ function main()
     parse_params "$@"
     check_params
     generate_queue_imgs
+    generate_rps_imgs
     generate_histogram_imgs
     generate_timeline_imgs
 }
@@ -53,6 +54,13 @@ function generate_queue_imgs()
     $TOOLS_DIR/queues.py --db $M0PLAY_DB --no-window --output-file queues_aggr || true
     $TOOLS_DIR/queues.py --db $M0PLAY_DB --no-window -s --output-file queues_srv || true
     $TOOLS_DIR/queues.py --db $M0PLAY_DB --no-window -c --output-file queues_cli || true
+}
+
+function generate_rps_imgs()
+{
+    echo "generating RPS..."
+    python3 $TOOLS_DIR/rps.py --db $M0PLAY_DB -w 10ms --s3put --save-only || true
+    python3 $TOOLS_DIR/rps.py --db $M0PLAY_DB -w 10ms --s3get --save-only || true
 }
 
 function generate_histogram_imgs()

@@ -20,7 +20,7 @@ log_source='benchmark.log'
 class collect_logs:
     '''Mounts the NFS export on the mountpoint to copy the collected logs'''    
     def mount_nfs(self):
-        os.system('mkdir '+mount_point)
+        os.system('mkdir -p '+mount_point)
         os.system('mount '+nfs_server+':'+nfs_export+' '+mount_point)
         return('Export mounted')
 
@@ -31,17 +31,17 @@ class collect_logs:
    
     '''Copy the Zipped copy to NFS Repo'''
     def copy_logs(self):
-        shutil.copy(source_zip_prefix+time_string+'.tar.gz', mount_point+log_dest)
+        shutil.copy(source_zip_prefix+time_string+'.tar.gz', mount_point+'/'+log_dest)
         return('Logs copied to NFS Repo.')
 
     '''Show the contents of NFS Repo for verification of code'''
     def show_logs(self):
-        return(os.listdir(mount_point+log_dest))
+        return(os.listdir(mount_point+'/'+log_dest))
 
     '''Unmounts the NFS export and deleted the mountpoint'''
     def unmount_nfs(self):
         os.system('umount -l '+mount_point)
-        os.system('rmdir '+mount_point)
+#        os.system('rmdir '+mount_point)
         return('Exiting after log collection.')
 
 logs=collect_logs()

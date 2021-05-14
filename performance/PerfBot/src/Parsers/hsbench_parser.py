@@ -12,7 +12,7 @@ def extract_HSBench_logs(reference_doc, HS_destination_file_path):
                     modified.write(line)
 
 
-def convert_HSlogs_to_JSON(reference_doc, HS_input_file_path):
+def convert_HSlogs_to_JSON(ID, reference_doc, HS_input_file_path):
     data = []
     with open(reference_doc, 'r') as reference_file:
         for line in reference_file:
@@ -23,11 +23,15 @@ def convert_HSlogs_to_JSON(reference_doc, HS_input_file_path):
                     stripped_data.remove(element)
 
             entry = {
-                'time': stripped_data[0]+" "+stripped_data[1],
-                'throughput': float(stripped_data[13]),
-                'iops': int(stripped_data[15]),
-                'latency': float(stripped_data[20]),
-                'mode':  stripped_data[9]
+                "measurement": ID+"_hsbench",
+                "time": stripped_data[0]+" "+stripped_data[1],
+                "fields":
+                {
+                    "latency": float(stripped_data[20]),
+                    "iops": float(stripped_data[15]),
+                    "throughput": float(stripped_data[13]),
+                    "mode": stripped_data[9]
+                }
             }
             data.append(entry)
 

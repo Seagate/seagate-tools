@@ -1,7 +1,23 @@
 import re
 import json
 
-def convert_COSlogs_to_JSON(reference_doc, COS_input_file_path, objectSize):
+
+def get_a_row(ID, latency, iops, throughput, time, mode):
+    entry = {
+        "measurement": ID + "_cosbench",
+        "time": time,
+        "fields":
+        {
+            "latency": float(latency),
+            "iops": float(iops),
+            "throughput": float(throughput),
+            "mode": mode
+        }
+    }
+    return entry
+
+
+def convert_COSlogs_to_JSON(ID, reference_doc, COS_input_file_path, objectSize):
     data = []
     filename = reference_doc.split("/")[-1]
 
@@ -13,42 +29,22 @@ def convert_COSlogs_to_JSON(reference_doc, COS_input_file_path, objectSize):
             splits = line.split(",")
 
             if 'rw' in filename:
-                entry = {
-                "latency" : splits[5],
-                "iops" : float(splits[9]),
-                "throughput" : float(float(splits[11])/1000000/objectSize),
-                "time" : str(splits[0]), 
-                "mode" : 'read'
-                }
+                entry = get_a_row(ID, splits[5], splits[9], float(
+                    splits[11])/1000000/objectSize, str(splits[0]), 'read')
                 data.append(entry)
-                
-                entry = {
-                "latency" : splits[6],
-                "iops" : float(splits[10]),
-                "throughput" : float(float(splits[12])/1000000/objectSize),
-                "time" : str(splits[0]), 
-                "mode" : 'write'
-                }
+
+                entry = get_a_row(ID, splits[6], splits[10], float(
+                    splits[12])/1000000/objectSize, str(splits[0]), 'write')
                 data.append(entry)
 
             elif 'r' in filename:
-                entry = {
-                "latency" : splits[3],
-                "iops" : float(splits[5]),
-                "throughput" : float(float(splits[7])/1000000/objectSize),
-                "time" : str(splits[0]), 
-                "mode" : 'read'
-                }
+                entry = get_a_row(ID, splits[3], splits[5], float(
+                    splits[7])/1000000/objectSize, str(splits[0]), 'read')
                 data.append(entry)
 
             elif 'w' in filename:
-                entry = {
-                "latency" : splits[3],
-                "iops" : float(splits[5]),
-                "throughput" : float(float(splits[7])/1000000/objectSize),
-                "time" : str(splits[0]), 
-                "mode" : 'write'
-                }
+                entry = get_a_row(ID, splits[3], splits[5], float(
+                    splits[7])/1000000/objectSize, str(splits[0]), 'write')
                 data.append(entry)
 
     with open(COS_input_file_path, 'w') as jsonfile:

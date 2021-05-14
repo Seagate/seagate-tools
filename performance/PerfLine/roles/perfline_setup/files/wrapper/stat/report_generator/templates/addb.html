@@ -8,6 +8,16 @@
     
 </div>
 {% endif %}
+{% if addb_rps %}
+<h2 align=center>ADDB Cortx RPS</h2>
+<div class="row">
+    
+    {% for img in addb_rps %}
+        <img src="/report/{{task_id}}/addb_imgs/{{img}}" alt="ADDB RPS">
+    {% endfor %}
+    
+</div>
+{% endif %}
 {% if addb_hists %}
 <h2 align=center>ADDB Cortx histograms</h2>
 <div class="row">

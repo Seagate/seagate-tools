@@ -41,7 +41,7 @@
         </a>
         <ul class="dropdown-menu">
           <li><a href="#!addtask/user_defined">User defined</a></li>
-          <li><a href="#!addtask/s3bench">s3bench</a></li>
+          <li><a href="#!addtask/example">example</a></li>
         </ul>
       </li>
 
@@ -227,11 +227,34 @@ app.controller('queueCC', function($scope, $http) {
 app.controller('addTaskCC', function($scope, $http, $routeParams) {
     $scope.params = $routeParams;
     $scope.task = ""
-
+    $scope.errorMsg = "";
     $http.get("/api/task/"+$scope.params.taskId)
 	.then(function (response) {
 	    $scope.task = response.data.task;
 	});
+
+    $scope.onConfSubmit = function() {
+        $http({
+               method: 'POST',
+               url: "/addtask",
+               headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+               transformRequest: function(obj) {
+               return "config=" + encodeURIComponent($scope.task); 
+         }
+        }).then(function (response) {
+             if (response.data.includes("Validation failed with the following errors")){
+                 $scope.errorMsg = "Sorry! Unable to trigger workload"
+                 $scope.errorLog = response.data;
+             } else {
+                 $scope.successMsg = "Successfully workload has been triggered";
+                 $scope.task_id = "Task Id: " + response.data[0].task_id;
+                 $scope.state = "Task state: " + response.data[1].state;
+                 setTimeout(function(){
+                     window.location.href = '#!/queue';
+         }, 5000);
+             }
+        });
+    };
 });
 app.controller('logCC', function($scope, $rootScope, $http, $interval) {
     if ($rootScope.fired == null) {

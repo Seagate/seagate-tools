@@ -149,5 +149,4 @@ def validate_config(config):
     errors = []
     v.validate(config, get_schema_motr())
     errors.append({"Motr requirements": v.errors})
-
     return errors

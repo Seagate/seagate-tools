@@ -12,31 +12,30 @@ from data_parser import parse_data
 cwd = os.getcwd()
 
 def get_random_string(length):
-    letters = string.ascii_letters + string.digits
-    result_str = ''.join(random.choice(letters) for i in range(length))
+    alphanumeric_set = string.ascii_letters + string.digits
+    result_str = ''.join(random.choice(alphanumeric_set) for i in range(length))
 
     return result_str
 
 
 def generate_runID():
     client = connect_database()
-    result = client.query(" select distinct run_ID from perfbot;")
-    dist_IDs = list(result)[0]
+    dist_IDs = list(client.query("select distinct run_ID from perfbot;"))[0]
 
     while True:
-        ID = get_random_string(8)
+        generated_run_ID = get_random_string(8)
         found_ids = list(
-            filter(lambda tempID: tempID['distinct'] == ID, dist_IDs))
+            filter(lambda tempID: tempID['distinct'] == generated_run_ID, dist_IDs))
         if not found_ids:
             break
 
-    print("~ Unique ID for run is: " + ID)
-    return ID
+    print("~ Unique ID for run is: " + generated_run_ID)
+    return generated_run_ID
 
 
 def execute_parsers(ID):
     # execute parsers
-    with open(cwd + "/src/config.yml") as config_file:
+    with open(cwd + "/src/config.yml", 'r') as config_file:
         configs = yaml.safe_load(config_file)
 
     hsbench_log = cwd + configs['logfiles']['hs']

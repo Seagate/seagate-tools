@@ -9,11 +9,14 @@ input[type=text], select, textarea {
     resize: vertical;
 }
 
-input[type=submit] {
+#submitBtn {
     margin-top: 4px;
     float: right;
 }
-
+#output {
+  background-color: #f2f2f2;
+  border: none;
+}
 .container {
   border-radius: 5px;
   background-color: #f2f2f2;
@@ -33,18 +36,21 @@ input[type=submit] {
 }
 
 </style>
-
 <div class="container">
-  <form action="/addtask" method="post">
+  <form >
       <div class="col-25">
         <label for="config">Task configuration:</label>
       </div>
     <div style="col-75">
       <textarea id="config" name="config">{{task}}</textarea>
     </div>
-    <div>
-      taskId: {{params.taskId}}
-      <input type="submit" value="Submit">
+    <div style="height: 30px;">
+      taskId: {{params.taskId}} 
+      <button type="button" id="submitBtn" ng-click="onConfSubmit()">Submit</button>
     </div>
+    <span style="color: red;">{{errorMsg}}</span><span style="color: green;">{{successMsg}}</span><br>
+    <textarea id="output" ng-model="errorLog" readonly ng-if="errorMsg"></textarea>
+    <span>{{task_id}}</span><br>
+    <span>{{state}}</span>
   </form>
 </div>

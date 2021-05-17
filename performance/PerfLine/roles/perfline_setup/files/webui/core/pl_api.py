@@ -38,7 +38,8 @@ def get_results():
 
 def add_task(task_config):
     _check_tq_ep()
-    (_tq["-a"] << task_config)()
+    result = (_tq["-a"] << task_config)()
+    return result
 
 def _check_tq_ep():
     assert _tq is not None, "call init_tq_endpoint(tq_endpoint_path) before"

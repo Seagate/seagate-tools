@@ -2,12 +2,13 @@
 Parser script that filters unstructured data
 To execute: 
 Parent directory: PerfBot
-Command: python ./src/parser.py <hsbench source file path> <cosbench sourcefile path> <s3bench sourcefile path>
-e.g. python ./src/parser.py './src/Data/hsbench/hsbench.log' './src/Data/cosbench/s3-5050rw.csv' './src/Data/s3bench/s3bench_Numclients_1_NS_20_size_128Mb.log'
+Command: python ./src/parser.py <run ID> <hsbench source file path> <cosbench sourcefile path> <s3bench sourcefile path>
+e.g. python df1jxl ./src/parser.py './src/Data/hsbench/hsbench.log' './src/Data/cosbench/s3-5050rw.csv' './src/Data/s3bench/s3bench_Numclients_1_NS_20_size_128Mb.log'
 """
 # imports
 import os
 import sys
+import time
 
 from Parsers.hsbench_parser import extract_HSBench_logs, convert_HSlogs_to_JSON
 from Parsers.cosbench_parser import convert_COSlogs_to_JSON
@@ -21,36 +22,52 @@ input_folder_path = cwd + '/src/Input/'
 parsed_data_path = cwd + '/src/ParsedData/'
 quantum = 5
 
-if not os.path.exists(input_folder_path):
-    os.makedirs(input_folder_path)
 
-if not os.path.exists(parsed_data_path):
-    os.makedirs(parsed_data_path)
+def check_os_paths():
+    if not os.path.exists(input_folder_path):
+        os.makedirs(input_folder_path)
 
-# HS Bench parser
-HS_source_file_path = sys.argv[2]
-HS_destination_file_path = cwd + '/src/ParsedData/HSBench_Performance.txt'
-HS_input_file_path = cwd + '/src/Input/hsbench.json'
-
-extract_HSBench_logs(HS_source_file_path, HS_destination_file_path)
-convert_HSlogs_to_JSON(ID, HS_destination_file_path, HS_input_file_path)
+    if not os.path.exists(parsed_data_path):
+        os.makedirs(parsed_data_path)
 
 
-# COS Bench parser
-COS_source_file_path = sys.argv[3]
-COS_input_file_path = cwd + '/src/Input/cosbench.json'
+def run_hsbench_parser():
+    # HS Bench parser
+    HS_source_file_path = sys.argv[2]
+    HS_destination_file_path = cwd + '/src/ParsedData/HSBench_Performance.txt'
+    HS_input_file_path = cwd + '/src/Input/hsbench.json'
 
-convert_COSlogs_to_JSON(ID, COS_source_file_path, COS_input_file_path, 64)
+    extract_HSBench_logs(HS_source_file_path, HS_destination_file_path)
+    convert_HSlogs_to_JSON(ID, HS_destination_file_path,
+                           HS_input_file_path, quantum)
+    time.sleep(1)
 
 
-# S3 Bench parser
-S3_source_file_path = sys.argv[4]
-S3_destination_file_path = cwd + '/src/ParsedData/S3Bench_Performance.txt'
-S3_input_file_path = cwd + '/src/Input/s3bench.json'
+def run_cosbench_parser():
+    # COS Bench parser
+    COS_source_file_path = sys.argv[3]
+    COS_input_file_path = cwd + '/src/Input/cosbench.json'
 
-S3_objectSize = extract_S3Bench_logs(
-    S3_source_file_path, S3_destination_file_path)
-convert_S3logs_to_JSON(ID, S3_destination_file_path,
-                       S3_input_file_path, quantum, S3_objectSize)
+    convert_COSlogs_to_JSON(ID, COS_source_file_path, COS_input_file_path, 64)
+    time.sleep(1)
 
-os.removedirs(parsed_data_path)
+
+def run_s3bench_parser():
+    # S3 Bench parser
+    S3_source_file_path = sys.argv[4]
+    S3_destination_file_path = cwd + '/src/ParsedData/S3Bench_Performance.txt'
+    S3_input_file_path = cwd + '/src/Input/s3bench.json'
+
+    S3_objectSize = extract_S3Bench_logs(
+        S3_source_file_path, S3_destination_file_path)
+    convert_S3logs_to_JSON(ID, S3_destination_file_path,
+                           S3_input_file_path, quantum, S3_objectSize)
+
+
+if __name__ == '__main__':
+    check_os_paths()
+    run_hsbench_parser()
+    run_cosbench_parser()
+    run_s3bench_parser()
+
+    os.removedirs(parsed_data_path)

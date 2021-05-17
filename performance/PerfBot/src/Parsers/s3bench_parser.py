@@ -1,6 +1,7 @@
 import datetime as dt
 import json
 import os
+import time
 
 debug = False
 
@@ -27,9 +28,12 @@ def get_date_time_object(line):
 
 def convert_S3logs_to_JSON(ID, reference_doc, S3_input_file_path, quantum, S3_objectSize):
     data = []
+    time_now = time.time_ns()
 
     with open(reference_doc, 'r') as reference_file:
         lines = reference_file.readlines()
+        num_of_lines = len(lines)
+
         start_time = get_date_time_object(lines[0])
         end_time = start_time + dt.timedelta(seconds=quantum)
 
@@ -38,7 +42,7 @@ def convert_S3logs_to_JSON(ID, reference_doc, S3_input_file_path, quantum, S3_ob
             print(
                 "-- Start Time             Avg Latency (ms)     IOPS (Op/s)   Throughput(MB/s)")
         line = 0
-        while line != len(lines):
+        while line != num_of_lines:
             current_line_time = get_date_time_object(lines[line])
             total_latency = 0
             initial_line = line
@@ -48,12 +52,12 @@ def convert_S3logs_to_JSON(ID, reference_doc, S3_input_file_path, quantum, S3_ob
             else:
                 operation = 'write'
 
-            while end_time > current_line_time and line < len(lines):
+            while end_time > current_line_time and line < num_of_lines:
                 string = lines[line].split(' ')
                 total_latency = total_latency + float(string[11].split('s')[0])
 
                 line += 1
-                if line < len(lines):
+                if line < num_of_lines:
                     current_line_time = get_date_time_object(lines[line])
 
             samples = line - initial_line
@@ -70,10 +74,13 @@ def convert_S3logs_to_JSON(ID, reference_doc, S3_input_file_path, quantum, S3_ob
                 print("-- {},   {},             {},         {} --".format(end_time,
                                                                           average_latency, RPS, MBPS))
             entry = {
-                "measurement": ID+"_s3bench",
-                "time": str(end_time - dt.timedelta(seconds=quantum)),
+                "measurement": "perfbot",
+                "time": time_now,
                 "fields":
                 {
+                    "timestamp": str(end_time - dt.timedelta(seconds=quantum)),
+                    "run_ID": ID,
+                    "tool": "s3bench",
                     "latency": float(average_latency),
                     "iops": float(RPS),
                     "throughput": float(MBPS),
@@ -81,6 +88,7 @@ def convert_S3logs_to_JSON(ID, reference_doc, S3_input_file_path, quantum, S3_ob
                 }
             }
             data.append(entry)
+            time_now = time_now + 10
 
             end_time = end_time + dt.timedelta(seconds=quantum)
 

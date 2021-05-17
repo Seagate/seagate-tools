@@ -3,12 +3,12 @@ import os
 import yaml
 
 cwd = os.getcwd()
-config_file = cwd + "/src/config.yml"
 input_folder_path = cwd + "/src/Input/"
 
 
-def connect_database(name):
-    with open(name) as config_file:
+def connect_database():
+    file_name = cwd + "/src/config.yml"
+    with open(file_name) as config_file:
         configs = yaml.safe_load(config_file)
 
         host = configs['database']['host']
@@ -19,12 +19,13 @@ def connect_database(name):
         return client
 
 
-client = connect_database(config_file)
+if __name__ == '__main__':
+    client = connect_database()
 
-_, _, filenames = next(os.walk(input_folder_path))
+    _, _, filenames = next(os.walk(input_folder_path))
 
-for files in filenames:
-    with open(input_folder_path + files) as bench_file:
-        bench_data = yaml.safe_load(bench_file)
+    for files in filenames:
+        with open(input_folder_path + files) as bench_file:
+            bench_data = yaml.safe_load(bench_file)
 
-    client.write_points(bench_data)
+        client.write_points(bench_data)

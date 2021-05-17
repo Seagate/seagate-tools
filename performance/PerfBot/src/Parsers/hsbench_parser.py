@@ -29,7 +29,7 @@ def get_date_time_object(stripped_data):
     return dt.datetime.strptime(date_time_str, '%Y/%m/%d %H:%M:%S')
 
 
-def convert_HSlogs_to_JSON(ID, reference_doc, HS_input_file_path, quantum):
+def convert_HSlogs_to_JSON(run_ID, reference_doc, HS_input_file_path, quantum):
     data = []
     time_now = time.time_ns()
 
@@ -80,7 +80,7 @@ def convert_HSlogs_to_JSON(ID, reference_doc, HS_input_file_path, quantum):
                 "fields":
                 {
                     "timestamp": str(end_time - dt.timedelta(seconds=quantum)),
-                    "run_ID": ID,
+                    "run_ID": run_ID,
                     "tool": "hsbench",
                     "latency": float(average_latency),
                     "iops": float(total_iops),

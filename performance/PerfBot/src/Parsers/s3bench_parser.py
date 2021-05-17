@@ -26,7 +26,7 @@ def get_date_time_object(line):
     return dt.datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S')
 
 
-def convert_S3logs_to_JSON(ID, reference_doc, S3_input_file_path, quantum, S3_objectSize):
+def convert_S3logs_to_JSON(run_ID, reference_doc, S3_input_file_path, quantum, S3_objectSize):
     data = []
     time_now = time.time_ns()
 
@@ -79,7 +79,7 @@ def convert_S3logs_to_JSON(ID, reference_doc, S3_input_file_path, quantum, S3_ob
                 "fields":
                 {
                     "timestamp": str(end_time - dt.timedelta(seconds=quantum)),
-                    "run_ID": ID,
+                    "run_run_ID": run_ID,
                     "tool": "s3bench",
                     "latency": float(average_latency),
                     "iops": float(RPS),

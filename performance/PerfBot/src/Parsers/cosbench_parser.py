@@ -4,14 +4,14 @@ import datetime as dt
 import time
 
 
-def get_a_row(time_now, ID, latency, iops, throughput, timestamp, mode):
+def get_a_row(time_now, run_ID, latency, iops, throughput, timestamp, mode):
     entry = {
         "measurement": "perfbot",
         "time": time_now,
         "fields":
         {
             "timestamp": timestamp,
-            "run_ID": ID,
+            "run_ID": run_ID,
             "tool": "cosbench",
             "latency": float(latency),
             "iops": float(iops),
@@ -22,7 +22,7 @@ def get_a_row(time_now, ID, latency, iops, throughput, timestamp, mode):
     return entry
 
 
-def convert_COSlogs_to_JSON(ID, reference_doc, COS_input_file_path, objectSize):
+def convert_COSlogs_to_JSON(run_ID, reference_doc, COS_input_file_path, objectSize):
     data = []
     filename = reference_doc.split("/")[-1]
     time_now = time.time_ns()
@@ -35,21 +35,21 @@ def convert_COSlogs_to_JSON(ID, reference_doc, COS_input_file_path, objectSize):
             splits = line.split(",")
 
             if 'rw' in filename:
-                entry = get_a_row(time_now, ID, splits[5], splits[9], float(
+                entry = get_a_row(time_now, run_ID, splits[5], splits[9], float(
                     splits[11])/1000000/objectSize, str(splits[0]), 'read')
                 data.append(entry)
 
-                entry = get_a_row(time_now, ID, splits[6], splits[10], float(
+                entry = get_a_row(time_now, run_ID, splits[6], splits[10], float(
                     splits[12])/1000000/objectSize, str(splits[0]), 'write')
                 data.append(entry)
 
             elif 'r' in filename:
-                entry = get_a_row(time_now, ID, splits[3], splits[5], float(
+                entry = get_a_row(time_now, run_ID, splits[3], splits[5], float(
                     splits[7])/1000000/objectSize, str(splits[0]), 'read')
                 data.append(entry)
 
             elif 'w' in filename:
-                entry = get_a_row(time_now, ID, splits[3], splits[5], float(
+                entry = get_a_row(time_now, run_ID, splits[3], splits[5], float(
                     splits[7])/1000000/objectSize, str(splits[0]), 'write')
                 data.append(entry)
 

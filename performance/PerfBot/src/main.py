@@ -23,17 +23,17 @@ def generate_runID():
     dist_IDs = list(client.query("select distinct run_ID from perfbot;"))[0]
 
     while True:
-        generated_run_ID = get_random_string(8)
+        gen_run_ID = get_random_string(8)
         found_ids = list(
-            filter(lambda tempID: tempID['distinct'] == generated_run_ID, dist_IDs))
+            filter(lambda tempID: tempID['distinct'] == gen_run_ID, dist_IDs))
         if not found_ids:
             break
 
-    print("~ Unique ID for run is: " + generated_run_ID)
-    return generated_run_ID
+    print("~ Unique ID for run is: " + gen_run_ID)
+    return gen_run_ID
 
 
-def execute_parsers(ID):
+def execute_parsers(run_ID):
     # execute parsers
     with open(cwd + "/src/config.yml", 'r') as config_file:
         configs = yaml.safe_load(config_file)
@@ -44,7 +44,7 @@ def execute_parsers(ID):
     
     print("~ Parsing data files...")
     try:
-        parse_data(ID, hsbench_log, cosbench_log, s3bench_log)
+        parse_data(run_ID, hsbench_log, cosbench_log, s3bench_log)
         print("~ Done!")
 
     except Exception as e:
@@ -65,8 +65,8 @@ def update_database():
 if __name__ == '__main__':
     print("~ Executing PerfBot...")
 
-    ID = generate_runID()
-    execute_parsers(ID)
+    run_ID = generate_runID()
+    execute_parsers(run_ID)
     update_database()
 
     print("~ Thanks for using PerfBot!")

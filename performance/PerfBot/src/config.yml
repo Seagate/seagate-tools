@@ -2,3 +2,8 @@ database:
     host: "ssc-vm-3541.colo.seagate.com"
     port: 8086
     database: "perfbot"
+
+logfiles:
+    hs: '/src/Data/hsbench/hsbench.log'
+    cos: '/src/Data/cosbench/s3-5050rw.csv'
+    s3: '/src/Data/s3bench/s3bench_Numclients_1_NS_20_size_128Mb.log'

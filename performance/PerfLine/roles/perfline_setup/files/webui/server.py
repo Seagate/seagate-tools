@@ -51,7 +51,7 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 report_resource_map = dict()
 AGGREGATED_PERF_FILE = '/root/perfline/webui/images/aggregated_perf_{0}.png'
-
+WORKLOAD_DIR = '/root/perfline/wrapper/workload'
 
 # @app.after_request
 # def add_header(resp):
@@ -373,7 +373,7 @@ def queue(limit=9999999):
 @app.route('/api/task/<string:task>')
 def loadtask(task: str):
     try:
-        with open(f"/root/perfline/wrapper/workload/{task}.yaml", "r") as f:
+        with open(f"{WORKLOAD_DIR}/{task}.yaml", "r") as f:
             data = {
                 "task": "".join(f.readlines())
             }
@@ -391,7 +391,6 @@ def loadtask(task: str):
 def addtask():
     config: str = request.form['config']
     result = pl_api.add_task(config)
-    print(f'response from perfline: |{result}|')
     response = make_response(f'{result}')
     return response
 

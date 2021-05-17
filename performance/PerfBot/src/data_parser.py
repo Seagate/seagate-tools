@@ -16,7 +16,6 @@ from Parsers.s3bench_parser import extract_S3Bench_logs, convert_S3logs_to_JSON
 
 
 # variables
-ID = sys.argv[1]
 cwd = os.getcwd()
 input_folder_path = cwd + '/src/Input/'
 parsed_data_path = cwd + '/src/ParsedData/'
@@ -31,9 +30,8 @@ def check_os_paths():
         os.makedirs(parsed_data_path)
 
 
-def run_hsbench_parser():
+def run_hsbench_parser(ID, HS_source_file_path):
     # HS Bench parser
-    HS_source_file_path = sys.argv[2]
     HS_destination_file_path = cwd + '/src/ParsedData/HSBench_Performance.txt'
     HS_input_file_path = cwd + '/src/Input/hsbench.json'
 
@@ -43,18 +41,16 @@ def run_hsbench_parser():
     time.sleep(1)
 
 
-def run_cosbench_parser():
+def run_cosbench_parser(ID, COS_source_file_path):
     # COS Bench parser
-    COS_source_file_path = sys.argv[3]
     COS_input_file_path = cwd + '/src/Input/cosbench.json'
 
     convert_COSlogs_to_JSON(ID, COS_source_file_path, COS_input_file_path, 64)
     time.sleep(1)
 
 
-def run_s3bench_parser():
+def run_s3bench_parser(ID, S3_source_file_path):
     # S3 Bench parser
-    S3_source_file_path = sys.argv[4]
     S3_destination_file_path = cwd + '/src/ParsedData/S3Bench_Performance.txt'
     S3_input_file_path = cwd + '/src/Input/s3bench.json'
 
@@ -64,10 +60,10 @@ def run_s3bench_parser():
                            S3_input_file_path, quantum, S3_objectSize)
 
 
-if __name__ == '__main__':
+def parse_data(ID, hsbench_log, cosbench_log, s3bench_log):
     check_os_paths()
-    run_hsbench_parser()
-    run_cosbench_parser()
-    run_s3bench_parser()
+    run_hsbench_parser(ID, hsbench_log)
+    run_cosbench_parser(ID, cosbench_log)
+    run_s3bench_parser(ID, s3bench_log)
 
     os.removedirs(parsed_data_path)

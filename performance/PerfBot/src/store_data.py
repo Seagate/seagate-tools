@@ -19,7 +19,7 @@ def connect_database():
         return client
 
 
-if __name__ == '__main__':
+def update_parsed_data():
     client = connect_database()
 
     _, _, filenames = next(os.walk(input_folder_path))

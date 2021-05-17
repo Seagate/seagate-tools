@@ -4,21 +4,19 @@ Main file for PerfBot
 import os
 import string
 import random
-import influxdb
-from store_data import connect_database
+import yaml
+
+from store_data import connect_database, update_parsed_data
+from data_parser import parse_data
 
 cwd = os.getcwd()
-hsbench_log = cwd + '/src/Data/hsbench/hsbench.log'
-cosbench_log = cwd + '/src/Data/cosbench/s3-5050rw.csv'
-s3bench_log = cwd + '/src/Data/s3bench/s3bench_Numclients_1_NS_20_size_128Mb.log'
-
 
 def get_random_string(length):
     letters = string.ascii_letters + string.digits
     result_str = ''.join(random.choice(letters) for i in range(length))
 
     return result_str
-print("~ Executing PerfBot...")
+
 
 def generate_runID():
     client = connect_database()
@@ -38,10 +36,16 @@ def generate_runID():
 
 def execute_parsers(ID):
     # execute parsers
+    with open(cwd + "/src/config.yml") as config_file:
+        configs = yaml.safe_load(config_file)
+
+    hsbench_log = cwd + configs['logfiles']['hs']
+    cosbench_log = cwd + configs['logfiles']['cos']
+    s3bench_log = cwd + configs['logfiles']['s3']
+    
     print("~ Parsing data files...")
     try:
-        os.system("python {}/src/parser.py {} {} {} {}".format(cwd,
-                                                               ID, hsbench_log, cosbench_log, s3bench_log))
+        parse_data(ID, hsbench_log, cosbench_log, s3bench_log)
         print("~ Done!")
 
     except Exception as e:
@@ -52,7 +56,7 @@ def update_database():
     # push data to database
     print("~ Pushing data to database...")
     try:
-        os.system("python {}/src/store_data.py".format(cwd))
+        update_parsed_data()
         print("~ Done!")
 
     except Exception as e:

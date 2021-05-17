@@ -4,3 +4,5 @@ Pipfile.lock
 Data/
 Input/
 ParsedData/
+.vscode/
+test.py

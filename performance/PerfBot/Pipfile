@@ -5,6 +5,8 @@ name = "pypi"
 
 [packages]
 perfbot = {editable = true, path = "."}
+influxdb = "*"
+pyyaml = "*"
 
 [dev-packages]
 

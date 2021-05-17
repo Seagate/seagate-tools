@@ -41,8 +41,14 @@
        - pandas==1.0.5
        - datetime==4.3
      executable: pip3
+     extra_args: -i https://pypi.org/simple
    delegate_to: "{{ item }}"
    with_items: "{{ groups['all'] }}"
+
+ - name: Compressing directory files/cortx-benchmark into files/cortx-benchmark.tar.gz
+   archive:
+     path: "/root/seagate-tools/performance/PerfPro/PerfProBenchmark"
+     dest: "/root/seagate-tools/performance/PerfPro/perfPro-deployment/roles/benchmark/files/PerfProBenchmark.tar.gz"
 
  - name: Copying PerfProBenchmark tar file 
    unarchive:

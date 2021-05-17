@@ -13,7 +13,10 @@ input[type=text], select, textarea {
     margin-top: 4px;
     float: right;
 }
-
+#output {
+  background-color: #f2f2f2;
+  border: none;
+}
 .container {
   border-radius: 5px;
   background-color: #f2f2f2;
@@ -46,7 +49,7 @@ input[type=text], select, textarea {
       <button type="button" id="submitBtn" ng-click="onConfSubmit()">Submit</button>
     </div>
     <span style="color: red;">{{errorMsg}}</span><span style="color: green;">{{successMsg}}</span><br>
-    <span>{{errorLog}}</span>
+    <textarea id="output" ng-model="errorLog" readonly ng-if="errorMsg"></textarea>
     <span>{{task_id}}</span><br>
     <span>{{state}}</span>
   </form>

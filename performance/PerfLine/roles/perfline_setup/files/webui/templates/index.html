@@ -244,7 +244,6 @@ app.controller('addTaskCC', function($scope, $http, $routeParams) {
         }).then(function (response) {
              if (response.data.includes("Validation failed with the following errors")){
                  $scope.errorMsg = "Sorry! Unable to trigger workload";
-                 console.log(response.data);
                  $scope.errorLog = response.data;
              } else if (response.data[1].state.includes("ENQUEUED")) {
                  $scope.successMsg = "Successfully workload has been triggered";

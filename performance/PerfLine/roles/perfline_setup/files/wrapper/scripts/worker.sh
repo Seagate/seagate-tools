@@ -543,9 +543,6 @@ function main() {
 
     restart_cluster
 
-    # Create artifacts folder
-    #create_results_dir
-
     # @artem -- place code below
     # Start stat utilities
     echo "Start stat utilities"

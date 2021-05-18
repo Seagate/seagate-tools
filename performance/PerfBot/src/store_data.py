@@ -1,13 +1,11 @@
 from influxdb import InfluxDBClient
-import os
 import yaml
 
-cwd = os.getcwd()
-input_folder_path = cwd + "/src/Input/"
+input_folder_path =  "./Input/"
 
 
 def connect_database():
-    file_name = cwd + "/src/config.yml"
+    file_name = "./config.yml"
     with open(file_name, 'r') as config_file:
         configs = yaml.safe_load(config_file)
 

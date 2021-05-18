@@ -17,6 +17,7 @@ size=
 MAIN="/root/PerfProBenchmark/main.yml"
 CONFIG="/root/PerfProBenchmark/config.yml"
 LOG_COLLECT="/root/PerfProBenchmark/collect_logs.py"
+ITERATION=$(yq -r .ITERATION $CONFIG)
 
 validate_args() {
 
@@ -117,25 +118,27 @@ validate_args
 #
 ./installCosbench.sh `hostname`
 #
+for ((ITR=1;ITR<=ITERATION;ITR++))
+do
+    if [ ! -d $LOG ]; then
+          mkdir $LOG
+          config_s3workloads
+          for i in `cat $LOG/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' '`; 
+          do 
+              cp -r ~/cos/archive/$i* $LOG;
+          done     
+          python3 cosbench_DBupdate.py $LOG $MAIN $CONFIG $ITR
+          python3 $LOG_COLLECT $CONFIG
+    else
+          mv $LOG $CURRENT_PATH/benchmark.bak_$TIMESTAMP
+          mkdir $LOG
+          config_s3workloads
+          for i in `cat $LOG/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' '`;
+          do
+              cp -r ~/cos/archive/$i* $LOG;
+          done
+          python3 cosbench_DBupdate.py $LOG $MAIN $CONFIG $ITR
+          python3 $LOG_COLLECT $CONFIG
 
-if [ ! -d $LOG ]; then
-      mkdir $LOG
-      config_s3workloads
-      for i in `cat $LOG/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' '`; 
-      do 
-          cp -r ~/cos/archive/$i* $LOG;
-      done     
-      python3 cosbench_DBupdate.py $LOG $MAIN $CONFIG
-      python3 $LOG_COLLECT $CONFIG
-else
-      mv $LOG $CURRENT_PATH/benchmark.bak_$TIMESTAMP
-      mkdir $LOG
-      config_s3workloads
-      for i in `cat $LOG/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' '`;
-      do
-          cp -r ~/cos/archive/$i* $LOG;
-      done
-      python3 cosbench_DBupdate.py $LOG $MAIN $CONFIG
-      python3 $LOG_COLLECT $CONFIG
-
-fi
+    fi
+done

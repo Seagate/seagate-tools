@@ -1,0 +1,104 @@
+figures:
+- figure:
+    iterate_by:
+    - enp175s0f0
+    - enp175s0f1
+    - eno1
+    fname: host.com__net__[TEMPLATE].png
+    name: network interface stats [TEMPLATE]
+    columns:
+    - column:
+      - graph:
+          title: net iface stats [TEMPLATE]
+          display_as: MB
+          metrics:
+          - network_[TEMPLATE]_rx
+          - network_[TEMPLATE]_tx
+- figure:
+    iterate_by:
+    - dm-0
+    - dm-3
+    - dm-6
+    - dm-13
+    - dm-16
+    - dm-18
+    - dm-19
+    fname: host.com__datavolume__[TEMPLATE].png
+    name: data volume [TEMPLATE] stats
+    columns:
+    - column:
+      - graph:
+          title: counts [TEMPLATE]
+          metrics:
+          - diskio_[TEMPLATE]_write_count
+          - diskio_[TEMPLATE]_read_count
+      - graph:
+          title: bytes [TEMPLATE]
+          display_as: MB
+          metrics:
+          - diskio_[TEMPLATE]_write_bytes
+          - diskio_[TEMPLATE]_read_bytes
+- figure:
+    iterate_by:
+    - dm-27
+    fname: host.com__mdvolume__[TEMPLATE].png
+    name: metadata volume [TEMPLATE] stats
+    columns:
+    - column:
+      - graph:
+          title: counts [TEMPLATE]
+          metrics:
+          - diskio_[TEMPLATE]_write_count
+          - diskio_[TEMPLATE]_read_count
+      - graph:
+          title: bytes [TEMPLATE]
+          display_as: MB
+          metrics:
+          - diskio_[TEMPLATE]_write_bytes
+          - diskio_[TEMPLATE]_read_bytes
+- figure:
+    iterate_for:
+      start: 0
+      end: 4
+    fname: host.com__percpu__[TEMPLATE].png
+    name: sm8 CPU [TEMPLATE] stats
+    columns:
+    - column:
+      - graph:
+          title: CPU [TEMPLATE] utilisation
+          display_as: percent
+          metrics:
+          - percpu_[TEMPLATE]_total
+          - percpu_[TEMPLATE]_user
+          - percpu_[TEMPLATE]_system
+- figure:
+    fname: host.com__cpu.png
+    name: sm8 CPU/Memory stats
+    columns:
+    - column:
+      - graph:
+          title: CPU utilisation
+          display_as: percent
+          y_label: '%'
+          metrics:
+          - cpu_total
+          - cpu_user
+          - cpu_system
+      - graph:
+          title: CPU iowait stats
+          metrics:
+          - cpu_iowait
+    - column:
+      - graph:
+          title: Memory usage
+          display_as: GB
+          metrics:
+          - mem_available
+          - mem_used
+          - mem_free
+      - graph:
+          title: Swap usage
+          display_as: GB
+          metrics:
+          - memswap_used
+          - memswap_free

@@ -21,7 +21,7 @@ TIMESTAMP=`date +'%Y-%m-%d_%H:%M:%S'`
 MAIN="/root/PerfProBenchmark/main.yml"
 CONFIG="/root/PerfProBenchmark/config.yml"
 LOG_COLLECT="/root/PerfProBenchmark/collect_logs.py"
-
+ITERATION=$(yq -r .ITERATION $CONFIG)
 
 validate_args() {
 
@@ -116,18 +116,20 @@ validate_args
 #
 ./installHSbench.sh
 #
-
-if [ ! -d $BENCHMARKLOG ]; then
-      mkdir $BENCHMARKLOG
-      hotsause_benchmark 2>&1 | tee benchmark.log/output.log 
-      python3 hsbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG
-      python3 $LOG_COLLECT $CONFIG
+for ((ITR=1;ITR<=ITERATION;ITR++))
+do
+    if [ ! -d $BENCHMARKLOG ]; then
+          mkdir $BENCHMARKLOG
+          hotsause_benchmark 2>&1 | tee benchmark.log/output.log 
+          python3 hsbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG $ITR
+          python3 $LOG_COLLECT $CONFIG
       
-else
-      mv $BENCHMARKLOG $CURRENTPATH/benchmark.bak_$TIMESTAMP
-      mkdir $BENCHMARKLOG
-      hotsause_benchmark 2>&1 | tee benchmark.log/output.log 
-      python3 hsbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG
-      python3 $LOG_COLLECT $CONFIG
+    else
+          mv $BENCHMARKLOG $CURRENTPATH/benchmark.bak_$TIMESTAMP
+          mkdir $BENCHMARKLOG
+          hotsause_benchmark 2>&1 | tee benchmark.log/output.log 
+          python3 hsbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG $ITR
+          python3 $LOG_COLLECT $CONFIG
 
-fi
+    fi
+done

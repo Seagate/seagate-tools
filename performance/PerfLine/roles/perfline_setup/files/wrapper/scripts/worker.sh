@@ -333,15 +333,22 @@ function save_stats() {
     for srv in $(echo $NODES | tr ',' ' '); do
         mkdir -p $srv
         pushd $srv
-	scp -r $srv:/var/perfline/iostat* iostat || true
-	scp -r $srv:/var/perfline/blktrace* blktrace || true
-	scp -r $srv:/var/perfline/dstat* dstat || true
-        scp -r $srv:/var/perfline/glances* glances || true
-	scp -r $srv:/var/perfline/hw* hw || true
-	scp -r $srv:/var/perfline/network* network || true
-	scp -r $srv:/var/perfline/5u84* 5u84 || true
+        scp -r $srv:/var/perfline/iostat* iostat || true
+        scp -r $srv:/var/perfline/blktrace* blktrace || true
+        scp -r $srv:/var/perfline/dstat* dstat || true
+
+        if [[ "$STAT_COLLECTION" == *"GLANCES"* ]]; then
+            mkdir glances
+            scp $srv:/var/perfline/glances*/glances.csv glances
+        fi
+
+        scp -r $srv:/var/perfline/hw* hw || true
+        scp -r $srv:/var/perfline/network* network || true
+        scp -r $srv:/var/perfline/5u84* 5u84 || true
         scp -r $srv:/var/perfline/fio* fio || true
-	popd
+
+        ssh $srv "$SCRIPT_DIR/artifacts_collecting/collect_disks_info.sh" > disks.mapping
+        popd
     done
 }
 
@@ -422,6 +429,13 @@ function collect_artifacts() {
         mkdir -p $stats_addb
         pushd $stats_addb
         $SCRIPT_DIR/process_addb_data.sh --db $m0play_path
+        popd
+    fi
+
+    if [[ "$STAT_COLLECTION" == *"GLANCES"* ]]; then
+        pushd $stats
+        local srv_nodes=$(echo $NODES | tr ',' ' ')
+        $SCRIPT_DIR/artifacts_collecting/process_glances_data.sh $srv_nodes
         popd
     fi
 }

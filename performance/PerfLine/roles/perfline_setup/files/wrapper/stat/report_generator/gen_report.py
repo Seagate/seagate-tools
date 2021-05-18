@@ -332,6 +332,59 @@ def parse_addb_info(addb_stat_dir):
 
     return queues_imgs, hist_imgs, rps_imgs
 
+def parse_glances_imgs(stat_dir):
+    glances_imgs = []
+    subdir_list = [join(stat_dir, d) for d in listdir(stat_dir) if isdir(join(stat_dir, d))]
+
+    for subdir in subdir_list:
+        glances_dir = join(subdir, 'glances')
+
+        if isdir(glances_dir):
+            glances_imgs.extend([f for f in listdir(glances_dir) if f.endswith('.png')])
+
+    result = {}
+    hostnames = set()
+    percpu_metric_names = set()
+    net_metric_names = set()
+    datavol_metric_names = set()
+    mdvol_metric_names = set()
+
+    for img in glances_imgs:
+        fname_parts = img.replace('.png', '').split('__', maxsplit=1)
+        hostname = fname_parts[0]
+        graph_type = fname_parts[1]
+
+        if graph_type not in result:
+            result[graph_type] = {}
+        
+        result[graph_type][hostname] = img
+        hostnames.add(hostname)
+
+        if graph_type.startswith('percpu__'):
+            percpu_metric_names.add(graph_type)
+        elif graph_type.startswith('net__'):
+            net_metric_names.add(graph_type)
+        elif graph_type.startswith('datavolume__'):
+            datavol_metric_names.add(graph_type)
+        elif graph_type.startswith('mdvolume__'):
+            mdvol_metric_names.add(graph_type)
+    
+    sorted_hostnames = list(sorted(hostnames))
+    sorted_percpu_metrics = list(sorted(percpu_metric_names,
+                                        key=lambda x: int(x.replace('percpu__', ''))))
+
+    sorted_net_metrics = list(sorted(net_metric_names,
+                                     key=lambda x: x.replace('net__', '')))
+
+    sorted_datavol_metrics = list(sorted(datavol_metric_names,
+                                         key=lambda x: x.replace('datavolume__', '')))
+
+    sorted_mdvol_metrics = list(sorted(mdvol_metric_names,
+                                       key=lambda x: x.replace('mdvolume__', '')))
+
+    return (sorted_hostnames, result, sorted_percpu_metrics,
+           sorted_net_metrics, sorted_datavol_metrics, sorted_mdvol_metrics)
+
 def detect_iostat_imgs(nodes_stat_dirs):
     iostat_img_types = set()
 
@@ -423,6 +476,10 @@ def main():
     addb_queues, addb_hists, addb_rps = parse_addb_info(addb_stat_dir)
     timelines_imgs = parse_addb_timelines(addb_stat_dir)
 
+    # Glances images
+    (hostnames, glances_imgs, percpu_metrics, net_metrics,
+     datavolume_metrics, mdvolume_metrics) = parse_glances_imgs(stat_result_dir)
+
     with open(join(report_gen_dir, 'templates/home.html'), 'r') as home:
         home_template = home.read()
 
@@ -462,7 +519,13 @@ def main():
             addb_hists=addb_hists,
             addb_rps=addb_rps,
             timelines_imgs=timelines_imgs,
-            task_id=task_id
+            task_id=task_id,
+            glances_imgs=glances_imgs,
+            hostnames=hostnames,
+            percpu_metrics=percpu_metrics,
+            net_metrics=net_metrics,
+            datavolume_metrics=datavolume_metrics,
+            mdvolume_metrics=mdvolume_metrics
         ))
 
 

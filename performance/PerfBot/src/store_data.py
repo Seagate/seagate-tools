@@ -1,5 +1,4 @@
 from influxdb import InfluxDBClient
-import os
 import yaml
 
 input_folder_path =  "./Input/"

@@ -34,5 +34,5 @@ def get_error_schema(time_now, run_ID, tool, line_number, keyword_matched, file_
                 "details": error_details
             }
         }
-    
+
     return entry

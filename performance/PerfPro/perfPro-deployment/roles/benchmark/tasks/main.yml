@@ -45,10 +45,15 @@
    delegate_to: "{{ item }}"
    with_items: "{{ groups['all'] }}"
 
- - name: Copying PerfProBenchmark tar file 
+ - name: Compressing directory files/PerfProBenchmark into files/PerfProBenchmark.tar.gz
+   archive:
+     path: "{{ role_path }}/files/PerfProBenchmark"
+     dest: "{{ role_path }}/files/PerfProBenchmark.tar.gz"
+
+ - name: Copying and Unarchieving PerfProBenchmark tar file
    unarchive:
-      src: files/PerfProBenchmark.tar.gz
-      dest: /root/
+     src: files/PerfProBenchmark.tar.gz
+     dest: /root/
    delegate_to: "{{ item }}"
    with_items: "{{ groups['all'] }}"
 

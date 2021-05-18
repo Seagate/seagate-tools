@@ -98,7 +98,7 @@
    poll: 0
    delegate_to: "{{ item }}"
    with_items: "{{ groups['all'] }}"
-
+ 
  - name: Configuration of s3bench benchmark tools  
    command: go get github.com/igneous-systems/s3bench
    delegate_to: "{{ item }}"
@@ -118,6 +118,8 @@
    command: python3 /root/PerfProBenchmark/addconfiguration.py '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
+
+ - include: prefill.yml
 
  - include: s3bench.yml
 

@@ -1,7 +1,7 @@
 ---
  - name: "[Cosbench]: Cosbench running with clients=300 bucket=1"
    shell: cd /root/PerfProBenchmark/cosbench; ./s3cosbench_benchmark.sh -nc "300" -ns {{ item.numsamples }} -s {{ item.objsize }} -b 1 -w mixed -t 600
-   delegate_to: "client-1"
+   delegate_to: "clientnode-1"
    loop:
        - { objsize: '4Kb', numsamples: '33000'}
        - { objsize: '100Kb', numsamples: '130000'}
@@ -16,7 +16,7 @@
 
  - name: "[Cosbench]: Cosbench running with clients=300 bucket=10"
    shell: cd /root/PerfProBenchmark/cosbench; ./s3cosbench_benchmark.sh -nc "300" -ns {{ item.numsamples }} -s {{ item.objsize }} -b 10 -w mixed -t 600
-   delegate_to: "client-1"
+   delegate_to: "clientnode-1"
    loop:
        - { objsize: '4Kb', numsamples: '3300'}
        - { objsize: '100Kb', numsamples: '13000'}
@@ -31,7 +31,7 @@
 
  - name: "[Cosbench]: Cosbench running with clients=300 bucket=50"
    shell: cd /root/PerfProBenchmark/cosbench; ./s3cosbench_benchmark.sh -nc "300" -ns {{ item.numsamples }} -s {{ item.objsize }} -b 50 -w mixed -t 600
-   delegate_to: "client-1"
+   delegate_to: "clientnode-1"
    loop:
        - { objsize: '4Kb', numsamples: '660'}
        - { objsize: '100Kb', numsamples: '2600'}

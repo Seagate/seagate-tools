@@ -19,6 +19,7 @@ import urllib.request
 # Path for yaml files locations
 Main_path = sys.argv[2]  # database url
 Config_path = sys.argv[3]
+iteration = sys.argv[4]
 
 # Function for connecting with configuration file
 def makeconfig(name):  
@@ -34,7 +35,7 @@ nodes_list=configs_config.get('NODES')
 clients_list=configs_config.get('CLIENTS')
 pc_full=configs_config.get('PC_FULL')
 overwrite=configs_config.get('OVERWRITE')
-iteration=configs_config.get('ITERATION')
+#iteration=configs_config.get('ITERATION')
 
 
 nodes_num=len(nodes_list)

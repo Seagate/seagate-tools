@@ -1,7 +1,7 @@
 ---
  - name: "[HSbench-1-Bucket]: HSbench running for 1 Bucket"
    shell: cd /root/PerfProBenchmark/hsbench; ./run_benchmark.sh -b 1 -o {{ item.numsamples }} -s {{ item.objsize }} -t 300 -d 600
-   delegate_to: "client-1"
+   delegate_to: "clientnode-1"
    loop:
        - { objsize: '4Kb', numsamples: '33000'}
        - { objsize: '100Kb', numsamples: '130000'}
@@ -16,7 +16,7 @@
 
  - name: "[HSbench-10-Buckets]: HSbench running for 10 Buckets"
    shell: cd /root/PerfProBenchmark/hsbench; ./run_benchmark.sh -b 10 -o {{ item.numsamples }} -s {{ item.objsize }} -t 300 -d 600
-   delegate_to: "client-1"
+   delegate_to: "clientnode-1"
    loop:
        - { objsize: '4Kb', numsamples: '33000'}
        - { objsize: '100Kb', numsamples: '130000'}
@@ -31,7 +31,7 @@
 
  - name: "[HSbench-50-Buckets]: HSbench running for 50 Buckets"
    shell: cd /root/PerfProBenchmark/hsbench; ./run_benchmark.sh -b 50 -o {{ item.numsamples }} -s {{ item.objsize }} -t 300 -d 600
-   delegate_to: "client-1"
+   delegate_to: "clientnode-1"
    loop:
        - { objsize: '4Kb', numsamples: '33000'}
        - { objsize: '100Kb', numsamples: '130000'}

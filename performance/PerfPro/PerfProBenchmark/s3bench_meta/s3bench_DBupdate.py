@@ -20,7 +20,7 @@ import urllib.request
 #Config_path = '/root/Modified/config.yml'
 Main_path = sys.argv[2]
 Config_path = sys.argv[3]
-
+iteration = sys.argv[4]
 
 def makeconfig(name):  #function for connecting with configuration file
     with open(name) as config_file:
@@ -35,7 +35,7 @@ nodes_list=configs_config.get('NODES')
 clients_list=configs_config.get('CLIENTS')
 pc_full=configs_config.get('PC_FULL')
 overwrite=configs_config.get('OVERWRITE')
-iteration=configs_config.get('ITERATION')
+#iteration=configs_config.get('ITERATION')
 
 nodes_num=len(nodes_list)
 clients_num=len(clients_list)

@@ -3,23 +3,7 @@ import json
 import datetime as dt
 import time
 
-
-def get_a_row(time_now, run_ID, latency, iops, throughput, timestamp, mode):
-    entry = {
-        "measurement": "perfbot",
-        "time": time_now,
-        "fields":
-        {
-            "timestamp": timestamp,
-            "run_ID": run_ID,
-            "tool": "cosbench",
-            "latency": float(latency),
-            "iops": float(iops),
-            "throughput": float(throughput),
-            "mode": mode
-        }
-    }
-    return entry
+from Parsers.schemas import get_performance_schema
 
 
 def convert_COSlogs_to_JSON(run_ID, reference_doc, COS_input_file_path, objectSize):
@@ -35,22 +19,22 @@ def convert_COSlogs_to_JSON(run_ID, reference_doc, COS_input_file_path, objectSi
             splits = line.split(",")
 
             if 'rw' in filename:
-                entry = get_a_row(time_now, run_ID, splits[5], splits[9], float(
-                    splits[11])/1000000/objectSize, str(splits[0]), 'read')
+                entry = get_performance_schema(time_now, run_ID, splits[5], splits[9], float(
+                    splits[11])/1000000/objectSize, str(splits[0]), 'read', 'cosbench', filename)
                 data.append(entry)
 
-                entry = get_a_row(time_now, run_ID, splits[6], splits[10], float(
-                    splits[12])/1000000/objectSize, str(splits[0]), 'write')
+                entry = get_performance_schema(time_now, run_ID, splits[6], splits[10], float(
+                    splits[12])/1000000/objectSize, str(splits[0]), 'write', 'cosbench', filename)
                 data.append(entry)
 
             elif 'r' in filename:
-                entry = get_a_row(time_now, run_ID, splits[3], splits[5], float(
-                    splits[7])/1000000/objectSize, str(splits[0]), 'read')
+                entry = get_performance_schema(time_now, run_ID, splits[3], splits[5], float(
+                    splits[7])/1000000/objectSize, str(splits[0]), 'read', 'cosbench', filename)
                 data.append(entry)
 
             elif 'w' in filename:
-                entry = get_a_row(time_now, run_ID, splits[3], splits[5], float(
-                    splits[7])/1000000/objectSize, str(splits[0]), 'write')
+                entry = get_performance_schema(time_now, run_ID, splits[3], splits[5], float(
+                    splits[7])/1000000/objectSize, str(splits[0]), 'write', 'cosbench',filename)
                 data.append(entry)
 
             time_now = time_now + 10

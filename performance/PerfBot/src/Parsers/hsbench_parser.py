@@ -4,6 +4,8 @@ import re
 import datetime as dt
 import time
 
+from Parsers.schemas import get_performance_schema
+
 
 def extract_HSBench_logs(reference_doc, HS_destination_file_path):
     with open(HS_destination_file_path, "w") as modified:
@@ -43,7 +45,6 @@ def convert_HSlogs_to_JSON(run_ID, reference_doc, HS_input_file_path, quantum):
         end_time = start_time + dt.timedelta(seconds=quantum)
 
         while line != num_of_lines:
-            # for line in reference_file:
             stripped_data = clean_the_line(lines[line])
             current_line_time = get_date_time_object(stripped_data)
             total_latency = 0
@@ -74,20 +75,8 @@ def convert_HSlogs_to_JSON(run_ID, reference_doc, HS_input_file_path, quantum):
             else:
                 average_latency = round(total_latency/samples, 5)
 
-            entry = {
-                "measurement": "perfbot",
-                "time": time_now,
-                "fields":
-                {
-                    "timestamp": str(end_time - dt.timedelta(seconds=quantum)),
-                    "run_ID": run_ID,
-                    "tool": "hsbench",
-                    "latency": float(average_latency),
-                    "iops": float(total_iops),
-                    "throughput": float(total_throughput),
-                    "mode": mode
-                }
-            }
+            entry = get_performance_schema(time_now, run_ID, average_latency, total_iops, total_throughput, str(
+                end_time - dt.timedelta(seconds=quantum)), mode, 'hsbench', reference_doc)
             data.append(entry)
             time_now = time_now + 10
 

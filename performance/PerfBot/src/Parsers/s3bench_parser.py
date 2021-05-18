@@ -3,6 +3,7 @@ import json
 import os
 import time
 
+from Parsers.schemas import get_performance_schema
 debug = False
 
 
@@ -73,20 +74,9 @@ def convert_S3logs_to_JSON(run_ID, reference_doc, S3_input_file_path, quantum, S
             if debug:
                 print("-- {},   {},             {},         {} --".format(end_time,
                                                                           average_latency, RPS, MBPS))
-            entry = {
-                "measurement": "perfbot",
-                "time": time_now,
-                "fields":
-                {
-                    "timestamp": str(end_time - dt.timedelta(seconds=quantum)),
-                    "run_run_ID": run_ID,
-                    "tool": "s3bench",
-                    "latency": float(average_latency),
-                    "iops": float(RPS),
-                    "throughput": float(MBPS),
-                    "mode": operation
-                }
-            }
+
+            entry = get_performance_schema(time_now, run_ID, average_latency, RPS, MBPS, str(
+                end_time - dt.timedelta(seconds=quantum)), operation, 's3bench', reference_doc)
             data.append(entry)
             time_now = time_now + 10
 

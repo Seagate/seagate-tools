@@ -30,7 +30,7 @@ configs_config = makeconfig(Config_path)  # getting instance  of config file
 build_url=configs_config.get('BUILD_URL')
 
 def get_release_info(variable):
-    release_info= urllib.request.urlopen(build_url+'prod/RELEASE.INFO')
+    release_info= urllib.request.urlopen(build_url+'RELEASE.INFO')
     for line in release_info:
         if variable in line.decode("utf-8"):
             strinfo=line.decode("utf-8").strip()

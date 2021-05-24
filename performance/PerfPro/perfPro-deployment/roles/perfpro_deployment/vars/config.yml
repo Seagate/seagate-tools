@@ -22,6 +22,7 @@ SERVICE_PASS:
 ITERATION: 1 # Select for the number of iteration PerfPro Should run
 PC_FULL: 0 # Select for system percentage full before test. 
 OVERWRITE: False # select True or False to overwrite the DB entries for same Primary Key
+CUSTOM: NA # Default is NA. Update with single string for special config eg: SSD, DIEnabled, PODsetup etc
 
 #Enter Below details for log collection on NFS repo
 NFS_SERVER: 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-python3 s3bench_DBupdate.py <log file path> <main.yaml path> <config.yaml path> <ITR>
+python3 cosbench_DBupdate.py <log file path> <main.yaml path> <config.yaml path> <ITR>
 Attributes:
 _id,Log_File,Name,Operation,IOPS,Throughput,Latency,TTFB,Object_Size,HOST,Objects,Buckets,Session
 """

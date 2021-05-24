@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 '''
-python3 hsbench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
+python3 hsbench_DBupdate.py <log file path> <main.yaml path> <config.yaml path> <ITR>
 
 Task : Push HSBENCH data to mongoDB from user given path and host
 '''
@@ -35,9 +35,7 @@ nodes_list=configs_config.get('NODES')
 clients_list=configs_config.get('CLIENTS')
 pc_full=configs_config.get('PC_FULL')
 overwrite=configs_config.get('OVERWRITE')
-#iteration=configs_config.get('ITERATION')
-
-
+custom=configs_config.get('CUSTOM')
 nodes_num=len(nodes_list)
 clients_num=len(clients_list)
 
@@ -135,7 +133,7 @@ Parameters : input - (list) list containing file names with specified filter,
              returns - none
 '''
 def push_data(files, host, db, Build, Version, Branch , OS):
-    global nodes_num, clients_num, pc_full, iteration , overwrite
+    global nodes_num, clients_num, pc_full, iteration , overwrite, custom
     print("logged in from ", host)
     #collection=db[configs_main['db_collection']]
     collection='results_'+Version[0]
@@ -191,7 +189,7 @@ def push_data(files, host, db, Build, Version, Branch , OS):
                         'Buckets' : buckets,
                         'Objects' : objects,
                         'Sessions' : sessions,
-                        'PKey' : Version[0]+'_'+Branch[0].upper()+'_'+Build+'_ITR'+str(iteration)+'_'+str(nodes_num)+'N_'+str(clients_num)+'C_'+str(pc_full)+'PC_HSB_'+str(obj_size)+'_'+str(buckets)+'_'+operation[0].upper()+'_'+str(sessions) ,
+                        'PKey' : Version[0]+'_'+Branch[0].upper()+'_'+Build+'_ITR'+str(iteration)+'_'+str(nodes_num)+'N_'+str(clients_num)+'C_'+str(pc_full)+'PC_'+str(custom).upper()+'_HSB_'+str(obj_size)+'_'+str(buckets)+'_'+operation[0].upper()+'_'+str(sessions) ,
                         #Version_Branch_Build_Iteration_NodeCount_ClientCount_PercentFull_Benchmark_ObjSize_NoOfBuckets_Operation_Sessions
                     }
 

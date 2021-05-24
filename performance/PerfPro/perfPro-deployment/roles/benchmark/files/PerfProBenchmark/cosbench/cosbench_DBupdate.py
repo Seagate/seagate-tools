@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-python3 s3bench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
+python3 s3bench_DBupdate.py <log file path> <main.yaml path> <config.yaml path> <ITR>
 Attributes:
 _id,Log_File,Name,Operation,IOPS,Throughput,Latency,TTFB,Object_Size,HOST,Objects,Buckets,Session
 """
@@ -35,8 +35,7 @@ nodes_list=configs_config.get('NODES')
 clients_list=configs_config.get('CLIENTS')
 pc_full=configs_config.get('PC_FULL')
 overwrite=configs_config.get('OVERWRITE')
-#iteration=configs_config.get('ITERATION')
-
+custom=configs_config.get('CUSTOM')
 nodes_num=len(nodes_list)
 clients_num=len(clients_list)
 
@@ -60,7 +59,7 @@ def get_release_info(variable):
 
 def insert_data(file,Build,Version,Config_ID,db,col,Branch,OS):  # function for retriving required data from log files and update into mongodb
     _, filename = os.path.split(file)
-    global nodes_num , clients_num , pc_full , iteration , overwrite
+    global nodes_num , clients_num , pc_full , iteration , overwrite, custom
     with open(file) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         line_count = 0
@@ -86,7 +85,7 @@ def insert_data(file,Build,Version,Config_ID,db,col,Branch,OS):  # function for 
                     buckets= int(re.split(" ", attr[2])[1])
                     objects= int(re.split(" ", attr[3])[1])
                     sessions= int(re.split(" ", attr[4])[1])
-                    entry = {"Name": "Cosbench", "Operation": operation, "Build": Build, "Version": Version,"Branch": Branch ,"OS": OS, "Number_of_Server_Nodes": nodes_num , "Number_of_Clients": clients_num , "Object_Size": obj_size, "Buckets": buckets, "Objects": objects, "Sessions": sessions , 'PKey' : Version[0]+'_'+Branch[0].upper()+'_'+Build+'_ITR'+str(iteration)+'_'+str(nodes_num)+'N_'+str(clients_num)+'C_'+str(pc_full)+'PC_COS_'+str(obj_size.replace(" ",""))+'_'+str(buckets)+'_'+operation[0].upper()+'_'+str(sessions) }
+                    entry = {"Name": "Cosbench", "Operation": operation, "Build": Build, "Version": Version,"Branch": Branch ,"OS": OS, "Count_of_Servers": nodes_num , "Count_of_Clients": clients_num , "Object_Size": obj_size, "Buckets": buckets, "Objects": objects, "Sessions": sessions , 'PKey' : Version[0]+'_'+Branch[0].upper()+'_'+Build+'_ITR'+str(iteration)+'_'+str(nodes_num)+'N_'+str(clients_num)+'C_'+str(pc_full)+'PC_'+str(custom).upper()+'_COS_'+str(obj_size.replace(" ",""))+'_'+str(buckets)+'_'+operation[0].upper()+'_'+str(sessions) }
                     update_data = {"Log_File": filename, "Operation": row[1], "IOPS": iops, "Throughput": throughput, "Latency": lat, "HOST": socket.gethostname(), "Config_ID": Config_ID, "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
                     try:
                         pattern={'PKey' : entry['PKey']}

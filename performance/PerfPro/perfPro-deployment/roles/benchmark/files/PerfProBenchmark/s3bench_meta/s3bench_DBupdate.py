@@ -1,7 +1,7 @@
 
 #!/usr/bin/env python3
 """
-python3 cosbench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
+python3 s3bench_DBupdate.py <log file path> <main.yaml path> <config.yaml path> <ITR>
 Attributes: _id,Log_File,Name,Operation,IOPS,Throughput,Latency,TTFB,Object_Size,HOST
 """
 
@@ -35,8 +35,7 @@ nodes_list=configs_config.get('NODES')
 clients_list=configs_config.get('CLIENTS')
 pc_full=configs_config.get('PC_FULL')
 overwrite=configs_config.get('OVERWRITE')
-#iteration=configs_config.get('ITERATION')
-
+custom=configs_config.get('CUSTOM')
 nodes_num=len(nodes_list)
 clients_num=len(clients_list)
 
@@ -86,7 +85,7 @@ class s3bench:
             pattern = {"PKey" : self.PKey}
             count_documents= collection.count_documents(pattern)
             if count_documents == 0:
-                insertentry={"NAME" : "S3bench" , "Log_File" : self.Log_File,"IOPS" : self.IOPS,"Throughput" : self.Throughput,"Latency": self.Latency,"TTFB" : self.TTFB,"Timestamp":self.Timestamp, "Config_ID":self.Config_ID,"HOST" : socket.gethostname(), "Operation" : self.Operation , "Object_Size" : self.Object_Size ,"Build" : self.Build , "Version" : self.Version , "Branch" : self.Branch , "OS" : self.OS , "Number_of_Server_Nodes": self.nodes_num , "Number_of_Clients" : self.clients_num , "PKey" : self.PKey  }
+                insertentry={"NAME" : "S3bench" , "Log_File" : self.Log_File,"IOPS" : self.IOPS,"Throughput" : self.Throughput,"Latency": self.Latency,"TTFB" : self.TTFB,"Timestamp":self.Timestamp, "Config_ID":self.Config_ID,"HOST" : socket.gethostname(), "Operation" : self.Operation , "Object_Size" : self.Object_Size ,"Build" : self.Build , "Version" : self.Version , "Branch" : self.Branch , "OS" : self.OS , "Count_of_Servers": self.nodes_num , "Count_of_Clients" : self.clients_num , "PKey" : self.PKey  }
                 collection.insert_one(insertentry)
                 action = "Inserted"
             elif self.overwrite == True : 
@@ -107,7 +106,7 @@ class s3bench:
 
 def insertOperations(file,Build,Version,col,Config_ID,Branch,OS):   #function for retriving required data from log files
     _, filename = os.path.split(file)
-    global nodes_num, clients_num , pc_full, iteration , overwrite
+    global nodes_num, clients_num , pc_full, iteration , overwrite, custom
     oplist = ["Write" , "Read" , "GetObjTag", "HeadObj" , "PutObjTag"]
     Objsize= 1
     obj = "NA"
@@ -141,7 +140,7 @@ def insertOperations(file,Build,Version,col,Config_ID,Branch,OS):   #function fo
                     throughput = round(throughput,6)
                 lat={"Max":float(lines[count+4].split(":")[1]),"Avg":float(lines[count+5].split(":")[1]),"Min":float(lines[count+6].split(":")[1])}
                 ttfb={"Max":float(lines[count+7].split(":")[1]),"Avg":float(lines[count+8].split(":")[1]),"Min":float(lines[count+9].split(":")[1])}
-                PKey=Version[0]+'_'+Branch[0].upper()+'_'+Build+'_ITR'+str(iteration)+'_'+str(nodes_num)+'N_'+str(clients_num)+'C_'+str(pc_full)+'PC_S3B_'+str(obj)+'_1_'+opname[0].upper()+'_'+sessions
+                PKey=Version[0]+'_'+Branch[0].upper()+'_'+Build+'_ITR'+str(iteration)+'_'+str(nodes_num)+'N_'+str(clients_num)+'C_'+str(pc_full)+'PC_'+str(custom).upper()+'_S3B_'+str(obj)+'_1_'+opname[0].upper()+'_'+sessions
                 data = s3bench(filename,opname,iops,throughput,lat,ttfb,obj,Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID,PKey,overwrite)
                 data.insert_update()
                 count += 9

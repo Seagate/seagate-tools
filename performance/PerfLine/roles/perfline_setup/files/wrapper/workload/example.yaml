@@ -51,18 +51,22 @@ benchmarks:
   - custom:
       cmd: sleep 1
   - lnet:
-      LNET_OPS:              # user can pass value operation separated by ',' Ex: read,write,ping
+      LNET_OPS: read,write,ping             # user can pass value operation separated by ',' Ex: read,write,ping
   - fio:
       Duration:
       BlockSize:
       NumJobs:
-      Template: #Template for fio like seq_read_fio, seq_write_fio, randmix_80-20_fio, randmix_20-80_fio and rand_fio
+      Template:                 #Template for fio like seq_read_fio, seq_write_fio, randmix_80-20_fio, randmix_20-80_fio and rand_fio
   - s3bench:
       BucketName: mybucket
       NumClients: 10
       NumSample: 100
       ObjSize: 32Mb
       EndPoint: https://s3.seagate.com
+  - iperf:
+      Interval: 1
+      Duration: 60
+      Parallel: 2
   - m0crate:
       NR_THREADS: 2
       BLOCK_SIZE: 2m

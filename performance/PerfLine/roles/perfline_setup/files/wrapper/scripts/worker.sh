@@ -12,6 +12,7 @@ PERFLINE_DIR="$SCRIPT_DIR/../"
 STAT_DIR="$SCRIPT_DIR/../stat"
 BUILD_DEPLOY_DIR="$SCRIPT_DIR/../../build_deploy"
 STAT_COLLECTION=""
+PUBLIC_DATA_INTERFACE=$(ip addr show data0 | grep -Po 'inet \K[\d.]+')
 
 MKFS=
 PERF_RESULTS_FILE='perf_results'
@@ -219,6 +220,21 @@ function m0crate_workload()
     sleep 120
 }
 
+function iperf_workload()
+{
+    mkdir -p $CLIENT_ARTIFACTS_DIR
+    pushd $CLIENT_ARTIFACTS_DIR
+    START_TIME=`date +%s000000000`
+    iperf -s | tee $(hostname)_iperf.log &
+    for node in ${NODES//,/ }
+    do
+        ssh $node "iperf -c $PUBLIC_DATA_INTERFACE $IPERF_PARAMS" > $node\_iperf.log
+    done
+    STATUS=${PIPESTATUS[0]}
+    STOP_TIME=`date +%s000000000`
+    popd
+}
+
 function create_results_dir() {
     echo "Create results folder"
     mkdir -p $RESULTS_DIR
@@ -333,15 +349,22 @@ function save_stats() {
     for srv in $(echo $NODES | tr ',' ' '); do
         mkdir -p $srv
         pushd $srv
-	scp -r $srv:/var/perfline/iostat* iostat || true
-	scp -r $srv:/var/perfline/blktrace* blktrace || true
-	scp -r $srv:/var/perfline/dstat* dstat || true
-        scp -r $srv:/var/perfline/glances* glances || true
-	scp -r $srv:/var/perfline/hw* hw || true
-	scp -r $srv:/var/perfline/network* network || true
-	scp -r $srv:/var/perfline/5u84* 5u84 || true
+        scp -r $srv:/var/perfline/iostat* iostat || true
+        scp -r $srv:/var/perfline/blktrace* blktrace || true
+        scp -r $srv:/var/perfline/dstat* dstat || true
+
+        if [[ "$STAT_COLLECTION" == *"GLANCES"* ]]; then
+            mkdir glances
+            scp $srv:/var/perfline/glances*/glances.csv glances
+        fi
+
+        scp -r $srv:/var/perfline/hw* hw || true
+        scp -r $srv:/var/perfline/network* network || true
+        scp -r $srv:/var/perfline/5u84* 5u84 || true
         scp -r $srv:/var/perfline/fio* fio || true
-	popd
+
+        ssh $srv "$SCRIPT_DIR/artifacts_collecting/collect_disks_info.sh" > disks.mapping
+        popd
     done
 }
 
@@ -422,6 +445,13 @@ function collect_artifacts() {
         mkdir -p $stats_addb
         pushd $stats_addb
         $SCRIPT_DIR/process_addb_data.sh --db $m0play_path
+        popd
+    fi
+
+    if [[ "$STAT_COLLECTION" == *"GLANCES"* ]]; then
+        pushd $stats
+        local srv_nodes=$(echo $NODES | tr ',' ' ')
+        $SCRIPT_DIR/artifacts_collecting/process_glances_data.sh $srv_nodes
         popd
     fi
 }
@@ -568,6 +598,10 @@ function main() {
 
     if [[ -n "$RUN_M0CRATE" ]]; then
         m0crate_workload
+    fi
+    
+    if [[ -n $RUN_IPERF ]]; then
+        iperf_workload
     fi
 
     # Stop workload time execution measuring
@@ -734,6 +768,13 @@ while [[ $# -gt 0 ]]; do
             ;;
         --motr-trace)
             MOTR_TRACE="1"
+            ;;
+        --iperf)
+            RUN_IPERF="1"
+            ;;
+        --iperf-params)
+            IPERF_PARAMS="$2"
+            shift
             ;;
         --m0crate)
             RUN_M0CRATE="1"

@@ -61,9 +61,9 @@ do
 
             mkdir $MKDIR
             if [ $SIZE_OF_OBJECTS = "1Kb" ]; then         
-                  echo "$BINPATH/s3bench_meta -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -headObj -putObjTag -getObjTag -verbose -sampleReads=12 > $MKDIR/s3bench_Numclients_$NUMCLIENTS\_NS_$NO_OF_SAMPLES\_size_$SIZE_OF_OBJECTS\.log" 
+                  echo "$BINPATH/s3bench_meta -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -headObj -putObjTag -getObjTag -verbose -sampleReads=2 > $MKDIR/s3bench_Numclients_$NUMCLIENTS\_NS_$NO_OF_SAMPLES\_size_$SIZE_OF_OBJECTS\.log" 
 
-                  $BINPATH/s3bench_meta -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -headObj -putObjTag -getObjTag -verbose -sampleReads=12 > $MKDIR/s3bench_Numclients_$NUMCLIENTS\_NS_$NO_OF_SAMPLES\_size_$SIZE_OF_OBJECTS\.log 
+                  $BINPATH/s3bench_meta -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -headObj -putObjTag -getObjTag -verbose -sampleReads=2 > $MKDIR/s3bench_Numclients_$NUMCLIENTS\_NS_$NO_OF_SAMPLES\_size_$SIZE_OF_OBJECTS\.log 
             else
                echo "$BINPATH/s3bench_meta -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -verbose > $MKDIR/s3bench_Numclients_$NUMCLIENTS\_NS_$NO_OF_SAMPLES\_size_$SIZE_OF_OBJECTS\.log"
 

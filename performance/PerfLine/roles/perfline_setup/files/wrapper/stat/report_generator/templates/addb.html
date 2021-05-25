@@ -18,6 +18,16 @@
     
 </div>
 {% endif %}
+{% if addb_lat %}
+<h2 align=center>ADDB Cortx Latency</h2>
+<div class="row">
+    
+    {% for img in addb_lat %}
+        <img src="/report/{{task_id}}/addb_imgs/{{img}}" alt="ADDB Latency">
+    {% endfor %}
+    
+</div>
+{% endif %}
 {% if addb_hists %}
 <h2 align=center>ADDB Cortx histograms</h2>
 <div class="row">

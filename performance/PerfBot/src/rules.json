@@ -1,0 +1,64 @@
+{
+    "version": 1,
+    "date_of_update": "05/24/2021 17:48:37.76",
+    "data": [
+        {
+            "rule": 1,
+            "status": "ON",
+            "label": "IO HALTED",
+            "description": "If there is no IO for 10 seconds consecutively, then the run is classified as bad.",
+            "custom_query": "NA",
+            "query": {
+                "filter": {
+                    "metric": "iops",
+                    "operator": "<=",
+                    "threshold": "0"
+                },
+                "grouping": {
+                    "constraint": "consecutive",
+                    "interval": "15 s"
+                }
+            },
+            "output": "no"
+        },
+        {
+            "rule": 2,
+            "status": "ON",
+            "label": "LATENCY OVERSHOOT",
+            "description": "If at least one request has latency more than 5 seconds, then the run is classified as bad.",
+            "custom_query": "NA",
+            "query": {
+                "filter": {
+                    "metric": "latency",
+                    "operator": ">",
+                    "threshold": "5000"
+                },
+                "grouping": {
+                    "constraint": "any",
+                    "interval": "NA"
+                }
+            },
+            "output": "no"
+        }
+    ],
+    "logs": [
+        {
+            "rule": 1,
+            "status": "ON",
+            "label": "KEYWORD 'ERROR' MATCH",
+            "description": "If the keyword error occurs at least 4 times, then the run is classified as bad.",
+            "custom_query": "NA",
+            "query": {
+                "filter": {
+                    "keyword": "err",
+                    "operator": "=~"
+                },
+                "grouping": {
+                    "constraint": "any",
+                    "interval": 4
+                }
+            },
+            "output": "no"
+        }
+    ]
+}

@@ -29,7 +29,7 @@ Rulebook has a specific version. When new rule is added or a change is made in c
 
 Now each rule is a dictionary of some parameters defining the rule. Schema for a rule is as follows:
 
-```json
+```txt
 {
     "rule": int,
     "status": string,

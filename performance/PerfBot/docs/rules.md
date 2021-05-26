@@ -10,7 +10,7 @@ This section is divided in two parts data and logs rules. Data rules are the rul
 
 Rulebook has a specific version. When new rule is added or a change is made in current rules then the version upgrades. Date of update is also mentioned. Data and logs are the sections for performance and logs related rules respectively. It is a list of dictionaries consisting each rule. Rulebook has the following schema:
 
-```json
+```txt
 {
     "version": 1,
     "date_of_update": "DD/MM/YYYY HH:MM:SS",
@@ -31,23 +31,23 @@ Now each rule is a dictionary of some parameters defining the rule. Schema for a
 
 ```json
 {
-    "rule": (int),
-    "status": (string),
-    "label": (string),
-    "description": (string),
-    "custom_query": (string),
+    "rule": int,
+    "status": string,
+    "label": string,
+    "description": string,
+    "custom_query": string,
     "query": {
         "filter": {
-            "metric": (string),
-            "operator": (string),
-            "threshold": (string/int/float)
+            "metric": string,
+            "operator": string,
+            "threshold": string/int/float
         },
         "grouping": {
-            "constraint": (string),
-            "interval": (string/int/float)
+            "constraint": string,
+            "interval": string/int/float
         }
     },
-    "output": (string)
+    "output": string
 }
 ```
 

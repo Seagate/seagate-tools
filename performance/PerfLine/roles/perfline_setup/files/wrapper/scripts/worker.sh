@@ -12,6 +12,7 @@ PERFLINE_DIR="$SCRIPT_DIR/../"
 STAT_DIR="$SCRIPT_DIR/../stat"
 BUILD_DEPLOY_DIR="$SCRIPT_DIR/../../build_deploy"
 STAT_COLLECTION=""
+PUBLIC_DATA_INTERFACE=$(ip addr show data0 | grep -Po 'inet \K[\d.]+')
 
 MKFS=
 PERF_RESULTS_FILE='perf_results'
@@ -219,6 +220,22 @@ function m0crate_workload()
     sleep 120
 }
 
+function iperf_workload()
+{
+    mkdir -p $CLIENT_ARTIFACTS_DIR
+    pushd $CLIENT_ARTIFACTS_DIR
+    START_TIME=`date +%s000000000`
+    iperf -s | tee $(hostname)_iperf.log &
+    for node in ${NODES//,/ }
+    do
+        ssh $node "iperf -c $PUBLIC_DATA_INTERFACE $IPERF_PARAMS" > $node\_iperf_workload.log
+    done
+    pkill iperf
+    STATUS=${PIPESTATUS[0]}
+    STOP_TIME=`date +%s000000000`
+    popd
+}
+
 function create_results_dir() {
     echo "Create results folder"
     mkdir -p $RESULTS_DIR
@@ -362,6 +379,16 @@ function save_perf_results() {
             echo "Host: $hostname" >> $PERF_RESULTS_FILE
             $SCRIPT_DIR/../stat/report_generator/m0crate_log_parser.py \
                     $m0crate_log >> $PERF_RESULTS_FILE
+            echo "" >> $PERF_RESULTS_FILE
+        done
+    fi
+    
+    if `ls $CLIENT_ARTIFACTS_DIR/*iperf.log > /dev/null`; then
+        echo "Benchmark: iPerf" >> $PERF_RESULTS_FILE
+        for node in ${NODES//,/ }
+        do
+            echo "Hostname: $node" >> $PERF_RESULTS_FILE
+            $SCRIPT_DIR/../stat/report_generator/iperf_log_parser.py $CLIENT_ARTIFACTS_DIR/$node\_iperf_workload.log >> $PERF_RESULTS_FILE
             echo "" >> $PERF_RESULTS_FILE
         done
     fi
@@ -569,6 +596,10 @@ function main() {
     if [[ -n "$RUN_M0CRATE" ]]; then
         m0crate_workload
     fi
+    
+    if [[ -n $RUN_IPERF ]]; then
+        iperf_workload
+    fi
 
     # Stop workload time execution measuring
     stop_measuring_workload_time
@@ -713,6 +744,13 @@ while [[ $# -gt 0 ]]; do
             ;;
         --s3bench)
             S3BENCH="1"
+            ;;
+        --iperf)
+            RUN_IPERF="1"
+            ;;
+        --iperf-params)
+            IPERF_PARAMS="$2"
+            shift
             ;;
         --iostat)
             STAT_COLLECTION="$STAT_COLLECTION-IOSTAT"

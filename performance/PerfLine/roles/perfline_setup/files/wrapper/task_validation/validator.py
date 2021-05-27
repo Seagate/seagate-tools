@@ -114,6 +114,7 @@ def get_schema_motr():
                                 'm0crate': {
                                     'type': 'dict',
                                     'schema': {
+                                        'NR_INSTANCES_PER_NODE': {'type': 'integer', 'required': False},
                                         'LAYOUT_ID': {'type': 'integer', 'required': False},
                                         'OPCODE': {'type': 'integer', 'required': False},
                                         'IOSIZE': {'type': 'string', 'required': False, 'empty': False},

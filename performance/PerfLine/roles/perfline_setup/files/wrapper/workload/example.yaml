@@ -64,6 +64,7 @@ benchmarks:
       ObjSize: 32Mb
       EndPoint: https://s3.seagate.com
   - m0crate:
+      NR_INSTANCES_PER_NODE: 2
       NR_THREADS: 2
       BLOCK_SIZE: 2m
       IOSIZE: 4m

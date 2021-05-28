@@ -111,6 +111,18 @@ def get_schema_motr():
                 },
                 {
                             'schema': {
+                                'iperf': {
+                                    'type': 'dict',
+                                    'schema': {
+                                        'Interval': {'type': 'integer', 'required': False },
+                                        'Duration': {'type': 'integer', 'required': True, 'default': 60 },
+                                        'Parallel': {'type': 'integer', 'required': False },
+                                    }
+                                }
+                            } 
+                },
+                {
+                            'schema': {
                                 'm0crate': {
                                     'type': 'dict',
                                     'schema': {

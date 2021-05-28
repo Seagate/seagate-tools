@@ -1,0 +1,44 @@
+---
+
+- name: Sanity check
+  block:
+    - name: "Searching for 's3.seagate.com' entry in '/etc/hosts' file"
+      shell: "grep s3.seagate.com /etc/hosts"
+      register: result
+      ignore_errors: yes
+      no_log: True
+
+    - name: "'Failuers' detector in above result for searching 's3.seagate.com' entry in '/etc/hosts' file"
+      when: result.rc != 0
+      fail: msg="'s3.seagate.com' entry not found in  '/etc/hosts' file"
+
+    - name: "Checking 's3.seagate.com' is reachable or not"
+      shell: "ping -c 1 S3.seagate.com"
+      register: result
+      ignore_errors: yes
+      no_log: True
+
+    - name: "'Failuers' detector in above result for Checking 's3.seagate.com' is reachable or not"
+      when: result.rc != 0
+      fail: msg="'s3.seagate.com' is not reachable, one possible reason 's3.seagate.com' entry is commented in '/etc/hosts' file"
+
+    - name: "Checking 'aws' package installed or not"
+      shell: "pip3 list | grep aws"
+      register: result
+      ignore_errors: yes
+      no_log: True
+
+    - name: "'Failures' detector in above result for checking 'aws' package installed or not "
+      when: result.rc != 0
+      fail: msg="aws package is not installed, please install aws package on client"
+
+    - name: "Checking 'aws' is configured or not on client"
+      shell: "aws s3 ls"
+      register: result
+      ignore_errors: yes
+      no_log: True
+
+    - name: "'Failures' detector in above result for checking aws is configured or not on client"
+      when: result.rc != 0
+      fail: msg="Please configure aws on client"
+ 

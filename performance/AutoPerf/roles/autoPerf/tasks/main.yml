@@ -23,6 +23,9 @@
    script: files/automatePasswordless.sh {{ hostvars[item]['ansible_user'] }} {{ hostvars[item]['ansible_host'] }} {{ KEY }}
    with_items: "{{ groups['all'] }}"
 
+ - name: Sanity check
+   include: sanity.yml
+
  - name: Add Telegraf repository
    yum_repository:
      name: influxdb

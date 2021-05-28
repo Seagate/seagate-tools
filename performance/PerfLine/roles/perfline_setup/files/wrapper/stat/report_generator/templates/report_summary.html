@@ -1,7 +1,7 @@
 <table table-layout=auto align=center cellpadding="5" border="1">
     
     <tr>
-        <th colspan="3">Workload logs</a></th>
+        <th colspan="6">Workload logs</a></th>
     </tr>
     <tr>
         {% for name in workload_filenames %}
@@ -49,6 +49,21 @@
         </tr>
         {% endfor %}
 
+    {% endfor %}
+    {% endif %}
+    
+    {% if iperf_rw_stat %}
+    <tr>
+        <th colspan="3">Iperf results</th>
+    </tr>
+
+    {% for mainkey in iperf_rw_stat %}
+       {% for key, value in iperf_rw_stat[mainkey].items() %}
+        <tr>
+            <td>{{ key }}</td>
+            <td>{{ value }}</td>
+        </tr>
+        {% endfor %}
     {% endfor %}
     {% endif %}
 

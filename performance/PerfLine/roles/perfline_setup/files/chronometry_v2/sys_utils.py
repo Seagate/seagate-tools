@@ -127,15 +127,22 @@ class Histogram():
     BINS = 100
     PERCENTILE = 0.95
     MILLISECOND_SCALE = 10**6
+    MICROSECOND_SCALE = 10**3
 
-    def __init__(self, layer, start, stop, bins=BINS, percentile=PERCENTILE):
+    def __init__(self, layer, start, stop, bins=BINS, percentile=PERCENTILE, pids=None, scale='ms'):
         self.layer = layer
         self.bins = bins
         self.percentile = percentile
         self.start_states = start
         self.stop_states = stop
         self.hist = None
-        self.name = f"{self.layer.layer_type.name}: {self.start_states} -> {self.stop_states}, ms"
+        self.pids = pids
+        self.scale_name = scale
+        if self.scale_name=='ms':
+            self.scale = self.MILLISECOND_SCALE
+        elif self.scale_name=='us':
+            self.scale = self.MICROSECOND_SCALE
+        self.name = f"{self.layer.layer_type.name}: {self.start_states} -> {self.stop_states}, {self.scale_name}"
 
     def __process_states(self, df, states, inverse=False):
         acc = pd.DataFrame()
@@ -157,7 +164,7 @@ class Histogram():
         df = pd.concat([start,stop], ignore_index=True)
         gb = df.groupby(['pid','id']).agg({'time': [np.sum]})
         gb.reset_index(inplace=True)
-        gb['delta'] = [x/self.MILLISECOND_SCALE for x in gb[('time', 'sum')]]
+        gb['delta'] = [x/self.scale for x in gb[('time', 'sum')]]
         self.hist = gb['delta']
         self.hist = self.hist[self.hist > 0]
 
@@ -168,15 +175,29 @@ class Histogram():
         df = self.hist
         df[df > 0][df < df.quantile(self.percentile)].hist(bins=self.bins, alpha=0.5, figure=fig, ax=ax, color=color)
 
+        q80 = df.quantile(0.8)
+        q90 = df.quantile(0.9)
+        q95 = df.quantile(0.95)
+        q99 = df.quantile(0.99)
+        q995 = df.quantile(0.995)
+        q998 = df.quantile(0.998)
+        q999 = df.quantile(0.999)
+
         textstr = df.describe().to_string()
         text = textstr.split('\n')
         textstr = ''
-        for i in range(len(text)):
+        for i in range(len(text)-1):
             t = text[i].split(' ')
-            textstr = textstr + t[0] + ": " + t[-1]
-            if i < (len(text) - 1):
-                textstr = textstr + '\n'
-            
+            textstr = textstr + t[0] + ": " + t[-1] + '\n'
+        textstr = textstr + "80%: "   + "{:.2f}".format(q80) + "\n"
+        textstr = textstr + "90%: "   + "{:.2f}".format(q90) + "\n"
+        textstr = textstr + "95%: "   + "{:.2f}".format(q95) + "\n"
+        textstr = textstr + "99%: "   + "{:.2f}".format(q99) + "\n"
+        textstr = textstr + "99.5%: " + "{:.2f}".format(q995) + "\n"
+        textstr = textstr + "99.8%: " + "{:.2f}".format(q998) + "\n"
+        textstr = textstr + "99.9%: " + "{:.2f}".format(q999) + "\n"
+        textstr = textstr + text[-1].split(' ')[0] + ": " + text[-1].split(' ')[-1]
+
         handles = [mpl_patches.Rectangle((0, 0), 1, 1, fc="white", ec="white", 
                                          lw=0, alpha=0)]
         labels = []
@@ -361,6 +382,10 @@ class Figure():
                                      hspace=0.11)
         self.mpl_plt.show()
 
+    @staticmethod
+    def show_plt():
+        plt.show()
+
     def save(self):
         self.mpl_plt.figure(self.mpl_idx)
         self.mpl_plt.subplots_adjust(left=0.04,
@@ -500,3 +525,72 @@ class RPS():
 
     def name(self):
         return self.name
+
+class Latency():
+    MILLISECOND_SCALE = 10**6
+    MICROSECOND_SCALE = 10**3
+
+    def __init__(self, layer, start, stop, pids=None, scale='ms',
+                 avg_window='1s'):
+        self.layer = layer
+        self.start_states = start
+        self.stop_states = stop
+        self.latency = pd.DataFrame()
+        self.pids = pids
+        self.scale_name = scale
+        if self.scale_name=='ms':
+            self.scale = self.MILLISECOND_SCALE
+        elif self.scale_name=='us':
+            self.scale = self.MICROSECOND_SCALE
+        self.name = ''
+        self.label = 'test0'
+        self.window = avg_window
+        self.color = None
+
+    def __process_states(self, df, states, inverse=False, rule='first'):
+        acc = pd.DataFrame()
+        for s in states:
+            tmp = df[(df.state == s)]
+            acc = pd.concat([acc, tmp], ignore_index=True)
+        if inverse:
+            acc['time'] = -acc['time']
+        acc.sort_values('time', inplace=True)
+        acc.drop_duplicates(subset=['pid', 'id', 'state'], keep=rule, inplace=True)
+        return acc
+
+    def calculate(self):
+        df = self.layer.read()
+        if self.pids is not None:
+            df = df[(df.pid.isin(self.pids))]
+        start = self.__process_states(df, self.start_states, inverse=True)
+        stop = self.__process_states(df, self.stop_states)
+        df = pd.concat([start,stop], ignore_index=True)
+        df['delta'] = df.groupby(['pid','id'])['time'].transform('sum') / self.scale
+        df = df[df.time > 0]
+        df = df[df.delta > 0]
+        df = df[['time', 'delta']]
+        df.set_index('time', inplace=True)
+        df = df.sort_values('time')
+        df.index = [pd.Timestamp(x, unit='ns') for x in df.index]
+        nl = '\n'
+        self.label = f'{self.layer.layer_type.name}{nl}{self.start_states} -> {self.stop_states}'
+        df.rename(columns={"delta": self.label}, inplace=True)
+        self.latency = df.rolling(self.window).mean()
+
+    def draw(self, fig, ax, color):
+        if self.color:
+            color = self.color
+        if self.latency.empty:
+            return
+        ax = self.latency.plot(alpha=0.5, figure=fig,
+                               ax=ax, color=color, grid=True)
+        ax.legend(loc="upper right")
+        ymax = self.latency[self.label].max()
+        ax.set_ylim([0, ymax * 2] )
+
+    def name(self):
+        return self.name
+
+    def merge(self, latency):
+        self.latency = pd.concat([self.latency, histogram.latency], ignore_index=True)
+        self.latency.reset_index(drop=True)

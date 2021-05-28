@@ -67,6 +67,11 @@ benchmarks:
       NR_THREADS: 2
       BLOCK_SIZE: 2m
       IOSIZE: 4m
+  - iperf:
+      Interval:
+      Duration:
+      Parallel:
+
 
 execution_options:
   mkfs: false

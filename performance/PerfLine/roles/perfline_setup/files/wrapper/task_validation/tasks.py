@@ -111,6 +111,19 @@ def parse_options(conf, result_dir):
         elif 'custom' in b:
             options.append('-w')
             options.append(b['custom']['cmd'])
+        elif 'iperf' in b:
+            options.append('--iperf')
+            params_str = ''
+            for param_name, param_val in b['iperf'].items():
+                if param_name == "Interval":
+                   param_name = "-i"
+                elif param_name == "Duration":
+                   param_name = "-t"
+                elif param_name == "Parallel":
+                   param_name = "-P"
+                params_str += "{} {} ".format(param_name, param_val)
+            options.append('--iperf-params')
+            options.append(params_str)
 
     # Execution options:
     if 'mkfs' in conf['execution_options']:

@@ -22,14 +22,14 @@ set -e
 
 SCRIPT_PATH="$(readlink -f $0)"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
-TOOLS_DIR="$SCRIPT_DIR/../../../chronometry_v2"
+GLANCES_DIR="$SCRIPT_DIR/../../stat/glances"
 
 
 DISKS_MAPPING_FILE="../disks.mapping"
 NETWORK_IFACES_FILE="../network/network_interfaces_info"
 CSV_DATA_FILE="glances.csv"
 
-YAML_TEMPLATE_FILE="$TOOLS_DIR/glances_stats_schema.template.yaml"
+YAML_TEMPLATE_FILE="$GLANCES_DIR/glances_stats_schema.template.yaml"
 
 
 function process_data_for_node()
@@ -43,9 +43,9 @@ function process_data_for_node()
     local md_vols=$(cat $DISKS_MAPPING_FILE | grep MD | awk '{print $3}')
     local net_ifaces=$(cat $NETWORK_IFACES_FILE | grep '^[0-9]:' | awk -F ': ' '{print $2}')
     
-    $TOOLS_DIR/gen_glances_stats_schema.py -y $YAML_TEMPLATE_FILE \
+    $GLANCES_DIR/gen_glances_stats_schema.py -y $YAML_TEMPLATE_FILE \
             -d "$data_vols" -m "$md_vols" -n "$net_ifaces" -c "$cpu_nr"
-    $TOOLS_DIR/plot_glances_stats.py -y "glances_stats_schema.yaml" -c "$CSV_DATA_FILE"
+    $GLANCES_DIR/plot_glances_stats.py -y "glances_stats_schema.yaml" -c "$CSV_DATA_FILE"
 
     popd
 }

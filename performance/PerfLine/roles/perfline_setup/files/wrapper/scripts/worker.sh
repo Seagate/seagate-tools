@@ -387,7 +387,6 @@ function save_perf_results() {
         echo "Benchmark: iPerf" >> $PERF_RESULTS_FILE
         for node in ${NODES//,/ }
         do
-            echo "Hostname: $node" >> $PERF_RESULTS_FILE
             $SCRIPT_DIR/../stat/report_generator/iperf_log_parser.py $CLIENT_ARTIFACTS_DIR/$node\_iperf_workload.log >> $PERF_RESULTS_FILE
             echo "" >> $PERF_RESULTS_FILE
         done

@@ -68,9 +68,9 @@ benchmarks:
       BLOCK_SIZE: 2m
       IOSIZE: 4m
   - iperf:
-      Interval:
-      Duration:
-      Parallel:
+      Interval: 1
+      Duration: 60
+      Parallel: 2
 
 
 execution_options:

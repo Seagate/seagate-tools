@@ -1,19 +1,19 @@
 
 # Perfline
-This is perfline module that allows to run cortx workloads.
+PerfLine is primarily a CORTX Profiler. It has extended capabilities of running different benchmarks and microbenchmarks and other custom workloads in multi-user shared environment.
 It consists of three modules:
-- wrapper - main functionality, report generator, statistic gather scripts
-- webui - web server for presenting workload result and controlling over new workloads
-- ansible playbook - ansible script for fast perfline setup
+- wrapper - Executables including report generator, statistic gather scripts
+- webui - Web server based PerfLine UI for interacting with PerfLine
+- ansible playbook - Ansible based PerfLine Installation
 
 # Prerequisites
-You can setup perfline from any machine, to setup perfline or deploying perfline on a client, following prerequisites must be satisfied:
-1. Actual version of seagatetools repo downloaded
-2. Ansible package installed (ver. 2.9+)
-3. Choose Machine, from which installation will be performed,
+PerfLine can be installed from any machine, To setup PerfLine or deploying PerfLine on a client, following prerequisites must be satisfied:
+1. Choose Machine, from which installation will be performed, It can be any machine(PerfLine wont be installed here unless configured to do so)
+2. Latest version of seagatetools repo downloaded
+3. Ansible package installed (ver. 2.9+)
 4. Setup config for cluster nodes
     4.1 Change ./inventories/perfline_hosts/hosts file and set target cluster nodes dns-name/ip. Accordingly for nodes and client groups.
- Build machine is an optional to user, if user want to create new build for io-path components on LR2 setup.
+ Build machine is optional to user, if user want to create new build for io-path components on LR2 setup.
     ```
     [nodes]
     srvnode-1 ansible_host=<PRIMARY NODE-FQDN>
@@ -40,18 +40,22 @@ You can setup perfline from any machine, to setup perfline or deploying perfline
     ```
 
 # Installation
-When prerequisites is satisfied you need to `# cd` to `PerfLine` directory and run:
+1. When prerequisites are satisfied you need to `# cd` to `PerfLine` directory and run:
 `# ansible-playbook -i inventories/perfline_hosts/hosts run_perfline.yml -v`
-After that wait till ansible will copy and install all required artifacts on target nodes and also copy required script on client node to run perfline workload within `/root/perfline`.
+
+2. Wait till ansible installiation finishes on provided nodes under location 
+	2.1 executables  at `/root/perfline`
+	2.2 results at `/var/perfline`
+	2.3 logs at `/var/log/perfline`
 
 # Define own workload
-As per your test cases, Create a "<example>.yaml" file inside `/root/perfline/wrapper/workload` directory .
+As per need, Create a "<any name of your choice>.yaml" file inside `/root/perfline/wrapper/workload` directory. An expample.yaml is already provided for user's reference.
 Custom build:
 ```
-1. if user want to use internal docker service then user must generate "github personal access token"(github_PAT), "github username" otherwise user can move ahead with external docker service without "github_PAT" and "github_username".
+1. If user want to use build-deploy(uses seagate internal docker service) feature then user must generate "github personal access token"(github_PAT) and need to provide it along with "github username" in workload yaml file, otherwise user can move ahead with build-deploy(using docker service for external community) without "github_PAT" and "github_username". External docker service is slow and takes more time to build. Hence it is highly encouraged for seagate-internal users to use internal docker service.
 2. User have an option to choose build machine either VM or HW machine.
-3. No need to mention anything for motr_repo_path, hare_repo_path and s3server_repo_path. This feature is disabled.
-4. User can update cluster or build based on io-path components commit_id.
+3. No need to mention anything for motr_repo_path, hare_repo_path and s3server_repo_path. This feature is currently disabled, as build service only support building main branch code which is default and need not be metioned vi repo_path parameters.
+4. User can provide any working git committ hash/ID combination for io-path components as long as user can ensure build won't fail. CORTX build on cluster would be updated accordingly. If not provided, default is ToT branch mentioned in bullet 3 above.
 ```
 
 For ex:
@@ -145,3 +149,5 @@ If you go to report page you could see detailed report for executed task, includ
     `...`
     `server_ep = {'host': '0.0.0.0', 'port': 'new_port'}`
 
+# DISCLAIMER / WARNING
+PerfLine is a tool, not a service, which is available to users to install and use at their own setups/machines. For multi-user use, PerfLine provide all required infrastructure with task/run queues and optional email notifications. But, It is outside scope of PerfLine to ensure that nothing runs outside of PerfLine infrastructure on user machines, when PerfLine is executing tasks/runs. This islolation is necessary for accurate data measurements / artifacts collection and must be ensured by user. If not ensured, results might have data which is adulterated unintentionally and accuracy compromised due to user machines being shared and used in parallel to PerfLine.

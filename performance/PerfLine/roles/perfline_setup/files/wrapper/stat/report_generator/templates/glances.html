@@ -1,0 +1,180 @@
+{% if glances_imgs %}
+<h2 align=center>System stats [Glances]</h2>
+
+    <table border="1">
+        <tr>
+            <td colspan="2" align="center"><h3>CPU + Memory usage</h3></td>
+        </tr>
+        <tr>
+            {% for hn in hostnames %}
+            <td align="center"><h4>{{hn}}</h4></td>
+            {% endfor %}
+        </tr>
+        <tr>
+            {% for hn in hostnames %}
+            <td><img src="/report/{{task_id}}/glances_imgs/{{glances_imgs['cpumem'][hn]}}" alt="CPU + Memory"></td>
+            {% endfor %}
+        </tr>
+
+        <tr>
+            <td colspan="2" align="center"><h3>CPU usage</h3></td>
+        </tr>
+        <tr>
+            {% for hn in hostnames %}
+            <td align="center"><h4>{{hn}}</h4></td>
+            {% endfor %}
+        </tr>
+        <tr>
+            {% for hn in hostnames %}
+            <td><img src="/report/{{task_id}}/glances_imgs/{{glances_imgs['cpu'][hn]}}" alt="CPU"></td>
+            {% endfor %}
+        </tr>
+    
+        <tr>
+            <td colspan="2" align="center"><h3>Interrupts</h3></td>
+        </tr>
+        <tr>
+            {% for hn in hostnames %}
+            <td align="center"><h4>{{hn}}</h4></td>
+            {% endfor %}
+        </tr>
+        <tr>
+            {% for hn in hostnames %}
+            <td><img src="/report/{{task_id}}/glances_imgs/{{glances_imgs['interrupts'][hn]}}" alt="Interrupts"></td>
+            {% endfor %}
+        </tr>
+
+        <tr>
+            <td colspan="2" align="center"><h3>CPUs usage</h3></td>
+        </tr>
+        <tr>
+            {% for hn in hostnames %}
+            <td align="center"><h4>{{hn}}</h4></td>
+            {% endfor %}
+        </tr>
+        <tr>
+            {% for hn in hostnames %}
+            <td><img src="/report/{{task_id}}/glances_imgs/{{glances_imgs['percpusum'][hn]}}" alt="CPUs usage"></td>
+            {% endfor %}
+        </tr>
+    </table>
+
+    <details>
+        <summary>CPU details</summary>
+        <table border="1">
+            <tr>
+                {% for hn in hostnames %}
+                <td align="center"><h3>{{hn}}</h3></td>
+                {% endfor %}
+            </tr>
+            
+            {% for metric_name in percpu_metrics %}
+            <tr>
+                {% for hn in hostnames %}
+                <td><img src="/report/{{task_id}}/glances_imgs/{{glances_imgs[metric_name][hn]}}" alt="Glances percpu"></td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+    </details>
+
+    <table border="1">
+        <tr>
+            <td colspan="2" align="center"><h3>Memory/Swap usage</h3></td>
+        </tr>
+        <tr>
+            {% for hn in hostnames %}
+            <td align="center"><h4>{{hn}}</h4></td>
+            {% endfor %}
+        </tr>
+        
+        <tr>
+            {% for hn in hostnames %}
+            <td><img src="/report/{{task_id}}/glances_imgs/{{glances_imgs['mem'][hn]}}" alt="Glances mem"></td>
+            {% endfor %}
+        </tr>
+
+        <tr>
+            <td colspan="2" align="center"><h3>Network interfaces</h3></td>
+        </tr>
+        <tr>
+            {% for hn in hostnames %}
+            <td align="center"><h4>{{hn}}</h4></td>
+            {% endfor %}
+        </tr>
+        
+        {% for metric_name in net_metrics %}
+        <tr>
+            {% for hn in hostnames %}
+            <td><img src="/report/{{task_id}}/glances_imgs/{{glances_imgs[metric_name][hn]}}" alt="Glances net"></td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+
+        <tr>
+            <td colspan="2" align="center"><h3>Data volumes diskio (summary)</h3></td>
+        </tr>
+        <tr>
+            {% for hn in hostnames %}
+            <td align="center"><h4>{{hn}}</h4></td>
+            {% endfor %}
+        </tr>
+        <tr>
+            {% for hn in hostnames %}
+            <td><img src="/report/{{task_id}}/glances_imgs/{{glances_imgs['datavolumesummary'][hn]}}" alt="data volumes diskio"></td>
+            {% endfor %}
+        </tr>
+
+        <tr>
+            <td colspan="2" align="center"><h3>Data volumes diskio</h3></td>
+        </tr>
+        <tr>
+            {% for hn in hostnames %}
+            <td align="center"><h4>{{hn}}</h4></td>
+            {% endfor %}
+        </tr>
+        
+        <tr>
+            {% for hn in hostnames %}
+            <td>
+            {% for metric_name in datavolume_metrics %}
+
+            {% if hn in glances_imgs[metric_name] %}
+
+            <img src="/report/{{task_id}}/glances_imgs/{{glances_imgs[metric_name][hn]}}" alt="Glances DV"><br>
+
+            {% endif %}
+
+            {% endfor %}
+            </td>
+            {% endfor %}
+        </tr>
+        
+        <tr>
+            <td colspan="2" align="center"><h3>Metadata volumes diskio</h3></td>
+        </tr>
+        <tr>
+            {% for hn in hostnames %}
+            <td align="center"><h4>{{hn}}</h4></td>
+            {% endfor %}
+        </tr>
+        
+        <tr>
+            {% for hn in hostnames %}
+            <td>
+            {% for metric_name in mdvolume_metrics %}
+
+            {% if hn in glances_imgs[metric_name] %}
+
+            <img src="/report/{{task_id}}/glances_imgs/{{glances_imgs[metric_name][hn]}}" alt="Glances MD"><br>
+
+            {% endif %}
+
+            {% endfor %}
+            </td>
+            {% endfor %}
+        </tr>
+        
+    </table>
+
+{% endif %}

@@ -3,6 +3,7 @@
    shell: cd /root/PerfProBenchmark/s3bench_meta; ./run_s3benchmark.sh -nc 300 -ns {{ item.numsamples }} -s {{ item.objsize }}
    delegate_to: "clientnode-1"
    loop:
+       - { objsize: '1Kb', numsamples: '4000'}
        - { objsize: '4Kb', numsamples: '33000'}
        - { objsize: '100Kb', numsamples: '130000'}
        - { objsize: '256Kb', numsamples: '96000'}

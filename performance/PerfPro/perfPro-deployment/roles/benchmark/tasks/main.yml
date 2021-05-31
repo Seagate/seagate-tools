@@ -93,7 +93,7 @@
    with_items: "{{ groups['clients'] }}"
 
  - name: System monitoring started
-   command: python3 /root/PerfProBenchmark/system_monitoring/systemMonitoring.py /root/PerfProBenchmark/main.yml 
+   command: python3 /root/PerfProBenchmark/system_monitoring/systemMonitoring.py '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'
    async: 21600
    poll: 0
    delegate_to: "{{ item }}"

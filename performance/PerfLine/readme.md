@@ -91,10 +91,10 @@ benchmarks:
   - lnet:
       LNET_OPS: read,write,ping              # user can pass value operation separated by ',' Ex: read,write,ping
   - fio:
-      Duration:
-      BlockSize:
-      NumJobs:
-      Template:         #Template for fio like seq_read_fio, seq_write_fio, randmix_80-20_fio, randmix_20-80_fio and rand_fio
+      Duration: 600
+      BlockSize: 8M
+      NumJobs: 32
+      Template: seq_read_fio       #Template for fio like seq_read_fio, seq_write_fio, randmix_80-20_fio, randmix_20-80_fio and rand_fio
   - s3bench:
       BucketName: mybucket
       NumClients: 10
@@ -105,6 +105,11 @@ benchmarks:
       NR_THREADS: 2
       BLOCK_SIZE: 2m
       IOSIZE: 4m
+  - iperf:
+      Interval: 1
+      Duration: 60
+      Parallel: 2
+
 
 execution_options:
   mkfs: false

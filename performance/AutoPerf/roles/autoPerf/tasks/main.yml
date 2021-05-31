@@ -112,27 +112,32 @@
 
  - name: s3benchmark Running
    shell: cd /root/cortx-benchmark/s3bench_basic; ./run_s3benchmark.sh -nc {{ CLIENTS }} -ns {{ NUMSAMPLES}} -s {{ IOSIZE }} -sm {{ SAMPLE }} -cl {{ SKIPCLEANUP }}
-   when: BENCHMARK == "s3bench_basic"
+   when: BENCHMARK == "s3bench_basic" 
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
 
  - name: HSbenchmark Running
    shell: cd /root/cortx-benchmark/hsbench; ./run_benchmark.sh -b {{ BUCKETS }} -o {{ NUMSAMPLES }} -s {{ IOSIZE }} -t {{ CLIENTS }} -d {{ DURATION }} -sm {{ SAMPLE }}
-   when: BENCHMARK == "hsbench"
+   when: BENCHMARK == "hsbench" 
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
 
  - name: Cosbench Running
    shell: cd /root/cortx-benchmark/cosbench; ./s3cosbench_benchmark.sh -nc {{ CLIENTS }} -ns {{ NUMSAMPLES }} -s {{ IOSIZE }} -b {{ BUCKETS }} -w {{ OPERATION }} -t {{ DURATION }} -sm {{ SAMPLE }}
-   when: BENCHMARK == "cosbench"
+   when: BENCHMARK == "cosbench" 
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
 
  - name: Fio Running
    shell: cd /root/cortx-benchmark/fio; ./run_fio.sh {{ nodes['1'] }} {{ DURATION }} {{ IOSIZE }} {{ NUMJOBS }} {{ SAMPLE }} {{ TEMPLATE }}
-   when: BENCHMARK == "fio"
+   when: BENCHMARK == "fio" 
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
+
+ - name: Running and monitoring system stats
+   pause:
+    minutes: "{{ WAIT }}"
+   when: BENCHMARK == "NONE"
 
  - name: Telegraf monitoring stop
    service:

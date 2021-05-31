@@ -192,6 +192,7 @@ def getconfig():
     nodes_list=configs_config.get('NODES')
     clients_list=configs_config.get('CLIENTS')
     pc_full=configs_config.get('PC_FULL')
+    custom=configs_config.get('CUSTOM')
     overwrite=configs_config.get('OVERWRITE')
     iteration=configs_config.get('ITERATION')
     cluster_pass=configs_config.get('CLUSTER_PASS')
@@ -205,7 +206,7 @@ def getconfig():
     nfs_mp=configs_config.get('NFS_MOUNT_POINT')
     nfs_fol=configs_config.get('NFS_FOLDER')
 
-    dic={'NODES' :str(nodes_list) , 'CLIENTS' : str(clients_list) ,'BUILD_URL': build_url ,'CLUSTER_PASS': cluster_pass ,'CHANGE_PASS': change_pass ,'PRVSNR_CLI_REPO': prv_cli ,'PREREQ_URL': prereq_url ,'SERVICE_USER': srv_usr ,'SERVICE_PASS': srv_pass , 'PC_FULL': pc_full , 'OVERWRITE':overwrite , 'ITERATION': iteration,'NFS_SERVER': nfs_serv ,'NFS_EXPORT' : nfs_exp ,'NFS_MOUNT_POINT' : nfs_mp , 'NFS_FOLDER' : nfs_fol }
+    dic={'NODES' :str(nodes_list) , 'CLIENTS' : str(clients_list) ,'BUILD_URL': build_url ,'CLUSTER_PASS': cluster_pass ,'CHANGE_PASS': change_pass ,'PRVSNR_CLI_REPO': prv_cli ,'PREREQ_URL': prereq_url ,'SERVICE_USER': srv_usr ,'SERVICE_PASS': srv_pass , 'PC_FULL': pc_full , 'CUSTOM': custom , 'OVERWRITE':overwrite , 'ITERATION': iteration,'NFS_SERVER': nfs_serv ,'NFS_EXPORT' : nfs_exp ,'NFS_MOUNT_POINT' : nfs_mp , 'NFS_FOLDER' : nfs_fol }
     return (dic)
 
 

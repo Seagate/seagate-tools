@@ -5,10 +5,6 @@
      state: present
      #update_cache: yes
 
-# tasks file for autoPerf
-# 
-# - name: Updating hosts files
-#   script: files/update_hosts.sh {{ CLIENT }} {{ PRIMARY }} {{ SECONDARY }}
  - name: Updating host configuration file
    include: host_entry.yaml
    when: nodes != "" and clients != "" 
@@ -21,6 +17,7 @@
 
  - name: Enabled passwordless authentication
    script: files/automatePasswordless.sh {{ hostvars[item]['ansible_user'] }} {{ hostvars[item]['ansible_host'] }} {{ KEY }}
+   ignore_errors: true
    with_items: "{{ groups['all'] }}"
 
  - name: Sanity check

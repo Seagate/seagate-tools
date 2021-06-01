@@ -31,7 +31,7 @@
                 "filter": {
                     "metric": "latency",
                     "operator": ">",
-                    "threshold": "5000"
+                    "threshold": "5000 ms"
                 },
                 "grouping": {
                     "constraint": "any",

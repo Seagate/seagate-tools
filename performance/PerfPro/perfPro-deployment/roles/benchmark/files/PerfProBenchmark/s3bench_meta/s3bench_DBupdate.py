@@ -85,7 +85,7 @@ class s3bench:
             pattern = {"PKey" : self.PKey}
             count_documents= collection.count_documents(pattern)
             if count_documents == 0:
-                insertentry={"NAME" : "S3bench" , "Log_File" : self.Log_File,"IOPS" : self.IOPS,"Throughput" : self.Throughput,"Latency": self.Latency,"TTFB" : self.TTFB,"Timestamp":self.Timestamp, "Config_ID":self.Config_ID,"HOST" : socket.gethostname(), "Operation" : self.Operation , "Object_Size" : self.Object_Size ,"Build" : self.Build , "Version" : self.Version , "Branch" : self.Branch , "OS" : self.OS , "Count_of_Servers": self.nodes_num , "Count_of_Clients" : self.clients_num , "PKey" : self.PKey  }
+                insertentry={"Name" : "S3bench" , "Log_File" : self.Log_File,"IOPS" : self.IOPS,"Throughput" : self.Throughput,"Latency": self.Latency,"TTFB" : self.TTFB,"Timestamp":self.Timestamp, "Config_ID":self.Config_ID,"HOST" : socket.gethostname(), "Operation" : self.Operation , "Object_Size" : self.Object_Size ,"Build" : self.Build , "Version" : self.Version , "Branch" : self.Branch , "OS" : self.OS , "Count_of_Servers": self.nodes_num , "Count_of_Clients" : self.clients_num , "PKey" : self.PKey  }
                 collection.insert_one(insertentry)
                 action = "Inserted"
             elif self.overwrite == True : 

@@ -7,6 +7,7 @@ import yaml
 
 from store_data import connect_database, update_parsed_data
 from data_parser import parse_data
+from Analyzer.rule_handler import rule_handler
 
 
 def get_random_string(length):
@@ -71,11 +72,25 @@ def update_database():
         print("Observed exception: ", e)
 
 
+def analyzer(run_ID):
+    print("~ Analyzing data...")
+    print("~ PHASE 1: Reading rules...")
+    try:
+        rules = rule_handler(run_ID)
+        print(f"Current rules are: {rules}")
+        print("~ Done!")
+
+    except Exception as e:
+        print("Observed exception: ", e)
+
+
+
 if __name__ == '__main__':
     print("~ Executing PerfBot...")
 
     run_ID = generate_runID()
     execute_parsers(run_ID)
     update_database()
+    analyzer(run_ID)
 
     print("~ Thanks for using PerfBot!")

@@ -23,14 +23,20 @@ import yaml
 import argparse
 import pandas as pd
 import matplotlib.pyplot as plt
+import re
 
 
 TEMPLATE_PLACEHOLDER = '[TEMPLATE]'
-DEFAULT_FIGURE_SIZE = (12, 4)
+HOSTNAME_PLACEHOLDER = '[HOSTNAME]'
+DEFAULT_FIGURE_SIZE = (12, 6)
+
+HOSTNAME = None
 
 
 def get_val_from_template(template, val):
-    return template.replace(TEMPLATE_PLACEHOLDER, str(val))
+    result = template.replace(TEMPLATE_PLACEHOLDER, str(val))
+    result = result.replace(HOSTNAME_PLACEHOLDER, HOSTNAME)
+    return result
 
 
 class GraphPlotter:
@@ -42,13 +48,45 @@ class GraphPlotter:
     BYTES_PER_MB = 2 ** 20
     BYTES_PER_GB = 2 ** 30
 
+    RANGE_ITER_PATTERN = r'\[(?P<start>\d+)\.\.(?P<end>\d+)\]'
+    LIST_ITER_PATTERN = r'\[(.+)\]'
+
+    def _prepare_metrics_list(self, metrics, index):
+        metrics = [get_val_from_template(x, index) for x in metrics]
+        result = []
+
+        for m in metrics:
+            re_range_result = re.search(self.RANGE_ITER_PATTERN, m)
+            re_list_result = re.search(self.LIST_ITER_PATTERN, m)
+
+            if re_range_result:
+                template_part = re_range_result.group(0)
+                start_val = int(re_range_result.group(1))
+                end_val = int(re_range_result.group(2))
+
+                for i in range(start_val, end_val + 1):
+                    result.append(m.replace(template_part, str(i)))
+
+            elif re_list_result:
+                template_part = re_list_result.group(0)
+                tmp_list = re_list_result.group(1).split(',')
+                tmp_list = [x.strip() for x in tmp_list]
+
+                for item in tmp_list:
+                    result.append(m.replace(template_part, item))
+            else:
+                result.append(m)
+        
+        return result
+
     def __init__(self, df, axs, graph_desc, index):
         self.df = df
         self.axs = axs
-        self.metrics = [get_val_from_template(x, index) for x in graph_desc['metrics']]
+        self.metrics = self._prepare_metrics_list(graph_desc['metrics'], index)
         self.title = get_val_from_template(graph_desc['title'], index)
         self.ylabel = graph_desc['y_label'] if 'y_label' in graph_desc else None
         self.display_option = graph_desc['display_as'] if 'display_as' in graph_desc else None
+        self.show_legend = graph_desc['show_legend'] if 'show_legend' in graph_desc else True
 
     def plot(self):
         metrics_to_display = self.metrics
@@ -70,7 +108,7 @@ class GraphPlotter:
 
 
         self.df = self.df[metrics_to_display]
-        self.df.plot(ax=self.axs)
+        self.df.plot(ax=self.axs, legend=self.show_legend)
 
         if self.title:
             self.axs.set_title(self.title)
@@ -121,6 +159,7 @@ class FigurePlotter:
                                              self.index)
                 graph_plotter.plot()
 
+        self.fig.autofmt_xdate()
         self.fig.savefig(self.fname)
 
 
@@ -132,10 +171,10 @@ def parse_args():
         in yaml format.
     """)
     
-    parser.add_argument("-y", "--yaml-schema", type=str,
+    parser.add_argument("-y", "--yaml-schema", type=str, required=True,
                         help="yaml formatted schema of required graphs and metrics")
     
-    parser.add_argument("-c", "--csv-data", type=str,
+    parser.add_argument("-c", "--csv-data", type=str, required=True,
                         help="csv formatted data provided by glances utility")
 
     return parser.parse_args()
@@ -145,6 +184,10 @@ def prepare_df(csv_file):
     df = pd.read_csv(csv_file)
     df = df.set_index('timestamp')
     return df
+
+def get_hostname(df):
+    global HOSTNAME
+    HOSTNAME = df['system_hostname'].iloc[0]
 
 
 def plot_figures(df, figures_descs):
@@ -169,6 +212,7 @@ def main():
     conf_path = args.yaml_schema
     csv_file = args.csv_data
     df = prepare_df(csv_file)
+    get_hostname(df)
 
     with open(conf_path) as f:
         conf = yaml.safe_load(f.read())

@@ -212,7 +212,7 @@ function m0crate_workload()
 
     $EX_SRV "mkdir -p $m0crate_work_dir \
              && cd $m0crate_work_dir \
-             && $SCRIPT_DIR/run_m0crate $M0CRATE_PARAMS &> m0crate.%h.log"
+             && $SCRIPT_DIR/run_m0crate $M0CRATE_PARAMS"
 
     STATUS=$?
 
@@ -350,15 +350,22 @@ function save_stats() {
     for srv in $(echo $NODES | tr ',' ' '); do
         mkdir -p $srv
         pushd $srv
-	scp -r $srv:/var/perfline/iostat* iostat || true
-	scp -r $srv:/var/perfline/blktrace* blktrace || true
-	scp -r $srv:/var/perfline/dstat* dstat || true
-        scp -r $srv:/var/perfline/glances* glances || true
-	scp -r $srv:/var/perfline/hw* hw || true
-	scp -r $srv:/var/perfline/network* network || true
-	scp -r $srv:/var/perfline/5u84* 5u84 || true
+        scp -r $srv:/var/perfline/iostat* iostat || true
+        scp -r $srv:/var/perfline/blktrace* blktrace || true
+        scp -r $srv:/var/perfline/dstat* dstat || true
+
+        if [[ "$STAT_COLLECTION" == *"GLANCES"* ]]; then
+            mkdir glances
+            scp $srv:/var/perfline/glances*/glances.csv glances
+        fi
+
+        scp -r $srv:/var/perfline/hw* hw || true
+        scp -r $srv:/var/perfline/network* network || true
+        scp -r $srv:/var/perfline/5u84* 5u84 || true
         scp -r $srv:/var/perfline/fio* fio || true
-	popd
+
+        ssh $srv "$SCRIPT_DIR/artifacts_collecting/collect_disks_info.sh" > disks.mapping
+        popd
     done
 }
 
@@ -373,10 +380,12 @@ function save_perf_results() {
 
     if [[ -n "$RUN_M0CRATE" ]]; then
         for m0crate_log in $M0CRATE_ARTIFACTS_DIR/m0crate.*.log; do
-            local hostname=$(echo $m0crate_log | awk -F "/" '{print $NF}' \
-                           | sed 's/m0crate.//' | sed 's/.log//')
+            local fname=$(echo $m0crate_log | awk -F "/" '{print $NF}')
+            local motr_port=$(echo $fname | awk -F '.' '{print $2}')
+            local hostname=$(echo $fname | sed "s/m0crate.$motr_port.//" | sed "s/.log//")
             echo "Benchmark: m0crate" >> $PERF_RESULTS_FILE
             echo "Host: $hostname" >> $PERF_RESULTS_FILE
+            echo "Motr port: $motr_port" >> $PERF_RESULTS_FILE
             $SCRIPT_DIR/../stat/report_generator/m0crate_log_parser.py \
                     $m0crate_log >> $PERF_RESULTS_FILE
             echo "" >> $PERF_RESULTS_FILE
@@ -448,6 +457,13 @@ function collect_artifacts() {
         mkdir -p $stats_addb
         pushd $stats_addb
         $SCRIPT_DIR/process_addb_data.sh --db $m0play_path
+        popd
+    fi
+
+    if [[ "$STAT_COLLECTION" == *"GLANCES"* ]]; then
+        pushd $stats
+        local srv_nodes=$(echo $NODES | tr ',' ' ')
+        $SCRIPT_DIR/artifacts_collecting/process_glances_data.sh $srv_nodes
         popd
     fi
 }

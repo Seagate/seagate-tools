@@ -44,9 +44,8 @@ sleep 5
 
 if [[ "$1" == *"GLANCES"* ]]
 then
-    glances --stdout now,core,cpu,percpu,diskio,fs,load,system,mem,memswap,\
-network,processcount,raid,sensors,uptime --export csv --export-csv-file \
-/var/perfline/glances.$(hostname -s)/glances.csv > /dev/null 2>&1 &
+    csv_file="/var/perfline/glances.$(hostname -s)/glances.csv"
+    glances --quiet --export csv --export-csv-file $csv_file &
     echo "Glances collection started"
 fi
 sleep 5

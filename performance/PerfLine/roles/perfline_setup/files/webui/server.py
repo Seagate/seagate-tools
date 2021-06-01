@@ -336,6 +336,14 @@ def serve_addb_imgs(tid, filename):
     return send_file(path_to_img, mimetype='image')
 
 
+@app.route('/report/<string:tid>/glances_imgs/<string:filename>')
+def serve_glances_imgs(tid, filename):
+    filename_parts = filename.split('__')
+    hostname = filename_parts[0] if len(filename_parts) > 0 else ""
+    path_to_img = f'/var/perfline/result_{tid}/stats/{hostname}/glances/{filename}'
+    return send_file(path_to_img, mimetype='image')
+
+
 @app.route('/report/<string:tid>/dstat_imgs/<string:node_id>/<string:img_type>')
 def serve_dstat_imgs(tid, node_id, img_type):
     # Easy safe check

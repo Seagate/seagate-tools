@@ -32,6 +32,7 @@ import config
 import uuid
 
 from os.path import join
+from os import listdir
 
 import pandas as pd
 import csv
@@ -40,7 +41,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 from core.utils import *
-from core import cache, pl_api
+from core import pl_api, task_cache
 
 
 app = Flask(__name__)
@@ -53,13 +54,8 @@ report_resource_map = dict()
 AGGREGATED_PERF_FILE = '/root/perfline/webui/images/aggregated_perf_{0}.png'
 WORKLOAD_DIR = '/root/perfline/wrapper/workload'
 
-# @app.after_request
-# def add_header(resp):
-#     resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-#     resp.headers["Pragma"] = "no-cache"
-#     resp.headers["Expires"] = "0"
-#     resp.headers["Cache-Control"] = "public, max-age=0"
-#     return resp
+cache = task_cache.TaskCache()
+
 
 @app.after_request
 def add_header(response):
@@ -70,74 +66,6 @@ def add_header(response):
     return response
 
 
-def refresh_performance_img():
-
-    lines = pl_api.get_results().split('\n')
-    lines = filter(None, lines)  # remove empty line
-
-    results = [yaml.safe_load(line) for line in lines]
-
-    sizes = ['100k', '1m', '16m', '128m']
-    rw_data = {size: (list(), list(), list()) for size in sizes}
-    # rw_data = {
-    #     '100k': ((list(), list()),
-    #             (list(), list()),
-    #     '1m': ((list(), list()),
-    #             (list(), list()),
-    #     '16m': ((list(), list()),
-    #             (list(), list()),
-    #     '128m': ((list(), list()),
-    #             (list(), list()),
-    # }
-    for r in results:
-        try:
-            if len(r) < 3:
-                continue
-
-            task_descr = r[2]['info']['conf']['common'].get('description')
-            task_finish_time = r[2]['info']['finish_time']
-            task_id = r[0]['task_id']
-
-            if 'Perf benchmark' not in task_descr:
-                continue
-            task_descr.split(',')
-            size = next(t.strip().split('=')[1] for t in task_descr.split(
-                ',') if t.strip().split('=')[0] == 'size')
-            if size not in rw_data:
-                continue
-
-            rw_file_path = f'/var/perfline/result_{task_id}/rw_stat'
-            if isfile(rw_file_path):
-                with open(rw_file_path, 'r') as rw_file:
-                    rw_info = rw_file.readlines()
-                    rw_data[size][0].append(float(rw_info[0].split(' ')[0]))
-                    rw_data[size][1].append(float(rw_info[1].split(' ')[0]))
-            else:
-                continue
-
-            fmt = '%Y-%m-%d %H:%M:%S.%f'
-            hms = '%Y-%m-%d %H:%M:%S'
-            f = datetime.datetime.strptime(task_finish_time, fmt)
-
-            rw_data[size][2].append(f)
-        except Exception as e:
-            print("exception: " + str(e))
-
-    print(rw_data)
-
-    for size, data in rw_data.items():
-        fig, ax = plt.subplots(1)
-
-        ax.plot(data[2], data[0], label="write")
-        ax.plot(data[2], data[1], label="read")
-        plt.title(size)
-        plt.ylabel('MB/s')
-        plt.legend(loc='best')
-        fig.autofmt_xdate()
-        plt.savefig(AGGREGATED_PERF_FILE.format(size))
-        plt.cla()
-
-
 @app.route('/aggregated_perf_img/<string:size>')
 def aggregated_perf_img(size):
     return send_file(AGGREGATED_PERF_FILE.format(size), mimetype='image')
@@ -145,7 +73,6 @@ def aggregated_perf_img(size):
 
 @app.route('/')
 def index():
-    refresh_performance_img()
     return render_template("index.html")
 
 
@@ -160,35 +87,11 @@ def stats(path):
     response.headers['Pragma'] = 'no-cache'
     return response
 
-def get_perf_results(task_id):
-    cache_key = f'perf_res_{task_id}'
-
-    if cache.contains(cache_key):
-        return cache.get(cache_key)
-
-    perf_results_path = f'{config.artifacts_dir}/result_{task_id}/{config.perf_results_filename}'
-
-    if isfile(perf_results_path):
-        result = []
-
-        with open(perf_results_path) as f:
-            for line in f:
-                line_s = line.strip()
-                if line_s:
-                    result.append({'val': line_s})
-    else:
-        result = [{'val': 'N/A'}]
-
-    cache.put(cache_key, result)
-    return result
-
 def tq_results_read(limit: int) -> Dict:
-    lines = pl_api.get_results().split('\n')[-limit:]
-    print(lines)
-    lines = filter(None, lines)  # remove empty line
-
+    
+    cache.update(config.artifacts_dirs)
+    results = cache.get_tasks(limit)
     out = []
-    results = [yaml.safe_load(line) for line in lines]
 
     for r in results:
         elem = {}
@@ -203,7 +106,12 @@ def tq_results_read(limit: int) -> Dict:
             elem["status"] = info['info']['status']
             task = r[0]
 
-            elem['perf_metrics'] = get_perf_results(elem["task_id"])
+            perf_results = cache.get_perf_results(elem["task_id"])
+
+            if not perf_results:
+                perf_results = [{'val': 'N/A'}]
+
+            elem['perf_metrics'] = perf_results
 
             elem['artifacts'] = {
                 "artifacts_page": "artifacts/{0}".format(task['task_id']),
@@ -217,7 +125,7 @@ def tq_results_read(limit: int) -> Dict:
 
         out.append(elem)
 
-    return list(reversed(out))
+    return out
 
 def tq_queue_read(limit: int) -> Dict:
     lines = pl_api.get_queue().split('\n')[-limit:]
@@ -437,18 +345,29 @@ def getlog(morelines: str):
 
 @app.route('/artifacts/<uuid:task_id>/<path:subpath>')
 def get_artifact(task_id, subpath):
-    path = 'result_{0}/{1}'.format(task_id, subpath)
-    return send_from_directory(config.artifacts_dir + '/', path)
+    task_id = str(task_id)
+
+    if cache.has(task_id):
+        location = cache.get_location(task_id)
+        path = 'result_{0}/{1}'.format(task_id, subpath)
+        return send_from_directory(location + '/', path)
+    else:
+        return make_response('not found', 404)
+
+    
 
 
 @app.route('/artifacts/<uuid:task_id>')
 def artifacts_list_page(task_id):
+    task_id = str(task_id)
     files = list()
 
-    for item in os.walk('{0}/result_{1}'.format(config.artifacts_dir, task_id)):  # TODO
+    location = cache.get_location(task_id)
+
+    for item in os.walk('{0}/result_{1}'.format(location, task_id)):
         for file_name in item[2]:
             dir_name = item[0].replace(
-                '{0}/result_{1}'.format(config.artifacts_dir, task_id), '', 1)  # TODO
+                '{0}/result_{1}'.format(location, task_id), '', 1)
             files.append('{0}/{1}'.format(dir_name, file_name))
 
     context = dict()
@@ -469,15 +388,8 @@ def api_stats():
     local["python3"]["stats.py"] & BG
     return jsonify({"stats": ["stats/stats.svg"]})
 
-# @app.route('/report/<path:path>')
-# def report(path):
-#     response = send_from_directory('/root/perf/pc1/chronometry/report/', path)
-#     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-#     response.headers['Pragma'] = 'no-cache'
-#     return response
-
 
 if __name__ == '__main__':
     pl_api.init_tq_endpoint("./perfline_proxy.sh")
-    print('------------------------------------------------------')
+    cache.update(config.artifacts_dirs)
     app.run(**config.server_ep)

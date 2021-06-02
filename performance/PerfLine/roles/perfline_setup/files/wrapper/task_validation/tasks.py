@@ -22,6 +22,7 @@ from config import huey
 from datetime import datetime
 import os
 import plumbum
+import json
 
 
 def get_overrides(overrides):
@@ -219,6 +220,14 @@ def worker_task(conf_opt, task):
 
     if config.pack_artifacts:
         pack_artifacts(result["artifacts_dir"])
+
+    pl_metadata_file = "{}/perfline_metadata.json".format(result["artifacts_dir"])
+
+    try:
+        with open(pl_metadata_file, "wt") as f:
+            f.write(json.dumps(result))
+    except FileNotFoundError as e:
+        print(e)
 
     return result
 

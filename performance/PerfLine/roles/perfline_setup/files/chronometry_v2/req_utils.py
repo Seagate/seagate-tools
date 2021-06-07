@@ -48,7 +48,7 @@ def draw_timeline(timeline, offset):
     label  = timeline[0]['op'] + ": " + str(round((end-start)/1000000,3)) + "ms"
     plt.text(start+center, offset+0.01, label)
 
-def prepare_time_table(time_table):
+def prepare_time_table(time_table, sort: bool):
     ref_time = -1
 
     for times in time_table:
@@ -62,6 +62,9 @@ def prepare_time_table(time_table):
     for times in time_table:
         for time in times:
             time['time']=time['time']-ref_time
+
+    if sort == True:
+        time_table.sort(key=lambda time: time[0]['time'])
 
     return ref_time
 
@@ -204,7 +207,7 @@ def fill_queue_table(queue_table, queue_start_time, qrange: int):
                 queues_tag_append(q_d, 'op', f"{queuei}#{nr}[{_min}..{_max}]")
                 queue_table[-1].append(q_d)
 
-        queue_start_time.append(prepare_time_table(queue_table[-1]))
+        queue_start_time.append(prepare_time_table(queue_table[-1], False))
 
 
 # =============== GRAPH-RELATED STUFF ===============

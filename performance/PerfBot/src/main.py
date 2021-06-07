@@ -8,7 +8,7 @@ import yaml
 from store_data import connect_database, update_parsed_data
 from data_parser import parse_data
 from Analyzer.rule_handler import rule_handler
-
+from Analyzer.query_handler import query_handler
 
 def get_random_string(length):
     alphanumeric_set = string.ascii_letters + string.digits
@@ -74,15 +74,19 @@ def update_database():
 
 def analyzer(run_ID):
     print("~ Analyzing data...")
-    print("~ PHASE 1: Reading rules...")
     try:
-        rules = rule_handler(run_ID)
+        print("~ PHASE 1: Reading rules...")
+        rules, rulebook = rule_handler(run_ID)
         print(f"Current rules are: {rules}")
+        print("~ Done!")
+
+        print("~ PHASE 2: Applying rules...")
+        outcome_map = query_handler(rules, rulebook)
+        print(f"Rule outcome map: {outcome_map}")
         print("~ Done!")
 
     except Exception as e:
         print("Observed exception: ", e)
-
 
 
 if __name__ == '__main__':

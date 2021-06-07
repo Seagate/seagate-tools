@@ -6,7 +6,7 @@
             "rule": 1,
             "status": "ON",
             "label": "IO HALTED",
-            "description": "If there is no IO for 10 seconds consecutively, then the run is classified as bad.",
+            "description": "If there is no IO for 15 seconds consecutively, then the run is classified as bad.",
             "custom_query": "NA",
             "query": {
                 "filter": {

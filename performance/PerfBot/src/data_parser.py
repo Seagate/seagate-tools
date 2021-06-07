@@ -12,7 +12,7 @@ import time
 from Parsers.hsbench_parser import extract_HSBench_logs, convert_HSlogs_to_JSON
 from Parsers.cosbench_parser import convert_COSlogs_to_JSON
 from Parsers.s3bench_parser import extract_S3Bench_logs, convert_S3logs_to_JSON
-from Parsers.errors_parser import parse_errors
+from Parsers.logs_parser import parse_errors
 
 
 # variables

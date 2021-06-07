@@ -235,7 +235,29 @@ class ADDB2PP:
         else:
             assert(False)
 
+# * 2021-05-31-06:33:45.448043008 conn-uuid-to-sm uuid: 5948170b65d8c570:421187305ef3dfbc sm_id: 23
+# * 2021-05-31-06:33:55.061362432 conn-sm-to-uuid sm_id: 128 uuid: 74446e4206a1075a:dc8f27a6215d1b94
+# "conn-uuid-to-sm": (ADDB2PP.p_1_to_2_conn,  "conn_uuid_to_sm"),
 
+    def p_1_to_2_conn(measurement, labels, table):
+        name  = measurement[2]
+        time  = measurement[1]
+        ret   = yaml.safe_load("{"+" ".join(measurement[3:])+"}")
+        ret['time']  = ADDB2PP.to_unix(time)
+        type_id = table
+
+        fake_mid, fake_pid = ret['uuid'].split(':')
+
+        if table == "conn_uuid_to_sm":
+            return(("relation", {'mid1': fake_mid,     'pid1': fake_pid,
+                                 'mid2': ret['sm_id'], 'pid2': PID,
+                                 'type_id': type_id }))
+        elif table == "conn_sm_to_uuid":
+            return(("relation", {'mid1': ret['sm_id'], 'pid1': PID,
+                                 'mid2': fake_mid,     'pid2': fake_pid,
+                                 'type_id': type_id }))
+        else:
+            assert(False)
 
 #* 2020-11-10-10:42:04.735610561 fom-descr        service: <0:0>,         sender: 0x0, req-opcode: none, rep-opcode: none, local: false,
 #                                                 rpc_sm_id: 0, fom_sm_id: 0, fom_state_sm_id: 0
@@ -392,10 +414,15 @@ class ADDB2PP:
             "fom-to-stio"       : (ADDB2PP.p_1_to_2,      "fom_to_stio"),
             "attr"              : (ADDB2PP.p_attr,        "attr"),
             "bulk-to-rpc"       : (ADDB2PP.p_1_to_2,      "bulk_to_rpc"),
+            "conn-uuid-to-sm"   : (ADDB2PP.p_1_to_2_conn, "conn_uuid_to_sm"),
+            "conn-sm-to-uuid"   : (ADDB2PP.p_1_to_2_conn, "conn_sm_to_uuid"),
+            "conn-state"        : (ADDB2PP.p_sm_req,      "conn"),
+            "conn-to-session"   : (ADDB2PP.p_1_to_2,      "conn_to_session"),
+            "session-state"     : (ADDB2PP.p_sm_req,      "sess"),
             "cas-fom-to-crow-fom" : (ADDB2PP.p_1_to_2,    "cas_fom_to_crow_fom"),
             "s3-request-to-motr"  : (ADDB2PP.p_1_to_2,    "s3_request_to_client"),
             "s3-request-state"    : (ADDB2PP.p_sm_req,    "s3_request_state"),
-            "s3-request-uid"      : (ADDB2PP.s3req_uid, "s3_request_uid"),
+            "s3-request-uid"      : (ADDB2PP.s3req_uid,   "s3_request_uid"),
         }
 
 

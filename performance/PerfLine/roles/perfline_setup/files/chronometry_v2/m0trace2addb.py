@@ -43,6 +43,11 @@ def format_ts(ts):
 def consume_data(input_file):
     pid = get_pid(input_file)
     out_file_name="m0trace_" + str(pid) + ".txt"
+
+    print("Input  file: {}".format(input_file))
+    print("Output file: {}".format(out_file_name))
+    print("Writing data into {} ... ".format(out_file_name), end='')
+
     out_file = open(out_file_name, 'w')
 
     with open(input_file) as file_in:
@@ -65,6 +70,7 @@ def consume_data(input_file):
                 out_file.write(line_out)
 
     out_file.close()
+    print("done")
 
 def args_parse():
     parser = argparse.ArgumentParser(description="""

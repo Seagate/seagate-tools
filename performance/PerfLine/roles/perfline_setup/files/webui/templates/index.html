@@ -41,7 +41,9 @@
         </a>
         <ul class="dropdown-menu">
           <li><a href="#!addtask/user_defined">User defined</a></li>
-          <li><a href="#!addtask/example">example</a></li>
+          {% for k,v in files.items() %}
+          <li><a href="#!addtask/{{ k }}">{{ k }}</a></li>
+          {% endfor %}
         </ul>
       </li>
 
@@ -233,6 +235,31 @@ app.controller('addTaskCC', function($scope, $http, $routeParams) {
 	    $scope.task = response.data.task;
 	});
 
+    $scope.onConfSave = function() {
+        $http({
+               method: 'POST',
+               url: "/api/task/saveData/"+document.getElementById("fname").value,
+               headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+               transformRequest: function(obj) {
+               return "config=" + encodeURIComponent(document.getElementById("config").value);
+         }
+        }).then(function (response) {
+             if (response.data.includes("Failed")){
+                $scope.errorMsg = "Sorry! Unable to save workload config. Please use different filename";      
+                console.log(response.data);
+             }
+             else if (response.data.includes("Success")){
+                $scope.successMsg = "Successfully added new workload";
+                console.log(response.data);
+             }
+             else {
+                $scope.errorMsg = "Sorry! Incorrect workload configuration";
+                $scope.errorLog = response.data;
+                console.log(response.data);
+             }
+          })
+           
+    };
     $scope.onConfSubmit = function() {
         $http({
                method: 'POST',

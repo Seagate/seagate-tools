@@ -63,7 +63,7 @@ def prepare_time_table(time_table, sort: bool):
         for time in times:
             time['time']=time['time']-ref_time
 
-    if sort == True:
+    if sort:
         time_table.sort(key=lambda time: time[0]['time'])
 
     return ref_time

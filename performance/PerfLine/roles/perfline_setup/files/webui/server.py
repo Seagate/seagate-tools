@@ -30,8 +30,10 @@ from os.path import isdir, join, isfile
 import perf_result_parser
 import config
 import uuid
+import sys
 
 from os.path import join
+from os import listdir
 
 import pandas as pd
 import csv
@@ -42,6 +44,8 @@ import matplotlib.dates as mdates
 from core.utils import *
 from core import cache, pl_api
 
+sys.path.insert(0, '/root/perfline/wrapper/task_validation')
+import validator as vr
 
 app = Flask(__name__)
 git = local["git"]
@@ -137,6 +141,18 @@ def refresh_performance_img():
         plt.savefig(AGGREGATED_PERF_FILE.format(size))
         plt.cla()
 
+def getListOfFiles(dirName):
+    listOfFile = os.listdir(dirName)
+    allFiles = dict()
+    for entry in listOfFile:
+        fullPath = os.path.join(dirName, entry)
+        if os.path.isdir(fullPath):
+            allFiles.update(getListOfFiles(fullPath))
+        else:
+            if fullPath.endswith(".yaml"):
+               key = entry.replace(".yaml","")
+               allFiles[key] = fullPath
+    return allFiles
 
 @app.route('/aggregated_perf_img/<string:size>')
 def aggregated_perf_img(size):
@@ -146,7 +162,7 @@ def aggregated_perf_img(size):
 @app.route('/')
 def index():
     refresh_performance_img()
-    return render_template("index.html")
+    return render_template("index.html", files = getListOfFiles(WORKLOAD_DIR))
 
 
 @app.route('/templates/<path:path>')
@@ -380,8 +396,9 @@ def queue(limit=9999999):
 
 @app.route('/api/task/<string:task>')
 def loadtask(task: str):
+    files = getListOfFiles(WORKLOAD_DIR)
     try:
-        with open(f"{WORKLOAD_DIR}/{task}.yaml", "r") as f:
+        with open(files[task], "r") as f:
             data = {
                 "task": "".join(f.readlines())
             }
@@ -394,6 +411,28 @@ def loadtask(task: str):
     response.headers['Content-Encoding'] = 'gzip'
     return response
 
+@app.route('/api/task/saveData/<string:task>', methods = ["POST"])
+def saveFile(task: str):
+    config: str = request.form['config']
+    CUSTOM_DIR = os.path.join(WORKLOAD_DIR,'custom_workload')
+
+    files = os.listdir(f'{WORKLOAD_DIR}')
+    if task+'.yaml' in files:
+       result = { 'Failed': 'Sorry! you can\'t edit \"example.yaml\". Please use different filename' }
+    else:
+       if not os.path.isdir(CUSTOM_DIR):
+            os.mkdir(CUSTOM_DIR)
+       filename: str = os.path.join(CUSTOM_DIR, task+'.yaml')
+       config1 = yaml.safe_load(config)
+       errors = vr.validate_config(config1)
+       if all([v for e in errors for v in e.values()]):
+           result = errors
+       else:
+           with open(filename, 'w') as output:
+                output.write(config)
+           result = { 'Success': 'Successfully added new workload' }
+    response = make_response(f'{result}')
+    return response
 
 @app.route('/addtask', methods = ["POST"])
 def addtask():

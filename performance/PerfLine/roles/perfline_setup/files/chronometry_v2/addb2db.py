@@ -235,8 +235,8 @@ class ADDB2PP:
         else:
             assert(False)
 
-# * 2021-05-31-06:33:45.448043008 conn-uuid-to-sm uuid: 5948170b65d8c570:421187305ef3dfbc sm_id: 23
-# * 2021-05-31-06:33:55.061362432 conn-sm-to-uuid sm_id: 128 uuid: 74446e4206a1075a:dc8f27a6215d1b94
+# * 2021-06-08-04:55:56.016273408 conn-uuid-to-sm uuid: 18376028739450869&-8057109032192707171, sm_id: 23
+# * 2021-06-08-04:56:05.189405952 conn-sm-to-uuid sm_id: 128, uuid: 1747424776239521833&-8746343302169642367
 # "conn-uuid-to-sm": (ADDB2PP.p_1_to_2_conn,  "conn_uuid_to_sm"),
 
     def p_1_to_2_conn(measurement, labels, table):
@@ -246,7 +246,7 @@ class ADDB2PP:
         ret['time']  = ADDB2PP.to_unix(time)
         type_id = table
 
-        fake_mid, fake_pid = ret['uuid'].split(':')
+        fake_mid, fake_pid = ret['uuid'].split('&')
 
         if table == "conn_uuid_to_sm":
             return(("relation", {'mid1': fake_mid,     'pid1': fake_pid,

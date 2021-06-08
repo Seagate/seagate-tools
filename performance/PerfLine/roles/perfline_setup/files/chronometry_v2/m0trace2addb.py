@@ -19,6 +19,7 @@
 #
 
 import re
+import yaml
 import datetime
 import argparse
 
@@ -52,21 +53,28 @@ def consume_data(input_file):
 
     with open(input_file) as file_in:
         for line_in in file_in:
-            res = line_in.find(MEAS_LABEL)
-            if res != -1:
-                line = line_in[res + len(MEAS_LABEL) + 1:]
-                words = line.split()
+            res = line_in.split(MEAS_LABEL)
+            if len(res) == 2:
+                y = yaml.load(res[1])
 
-                ts = words[0]
-                meas_name = words[1]
+                time = y.pop('time', None)
+                conf_name = y.pop('conf_name', None)
 
-                line = line[len(ts) + 1:]
+                if conf_name:
+                    name = sm_names_map[conf_name]
+                else:
+                    name = y.pop('name', None)
 
-                if meas_name == "state-trace-enable" or meas_name == "state-set":
-                    sm_name = re.search('\[(.+?)\]', line).group(1)
-                    line = sm_names_map[sm_name] + line[line.find(']') + 1:]
+                if 'uuid' in y:
+                    y['uuid'] = y['uuid'].replace(':', '&')
 
-                line_out = "* " + format_ts(int(ts)) + " " + line
+                line_out = "* " + format_ts(int(time)) + " " + name
+                sep = ""
+                for k in y:
+                    line_out += "{} {}: {}".format(sep, k, y[k])
+                    sep = ","
+                line_out += "\n"
+
                 out_file.write(line_out)
 
     out_file.close()

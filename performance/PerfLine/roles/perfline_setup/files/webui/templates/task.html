@@ -9,6 +9,11 @@ input[type=text], select, textarea {
     resize: vertical;
 }
 
+#saveBtn {
+    margin-top: 4px;
+    float: right;
+    margin-right: 50px;
+}
 #submitBtn {
     margin-top: 4px;
     float: right;
@@ -34,6 +39,10 @@ input[type=text], select, textarea {
   width: 75%;
   margin-top: 4px;
 }
+#fname {
+  width: 20%;
+
+}
 
 </style>
 <div class="container">
@@ -45,11 +54,12 @@ input[type=text], select, textarea {
       <textarea id="config" name="config">{{task}}</textarea>
     </div>
     <div style="height: 30px;">
-      taskId: {{params.taskId}} 
+    <label for="fname">Workload Config: </label><input type="text" id="fname" name="fname" value="{{params.taskId}}">
       <button type="button" id="submitBtn" ng-click="onConfSubmit()">Submit</button>
+      <button type="button" id="saveBtn" ng-click="onConfSave()">Save</button>
     </div>
     <span style="color: red;">{{errorMsg}}</span><span style="color: green;">{{successMsg}}</span><br>
-    <textarea id="output" ng-model="errorLog" readonly ng-if="errorMsg"></textarea>
+    <textarea id="output" ng-bind-html="json" ng-model="errorLog" readonly ng-if="errorMsg"></textarea>
     <span>{{task_id}}</span><br>
     <span>{{state}}</span>
   </form>

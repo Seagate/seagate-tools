@@ -245,14 +245,17 @@ app.controller('addTaskCC', function($scope, $http, $routeParams) {
          }
         }).then(function (response) {
              if (response.data.includes("Failed")){
+                $scope.successMsg = null;
+                $scope.errorLog = null;
                 $scope.errorMsg = "Sorry! Unable to save workload config. Please use different filename";      
-                console.log(response.data);
              }
              else if (response.data.includes("Success")){
+                $scope.errorMsg = null;
+                $scope.errorLog = null;
                 $scope.successMsg = "Successfully added new workload";
-                console.log(response.data);
              }
              else {
+                $scope.successMsg = null;
                 $scope.errorMsg = "Sorry! Incorrect workload configuration";
                 $scope.errorLog = response.data;
                 console.log(response.data);
@@ -270,9 +273,14 @@ app.controller('addTaskCC', function($scope, $http, $routeParams) {
          }
         }).then(function (response) {
              if (response.data.includes("Validation failed with the following errors")){
+                 $scope.successMsg = null;
+                 $scope.task_id = null;
+                 $scope.state = null;
                  $scope.errorMsg = "Sorry! Unable to trigger workload";
                  $scope.errorLog = response.data;
              } else if (response.data[1].state.includes("ENQUEUED")) {
+                 $scope.errorMsg = null;
+                 $scope.errorLog = null;
                  $scope.successMsg = "Successfully workload has been triggered";
                  $scope.task_id = "Task Id: " + response.data[0].task_id;
                  $scope.state = "Task state: " + response.data[1].state;
@@ -280,6 +288,10 @@ app.controller('addTaskCC', function($scope, $http, $routeParams) {
                      window.location.href = '#!/queue';
          }, 5000);
              } else {
+                 $scope.successMsg = null;
+                 $scope.task_id = null;
+                 $scope.state = null;
+                 $scope.errorLog = null;
                  $scope.errorMsg = "Oops! something went wrong";
              }
         });

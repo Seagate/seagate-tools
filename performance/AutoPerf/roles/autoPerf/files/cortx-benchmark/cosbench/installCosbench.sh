@@ -1,6 +1,6 @@
 #! /bin/bash
 
-echo "$1" > driver-nodes-listi
+echo "$1" > driver-nodes-list
 if [ ! -d "/root/cos" ] ; then
    echo "Installing cosbench"
    sh cosbench.sh install --controller $1 --drivers driver-nodes-list

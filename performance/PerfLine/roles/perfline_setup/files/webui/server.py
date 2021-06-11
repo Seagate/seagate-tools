@@ -42,7 +42,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 from core.utils import *
-from core import cache, pl_api
+from core import pl_api, task_cache
 
 sys.path.insert(0, '/root/perfline/wrapper/task_validation')
 import validator as vr
@@ -57,13 +57,8 @@ report_resource_map = dict()
 AGGREGATED_PERF_FILE = '/root/perfline/webui/images/aggregated_perf_{0}.png'
 WORKLOAD_DIR = '/root/perfline/wrapper/workload'
 
-# @app.after_request
-# def add_header(resp):
-#     resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-#     resp.headers["Pragma"] = "no-cache"
-#     resp.headers["Expires"] = "0"
-#     resp.headers["Cache-Control"] = "public, max-age=0"
-#     return resp
+cache = task_cache.TaskCache()
+
 
 @app.after_request
 def add_header(response):
@@ -176,35 +171,11 @@ def stats(path):
     response.headers['Pragma'] = 'no-cache'
     return response
 
-def get_perf_results(task_id):
-    cache_key = f'perf_res_{task_id}'
-
-    if cache.contains(cache_key):
-        return cache.get(cache_key)
-
-    perf_results_path = f'{config.artifacts_dir}/result_{task_id}/{config.perf_results_filename}'
-
-    if isfile(perf_results_path):
-        result = []
-
-        with open(perf_results_path) as f:
-            for line in f:
-                line_s = line.strip()
-                if line_s:
-                    result.append({'val': line_s})
-    else:
-        result = [{'val': 'N/A'}]
-
-    cache.put(cache_key, result)
-    return result
-
 def tq_results_read(limit: int) -> Dict:
-    lines = pl_api.get_results().split('\n')[-limit:]
-    print(lines)
-    lines = filter(None, lines)  # remove empty line
-
+    
+    cache.update(config.artifacts_dirs)
+    results = cache.get_tasks(limit)
     out = []
-    results = [yaml.safe_load(line) for line in lines]
 
     for r in results:
         elem = {}
@@ -219,7 +190,12 @@ def tq_results_read(limit: int) -> Dict:
             elem["status"] = info['info']['status']
             task = r[0]
 
-            elem['perf_metrics'] = get_perf_results(elem["task_id"])
+            perf_results = cache.get_perf_results(elem["task_id"])
+
+            if not perf_results:
+                perf_results = [{'val': 'N/A'}]
+
+            elem['perf_metrics'] = perf_results
 
             elem['artifacts'] = {
                 "artifacts_page": "artifacts/{0}".format(task['task_id']),
@@ -233,7 +209,7 @@ def tq_results_read(limit: int) -> Dict:
 
         out.append(elem)
 
-    return list(reversed(out))
+    return out
 
 def tq_queue_read(limit: int) -> Dict:
     lines = pl_api.get_queue().split('\n')[-limit:]
@@ -476,18 +452,29 @@ def getlog(morelines: str):
 
 @app.route('/artifacts/<uuid:task_id>/<path:subpath>')
 def get_artifact(task_id, subpath):
-    path = 'result_{0}/{1}'.format(task_id, subpath)
-    return send_from_directory(config.artifacts_dir + '/', path)
+    task_id = str(task_id)
+
+    if cache.has(task_id):
+        location = cache.get_location(task_id)
+        path = 'result_{0}/{1}'.format(task_id, subpath)
+        return send_from_directory(location + '/', path)
+    else:
+        return make_response('not found', 404)
+
+    
 
 
 @app.route('/artifacts/<uuid:task_id>')
 def artifacts_list_page(task_id):
+    task_id = str(task_id)
     files = list()
 
-    for item in os.walk('{0}/result_{1}'.format(config.artifacts_dir, task_id)):  # TODO
+    location = cache.get_location(task_id)
+
+    for item in os.walk('{0}/result_{1}'.format(location, task_id)):
         for file_name in item[2]:
             dir_name = item[0].replace(
-                '{0}/result_{1}'.format(config.artifacts_dir, task_id), '', 1)  # TODO
+                '{0}/result_{1}'.format(location, task_id), '', 1)
             files.append('{0}/{1}'.format(dir_name, file_name))
 
     context = dict()
@@ -508,15 +495,8 @@ def api_stats():
     local["python3"]["stats.py"] & BG
     return jsonify({"stats": ["stats/stats.svg"]})
 
-# @app.route('/report/<path:path>')
-# def report(path):
-#     response = send_from_directory('/root/perf/pc1/chronometry/report/', path)
-#     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-#     response.headers['Pragma'] = 'no-cache'
-#     return response
-
 
 if __name__ == '__main__':
     pl_api.init_tq_endpoint("./perfline_proxy.sh")
-    print('------------------------------------------------------')
+    cache.update(config.artifacts_dirs)
     app.run(**config.server_ep)

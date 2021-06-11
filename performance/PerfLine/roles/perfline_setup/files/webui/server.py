@@ -66,6 +66,74 @@ def add_header(response):
     return response
 
 
+def refresh_performance_img():
+
+    lines = pl_api.get_results().split('\n')
+    lines = filter(None, lines)  # remove empty line
+
+    results = [yaml.safe_load(line) for line in lines]
+
+    sizes = ['100k', '1m', '16m', '128m']
+    rw_data = {size: (list(), list(), list()) for size in sizes}
+    # rw_data = {
+    #     '100k': ((list(), list()),
+    #             (list(), list()),
+    #     '1m': ((list(), list()),
+    #             (list(), list()),
+    #     '16m': ((list(), list()),
+    #             (list(), list()),
+    #     '128m': ((list(), list()),
+    #             (list(), list()),
+    # }
+    for r in results:
+        try:
+            if len(r) < 3:
+                continue
+
+            task_descr = r[2]['info']['conf']['common'].get('description')
+            task_finish_time = r[2]['info']['finish_time']
+            task_id = r[0]['task_id']
+
+            if 'Perf benchmark' not in task_descr:
+                continue
+            task_descr.split(',')
+            size = next(t.strip().split('=')[1] for t in task_descr.split(
+                ',') if t.strip().split('=')[0] == 'size')
+            if size not in rw_data:
+                continue
+
+            rw_file_path = f'/var/perfline/result_{task_id}/rw_stat'
+            if isfile(rw_file_path):
+                with open(rw_file_path, 'r') as rw_file:
+                    rw_info = rw_file.readlines()
+                    rw_data[size][0].append(float(rw_info[0].split(' ')[0]))
+                    rw_data[size][1].append(float(rw_info[1].split(' ')[0]))
+            else:
+                continue
+
+            fmt = '%Y-%m-%d %H:%M:%S.%f'
+            hms = '%Y-%m-%d %H:%M:%S'
+            f = datetime.datetime.strptime(task_finish_time, fmt)
+
+            rw_data[size][2].append(f)
+        except Exception as e:
+            print("exception: " + str(e))
+
+    print(rw_data)
+
+    for size, data in rw_data.items():
+        fig, ax = plt.subplots(1)
+
+        ax.plot(data[2], data[0], label="write")
+        ax.plot(data[2], data[1], label="read")
+        plt.title(size)
+        plt.ylabel('MB/s')
+        plt.legend(loc='best')
+        fig.autofmt_xdate()
+        plt.savefig(AGGREGATED_PERF_FILE.format(size))
+        plt.cla()
+
+
 @app.route('/aggregated_perf_img/<string:size>')
 def aggregated_perf_img(size):
     return send_file(AGGREGATED_PERF_FILE.format(size), mimetype='image')
@@ -73,6 +141,7 @@ def aggregated_perf_img(size):
 
 @app.route('/')
 def index():
+    refresh_performance_img()
     return render_template("index.html")
 
 

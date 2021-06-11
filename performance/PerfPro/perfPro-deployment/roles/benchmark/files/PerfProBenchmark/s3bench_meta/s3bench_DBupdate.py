@@ -55,7 +55,7 @@ def get_release_info(variable):
 
 class s3bench:
 
-    def __init__(self, Log_File, Operation, IOPS, Throughput, Latency, TTFB, Object_Size,Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID,PKey,overwrite):
+    def __init__(self, Log_File, Operation, IOPS, Throughput, Latency, TTFB, Object_Size,Build,Version,Branch,OS,Nodes_Num,Clients_Num,Col,Config_ID,PKey,Overwrite,Sessions,Objects):
         self.Log_File = Log_File
         self.Operation = Operation
         self.IOPS = IOPS
@@ -67,13 +67,15 @@ class s3bench:
         self.Version = Version
         self.Branch = Branch
         self.OS = OS
-        self.nodes_num = nodes_num
-        self.clients_num = clients_num
-        self.col = col
+        self.Nodes_Num = Nodes_Num
+        self.Clients_Num = Clients_Num
+        self.Col = Col
         self.Config_ID = Config_ID
         self.Timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.PKey = PKey
-        self.overwrite = overwrite
+        self.Overwrite = Overwrite
+        self.Sessions = Sessions
+        self.Objects = Objects
 
 
     def insert_update(self):# function for inserting and updating mongodb database
@@ -85,11 +87,42 @@ class s3bench:
             pattern = {"PKey" : self.PKey}
             count_documents= collection.count_documents(pattern)
             if count_documents == 0:
-                insertentry={"Name" : "S3bench" , "Log_File" : self.Log_File,"IOPS" : self.IOPS,"Throughput" : self.Throughput,"Latency": self.Latency,"TTFB" : self.TTFB,"Timestamp":self.Timestamp, "Config_ID":self.Config_ID,"HOST" : socket.gethostname(), "Operation" : self.Operation , "Object_Size" : self.Object_Size ,"Build" : self.Build , "Version" : self.Version , "Branch" : self.Branch , "OS" : self.OS , "Count_of_Servers": self.nodes_num , "Count_of_Clients" : self.clients_num , "PKey" : self.PKey  }
+                insertentry={
+                        "Name" : "S3bench" , 
+                        "Log_File" : self.Log_File,
+                        "IOPS" : self.IOPS,
+                        "Throughput" : self.Throughput,
+                        "Latency": self.Latency,
+                        "TTFB" : self.TTFB,
+                        "Timestamp":self.Timestamp, 
+                        "Config_ID":self.Config_ID,
+                        "HOST" : socket.gethostname(), 
+                        "Operation" : self.Operation , 
+                        "Object_Size" : self.Object_Size ,
+                        "Sessions": self.sessions ,
+                        "Objects" : self.Objects ,
+                        "Buckets": "1" ,
+                        "Build" : self.Build , 
+                        "Version" : self.Version , 
+                        "Branch" : self.Branch ,
+                        "OS" : self.OS , 
+                        "Count_of_Servers": self.nodes_num , 
+                        "Count_of_Clients" : self.clients_num , 
+                        "PKey" : self.PKey  
+                        }
                 collection.insert_one(insertentry)
                 action = "Inserted"
             elif self.overwrite == True : 
-                insertentry = {"Log_File" : self.Log_File,"IOPS" : self.IOPS,"Throughput" : self.Throughput,"Latency": self.Latency,"TTFB" : self.TTFB,"Timestamp":self.Timestamp, "Config_ID":self.Config_ID,"HOST" : socket.gethostname()}
+                insertentry = {
+                        "Log_File" : self.Log_File,
+                        "IOPS" : self.IOPS,
+                        "Throughput" : self.Throughput,
+                        "Latency": self.Latency,
+                        "TTFB" : self.TTFB,
+                        "Timestamp":self.Timestamp, 
+                        "Config_ID":self.Config_ID,
+                        "HOST" : socket.gethostname()
+                        }
                 collection.update_one(pattern, { "$set": insertentry})
                 action = "Updated"
             else:
@@ -115,6 +148,9 @@ def insertOperations(file,Build,Version,col,Config_ID,Branch,OS):   #function fo
     lines = f.readlines()[-150:]
     count=0
     while count<150:
+        if "numSamples:" in lines[count].strip().replace(" ", ""):
+            r=lines[count].strip().replace(" ", "").split(":")
+            Objects=r[1]
         if "numClients:" in lines[count].strip().replace(" ", ""):
             r=lines[count].strip().replace(" ", "").split(":")
             sessions=r[1]
@@ -122,9 +158,9 @@ def insertOperations(file,Build,Version,col,Config_ID,Branch,OS):   #function fo
             r=lines[count].strip().replace(" ", "").split(":")
             Objsize = float(r[1])
             if(Objsize.is_integer()):
-                obj=str(int(Objsize))+"Mb"
+                obj=str(int(Objsize))+"MB"
             else:
-                obj=str(round(Objsize*1024))+"Kb"
+                obj=str(round(Objsize*1024))+"KB"
 
         if "Operation:" in lines[count].replace(" ", ""):
             r=lines[count].strip().replace(" ", "").split(":")
@@ -141,7 +177,7 @@ def insertOperations(file,Build,Version,col,Config_ID,Branch,OS):   #function fo
                 lat={"Max":float(lines[count+4].split(":")[1]),"Avg":float(lines[count+5].split(":")[1]),"Min":float(lines[count+6].split(":")[1])}
                 ttfb={"Max":float(lines[count+7].split(":")[1]),"Avg":float(lines[count+8].split(":")[1]),"Min":float(lines[count+9].split(":")[1])}
                 PKey=Version[0]+'_'+Branch[0].upper()+'_'+Build+'_ITR'+str(iteration)+'_'+str(nodes_num)+'N_'+str(clients_num)+'C_'+str(pc_full)+'PC_'+str(custom).upper()+'_S3B_'+str(obj)+'_1_'+opname[0].upper()+'_'+sessions
-                data = s3bench(filename,opname,iops,throughput,lat,ttfb,obj,Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID,PKey,overwrite)
+                data = s3bench(filename,opname,iops,throughput,lat,ttfb,obj,Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID,PKey,overwrite,sessions,Objects)
                 data.insert_update()
                 count += 9
         count +=1

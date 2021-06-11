@@ -186,11 +186,11 @@ def push_data(files, host, db, Build, Version, Branch , OS):
                         'Percentage_full' : pc_full ,
                         'Name': 'Hsbench',
                         'Operation': operation,
-                        'Object_Size' : obj_size,
+                        'Object_Size' : str(obj_size.upper()),
                         'Buckets' : buckets,
                         'Objects' : objects,
                         'Sessions' : sessions,
-                        'PKey' : Version[0]+'_'+Branch[0].upper()+'_'+Build+'_ITR'+str(iteration)+'_'+str(nodes_num)+'N_'+str(clients_num)+'C_'+str(pc_full)+'PC_'+str(custom).upper()+'_HSB_'+str(obj_size)+'_'+str(buckets)+'_'+operation[0].upper()+'_'+str(sessions) ,
+                        'PKey' : Version[0]+'_'+Branch[0].upper()+'_'+Build+'_ITR'+str(iteration)+'_'+str(nodes_num)+'N_'+str(clients_num)+'C_'+str(pc_full)+'PC_'+str(custom).upper()+'_HSB_'+str(obj_size.upper())+'_'+str(buckets)+'_'+operation[0].upper()+'_'+str(sessions) ,
                         #Version_Branch_Build_Iteration_NodeCount_ClientCount_PercentFull_Benchmark_ObjSize_NoOfBuckets_Operation_Sessions
                     }
 

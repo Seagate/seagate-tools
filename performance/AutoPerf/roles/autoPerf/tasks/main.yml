@@ -40,6 +40,10 @@
        - go
        - git
        - bc
+       - jre
+       - curl
+       - unzip
+       - nc
      state: present
      update_cache: yes
    delegate_to: "{{ item }}" 

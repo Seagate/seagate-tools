@@ -7,12 +7,21 @@
   shell: "{{ playbook_dir }}/roles/stop_run/files/stopforceful.sh"
   when: stop=="forceful"
 
+- name: Graceful termination of running job 
+  shell: "{{ playbook_dir }}/roles/stop_run/files/stopgraceful.sh"
+  when: stop=="graceful"
+
 - name: Telegraf monitoring stop
   service:
      name: telegraf
      state: stopped
   delegate_to: "{{ item }}"
   with_items: "{{ groups['all'] }}"
+
+- name: Archive active run data
+   shell: tar -czvf /root/cortx-benchmark-`date +%F-%s`.tar.gz /root/cortx-benchmark
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
 
 - name: cleanup collected logs
   file:

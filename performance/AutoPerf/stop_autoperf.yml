@@ -1,0 +1,9 @@
+---
+ - hosts: localhost
+   gather_facts: no
+   become: yes
+#   vars_files:
+#     - roles/autoPerf/vars/main.yml
+   roles:
+     - stop_run
+

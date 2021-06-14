@@ -1,0 +1,23 @@
+---
+- name: Updating host configuration file
+  include: host_entry.yaml
+  when: nodes != "" and clients != ""
+
+- name: Forceful termination of running job 
+  shell: "{{ playbook_dir }}/roles/stop_run/files/stopforceful.sh"
+  when: stop=="forceful"
+
+- name: Telegraf monitoring stop
+  service:
+     name: telegraf
+     state: stopped
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['all'] }}"
+
+- name: cleanup collected logs
+  file:
+     path: /root/cortx-benchmark/  #s3bench_basic/benchmark.log
+     state: absent
+  when: stop=="forceful"
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['clients'] }}"

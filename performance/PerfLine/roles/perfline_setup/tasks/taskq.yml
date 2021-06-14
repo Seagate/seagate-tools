@@ -58,6 +58,12 @@
       src: files/huey_consumer
       dest: /usr/local/bin/huey_consumer
     delegate_to: "client-1"
+  
+  - name: Copy constant variables file
+    copy:
+      src: files/constant.conf
+      dest: "{{ perfline_dir }}"
+    delegate_to: "client-1"
 
 #  - name: Open port for webui
 #    firewalld: port=8005/tcp zone=public permanent=true state=enabled immediate=yes

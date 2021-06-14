@@ -1,5 +1,5 @@
 perfline_script_path = '/root/perfline/wrapper/perfline.py'
-artifacts_dir = '/var/perfline'
+artifacts_dirs = ['/var/perfline']
 
 # Path to perfline log file
 logfile = '/var/log/perfline.log'

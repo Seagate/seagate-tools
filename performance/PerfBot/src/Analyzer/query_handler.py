@@ -1,37 +1,33 @@
 
-from influxdb import client
-from src.store_data import connect_database
-import json
-import os
-
-def read_rulebook():
-    filename = os.path.dirname(__file__) + "/../rules.json"
-    with open(filename, "r") as f:
-        data = json.load(f)
-
-    return data
+from store_data import connect_database
+from Analyzer.predictor import read_lookuptable
 
 
-def query_handler(rules, rulebook):
+def validator_handler(rule_ID, client, rules, rule_outcome_map):
+    query_result = client.query(rules[rule_ID])
+
+    try:
+        count_of_query_result = len(list(query_result)[0])
+    except IndexError:
+        count_of_query_result = 0
+
+    rule_outcome_map[rule_ID] = count_of_query_result
+
+
+def query_handler(rules):
     rule_outcome_map = {}
     client = connect_database()
+    lookup_table = read_lookuptable()
 
     for rule_ID in rules.keys():
-        query_result = client.query(rules[rule_ID])
-        if rule_ID.startswith("D"):
-            measurement = "data"
+        for logic in lookup_table:
+            if rule_ID in logic[3]:
+                functionality = logic[1]
+                break
+        
+        if functionality.lower() == 'validation':
+            validator_handler(rule_ID, client, rules, rule_outcome_map)
         else:
-            measurement = "logs"
-
-        try:
-            count_of_query_result = len(list(query_result)[0])
-        except IndexError:
-            count_of_query_result = 0
-
-        expected_outcome = rulebook[measurement][int(rule_ID[1:])-1]["output"]
-        if str(expected_outcome).lower() == "no" or str(expected_outcome).startswith("n") and count_of_query_result != 0:
-                rule_outcome_map[rule_ID] = "fail"
-        else:
-            rule_outcome_map[rule_ID] = "pass"
+            pass
 
     return rule_outcome_map

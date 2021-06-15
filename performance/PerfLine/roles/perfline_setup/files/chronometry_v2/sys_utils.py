@@ -48,17 +48,26 @@ class TypeId():
         self.type_id = type_id
         
 class Layer():
-    def __init__(self, layer_type, connection):
+    def __init__(self, layer_type, connection, start=None, stop=None):
         self.layer_type = layer_type
         self.connection = connection
         self.df = None
+        self.start = start
+        self.stop = stop
 
     def write(self, df):
         self.df = df
 
     def read(self):
         if self.df is None:
-            query = f'SELECT * FROM request where type_id="{self.layer_type.type_id}"'
+            if self.start is not None and self.stop is not None:
+                query = f'SELECT * FROM request where type_id="{self.layer_type.type_id}" and time > {self.start} and time < {self.stop}'
+            elif self.start is not None:
+                query = f'SELECT * FROM request where type_id="{self.layer_type.type_id}" and time > {self.start}'
+            elif self.stop is not None:
+                query = f'SELECT * FROM request where type_id="{self.layer_type.type_id}" and time < {self.stop}'
+            else:
+                query = f'SELECT * FROM request where type_id="{self.layer_type.type_id}"'
             df = sql.read_sql(query, con=self.connection.get())
             self.df = df.loc[:,~df.columns.duplicated()]
         return self.df
@@ -466,6 +475,7 @@ class RPS():
         self.rps = pd.DataFrame()
         self.window = avg_window
         self.color = color
+        #self.name = f"{self.layer.layer_type.name}: {self.states} RPS"
         self.name = None
         self.label = ''
         self.keep_rule = rule
@@ -594,3 +604,93 @@ class Latency():
     def merge(self, latency):
         self.latency = pd.concat([self.latency, histogram.latency], ignore_index=True)
         self.latency.reset_index(drop=True)
+
+class Attr():
+    def __init__(self, connection, attributes):
+        self.connection = connection
+        self.attrs = attributes
+        self.df = None
+
+    def read(self):
+        if self.df is None:
+            query = f'select * from attr where'
+            for i, attr in enumerate(self.attrs):
+                query = query + f" name='{attr}' "
+                if i != (len(self.attrs) - 1):
+                    query = query + ' or '
+                else:
+                    query = query + ';'
+            df = sql.read_sql(query, con=self.connection.get())
+            self.df = df.loc[:,~df.columns.duplicated()]
+        return self.df
+
+class MBPS():
+    MB_SCALE = 10**6
+    def __init__(self, layer, attr, states, op, avg_window='1s',
+                 color=None, rule='first', pids=None):
+        self.layer = layer
+        self.mbps = pd.DataFrame()
+        self.window = avg_window
+        self.color = color
+        self.name = None
+        self.label = ''
+        self.keep_rule = rule
+        self.pids = pids
+        self.attr = attr
+        self.attr_cache = None
+        self.states = states
+        self.op = op
+
+    def calculate(self):
+        if self.attr_cache is None:
+            df = self.attr.read()
+            df.rename(columns = {'entity_id': 'id'}, inplace=True)
+            df['val'] = df['val'].astype(int)
+            df['MB'] = df.groupby(['pid', 'id'])['val'].transform(self.op) / self.MB_SCALE
+            df = df[['pid', 'id', 'MB']].drop_duplicates()
+        else:
+            df = self.attr_cache
+
+        layer = self.layer.read()
+        layer = layer[(layer.state.isin(self.states))]
+
+        merge = pd.merge(layer, df, how='inner', on=['pid', 'id'])
+
+        df = merge[['time', 'pid', 'id', 'MB']]
+        df.set_index('time', inplace=True)
+        df = df.sort_values('time')
+        df.index = [pd.Timestamp(x, unit='ns') for x in df.index]
+
+        if self.pids is not None:
+            df = df[(df.pid.isin(self.pids))]
+
+        UNITS = {'s': 1, 'ms': 1000, 'us': 1000000, 'ns': 1000000000}
+        r = re.split('(\d+)', self.window)
+        unit = r[2]
+        scale = int(r[1])
+        N = UNITS[unit] / scale
+        t = df['MB'] * N;
+        mbps = t.rolling(self.window).sum()
+        self.pids = df['pid']
+        self.label = f"{self.layer.layer_type.name}"
+        mbps.rename(self.label, inplace=True)
+        self.mbps = mbps
+
+    def filter_pids(self, pids):
+        pass
+
+    def draw(self, fig, ax, color):
+        if self.color:
+            color = self.color
+        if self.mbps.empty:
+            return
+        ax = self.mbps.plot(alpha=0.5, figure=fig, ax=ax, color=color, grid=True)
+        ax.legend(loc="upper right")
+        ymax = self.mbps.max()
+        ax.set_ylim([0, ymax * 2] )
+
+    def name(self):
+        return self.name
+
+    def get_pids(self):
+        return list(set(self.pids.to_list()))

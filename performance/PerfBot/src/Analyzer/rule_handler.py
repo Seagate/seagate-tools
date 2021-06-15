@@ -82,5 +82,4 @@ def rule_handler(run_ID):
             query = get_db_query_for_logs(rule, run_ID)
             rule_query_pairs[f"L{rule['rule']}"] = query
 
-    print(rule_query_pairs)
     return rule_query_pairs

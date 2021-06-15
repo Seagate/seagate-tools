@@ -44,7 +44,8 @@ import matplotlib.dates as mdates
 from core.utils import *
 from core import pl_api, task_cache
 
-sys.path.insert(0, '/root/perfline/wrapper/task_validation')
+exec(open('./../perfline.conf').read())
+sys.path.insert(0, VALIDATOR)
 import validator as vr
 
 app = Flask(__name__)
@@ -54,8 +55,6 @@ logcookies = {}
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 report_resource_map = dict()
-AGGREGATED_PERF_FILE = '/root/perfline/webui/images/aggregated_perf_{0}.png'
-WORKLOAD_DIR = '/root/perfline/wrapper/workload'
 
 cache = task_cache.TaskCache()
 

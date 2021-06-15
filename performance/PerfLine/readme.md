@@ -26,13 +26,16 @@ PerfLine can be installed from any machine, To setup PerfLine or deploying PerfL
     [build_machine]
     #build-server ansible_host=<BUILD-MACHINE-FQDN>
     ```
-    4.2 Change ./roles/perfline_setup/files/wrapper/sys/config.py and set target nodes names and ha_type.
+    4.2 Change ./inventories/perfline_hosts/hosts file and set target ha_type.
     ```
-    nodes = 'target1.seagate.com,target2.seagate.com'
-    ha_type = 'hare'
+    [all:vars]
+    ansible_connection=ssh
+    ansible_user=root
+    ha_type=pcs
+    ansible_ssh_common_args='-o StrictHostKeyChecking=no'
     ```
-    For Minimal(io-path components) configuration `ha_type = hare`
-    For Complete cluster configuration `ha_type = pcs`
+    For Minimal(io-path components) configuration `ha_type=hare`
+    For Complete cluster configuration `ha_type=pcs`
 
     4.3 Default root password is "seagate1" for cortx cluster including client, If user having different password then please update on "/roles/perfline_setup/vars/main.yml"
     ```

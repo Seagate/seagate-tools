@@ -35,11 +35,6 @@ def parse_options(conf, result_dir):
     options.append('-p')
     options.append(result_dir)
 
-    options.append('--nodes')
-    options.append(config.nodes)
-    options.append('--ha_type')
-    options.append(config.ha_type)
-    
     if 'custom_build' in conf:
        options.append('--deploybuild')
        options.append('-token')

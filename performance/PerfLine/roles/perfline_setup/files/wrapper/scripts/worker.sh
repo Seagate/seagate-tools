@@ -11,17 +11,16 @@ TOOLS_DIR="$SCRIPT_DIR/../../chronometry"
 PERFLINE_DIR="$SCRIPT_DIR/../"
 STAT_DIR="$SCRIPT_DIR/../stat"
 BUILD_DEPLOY_DIR="$SCRIPT_DIR/../../build_deploy"
-STAT_COLLECTION=""
 PUBLIC_DATA_INTERFACE=$(ip addr show data0 | grep -Po 'inet \K[\d.]+')
 
-MKFS=
-PERF_RESULTS_FILE='perf_results'
-CLIENT_ARTIFACTS_DIR='client'
-LNET_WORKLOG='lnet_workload.log'
-M0CRATE_ARTIFACTS_DIR='m0crate'
-S3BENCH_LOGFILE='workload_s3bench.log'
-BACKUP_NFS_LOCATION='ssc-nfs-srvr2.pun.seagate.com:/mnt/data2/performance-team/perfline-backup'
-BACKUP_MOUNT_POINT='/mnt/perfline_backup'
+source "$SCRIPT_DIR/../../perfline.conf"
+
+STAT_COLLECTION=""
+MKFS=""
+EX_SRV="pdsh -S -w $NODES"
+PRIMARY_NODE=$(echo "$NODES" | cut -d "," -f1)
+S3SERVER=$(ssh $PRIMARY_NODE "cat /var/lib/hare/cluster.yaml | \
+            grep -o 's3: [[:digit:]]*'| head -1 | cut -d ':' -f2 | tr -d ' '")
 
 function validate() {
     local leave=
@@ -733,18 +732,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         -tm)
             TEMPATE=$2
-            shift
-            ;;
-        --nodes)
-            NODES=$2
-            EX_SRV="pdsh -S -w $NODES"
-            PRIMARY_NODE=$(echo "$NODES" | cut -d "," -f1)
-            S3SERVER=$(ssh $PRIMARY_NODE "cat /var/lib/hare/cluster.yaml | \
-            grep -o 's3: [[:digit:]]*'| head -1 | cut -d ':' -f2 | tr -d ' '")
-            shift
-            ;;
-        --ha_type)
-            HA_TYPE=$2
             shift
             ;;
         --lnet)

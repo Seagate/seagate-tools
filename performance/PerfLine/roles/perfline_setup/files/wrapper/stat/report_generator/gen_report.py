@@ -337,13 +337,15 @@ def parse_addb_info(addb_stat_dir):
         hist_imgs = [f for f in listdir(addb_stat_dir) if '_histogram' in f]
         rps_imgs = [f for f in listdir(addb_stat_dir) if '_cluster_wide_RPS' in f]
         lat_imgs = [f for f in listdir(addb_stat_dir) if '_cluster_wide_latency' in f]
+        mbps_imgs = [f for f in listdir(addb_stat_dir) if '_cluster_wide_throughput' in f]
     else:
         queues_imgs = []
         hist_imgs = []
         rps_imgs = []
         lat_imgs = []
+        mbps_imgs = []
 
-    return queues_imgs, hist_imgs, rps_imgs, lat_imgs
+    return queues_imgs, hist_imgs, rps_imgs, lat_imgs, mbps_imgs
 
 def parse_glances_imgs(stat_dir):
     glances_imgs = []
@@ -486,7 +488,8 @@ def main():
     dstat_net_info = parse_dstat_info(nodes_stat_dirs)
 
     # Images for addb queues
-    addb_queues, addb_hists, addb_rps, addb_lat = parse_addb_info(addb_stat_dir)
+    addb_queues, addb_hists, addb_rps, addb_lat, addb_mbps = parse_addb_info(
+        addb_stat_dir)
     timelines_imgs = parse_addb_timelines(addb_stat_dir)
 
     # Glances images
@@ -533,6 +536,7 @@ def main():
             addb_hists=addb_hists,
             addb_rps=addb_rps,
             addb_lat=addb_lat,
+            addb_mbps=addb_mbps,
             timelines_imgs=timelines_imgs,
             task_id=task_id,
             glances_imgs=glances_imgs,

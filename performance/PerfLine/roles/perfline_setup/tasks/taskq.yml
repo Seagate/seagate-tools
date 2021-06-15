@@ -53,6 +53,12 @@
        dest: "{{ perfline_dir }}/build_deploy/hosts"
     delegate_to: "client-1"
 
+  
+  - name: Copy perfline.conf file
+    copy:
+      src: files/perfline.conf
+      dest: "{{ perfline_dir }}"
+    delegate_to: "client-1"
 
 #  - name: Open port for webui
 #    firewalld: port=8005/tcp zone=public permanent=true state=enabled immediate=yes

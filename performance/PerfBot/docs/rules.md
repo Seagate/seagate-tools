@@ -46,8 +46,7 @@ Now each rule is a dictionary of some parameters defining the rule. Schema for a
             "constraint": string,
             "interval": string/int/float
         }
-    },
-    "output": string
+    }
 }
 ```
 
@@ -67,7 +66,6 @@ Description of each placeholder:
 * `grouping`: Approach to select data is certain pattern
 * `constraint`: type of grouping to collect the data points for query
 * `interval`: Range of the groups
-* `output`: Indicator of application of rule gives any results or not
 
 #### Example rule
 
@@ -88,8 +86,7 @@ Description of each placeholder:
             "constraint": "consecutive",
             "interval": "15 sec"
         }
-    },
-    "output": "no"
+    }
 }
 ```
 
@@ -107,7 +104,6 @@ Description of each placeholder:
 10. `keyword`, in case of logs rules, can be any keyword paired with corresponding regex operator for match case and match word.
 11. In case of not aware of regex oeprator, "match_case" and "match_found" as an `operator` placeholder are supported for logs rules.
 12. `interval` has same rule as threshold.
-13. `output` is "no" or "yes" based on the expectation of results of the query.
-14. One can provide comma seperated metric, keyword to look for more than one at a time.
+13. One can provide comma seperated metric, keyword to look for more than one at a time.
 
 the rule is ready!

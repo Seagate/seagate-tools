@@ -6,9 +6,9 @@
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
-  - name: "Creating perfline directory /root/perfline"
+  - name: "Creating perfline directory {{ perfline_dir }}"
     file:
-      path: /root/perfline
+      path: "{{ perfline_dir }}"
       state: directory
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
@@ -29,9 +29,9 @@
   - name: "Create List of nodes to be added into Cluster"
     set_fact: nodelist={%for host in groups['nodes']%}{{hostvars[host]['ansible_host']}}{% if not loop.last %},{% endif %}{% endfor %}
 
-  - name: "Defining HA_TYPE and NODES variables in constant.conf"
+  - name: "Defining HA_TYPE and NODES variables in perfline.conf"
     lineinfile:
-       path: "{{ role_path }}/files/constant.conf"
+       path: "{{ role_path }}/files/perfline.conf"
        regexp: "^{{ item.variable }}"
        line: "{{ item.variable }}='{{ item.value }}'"
     with_items:

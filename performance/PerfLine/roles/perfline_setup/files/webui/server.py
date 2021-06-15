@@ -44,7 +44,7 @@ import matplotlib.dates as mdates
 from core.utils import *
 from core import pl_api, task_cache
 
-exec(open('./../constant.conf').read())
+exec(open('./../perfline.conf').read())
 sys.path.insert(0, VALIDATOR)
 import validator as vr
 

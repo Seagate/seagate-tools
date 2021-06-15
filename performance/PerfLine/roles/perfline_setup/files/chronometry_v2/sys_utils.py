@@ -475,7 +475,6 @@ class RPS():
         self.rps = pd.DataFrame()
         self.window = avg_window
         self.color = color
-        #self.name = f"{self.layer.layer_type.name}: {self.states} RPS"
         self.name = None
         self.label = ''
         self.keep_rule = rule

@@ -28,6 +28,16 @@
     
 </div>
 {% endif %}
+{% if addb_mbps %}
+<h2 align=center>ADDB Cortx throughput</h2>
+<div class="row">
+    
+    {% for img in addb_mbps %}
+        <img src="/report/{{task_id}}/addb_imgs/{{img}}" alt="ADDB Throughput">
+    {% endfor %}
+    
+</div>
+{% endif %}
 {% if addb_hists %}
 <h2 align=center>ADDB Cortx histograms</h2>
 <div class="row">

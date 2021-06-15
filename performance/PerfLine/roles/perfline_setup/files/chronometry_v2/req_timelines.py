@@ -69,6 +69,8 @@ def parse_args():
                         help="Performance database (m0play.db)")
     parser.add_argument("-e", "--depth", type=int, default=20,
                         help="Display the first E lines in depth of client request")
+    parser.add_argument("-s", "--sort", action='store_true',
+                        help="Sort timelines by appearance time")
     parser.add_argument("request_id", type=str, help="Request id")
 
     parser.add_argument("--output-file", type=str, default=None,
@@ -107,7 +109,7 @@ if __name__ == '__main__':
     print(f"Process pid {pid}, id {rid}")
     process_req(req_d[0]['pid1'], req_d[0]['mid1'], "client", 0, args.depth)
 
-    ref_time = prepare_time_table(time_table)
+    ref_time = prepare_time_table(time_table, args.sort)
     draw_timelines(time_table, None, ref_time, 0, "ms", False, args.maximize,
                    no_window=args.no_window, filename=args.output_file)
 

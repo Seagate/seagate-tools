@@ -13,8 +13,10 @@ STAT_DIR="$SCRIPT_DIR/../stat"
 BUILD_DEPLOY_DIR="$SCRIPT_DIR/../../build_deploy"
 PUBLIC_DATA_INTERFACE=$(ip addr show data0 | grep -Po 'inet \K[\d.]+')
 
-source "$SCRIPT_DIR/../../constant.conf"
+source "$SCRIPT_DIR/../../perfline.conf"
 
+STAT_COLLECTION=""
+MKFS=""
 EX_SRV="pdsh -S -w $NODES"
 PRIMARY_NODE=$(echo "$NODES" | cut -d "," -f1)
 S3SERVER=$(ssh $PRIMARY_NODE "cat /var/lib/hare/cluster.yaml | \

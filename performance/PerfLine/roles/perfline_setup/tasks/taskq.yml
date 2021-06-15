@@ -54,9 +54,9 @@
     delegate_to: "client-1"
 
   
-  - name: Copy constant variables file
+  - name: Copy perfline.conf file
     copy:
-      src: files/constant.conf
+      src: files/perfline.conf
       dest: "{{ perfline_dir }}"
     delegate_to: "client-1"
 

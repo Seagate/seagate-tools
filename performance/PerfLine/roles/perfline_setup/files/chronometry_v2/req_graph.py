@@ -19,7 +19,7 @@
 #
 
 from addb2db import *
-from req_utils import query2dlist, prepare_time_table, draw_timelines, times_tag_append
+from req_utils import query2dlist
 import sys
 from graphviz import Digraph
 

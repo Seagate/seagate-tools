@@ -3,7 +3,7 @@ import json
 import os
 import time
 
-from Parsers.schemas import get_performance_schema
+from schemas import get_performance_schema
 debug = False
 
 
@@ -67,7 +67,7 @@ def convert_S3logs_to_JSON(run_ID, reference_doc, S3_input_file_path, quantum, S
                 RPS = -1
                 MBPS = -1
             else:
-                average_latency = round(total_latency/samples, 5)
+                average_latency = round(total_latency/samples, 5)*1000
                 RPS = samples / quantum
                 MBPS = RPS * S3_objectSize
 

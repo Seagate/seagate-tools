@@ -9,10 +9,13 @@ from store_data import connect_database, update_parsed_data
 from data_parser import parse_data
 from Analyzer.rule_handler import rule_handler
 from Analyzer.query_handler import query_handler
+from Analyzer.predictor import predictor
+
 
 def get_random_string(length):
     alphanumeric_set = string.ascii_letters + string.digits
-    result_str = ''.join(random.choice(alphanumeric_set) for i in range(length))
+    result_str = ''.join(random.choice(alphanumeric_set)
+                         for i in range(length))
 
     return result_str
 
@@ -31,6 +34,7 @@ def generate_alphanumeric_runID():
     print("~ Unique ID for run is: " + gen_run_ID)
     return gen_run_ID
 
+
 def generate_runID():
     client = connect_database()
     latest_run_ID = client.query("select last(run_ID) from data;")
@@ -48,14 +52,12 @@ def execute_parsers(run_ID):
     with open("./config.yml", 'r') as config_file:
         configs = yaml.safe_load(config_file)
 
-    hsbench_log = configs['logfiles']['hs']
-    cosbench_log = configs['logfiles']['cos']
-    s3bench_log = configs['logfiles']['s3']
-    
-    print("~ Parsing data files...")
+    print("\n~ PHASE 1: Parsing data files...")
     try:
-        parse_data(run_ID, hsbench_log, cosbench_log, s3bench_log)
-        print("~ Done!")
+        run_directories = [configs['runfiles']['hs'], configs['runfiles']['cos'], configs['runfiles']['s3']]
+        logging_files = [configs['logger']['hs'], configs['logger']['cos'], configs['logger']['s3']]
+
+        parse_data(run_ID, run_directories, logging_files, configs['cos_object_size'])
 
     except Exception as e:
         print("Observed exception: ", e)
@@ -75,15 +77,20 @@ def update_database():
 def analyzer(run_ID):
     print("~ Analyzing data...")
     try:
-        print("~ PHASE 1: Reading rules...")
-        rules, rulebook = rule_handler(run_ID)
-        print(f"Current rules are: {rules}")
+        print("\n~ PHASE 2: Reading rules...")
+        rules = rule_handler(run_ID)
+        # print(f"Current rules are: {rules}")
         print("~ Done!")
 
-        print("~ PHASE 2: Applying rules...")
-        outcome_map = query_handler(rules, rulebook)
-        print(f"Rule outcome map: {outcome_map}")
+        print("\n~ PHASE 3: Applying rules...")
+        outcome_map = query_handler(rules)
+        # print(f"Rule outcome map: {outcome_map}")
         print("~ Done!")
+
+        print("\n~ PHASE 4: Analyzing results...")
+        print("~ ----------------------------------")
+        predictor(outcome_map, run_ID)
+        print("~ ----------------------------------")
 
     except Exception as e:
         print("Observed exception: ", e)
@@ -97,4 +104,4 @@ if __name__ == '__main__':
     update_database()
     analyzer(run_ID)
 
-    print("~ Thanks for using PerfBot!")
+    print("\n")

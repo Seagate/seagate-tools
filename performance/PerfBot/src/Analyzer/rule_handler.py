@@ -9,6 +9,10 @@ def read_rulebook():
 
     return data
 
+def get_consecutive_clause(metric, threshold):
+    clause = f"stateCount( fn: (r) => r.{metric} == {threshold}, column: {metric})"
+    return clause
+
 
 def get_db_query_for_data(rule, run_ID):
     if rule['custom_query'].upper() != 'NA':
@@ -23,9 +27,9 @@ def get_db_query_for_data(rule, run_ID):
         try:
             unit = given_thresh.split(" ")
             if unit[1].lower() == "ms":
-                threshold_value = float(unit[0])/1000
-            elif unit[1].lower().startswith("s"):
                 threshold_value = float(unit[0])
+            elif unit[1].lower().startswith("s"):
+                threshold_value = float(unit[0])*1000
             else:
                 threshold_value = float(unit[0])
 
@@ -78,4 +82,5 @@ def rule_handler(run_ID):
             query = get_db_query_for_logs(rule, run_ID)
             rule_query_pairs[f"L{rule['rule']}"] = query
 
-    return rule_query_pairs, rulebook
+    print(rule_query_pairs)
+    return rule_query_pairs

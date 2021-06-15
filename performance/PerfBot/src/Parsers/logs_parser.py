@@ -2,10 +2,8 @@ import re
 import os
 import time
 
-from influxdb import client
-
 from store_data import connect_database
-from Parsers.schemas import get_error_schema
+from schemas import get_error_schema
 
 cwd = os.getcwd()
 keywords = ('error', 'stderr', 'fail', 'unsuccessful')
@@ -47,4 +45,4 @@ def parse_errors(run_ID, hsbench_log, cosbench_log, s3bench_log):
 
         data = get_parsed_errors_from_file(run_ID, file_name, tool)
         push_data_To_database(data)
-        print("~ Done for {}".format(tool))
+        print("~ {} completed".format(tool))

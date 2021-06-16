@@ -4,7 +4,7 @@ import re
 import datetime as dt
 import time
 
-from Parsers.schemas import get_performance_schema
+from schemas import get_performance_schema
 
 
 def extract_HSBench_logs(reference_doc, HS_destination_file_path):

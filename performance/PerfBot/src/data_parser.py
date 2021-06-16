@@ -40,11 +40,11 @@ def run_hsbench_parser(run_ID, HS_source_file_path):
     time.sleep(1)
 
 
-def run_cosbench_parser(run_ID, COS_source_file_path):
+def run_cosbench_parser(run_ID, COS_source_file_path, cos_obj_size):
     # COS Bench parser
     COS_input_file_path = './Input/cosbench.json'
 
-    convert_COSlogs_to_JSON(run_ID, COS_source_file_path, COS_input_file_path, 64)
+    convert_COSlogs_to_JSON(run_ID, COS_source_file_path, COS_input_file_path, cos_obj_size)
     time.sleep(1)
 
 
@@ -59,16 +59,20 @@ def run_s3bench_parser(run_ID, S3_source_file_path):
                            S3_input_file_path, quantum, S3_objectSize)
 
 
-def parse_data(run_ID, hsbench_log, cosbench_log, s3bench_log):
+def parse_data(run_ID, run_dirs, log_files, cos_obj_size):
     check_os_paths()
 
-    run_hsbench_parser(run_ID, hsbench_log)
+    run_hsbench_parser(run_ID, run_dirs[0])
     print("~ collected performance data from HSBench run directories")
-    run_cosbench_parser(run_ID, cosbench_log)
+
+    run_cosbench_parser(run_ID, run_dirs[1], cos_obj_size)
     print("~ collected performance data from COSBench run directories")
-    run_s3bench_parser(run_ID, s3bench_log)
+
+    run_s3bench_parser(run_ID, run_dirs[2])
     print("~ collected performance data from S3Bench run directories")
-    print("~ Parsing run logs for the errors")
-    parse_errors(run_ID, hsbench_log, cosbench_log, s3bench_log)
+
+    print("~ Parsing run logs...")
+    parse_errors(run_ID, log_files[0], log_files[1], log_files[2])
+
     print("~ Collected Error logs and pushed to database")
     os.removedirs(parsed_data_path)

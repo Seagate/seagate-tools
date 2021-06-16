@@ -1,9 +1,7 @@
-import re
 import json
-import datetime as dt
 import time
 
-from Parsers.schemas import get_performance_schema
+from schemas import get_performance_schema
 
 
 def convert_COSlogs_to_JSON(run_ID, reference_doc, COS_input_file_path, objectSize):

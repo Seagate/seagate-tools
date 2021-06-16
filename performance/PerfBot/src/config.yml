@@ -3,7 +3,15 @@ database:
     port: 8086
     database: "perfbot"
 
-logfiles:
+runfiles:
     hs: './Data/hsbench/hsbench.log'
     cos: './Data/cosbench/s3-5050rw.csv'
     s3: './Data/s3bench/s3bench_Numclients_1_NS_20_size_128Mb.log'
+
+logger:
+    hs: './Data/hsbench/hsbench.log'
+    cos: './Data/cosbench/workload.log'
+    s3: './Data/s3bench/s3bench_Numclients_1_NS_20_size_128Mb.log'
+
+# shoulb be in MB
+cos_object_size: 64

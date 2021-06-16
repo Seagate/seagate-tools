@@ -6,7 +6,7 @@
             "rule": 1,
             "status": "ON",
             "label": "IO HALTED",
-            "description": "If there is no IO for 15 seconds consecutively, then the run is classified as bad.",
+            "description": "There is no IO observed for 15 seconds continously.",
             "custom_query": "NA",
             "query": {
                 "filter": {
@@ -18,35 +18,33 @@
                     "constraint": "consecutive",
                     "interval": "15 s"
                 }
-            },
-            "output": "no"
+            }
         },
         {
             "rule": 2,
             "status": "ON",
-            "label": "LATENCY OVERSHOOT",
-            "description": "If at least one request has latency more than 5 seconds, then the run is classified as bad.",
+            "label": "LATENCY OVERSHOT",
+            "description": "At least one request has latency more than 30 seconds.",
             "custom_query": "NA",
             "query": {
                 "filter": {
                     "metric": "latency",
                     "operator": ">",
-                    "threshold": "5000 ms"
+                    "threshold": "30000 ms"
                 },
                 "grouping": {
                     "constraint": "any",
                     "interval": "NA"
                 }
-            },
-            "output": "no"
+            }
         }
     ],
     "logs": [
         {
             "rule": 1,
             "status": "ON",
-            "label": "KEYWORD 'ERROR' MATCH",
-            "description": "If the keyword error occurs at least 4 times, then the run is classified as bad.",
+            "label": "LOG ERROR FOUND",
+            "description": "Keyword error occured at least 4 times.",
             "custom_query": "NA",
             "query": {
                 "filter": {
@@ -57,8 +55,7 @@
                     "constraint": "any",
                     "interval": 4
                 }
-            },
-            "output": "no"
+            }
         }
     ]
 }

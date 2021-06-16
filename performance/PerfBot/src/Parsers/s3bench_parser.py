@@ -27,7 +27,7 @@ def get_date_time_object(line):
     return dt.datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S')
 
 
-def convert_S3logs_to_JSON(run_ID, reference_doc, S3_input_file_path, quantum, S3_objectSize):
+def convert_S3logs_to_JSON(run_ID, reference_doc, S3_input_file_path, quantum, S3_objectSize, S3_source_file_path):
     data = []
     time_now = time.time_ns()
 
@@ -76,7 +76,7 @@ def convert_S3logs_to_JSON(run_ID, reference_doc, S3_input_file_path, quantum, S
                                                                           average_latency, RPS, MBPS))
 
             entry = get_performance_schema(time_now, run_ID, average_latency, RPS, MBPS, str(
-                end_time - dt.timedelta(seconds=quantum)), operation, 's3bench', reference_doc)
+                end_time - dt.timedelta(seconds=quantum)), operation, 's3bench', S3_source_file_path)
             data.append(entry)
             time_now = time_now + 10
 

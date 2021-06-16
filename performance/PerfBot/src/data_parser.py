@@ -2,8 +2,8 @@
 Parser script that filters unstructured data
 To execute: 
 Parent directory: PerfBot
-Command: python ./parser.py <run run_ID> <hsbench source file path> <cosbench sourcefile path> <s3bench sourcefile path>
-e.g. python df1jxl ./parser.py './Data/hsbench/hsbench.log' './Data/cosbench/s3-5050rw.csv' './Data/s3bench/s3bench_Numclients_1_NS_20_size_128Mb.log'
+Command: python ./parser.py <run_ID> <hsbench source file path> <cosbench sourcefile path> <s3bench sourcefile path>
+e.g. python 3 ./parser.py './Data/hsbench/hsbench.log' './Data/cosbench/s3-5050rw.csv' './Data/s3bench/s3bench_Numclients_1_NS_20_size_128Mb.log'
 """
 # imports
 import os
@@ -36,7 +36,7 @@ def run_hsbench_parser(run_ID, HS_source_file_path):
 
     extract_HSBench_logs(HS_source_file_path, HS_destination_file_path)
     convert_HSlogs_to_JSON(run_ID, HS_destination_file_path,
-                           HS_input_file_path, quantum)
+                           HS_input_file_path, quantum, HS_source_file_path)
     time.sleep(1)
 
 
@@ -56,7 +56,7 @@ def run_s3bench_parser(run_ID, S3_source_file_path):
     S3_objectSize = extract_S3Bench_logs(
         S3_source_file_path, S3_destination_file_path)
     convert_S3logs_to_JSON(run_ID, S3_destination_file_path,
-                           S3_input_file_path, quantum, S3_objectSize)
+                           S3_input_file_path, quantum, S3_objectSize, S3_source_file_path)
 
 
 def parse_data(run_ID, run_dirs, log_files, cos_obj_size):

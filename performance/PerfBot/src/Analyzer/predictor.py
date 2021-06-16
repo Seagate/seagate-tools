@@ -65,6 +65,7 @@ def validator(logic, outcome_map, rule_results_map):
 
 
 def display_rules(rule_results_map, run_ID, functionality, result):
+    obs_not_found = True
     print("~ Observations: ")
     
     for rule in rule_results_map.keys():
@@ -76,7 +77,10 @@ def display_rules(rule_results_map, run_ID, functionality, result):
 
             print(
                 f"~ {rulebook[rule_type][int(rule[1:]) -1]['label']} - {rulebook[rule_type][int(rule[1:]) -1]['description']}")
-
+            obs_not_found = False
+    
+    if obs_not_found:
+        print("~ No violations found.")
     update_results(run_ID, functionality, result, rulebook['version'])
 
 

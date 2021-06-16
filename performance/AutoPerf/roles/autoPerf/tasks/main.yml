@@ -99,6 +99,10 @@
    delegate_to: "{{ item }}"
    with_items: "{{ groups['all'] }}"
 
+ - name: Create custom.yml for custom entries
+   include: custom_entries.yml
+   when: CONFIGURATION == "custom"
+
  - name: Include yml file for {{ CONFIGURATION }} configuration
    include_vars: "roles/autoPerf/vars/{{ CONFIGURATION }}.yml"
    delegate_to: "{{ item }}"

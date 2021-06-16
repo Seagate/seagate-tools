@@ -31,7 +31,7 @@ def get_date_time_object(stripped_data):
     return dt.datetime.strptime(date_time_str, '%Y/%m/%d %H:%M:%S')
 
 
-def convert_HSlogs_to_JSON(run_ID, reference_doc, HS_input_file_path, quantum):
+def convert_HSlogs_to_JSON(run_ID, reference_doc, HS_input_file_path, quantum, HS_source_file_path):
     data = []
     time_now = time.time_ns()
 
@@ -55,17 +55,21 @@ def convert_HSlogs_to_JSON(run_ID, reference_doc, HS_input_file_path, quantum):
             mode = stripped_data[9]
 
             while end_time > current_line_time and line < num_of_lines:
-                total_latency += float(stripped_data[20])
-                total_iops += float(stripped_data[15])
-                total_throughput += float(stripped_data[13])
+                try:
+                    total_latency += float(stripped_data[20])
+                    total_iops += float(stripped_data[15])
+                    total_throughput += float(stripped_data[13])
 
-                line += 1
-                if line < num_of_lines:
-                    stripped_data = clean_the_line(lines[line])
-                    if stripped_data[9] != mode:
-                        mode_change = True
-                        break
-                    current_line_time = get_date_time_object(stripped_data)
+                    line += 1
+                    if line < num_of_lines:
+                        stripped_data = clean_the_line(lines[line])
+                        if stripped_data[9] != mode:
+                            mode_change = True
+                            break
+                        current_line_time = get_date_time_object(stripped_data)
+
+                except IndexError:
+                    line += 1
 
             samples = line - initial_line
             if samples == 0:
@@ -76,7 +80,7 @@ def convert_HSlogs_to_JSON(run_ID, reference_doc, HS_input_file_path, quantum):
                 average_latency = round(total_latency/samples, 5)
 
             entry = get_performance_schema(time_now, run_ID, average_latency, total_iops, total_throughput, str(
-                end_time - dt.timedelta(seconds=quantum)), mode, 'hsbench', reference_doc)
+                end_time - dt.timedelta(seconds=quantum)), mode, 'hsbench', HS_source_file_path)
             data.append(entry)
             time_now = time_now + 10
 

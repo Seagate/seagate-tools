@@ -4,6 +4,7 @@ Main file for PerfBot
 import string
 import random
 import yaml
+import sys
 
 from store_data import connect_database, update_parsed_data
 from data_parser import parse_data
@@ -47,20 +48,20 @@ def generate_runID():
     return gen_run_ID
 
 
-def execute_parsers(run_ID):
+def execute_parsers(run_ID, config_file_path):
     # execute parsers
-    with open("./config.yml", 'r') as config_file:
+    with open(config_file_path, 'r') as config_file:
         configs = yaml.safe_load(config_file)
 
     print("\n~ PHASE 1: Parsing data files...")
-    try:
-        run_directories = [configs['runfiles']['hs'], configs['runfiles']['cos'], configs['runfiles']['s3']]
-        logging_files = [configs['logger']['hs'], configs['logger']['cos'], configs['logger']['s3']]
+    # try:
+    run_directories = [configs['runfiles']['hs'], configs['runfiles']['cos'], configs['runfiles']['s3']]
+    logging_files = [configs['logger']['hs'], configs['logger']['cos'], configs['logger']['s3']]
 
-        parse_data(run_ID, run_directories, logging_files, configs['cos_object_size'])
+    parse_data(run_ID, run_directories, logging_files, configs['cos_object_size'])
 
-    except Exception as e:
-        print("Observed exception: ", e)
+    # except Exception as e:
+    #     print("Observed exception: ", e)
 
 
 def update_database():
@@ -99,8 +100,9 @@ def analyzer(run_ID):
 if __name__ == '__main__':
     print("~ Executing PerfBot...")
 
+    config_file_path = sys.argv[1]
     run_ID = generate_runID()
-    execute_parsers(run_ID)
+    execute_parsers(run_ID, config_file_path)
     update_database()
     analyzer(run_ID)
 

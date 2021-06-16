@@ -1,0 +1,4 @@
+database:
+    host: "ssc-vm-3541.colo.seagate.com"
+    port: 8086
+    database: "perfbot"

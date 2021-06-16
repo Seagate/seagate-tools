@@ -1,8 +1,3 @@
-database:
-    host: "ssc-vm-3541.colo.seagate.com"
-    port: 8086
-    database: "perfbot"
-
 runfiles:
     hs: './Data/hsbench/hsbench.log'
     cos: './Data/cosbench/s3-5050rw.csv'

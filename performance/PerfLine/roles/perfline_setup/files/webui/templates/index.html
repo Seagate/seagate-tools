@@ -313,9 +313,9 @@ app.controller('logCC', function($scope, $rootScope, $http, $interval) {
     }
 });
 app.controller('statsCC', function($scope, $http) {
-    $http.get("/api/stats")
-	.then(function (response) {
-	    $scope.stats = response.data.stats;
-	});
+    // $http.get("/api/stats")
+	// .then(function (response) {
+	//     $scope.stats = response.data.stats;
+	// });
 });
 </script>

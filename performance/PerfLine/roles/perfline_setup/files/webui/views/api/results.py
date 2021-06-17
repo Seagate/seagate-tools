@@ -26,10 +26,11 @@ from core.utils import tq_task_common_get
 
 import config
 
-def tq_results_read(limit: int):
+
+def tq_results_read(limit, locations_list=None):
     
-    cache.update(config.artifacts_dirs)
-    results = cache.get_tasks(limit)
+    cache.update(all_artif_dirs)
+    results = cache.get_tasks(limit, locations=locations_list)
     out = []
 
     for r in results:
@@ -67,11 +68,10 @@ def tq_results_read(limit: int):
     return out
 
 
-@app.route('/api/results', defaults={'limit': 9999999})
-@app.route('/api/results/<int:limit>')
-def results(limit=9999999):
+
+def create_response(limit, locations):
     data = {
-        "results": tq_results_read(limit)
+        "results": tq_results_read(limit, locations)
     }
     content = gzip.compress(json.dumps(data).encode('utf8'), 5)
     response = make_response(content)
@@ -80,3 +80,13 @@ def results(limit=9999999):
     return response
 
 
+@app.route('/api/results', defaults={'limit': 9999999})
+@app.route('/api/results/<int:limit>')
+def results(limit=9999999):
+    return create_response(limit, config.artifacts_dirs)
+
+
+@app.route('/api/backup_results', defaults={'limit': 9999999})
+@app.route('/api/backup_results/<int:limit>')
+def backup_results(limit=9999999):
+    return create_response(limit, config.backup_artifacts_dirs)

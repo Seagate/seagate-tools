@@ -1,0 +1,12 @@
+---
+ - name: create custom.yml file 
+   copy:
+    src: "{{ playbook_dir }}/roles/autoPerf/files/custom_template"
+    dest: "{{ playbook_dir }}/roles/autoPerf/vars/custom.yml"
+  
+ - name: Create entries for custom.yml 
+   lineinfile:
+    path: "{{ playbook_dir }}/roles/autoPerf/vars/custom.yml"
+    regexp: "{{ item.key }}"
+    line: "{{ item.key }}: {{ item.value}}"
+   with_dict: "{{ custom }}"

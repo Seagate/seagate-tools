@@ -1,13 +1,15 @@
 <style>
 
-#deleteBtn {
+#ctrl_buttons {
     margin-top: 2px;
     float: right;
     margin-right: 20px;
 }
 </style>
-<div>
-<p id="deletebtn" ng-click="deleteValue()" ></p>
+
+<div id="ctrl_buttons">
+	<input type="button" id="backup_button" value="Backup" ng-click="backupTasks()" hidden="true"/>
+	<input type="button" id="delete_button" value="Delete" ng-click="deleteValue()" hidden="true"/>
 </div>
 
 <table width=100%>
@@ -29,8 +31,8 @@
 </table>
 <table class="table table-striped">
   <thead>
-    <tr>
-      <th><input type="checkbox" ng-click="checkAll()" ng-model="selectAll" >&nbsp tid</th>
+    <tr> 
+      <th ng-if="checkboxes"><input id="common_checkbox" type="checkbox" ng-click="checkAll()" ng-model="selectAll" >&nbsp tid</th>
       <th>status</th>
       <th>user</th>
       <th>time</th>
@@ -41,7 +43,7 @@
     </tr>
   </thead>
   <tr ng-repeat="row in names | filter:searchText | limitTo:itemsPerPage:(currentPage-1)*itemsPerPage">
-      <td><label><input type="checkbox" ng-true-value=true ng-false-value=false ng-checked="row.checked" ng-model="row.selected" ng-click="selectTask(row)">&nbsp {{row.task_id_short}}</label></td>
+      <td ng-if="checkboxes"><label><input type="checkbox" ng-true-value=true ng-false-value=false ng-checked="row.checked" ng-model="row.selected" ng-click="selectTask(row)">&nbsp {{row.task_id_short}}</label></td>
       <td>{{row.status}}</td>
       <td>{{row.user}}</td>
       <td>

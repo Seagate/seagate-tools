@@ -82,7 +82,7 @@ class s3bench:
         db = makeconnection()
         action= "Updated"
         insertentry={} 
-        collection = db[self.col]
+        collection = db[self.Col]
         try:
             pattern = {"PKey" : self.PKey}
             count_documents= collection.count_documents(pattern)
@@ -99,20 +99,20 @@ class s3bench:
                         "HOST" : socket.gethostname(), 
                         "Operation" : self.Operation , 
                         "Object_Size" : self.Object_Size ,
-                        "Sessions": self.sessions ,
+                        "Sessions": self.Sessions ,
                         "Objects" : self.Objects ,
                         "Buckets": "1" ,
                         "Build" : self.Build , 
                         "Version" : self.Version , 
                         "Branch" : self.Branch ,
                         "OS" : self.OS , 
-                        "Count_of_Servers": self.nodes_num , 
-                        "Count_of_Clients" : self.clients_num , 
+                        "Count_of_Servers": self.Nodes_Num , 
+                        "Count_of_Clients" : self.Clients_Num , 
                         "PKey" : self.PKey  
                         }
                 collection.insert_one(insertentry)
                 action = "Inserted"
-            elif self.overwrite == True : 
+            elif self.Overwrite == True : 
                 insertentry = {
                         "Log_File" : self.Log_File,
                         "IOPS" : self.IOPS,

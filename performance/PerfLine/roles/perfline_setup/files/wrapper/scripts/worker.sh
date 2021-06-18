@@ -573,15 +573,6 @@ function main() {
         run_lnet_workloads
     fi
 
-    if [[ -n $MKFS ]]; then
-	    # Stop cluster 
-	      stop_cluster
-	      cleanup_cluster
-	
-	  # Restart cluster -- do mkfs, whatever...
-    #	restart_cluster
-    fi
-
     restart_cluster
 
     # @artem -- place code below

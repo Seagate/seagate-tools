@@ -99,14 +99,23 @@
    delegate_to: "{{ item }}"
    with_items: "{{ groups['all'] }}"
 
- - name: Create custom.yml for custom entries
-   include: custom_entries.yml
-   when: CONFIGURATION == "custom"
-
  - name: Include yml file for {{ CONFIGURATION }} configuration
    include_vars: "roles/autoPerf/vars/{{ CONFIGURATION }}.yml"
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
+
+ - name: Checking if any benchmarking tool is running on client
+   shell: ps -ef | grep -v grep | grep "s3bench\|hsbench\|benchmark.sh" | awk '{print $2}'
+   register: result
+   ignore_errors: yes
+   delegate_to: clientnode-1
+
+ - name: Printing the process IDs obtained
+   debug: msg="Options of result :{{ result }}"
+
+ - name: Fail when ansible process found
+   when: result.stdout | length > 0
+   fail: msg="One of the performance tool is running on client. Either wait for it or stop it to submit new job"
 
  - name: Telegraf monitoring start
    service:

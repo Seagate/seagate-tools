@@ -187,6 +187,7 @@ def tq_results_read(limit: int) -> Dict:
             tq_task_common_get(elem, r)
 
             elem["status"] = info['info']['status']
+            elem["result_dir"] = info['info']['artifacts_dir']
             task = r[0]
 
             perf_results = cache.get_perf_results(elem["task_id"])
@@ -241,6 +242,19 @@ def results(limit=9999999):
     response = make_response(content)
     response.headers['Content-length'] = len(content)
     response.headers['Content-Encoding'] = 'gzip'
+    return response
+
+@app.route('/api/results/rerun/<string:taskid>')
+def rerun(taskid: str):
+    response = {}
+    with open(f'/var/perfline/result_{taskid}/workload.yaml', 'r') as taskfile:
+      try:
+          config = yaml.safe_load(taskfile)
+          result = pl_api.add_task(str(config))
+          response = make_response(f'{result}')
+      except Exception as e:
+          result = { 'Error': "File not found" }
+          response = make_response(f'{result}')
     return response
 
 

@@ -192,6 +192,10 @@ def worker_task(conf_opt, task):
         run_cmds(conf['pre_exec_cmds'], result['artifacts_dir'])
 
     with plumbum.local.env():
+
+        mkdir = plumbum.local['mkdir']
+        mkdir["-p", result["artifacts_dir"]] & plumbum.FG
+
         run_workload = plumbum.local["scripts/worker.sh"]
         try:
             tee = plumbum.local['tee']

@@ -247,7 +247,8 @@ def results(limit=9999999):
 @app.route('/api/results/rerun/<string:taskid>')
 def rerun(taskid: str):
     response = {}
-    with open(f'/var/perfline/result_{taskid}/workload.yaml', 'r') as taskfile:
+    location = cache.get_location(taskid)
+    with open(f'{location}/result_{taskid}/workload.yaml', 'r') as taskfile:
       try:
           config = yaml.safe_load(taskfile)
           result = pl_api.add_task(str(config))

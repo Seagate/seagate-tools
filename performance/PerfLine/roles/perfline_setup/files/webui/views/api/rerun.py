@@ -16,11 +16,23 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 
-__all__ = ["add_task",
-           "hostname",
-           "log",
-           "queue",
-           "results",
-           "save_task",
-           "workload_conf",
-           "rerun"]
+import yaml
+from flask import make_response
+
+from app_global_data import *
+from core import pl_api
+
+
+@app.route('/api/results/rerun/<string:taskid>')
+def rerun(taskid: str):
+    response = {}
+    location = cache.get_location(taskid)
+    with open(f'{location}/result_{taskid}/workload.yaml', 'r') as taskfile:
+      try:
+          config = yaml.safe_load(taskfile)
+          result = pl_api.add_task(str(config))
+          response = make_response(f'{result}')
+      except Exception as e:
+          result = { 'Error': "File not found" }
+          response = make_response(f'{result}')
+    return response

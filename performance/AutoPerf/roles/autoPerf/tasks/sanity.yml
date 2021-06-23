@@ -1,4 +1,17 @@
 ---
+- name: Checking if any benchmarking tool is running on client
+  shell: ps -ef | grep -v grep | grep "s3bench\|hsbench\|benchmark.sh" | awk '{print $2}'
+  register: result
+  ignore_errors: yes
+  delegate_to: clientnode-1
+
+- name: Printing the process IDs obtained
+  debug: msg="Options of result :{{ result }}"
+
+- name: Fail when ansible process found
+  when: result.stdout | length > 0
+  fail: msg="One of the performance tool is running on client. Either wait for it or stop it to submit new job"
+
 - name: "Sanity Check (Nodes and clients): Installing NTP "
   yum:
     name:
@@ -38,7 +51,7 @@
       fail: msg="'s3.seagate.com' is not reachable, one possible reason 's3.seagate.com' entry is commented in '/etc/hosts' file"
 
     - name: "Checking 'aws' package installed or not"
-      shell: "pip3 list | grep aws"
+      shell: "pip3 list | grep aws || rpm -qa | grep -v grep | grep aws" 
       register: result
       ignore_errors: yes
       no_log: True

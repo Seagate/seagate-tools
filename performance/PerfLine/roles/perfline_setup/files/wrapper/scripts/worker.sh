@@ -11,7 +11,7 @@ TOOLS_DIR="$SCRIPT_DIR/../../chronometry"
 PERFLINE_DIR="$SCRIPT_DIR/../"
 STAT_DIR="$SCRIPT_DIR/../stat"
 BUILD_DEPLOY_DIR="$SCRIPT_DIR/../../build_deploy"
-PUBLIC_DATA_INTERFACE=$(ip addr show data0 | grep -Po 'inet \K[\d.]+')
+PUBLIC_DATA_INTERFACE=$(ip addr show | egrep 'data0|enp179s0|enp175s0f0' | grep -Po 'inet \K[\d.]+')
 
 source "$SCRIPT_DIR/../../perfline.conf"
 
@@ -159,7 +159,7 @@ function run_workloads()
     for ((i = 0; i < $((${#WORKLOADS[*]})); i++)); do
         echo "workload $i"
         local cmd=${WORKLOADS[((i))]}
-        eval $cmd | tee workload-$i.log
+        eval $cmd | tee custom-${i}.log
 	STATUS=${PIPESTATUS[0]}
     done
 
@@ -235,9 +235,8 @@ function iperf_workload()
     popd
 }
 
-function create_results_dir() {
-    echo "Create results folder"
-    mkdir -p $RESULTS_DIR
+function pushd_to_results_dir() {
+    echo "go to results folder"
     pushd $RESULTS_DIR
 }
 
@@ -560,8 +559,8 @@ function main() {
     stop_cluster
     cleanup_logs
 
-    # Create artifacts folder
-    create_results_dir
+    # go to artifacts folder
+    pushd_to_results_dir
    
     # Deploy build
     if [[ -n $BUILD_DEPLOY ]]; then
@@ -571,15 +570,6 @@ function main() {
     # lnet workload
     if [[ -n $LNET ]]; then
         run_lnet_workloads
-    fi
-
-    if [[ -n $MKFS ]]; then
-	    # Stop cluster 
-	      stop_cluster
-	      cleanup_cluster
-	
-	  # Restart cluster -- do mkfs, whatever...
-    #	restart_cluster
     fi
 
     restart_cluster

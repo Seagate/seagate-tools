@@ -183,7 +183,7 @@ app.controller('resultsCC', function($scope, $window, $http) {
     $scope.currentPage  = 1;
     $scope.itemsPerPage = 10;
     $scope.limit = 100;
-
+     
     $scope.reload = function() {
 	$('#cover-spin').show(0);
 	$http.get("/api/results/" + $scope.limit)
@@ -193,6 +193,23 @@ app.controller('resultsCC', function($scope, $window, $http) {
 		$('#cover-spin').hide(0);
 	    });
     }
+    
+    $scope.OnRun = function(taskid) {
+        var inputdata = confirm("Are you sure to execute this action?");
+        if (inputdata) {
+            $http.get("/api/results/rerun/" + taskid)
+                  .then(function (response) {
+                       console.log(response.data)
+                       setTimeout(function(){
+                           window.location.href = '#!/queue';
+                       }, 5000);
+                  });
+        }
+        else {
+             alert("Action cancelled");
+        }
+    }
+ 
 
     $scope.pageChanged = function() {
 	$scope.reload();
@@ -204,6 +221,7 @@ app.controller('resultsCC', function($scope, $window, $http) {
     }
 
     $scope.reload();
+
 });
 app.controller('queueCC', function($scope, $http) {
     $scope.currentPage  = 1;

@@ -123,6 +123,7 @@ do
     if [ ! -d $LOG ]; then
           mkdir $LOG
           config_s3workloads
+          sleep 20
           for i in `cat $LOG/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' '`; 
           do 
               cp -r ~/cos/archive/$i* $LOG;
@@ -133,6 +134,7 @@ do
           mv $LOG $CURRENT_PATH/benchmark.bak_$TIMESTAMP
           mkdir $LOG
           config_s3workloads
+          sleep 20
           for i in `cat $LOG/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' '`;
           do
               cp -r ~/cos/archive/$i* $LOG;

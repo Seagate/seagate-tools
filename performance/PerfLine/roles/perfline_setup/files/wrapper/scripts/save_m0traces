@@ -1,5 +1,17 @@
 #!/usr/bin/env bash
 
+function find_motr_traces_location()
+{
+    # for R1 cluster
+    MOTR_TRACE_DIR="/var/log/seagate/motr/trace"
+
+    if [[ ! -d "$MOTR_TRACE_DIR" ]]; then
+        # for R2 cluster
+        MOTR_TRACE_DIR="/var/motr"
+    fi
+}
+
+
 function main()
 {
     local artif_host=$1
@@ -11,8 +23,11 @@ function main()
     
     
     if [[ "$app" == "motr" ]]; then
+
+        find_motr_traces_location
+
         for ios_fid in $@; do
-            local ios_dir="/var/log/seagate/motr/trace/m0d-$ios_fid"
+            local ios_dir="$MOTR_TRACE_DIR/m0d-$ios_fid"
 
             if [[ -e $ios_dir ]]; then
                 pushd $ios_dir

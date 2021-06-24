@@ -25,27 +25,26 @@ CLUSTER_CONFIG_FILE="/var/lib/hare/cluster.yaml"
 ASSIGNED_IPS=$(ifconfig | grep inet | awk '{print $2}')
 SCRIPT_PATH="$(readlink -f $0)"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
-RESULT=$(python3 $SCRIPT_DIR/../../stat/extract_disks.py $CLUSTER_CONFIG_FILE $ASSIGNED_IPS)
+RESULT="$(python3 $SCRIPT_DIR/../../stat/extract_disks.py $CLUSTER_CONFIG_FILE $ASSIGNED_IPS)"
 NODE=`echo $RESULT | cut -d' ' -f 1`
 CURRENT_NODE="srvnode-${NODE}"
-DISKS=`echo $RESULT | cut -d' ' -f 2-`
+DISKS=`echo "$RESULT" | grep 'IO:' | sed 's/IO://'`
+MD_DISKS=`echo "$RESULT" | grep 'MD:' | sed 's/MD://'`
 
 
 function main()
 { 
-    md=`mount | grep -e mero -e m0tr -e motr | awk '{print $1}'`
-    md_base=`echo $md | awk -F/ '{print $NF}'`
-    md_base=${md_base::-1}
-
     for d in $DISKS; do
         dm=`realpath $d | xargs basename`
         disks_dm="$disks_dm $dm"
         echo "IO $d $dm"
     done
 
-    dm=`multipath -ll | grep $md_base | awk '{print $3}'`
-    disks_dm="$disks_dm $dm"
-    echo "MD $md $dm"
+    for d in $MD_DISKS; do
+        dm=`realpath $d | xargs basename`
+        disks_dm="$disks_dm $dm"
+        echo "MD $d $dm"
+    done
 }
 
 

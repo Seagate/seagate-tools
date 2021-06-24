@@ -85,17 +85,29 @@ parse_params()
     done
 }
 
+function find_motr_addb_location()
+{
+    # for R1 cluster
+    MOTR_ADDB_DIR="/var/log/seagate/motr/addb"
+
+    if [[ ! -d "$MOTR_ADDB_DIR" ]]; then
+        # for R2 cluster
+        MOTR_ADDB_DIR="/var/motr"
+    fi
+}
+
 function process_motr_addb()
 {
     local host="$(hostname -s)"
-    local motr_addb_dir="/var/log/seagate/motr/addb"
 
-    local tmp_dir="$motr_addb_dir/$(mktemp -u addb_tmp_XXXXXXX)"
+    find_motr_addb_location
+
+    local tmp_dir="$MOTR_ADDB_DIR/$(mktemp -u addb_tmp_XXXXXXX)"
     mkdir $tmp_dir
     pushd $tmp_dir
 
     for ios_fid in $IO_SERVICES; do
-       local ios_dir="$motr_addb_dir/m0d-$ios_fid"
+       local ios_dir="$MOTR_ADDB_DIR/m0d-$ios_fid"
 
         if [[ ! -d "$ios_dir" ]]; then
             continue

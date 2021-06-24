@@ -18,6 +18,7 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 
+import os
 import datetime
 
 def tq_task_common_get(elem, r):
@@ -50,3 +51,17 @@ def tq_task_common_get(elem, r):
     if 'finish_time' in info['info']:
         f = datetime.datetime.strptime(info['info']['finish_time'], fmt)
         elem['time']['end'] = f.strftime(hms)
+
+
+def get_list_of_files(dirName):
+    listOfFile = os.listdir(dirName)
+    allFiles = dict()
+    for entry in listOfFile:
+        fullPath = os.path.join(dirName, entry)
+        if os.path.isdir(fullPath):
+            allFiles.update(get_list_of_files(fullPath))
+        else:
+            if fullPath.endswith(".yaml"):
+               key = entry.replace(".yaml","")
+               allFiles[key] = fullPath
+    return allFiles

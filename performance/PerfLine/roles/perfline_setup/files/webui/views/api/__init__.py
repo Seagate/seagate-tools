@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,26 +16,11 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 
-
-import config
-from core import pl_api
-from app_global_data import *
-from views import *
-from views.api import *
-
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-
-
-@app.after_request
-def add_header(response):
-    # response.cache_control.no_store = True
-    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
-    response.headers['Pragma'] = 'no-cache'
-    response.headers['Expires'] = '-1'
-    return response
-
-
-if __name__ == '__main__':
-    pl_api.init_tq_endpoint("./perfline_proxy.sh")
-    cache.update(config.artifacts_dirs)
-    app.run(**config.server_ep)
+__all__ = ["add_task",
+           "hostname",
+           "log",
+           "queue",
+           "results",
+           "save_task",
+           "workload_conf",
+           "rerun"]

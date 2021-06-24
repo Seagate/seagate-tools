@@ -7,7 +7,7 @@ ASSIGNED_IPS=$(ifconfig | grep inet | awk '{print $2}')
 SCRIPT_PATH="$(readlink -f $0)"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 RESULT=$(python3 $SCRIPT_DIR/extract_disks.py $CLUSTER_CONFIG_FILE $ASSIGNED_IPS)
-DISKS=`echo $RESULT | cut -d' ' -f 2-`
+DISKS=`echo "$RESULT" | grep 'IO:' | sed 's/IO://'`
 
 function removing_dir()
 {

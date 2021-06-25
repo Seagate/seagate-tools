@@ -39,8 +39,8 @@ class TaskCache:
         self._lock = Lock()
 
 
-    def update(self, artifacts_locations):
-        if self.__cache_is_valid():
+    def update(self, artifacts_locations, force = False):
+        if not force and self.__cache_is_valid():
             return
 
         with self._lock:

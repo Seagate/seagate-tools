@@ -25,7 +25,7 @@ from app_global_data import *
 from core.utils import tq_task_common_get
 
 import config
-
+from shutil import rmtree
 
 def tq_results_read(limit: int):
     
@@ -79,3 +79,19 @@ def results(limit=9999999):
     response.headers['Content-length'] = len(content)
     response.headers['Content-Encoding'] = 'gzip'
     return response
+
+@app.route('/api/results/delete/<string:taskList>')
+def deleteTask(taskList: str):
+    result = {}
+    for taskid in list(taskList.split(",")):
+         location = cache.get_location(taskid)
+         result_dir = f'{location}/result_{taskid}/'
+         try:
+             rmtree(result_dir)
+             result[result_dir] = "deleted successfully"
+         except OSError as error:
+             result[result_dir] = "File path not found"
+    cache.update(config.artifacts_dirs, force = True)
+    response = make_response(f'{result}')
+    return response
+

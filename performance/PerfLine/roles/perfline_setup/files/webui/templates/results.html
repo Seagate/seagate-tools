@@ -1,3 +1,14 @@
+<style>
+
+#deleteBtn {
+    margin-top: 2px;
+    float: right;
+    margin-right: 20px;
+}
+</style>
+<div>
+<input type="button" id="deleteBtn" value="Delete" ng-click="deleteValue()" />
+</div>
 <table width=100%>
   <tr>
     <td>
@@ -18,7 +29,7 @@
 <table class="table table-striped">
   <thead>
     <tr>
-      <th>tid</th>
+      <th><input type="checkbox" ng-click="checkAll()" ng-model="selectAll" >&nbsp tid</th>
       <th>status</th>
       <th>user</th>
       <th>time</th>
@@ -29,7 +40,7 @@
     </tr>
   </thead>
   <tr ng-repeat="row in names | filter:searchText | limitTo:itemsPerPage:(currentPage-1)*itemsPerPage">
-      <td>{{row.task_id_short}}</td>
+      <td><label><input type="checkbox" ng-true-value="'{{row.task_id}}'" ng-false-value="''" ng-checked="row.checked" ng-model="row.select" ng-change="selectTask(row)">&nbsp {{row.task_id_short}}</label></td>
       <td>{{row.status}}</td>
       <td>{{row.user}}</td>
       <td>

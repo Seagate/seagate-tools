@@ -7,8 +7,9 @@
 }
 </style>
 <div>
-<input type="button" id="deleteBtn" value="Delete" ng-click="deleteValue()" />
+<p id="deletebtn" ng-click="deleteValue()" ></p>
 </div>
+
 <table width=100%>
   <tr>
     <td>
@@ -40,7 +41,7 @@
     </tr>
   </thead>
   <tr ng-repeat="row in names | filter:searchText | limitTo:itemsPerPage:(currentPage-1)*itemsPerPage">
-      <td><label><input type="checkbox" ng-true-value="'{{row.task_id}}'" ng-false-value="''" ng-checked="row.checked" ng-model="row.select" ng-change="selectTask(row)">&nbsp {{row.task_id_short}}</label></td>
+      <td><label><input type="checkbox" ng-true-value=true ng-false-value=false ng-checked="row.checked" ng-model="row.selected" ng-click="selectTask(row)">&nbsp {{row.task_id_short}}</label></td>
       <td>{{row.status}}</td>
       <td>{{row.user}}</td>
       <td>

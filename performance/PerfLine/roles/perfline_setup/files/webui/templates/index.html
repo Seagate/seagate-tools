@@ -183,28 +183,58 @@ app.controller('resultsCC', function($scope, $window, $http) {
     $scope.currentPage  = 1;
     $scope.itemsPerPage = 10;
     $scope.limit = 100;
-    var taskList = [];
+    var taskList = new Set();
+
+    $scope.displayDeleteButton = function() {
+       if (taskList.size > 0){
+          document.getElementById("deletebtn").innerHTML = '<input type="button" id="deleteBtn" value="Delete"  />';
+       }
+       else{
+          document.getElementById("deletebtn").innerHTML = null;
+       }
+    }
 
     $scope.selectTask = function(row) {
-    taskList.push(row.task_id);
+       console.log(row.selected)
+       if (row.selected == 1){
+          taskList.add(row.task_id);
+       }
+       else{
+          taskList.delete(row.task_id);
+       }
+       $scope.displayDeleteButton();
+       console.log(taskList)
     }
 
     $scope.checkAll = function() {
-    angular.forEach($scope.names, function(row) {
-      row.checked = $scope.selectAll;
-    });
+    console.log($scope.selectAll)
+    if ($scope.selectAll == 1) {
+         angular.forEach($scope.names, function(row) {
+         row.selected = $scope.selectAll;
+         taskList.add(row.task_id);
+         });
+    }
+    else{
+        angular.forEach($scope.names, function(row) {
+         row.selected = $scope.selectAll;
+        });
+        taskList.clear();
+    }
+    $scope.displayDeleteButton();
+    console.log(taskList)
     }
 
     $scope.deleteValue = function() {
-        if (taskList.length > 0) {
-           var inputdata = confirm("Warning!!! It will permanently delete all selected result artifacts from local storage");
+        if (taskList.size > 0) {
+           var inputdata = confirm("Warning!!! It will permanently delete all selected result artifacts from local storage.");
            if (inputdata) {
-              $http.get("/api/results/delete/" + taskList)
+              $http.get("/api/results/delete/" + Array.from(taskList))
                   .then(function (response) {
                        console.log(response.data)
                        $scope.reload();
                });
-           taskList = [];
+           taskList.clear();
+           $scope.displayDeleteButton();
            }
         }
     }

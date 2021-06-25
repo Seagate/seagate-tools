@@ -183,7 +183,32 @@ app.controller('resultsCC', function($scope, $window, $http) {
     $scope.currentPage  = 1;
     $scope.itemsPerPage = 10;
     $scope.limit = 100;
-     
+    var taskList = [];
+
+    $scope.selectTask = function(row) {
+    taskList.push(row.task_id);
+    }
+
+    $scope.checkAll = function() {
+    angular.forEach($scope.names, function(row) {
+      row.checked = $scope.selectAll;
+    });
+    }
+
+    $scope.deleteValue = function() {
+        if (taskList.length > 0) {
+           var inputdata = confirm("Warning!!! It will permanently delete all selected result artifacts from local storage");
+           if (inputdata) {
+              $http.get("/api/results/delete/" + taskList)
+                  .then(function (response) {
+                       console.log(response.data)
+                       $scope.reload();
+               });
+           taskList = [];
+           }
+        }
+    }
+ 
     $scope.reload = function() {
 	$('#cover-spin').show(0);
 	$http.get("/api/results/" + $scope.limit)

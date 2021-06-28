@@ -26,7 +26,6 @@ from core.utils import tq_task_common_get
 
 import config
 
-
 def tq_results_read(limit: int):
     
     cache.update(config.artifacts_dirs)
@@ -79,3 +78,5 @@ def results(limit=9999999):
     response.headers['Content-length'] = len(content)
     response.headers['Content-Encoding'] = 'gzip'
     return response
+
+

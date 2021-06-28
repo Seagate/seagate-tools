@@ -24,4 +24,4 @@ __all__ = ["add_task",
            "save_task",
            "workload_conf",
            "rerun",
-           "results_task"]
+           "delete_task"]

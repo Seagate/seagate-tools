@@ -28,7 +28,7 @@ show_usage() {
         echo -e "\t -nc\t:\t number of clients \n"
         echo -e "\t -ns\t:\t number of samples\n"
         echo -e "\t -s\t:\t size of the objects in bytes\n"       
-        echo -e "\tExample\t:\t ./run_s3benchmark.sh -nc 128,256,512 -ns 1024,2048,4096 -s 4Kb,16Kb,1Mb,4Mb,128Mb  \n"
+        echo -e "\tExample\t:\t ./run_s3benchmark.sh -nc 128,256,512 -ns 1024,2048,4096 -s 1Kb,4Kb,16Kb,1Mb,4Mb,128Mb  \n"
         exit 1
 }
 

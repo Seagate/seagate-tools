@@ -16,12 +16,26 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 
-__all__ = ["add_task",
-           "hostname",
-           "log",
-           "queue",
-           "results",
-           "save_task",
-           "workload_conf",
-           "rerun",
-           "results_task"]
+from flask import make_response
+
+from app_global_data import *
+
+from core.utils import tq_task_common_get
+
+from shutil import rmtree
+
+@app.route('/api/results/delete/<string:taskList>')
+def deleteTask(taskList: str):
+    result = {}
+    for taskid in list(taskList.split(",")):
+         location = cache.get_location(taskid)
+         result_dir = f'{location}/result_{taskid}/'
+         try:
+             rmtree(result_dir)
+             result[result_dir] = "deleted successfully"
+         except OSError as error:
+             result[result_dir] = "File path not found"
+    cache.update(config.artifacts_dirs, force = True)
+    response = make_response(f'{result}')
+    return response
+

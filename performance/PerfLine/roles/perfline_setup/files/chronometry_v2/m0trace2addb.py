@@ -27,11 +27,6 @@ from os.path import basename
 
 MEAS_LABEL="[MEAS]"
 
-sm_names_map = {
-    "Session states" : "session-state",
-    "Conn states"    : "conn-state"
-}
-
 def get_pid(file_path):
     file_name = basename(file_path)
     pid = file_name.split('.')[0].split('_')[-1]
@@ -58,12 +53,7 @@ def consume_data(input_file):
                 y = yaml.load(res[1])
 
                 time = y.pop('time', None)
-                conf_name = y.pop('conf_name', None)
-
-                if conf_name:
-                    name = sm_names_map[conf_name]
-                else:
-                    name = y.pop('name', None)
+                name = y.pop('name', None)
 
                 if 'uuid' in y:
                     y['uuid'] = y['uuid'].replace(':', '&')

@@ -49,7 +49,14 @@ _get_cluster_params() {
     MOTR_PORTS=`echo "$HCTL_STATUS" | grep $NODE_IP | grep m0_client | grep unknown \
         | awk '{print $4}' | awk -F: '{print $NF}'`
 
-    CLUSTER_PROFILE=`echo "$HCTL_STATUS" | grep Profile | awk '{print $2}'`
+    # for old hctl version
+    CLUSTER_PROFILE=`echo "$HCTL_STATUS" | grep 'Profile:' | awk '{print $2}'`
+
+    # for new hctl version
+    if [[ -z "$CLUSTER_PROFILE" ]]; then
+        CLUSTER_PROFILE=`echo "$HCTL_STATUS" | grep -A2 'Profile:' | grep '0x' | awk '{print $1}'`
+    fi
+
     IOS_FID=`echo "$HCTL_STATUS" | grep "\[.*\].*ioservice" | grep ${NODE_IP} \
         | awk '{print $3}'`
 }

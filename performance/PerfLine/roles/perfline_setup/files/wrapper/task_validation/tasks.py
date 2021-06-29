@@ -23,7 +23,7 @@ from datetime import datetime
 import os
 import plumbum
 import json
-
+import yaml
 
 def get_overrides(overrides):
     return " ".join([f"{x}={y}" for (x, y) in overrides.items()])
@@ -192,6 +192,10 @@ def worker_task(conf_opt, task):
         run_cmds(conf['pre_exec_cmds'], result['artifacts_dir'])
 
     with plumbum.local.env():
+
+        mkdir = plumbum.local['mkdir']
+        mkdir["-p", result["artifacts_dir"]] & plumbum.FG
+
         run_workload = plumbum.local["scripts/worker.sh"]
         try:
             tee = plumbum.local['tee']
@@ -217,8 +221,11 @@ def worker_task(conf_opt, task):
         pack_artifacts(result["artifacts_dir"])
 
     pl_metadata_file = "{}/perfline_metadata.json".format(result["artifacts_dir"])
-
+    
+    workload = "{}/workload.yaml".format(result["artifacts_dir"])
     try:
+        with open(workload, 'w') as file:
+            yaml.dump(conf, file,default_flow_style=False, sort_keys=False)
         with open(pl_metadata_file, "wt") as f:
             f.write(json.dumps(result))
     except FileNotFoundError as e:

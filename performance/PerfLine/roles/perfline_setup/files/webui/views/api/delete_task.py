@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,26 +16,26 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 
+from flask import make_response
 
-import config
-from core import pl_api
 from app_global_data import *
-from views import *
-from views.api import *
 
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+from core.utils import tq_task_common_get
 
+from shutil import rmtree
 
-@app.after_request
-def add_header(response):
-    # response.cache_control.no_store = True
-    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
-    response.headers['Pragma'] = 'no-cache'
-    response.headers['Expires'] = '-1'
+@app.route('/api/results/delete/<string:taskList>')
+def deleteTask(taskList: str):
+    result = {}
+    for taskid in list(taskList.split(",")):
+         location = cache.get_location(taskid)
+         result_dir = f'{location}/result_{taskid}/'
+         try:
+             rmtree(result_dir)
+             result[result_dir] = "deleted successfully"
+         except OSError as error:
+             result[result_dir] = "File path not found"
+    cache.update(config.artifacts_dirs, force = True)
+    response = make_response(f'{result}')
     return response
 
-
-if __name__ == '__main__':
-    pl_api.init_tq_endpoint("./perfline_proxy.sh")
-    cache.update(config.artifacts_dirs)
-    app.run(**config.server_ep)

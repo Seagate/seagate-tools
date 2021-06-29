@@ -54,14 +54,22 @@ def execute_parsers(run_ID, config_file_path):
         configs = yaml.safe_load(config_file)
 
     print("\n~ PHASE 1: Parsing data files...")
-    # try:
-    run_directories = [configs['runfiles']['hs'], configs['runfiles']['cos'], configs['runfiles']['s3']]
-    logging_files = [configs['logger']['hs'], configs['logger']['cos'], configs['logger']['s3']]
+    try:
+        run_directories = [configs['runfiles']['hs'],
+                           configs['runfiles']['cos'], configs['runfiles']['s3']]
+        logging_files = [configs['logger']['hs'],
+                         configs['logger']['cos'], configs['logger']['s3']]
 
-    parse_data(run_ID, run_directories, logging_files, configs['cos_object_size'])
+        if all([elem == None for elem in run_directories]):
+            print("\n~ Exiting as no data files are given.")
+            print("~ ----------------------------------\n")
+            exit()
+        else:
+            parse_data(run_ID, run_directories, logging_files,
+                       configs['cos_object_size'])
 
-    # except Exception as e:
-    #     print("Observed exception: ", e)
+    except Exception as e:
+        print("Observed exception: ", e)
 
 
 def update_database():
@@ -76,16 +84,14 @@ def update_database():
 
 
 def analyzer(run_ID):
-    print("~ Analyzing data...")
+    print("\n~ Analyzing data...")
     try:
         print("\n~ PHASE 2: Reading rules...")
         rules = rule_handler(run_ID)
-        # print(f"Current rules are: {rules}")
         print("~ Done!")
 
         print("\n~ PHASE 3: Applying rules...")
         outcome_map = query_handler(rules)
-        # print(f"Rule outcome map: {outcome_map}")
         print("~ Done!")
 
         print("\n~ PHASE 4: Analyzing results...")

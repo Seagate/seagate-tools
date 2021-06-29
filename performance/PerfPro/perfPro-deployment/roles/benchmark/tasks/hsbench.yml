@@ -1,6 +1,13 @@
 ---
+ - name: "Create List of nodes to be added into Cluster"
+   set_fact: nodelist={%for host in groups['nodes']%}{{hostvars[host]['ansible_host']}}{% if not loop.last %},{% endif %}{% endfor %}
+
  - name: "[HSbench-1-Bucket]: HSbench running for 1 Bucket"
-   shell: cd /root/PerfProBenchmark/hsbench; ./run_benchmark.sh -b 1 -o {{ item.numsamples }} -s {{ item.objsize }} -t 300 -d 600
+   shell: |
+      cd /root/PerfProBenchmark/hsbench/
+      pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' 'root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
+      ./run_benchmark.sh -b 1 -o {{ item.numsamples }} -s {{ item.objsize }} -t 300 -d 600
+      pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
    loop:
        - { objsize: '4Kb', numsamples: '33000'}
@@ -15,7 +22,11 @@
        - { objsize: '256Mb', numsamples: '4600'}
 
  - name: "[HSbench-10-Buckets]: HSbench running for 10 Buckets"
-   shell: cd /root/PerfProBenchmark/hsbench; ./run_benchmark.sh -b 10 -o {{ item.numsamples }} -s {{ item.objsize }} -t 300 -d 600
+   shell: |
+      cd /root/PerfProBenchmark/hsbench/
+      pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' 'root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
+      ./run_benchmark.sh -b 10 -o {{ item.numsamples }} -s {{ item.objsize }} -t 300 -d 600
+      pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
    loop:
        - { objsize: '4Kb', numsamples: '33000'}
@@ -30,7 +41,11 @@
        - { objsize: '256Mb', numsamples: '4600'}
 
  - name: "[HSbench-50-Buckets]: HSbench running for 50 Buckets"
-   shell: cd /root/PerfProBenchmark/hsbench; ./run_benchmark.sh -b 50 -o {{ item.numsamples }} -s {{ item.objsize }} -t 300 -d 600
+   shell: |
+      cd /root/PerfProBenchmark/hsbench/
+      pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' 'root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
+      ./run_benchmark.sh -b 50 -o {{ item.numsamples }} -s {{ item.objsize }} -t 300 -d 600
+      pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
    loop:
        - { objsize: '4Kb', numsamples: '33000'}

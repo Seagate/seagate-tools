@@ -85,22 +85,11 @@ parse_params()
     done
 }
 
-function find_motr_addb_location()
-{
-    # for R1 cluster
-    MOTR_ADDB_DIR="/var/log/seagate/motr/addb"
-
-    if [[ ! -d "$MOTR_ADDB_DIR" ]]; then
-        # for R2 cluster
-        MOTR_ADDB_DIR="/var/motr"
-    fi
-}
-
 function process_motr_addb()
 {
     local host="$(hostname -s)"
 
-    find_motr_addb_location
+    MOTR_ADDB_DIR=$($SCRIPT_DIR/find_motr_addb_location.sh)
 
     local tmp_dir="$MOTR_ADDB_DIR/$(mktemp -u addb_tmp_XXXXXXX)"
     mkdir $tmp_dir

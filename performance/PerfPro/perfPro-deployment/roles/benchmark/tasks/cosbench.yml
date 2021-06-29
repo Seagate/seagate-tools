@@ -1,6 +1,13 @@
 ---
+ - name: "Create List of nodes to be added into Cluster"
+   set_fact: nodelist={%for host in groups['nodes']%}{{hostvars[host]['ansible_host']}}{% if not loop.last %},{% endif %}{% endfor %}
+
  - name: "[Cosbench]: Cosbench running with clients=300 bucket=1"
-   shell: cd /root/PerfProBenchmark/cosbench; ./s3cosbench_benchmark.sh -nc "300" -ns {{ item.numsamples }} -s {{ item.objsize }} -b 1 -w mixed -t 600
+   shell: |
+      cd /root/PerfProBenchmark/cosbench/
+      pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' 'root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
+      ./s3cosbench_benchmark.sh -nc "300" -ns {{ item.numsamples }} -s {{ item.objsize }} -b 1 -w mixed -t 600
+      pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
    loop:
        - { objsize: '4Kb', numsamples: '33000'}
@@ -15,7 +22,11 @@
        - { objsize: '256Mb', numsamples: '4600'}
 
  - name: "[Cosbench]: Cosbench running with clients=300 bucket=10"
-   shell: cd /root/PerfProBenchmark/cosbench; ./s3cosbench_benchmark.sh -nc "300" -ns {{ item.numsamples }} -s {{ item.objsize }} -b 10 -w mixed -t 600
+   shell: |
+      cd /root/PerfProBenchmark/cosbench/
+      pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' 'root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
+      ./s3cosbench_benchmark.sh -nc "300" -ns {{ item.numsamples }} -s {{ item.objsize }} -b 10 -w mixed -t 600
+      pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
    loop:
        - { objsize: '4Kb', numsamples: '3300'}
@@ -30,7 +41,11 @@
        - { objsize: '256Mb', numsamples: '460'}
 
  - name: "[Cosbench]: Cosbench running with clients=300 bucket=50"
-   shell: cd /root/PerfProBenchmark/cosbench; ./s3cosbench_benchmark.sh -nc "300" -ns {{ item.numsamples }} -s {{ item.objsize }} -b 50 -w mixed -t 600
+   shell: |
+      cd /root/PerfProBenchmark/cosbench/
+      pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' 'root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
+      ./s3cosbench_benchmark.sh -nc "300" -ns {{ item.numsamples }} -s {{ item.objsize }} -b 50 -w mixed -t 600
+      pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
    loop:
        - { objsize: '4Kb', numsamples: '660'}

@@ -10,7 +10,7 @@ from store_data import connect_database, update_parsed_data
 from data_parser import parse_data
 from Analyzer.rule_handler import rule_handler
 from Analyzer.query_handler import query_handler
-from Analyzer.predictor import predictor
+from Analyzer.evaluator import predictor
 
 
 def get_random_string(length):
@@ -44,7 +44,7 @@ def generate_runID():
     except IndexError:
         gen_run_ID = 1
 
-    print("~ Unique ID for run is: ", gen_run_ID)
+    print("\n~ Unique Run ID: ", gen_run_ID)
     return gen_run_ID
 
 
@@ -53,7 +53,7 @@ def execute_parsers(run_ID, config_file_path):
     with open(config_file_path, 'r') as config_file:
         configs = yaml.safe_load(config_file)
 
-    print("\n~ PHASE 1: Parsing data files...")
+    print("\n~ PHASE 1: Reading results...")
     try:
         run_directories = [configs['runfiles']['hs'],
                            configs['runfiles']['cos'], configs['runfiles']['s3']]
@@ -73,31 +73,27 @@ def execute_parsers(run_ID, config_file_path):
 
 
 def update_database():
-    # push data to database
-    print("~ Pushing performance data to database...")
     try:
         update_parsed_data()
-        print("~ Done!")
+        print("~ PerfBot DB updated")
+        print("~ PHASE 1: Done")
 
     except Exception as e:
         print("Observed exception: ", e)
 
 
 def analyzer(run_ID):
-    print("\n~ Analyzing data...")
     try:
         print("\n~ PHASE 2: Reading rules...")
         rules = rule_handler(run_ID)
-        print("~ Done!")
+        print("~ PHASE 2: Done")
 
         print("\n~ PHASE 3: Applying rules...")
         outcome_map = query_handler(rules)
-        print("~ Done!")
+        print("~ PHASE 3: Done")
 
         print("\n~ PHASE 4: Analyzing results...")
-        print("~ ----------------------------------")
         predictor(outcome_map, run_ID)
-        print("~ ----------------------------------")
 
     except Exception as e:
         print("Observed exception: ", e)

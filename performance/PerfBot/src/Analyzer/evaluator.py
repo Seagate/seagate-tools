@@ -81,8 +81,12 @@ def predictor(outcome_map, run_ID):
         functionality = logic[1]
 
         if functionality.lower() == 'validation':
-            print(f"~ Functionality: {logic[1]}\n")
             result = validator(logic, outcome_map, rule_results_map)
+            print("~ PHASE 4: Done")
 
+            print("\n\n~ Run report:-")
+            print("~ ==================================")
+            print(f"~ Functionality: {logic[1]}\n")
             display_rules(rule_results_map, run_ID, functionality, result)
             print(f"\n~ Final Run Result: {result}")
+            print("~ ==================================")

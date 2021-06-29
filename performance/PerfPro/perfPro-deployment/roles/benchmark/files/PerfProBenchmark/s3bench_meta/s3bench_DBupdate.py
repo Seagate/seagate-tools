@@ -55,7 +55,7 @@ def get_release_info(variable):
 
 class s3bench:
 
-    def __init__(self, Log_File, Operation, IOPS, Throughput, Latency, TTFB, Object_Size,Build,Version,Branch,OS,Nodes_Num,Clients_Num,Col,Config_ID,PKey,Overwrite,Sessions,Objects):
+    def __init__(self, Log_File, Operation, IOPS, Throughput, Latency, TTFB, Object_Size,Build,Version,Branch,OS,Nodes_Num,Clients_Num,Col,Config_ID,Overwrite,Sessions,Objects,Iteration,PC_Full,Custom):
         self.Log_File = Log_File
         self.Operation = Operation
         self.IOPS = IOPS
@@ -72,58 +72,57 @@ class s3bench:
         self.Col = Col
         self.Config_ID = Config_ID
         self.Timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.PKey = PKey
+        #self.PKey = PKey
         self.Overwrite = Overwrite
         self.Sessions = Sessions
         self.Objects = Objects
-
+        self.Iteration = Iteration
+        self.PC_Full = PC_Full
+        self.Custom = str(Custom).upper()
 
     def insert_update(self):# function for inserting and updating mongodb database
         db = makeconnection()
         action= "Updated"
-        insertentry={} 
-        collection = db[self.col]
+        insertentry={
+                "Name" : "S3bench" ,
+                "Operation" : self.Operation ,
+                "Object_Size" : self.Object_Size ,
+                "Sessions": self.Sessions ,
+                "Objects" : self.Objects ,
+                "Buckets": "1" ,
+                "Build" : self.Build ,
+                "Version" : self.Version ,
+                "Branch" : self.Branch ,
+                "OS" : self.OS ,
+                "Count_of_Servers": self.Nodes_Num ,
+                "Count_of_Clients" : self.Clients_Num,
+                "Iteration" : self.Iteration ,
+                "PC_Full" : self.PC_Full ,
+                "Custom" : self.Custom
+                }
+        updateentry={
+                "Log_File" : self.Log_File,
+                "IOPS" : self.IOPS,
+                "Throughput" : self.Throughput,
+                "Latency": self.Latency,
+                "TTFB" : self.TTFB,
+                "Timestamp":self.Timestamp,
+                "Config_ID":self.Config_ID,
+                "HOST" : socket.gethostname()
+                }
+
+        collection = db[self.Col]
         try:
-            pattern = {"PKey" : self.PKey}
-            count_documents= collection.count_documents(pattern)
+            #pattern = {"PKey" : self.PKey}
+            count_documents= collection.count_documents(insertentry)
+            db_data={}
+            db_data.update(insertentry)
+            db_data.update(updateentry)
             if count_documents == 0:
-                insertentry={
-                        "Name" : "S3bench" , 
-                        "Log_File" : self.Log_File,
-                        "IOPS" : self.IOPS,
-                        "Throughput" : self.Throughput,
-                        "Latency": self.Latency,
-                        "TTFB" : self.TTFB,
-                        "Timestamp":self.Timestamp, 
-                        "Config_ID":self.Config_ID,
-                        "HOST" : socket.gethostname(), 
-                        "Operation" : self.Operation , 
-                        "Object_Size" : self.Object_Size ,
-                        "Sessions": self.sessions ,
-                        "Objects" : self.Objects ,
-                        "Buckets": "1" ,
-                        "Build" : self.Build , 
-                        "Version" : self.Version , 
-                        "Branch" : self.Branch ,
-                        "OS" : self.OS , 
-                        "Count_of_Servers": self.nodes_num , 
-                        "Count_of_Clients" : self.clients_num , 
-                        "PKey" : self.PKey  
-                        }
-                collection.insert_one(insertentry)
+                collection.insert_one(db_data)
                 action = "Inserted"
-            elif self.overwrite == True : 
-                insertentry = {
-                        "Log_File" : self.Log_File,
-                        "IOPS" : self.IOPS,
-                        "Throughput" : self.Throughput,
-                        "Latency": self.Latency,
-                        "TTFB" : self.TTFB,
-                        "Timestamp":self.Timestamp, 
-                        "Config_ID":self.Config_ID,
-                        "HOST" : socket.gethostname()
-                        }
-                collection.update_one(pattern, { "$set": insertentry})
+            elif self.Overwrite == True : 
+                collection.update_one(insertentry, { "$set": db_data})
                 action = "Updated"
             else:
                 print("'Overwrite' is false in config. Hence, DB not updated")
@@ -132,7 +131,7 @@ class s3bench:
             print("Unable to insert/update documents into database. Observed following exception:")
             print(e)
         else:
-            print('Data {} :: {} {}\n'.format(action,pattern,insertentry))
+            print('Data {} :: {}\n'.format(action,db_data))
 
            
 
@@ -176,8 +175,8 @@ def insertOperations(file,Build,Version,col,Config_ID,Branch,OS):   #function fo
                     throughput = round(throughput,6)
                 lat={"Max":float(lines[count+4].split(":")[1]),"Avg":float(lines[count+5].split(":")[1]),"Min":float(lines[count+6].split(":")[1])}
                 ttfb={"Max":float(lines[count+7].split(":")[1]),"Avg":float(lines[count+8].split(":")[1]),"Min":float(lines[count+9].split(":")[1])}
-                PKey=Version[0]+'_'+Branch[0].upper()+'_'+Build+'_ITR'+str(iteration)+'_'+str(nodes_num)+'N_'+str(clients_num)+'C_'+str(pc_full)+'PC_'+str(custom).upper()+'_S3B_'+str(obj)+'_1_'+opname[0].upper()+'_'+sessions
-                data = s3bench(filename,opname,iops,throughput,lat,ttfb,obj,Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID,PKey,overwrite,sessions,Objects)
+                #PKey=Version[0]+'_'+Branch[0].upper()+'_'+Build+'_ITR'+str(iteration)+'_'+str(nodes_num)+'N_'+str(clients_num)+'C_'+str(pc_full)+'PC_'+str(custom).upper()+'_S3B_'+str(obj)+'_1_'+opname[0].upper()+'_'+sessions
+                data = s3bench(filename,opname,iops,throughput,lat,ttfb,obj,Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID,overwrite,sessions,Objects,iteration,pc_full,custom)
                 data.insert_update()
                 count += 9
         count +=1

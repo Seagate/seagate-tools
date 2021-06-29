@@ -87,7 +87,7 @@ def insert_data(file,Build,Version,Config_ID,db,col,Branch,OS):  # function for 
                     sessions= int(re.split(" ", attr[4])[1])
                     entry = {
                         "Name": "Cosbench", 
-                        "Operation": operation, 
+                        "Operation": "".join(operation[0].upper() + operation[1:].lower()) , 
                         "Build": Build, 
                         "Version": Version,
                         "Branch": Branch ,
@@ -97,12 +97,16 @@ def insert_data(file,Build,Version,Config_ID,db,col,Branch,OS):  # function for 
                         "Object_Size": str(obj_size.replace(" ","").upper()), 
                         "Buckets": buckets,
                         "Objects": objects, 
-                        "Sessions": sessions , 
-                        'PKey' : Version[0]+'_'+Branch[0].upper()+'_'+Build+'_ITR'+str(iteration)+'_'+str(nodes_num)+'N_'+str(clients_num)+'C_'+str(pc_full)+'PC_'+str(custom).upper()+'_COS_'+str(obj_size.replace(" ","").upper())+'_'+str(buckets)+'_'+operation[0].upper()+'_'+str(sessions) 
+                        "Sessions": sessions ,
+                        "Iteration" : iteration ,
+                        "PC_Full" : pc_full ,
+                        "Custom" : str(custom).upper()
                         }
+                       # 'PKey' : Version[0]+'_'+Branch[0].upper()+'_'+Build+'_ITR'+str(iteration)+'_'+str(nodes_num)+'N_'+str(clients_num)+'C_'+str(pc_full)+'PC_'+str(custom).upper()+'_COS_'+str(obj_size.replace(" ","").upper())+'_'+str(buckets)+'_'+operation[0].upper()+'_'+str(sessions) 
+                       # }
                     update_data = {
                         "Log_File": filename, 
-                        "Operation": row[1], 
+                        #"Operation": row[1], 
                         "IOPS": iops, 
                         "Throughput": throughput, 
                         "Latency": lat, 
@@ -110,18 +114,21 @@ def insert_data(file,Build,Version,Config_ID,db,col,Branch,OS):  # function for 
                         "Config_ID": Config_ID, 
                         "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         }
+                    db_data={}
+                    db_data.update(entry)
+                    db_data.update(update_data)   
                     try:
-                        pattern={'PKey' : entry['PKey']}
-                        count_documents = db[col].count_documents(pattern)
+                        #pattern={'PKey' : entry['PKey']}
+                        count_documents = db[col].count_documents(entry)
                         if count_documents == 0:
-                            db[col].insert_one(entry)
+                            db[col].insert_one(db_data)
                             action = "Inserted"
                         #update_data = {"Log_File": filename, "Operation": row[1], "IOPS": iops, "Throughput": throughput, "Latency": lat, "HOST": socket.gethostname(),
                         #"Config_ID": Config_ID, "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
-                            db[col].update_one(pattern, {"$set": update_data})
+                        #    db[col].update_one(pattern, {"$set": update_data})
                         elif overwrite == True: 
-                            db[col].update_one(pattern, {"$set": update_data})
-                            action
+                            db[col].update_one(entry, {"$set": db_data})
+                            action = "Updated"
                         else :
                             print("'Overwrite' is false in config. Hence, DB not updated")
                             action = "Not Updated"
@@ -130,8 +137,8 @@ def insert_data(file,Build,Version,Config_ID,db,col,Branch,OS):  # function for 
                         print("Unable to insert/update documents into database. Observed following exception:")
                         print(e)
                     else:
-                        print('Data {} : {} {} \n'.format(
-                            action, entry, update_data))
+                        print('Data {} : {}  \n'.format(
+                            action, db_data ))
           
 
 

@@ -170,9 +170,9 @@ def push_data(files, host, db, Build, Version, Branch , OS):
                 operation = ''
                 
                 if (entry['Mode'] == 'PUT'):
-                    operation = 'write'
+                    operation = 'Write'
                 elif (entry['Mode'] == 'GET'):
-                    operation = 'read'       
+                    operation = 'Read'       
 
                 if(entry['Mode'] == 'PUT' or entry['Mode'] == 'GET') and (entry['IntervalName'] == 'TOTAL'):
                     primary_Set = {
@@ -190,9 +190,10 @@ def push_data(files, host, db, Build, Version, Branch , OS):
                         'Buckets' : buckets,
                         'Objects' : objects,
                         'Sessions' : sessions,
-                        'PKey' : Version[0]+'_'+Branch[0].upper()+'_'+Build+'_ITR'+str(iteration)+'_'+str(nodes_num)+'N_'+str(clients_num)+'C_'+str(pc_full)+'PC_'+str(custom).upper()+'_HSB_'+str(obj_size.upper())+'_'+str(buckets)+'_'+operation[0].upper()+'_'+str(sessions) ,
-                        #Version_Branch_Build_Iteration_NodeCount_ClientCount_PercentFull_Benchmark_ObjSize_NoOfBuckets_Operation_Sessions
-                    }
+                        'Custom' : str(custom).upper()
+                        }
+                        #'PKey' : Version[0]+'_'+Branch[0].upper()+'_'+Build+'_ITR'+str(iteration)+'_'+str(nodes_num)+'N_'+str(clients_num)+'C_'+str(pc_full)+'PC_'+str(custom).upper()+'_HSB_'+str(obj_size.upper())+'_'+str(buckets)+'_'+operation[0].upper()+'_'+str(sessions) ,
+                        #Version_Branch_Build_Iteration_NodeCount_ClientCount_PercentFull_Benchmark_ObjSize_NoOfBuckets_Operation_Sessions }
 
                     updation_Set = {  
                         'HOST' : host,
@@ -200,21 +201,24 @@ def push_data(files, host, db, Build, Version, Branch , OS):
                         'Throughput': entry['Mbps'],
                         'Latency' : entry['AvgLat'],
                         'TTFB' : 'null',
-                        'Log_file': doc,
+                        'Log_File': doc,
                         'Bucket_Ops' : data_dict, 
                         'Config_ID':Config_ID,
                         'Timestamp':datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     }
                     action = "updated"
+                    db_data={}
+                    db_data.update(primary_Set)
+                    db_data.update(updation_Set)
                     try:
-                        pattern = {'PKey' : primary_Set["PKey"]}
-                        count_documents= db[collection].count_documents(pattern)
+                        #pattern = {'PKey' : primary_Set["PKey"]}
+                        count_documents= db[collection].count_documents(primary_Set)
                         if count_documents == 0:
-                            db[collection].insert_one(primary_Set)
+                            db[collection].insert_one(db_data)
                             action = "inserted"
-                            db[collection].update(pattern,{ "$set": updation_Set})                     
+                            #db[collection].update(pattern,{ "$set": updation_Set})                     
                         elif overwrite == True :
-                            db[collection].update(pattern,{ "$set": updation_Set})
+                            db[collection].update(primary_Set,{ "$set": db_data})
                             action= "updated"
                         else :
                             print("'Overwrite' is false in config. Hence, DB not updated")
@@ -224,7 +228,7 @@ def push_data(files, host, db, Build, Version, Branch , OS):
                         print("Unable to insert/update documents into database. Observed following exception:")
                         print(e)
 
-                    print(operation+ " " + action + ' - ' + doc)
+                    print(operation+ " " + action + ' - ' + doc + '\n' + str(db_data) )
 
 #    update_mega_chain(Build, Version, collection)
 

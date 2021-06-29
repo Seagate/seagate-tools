@@ -4,12 +4,13 @@ Main file for PerfBot
 import string
 import random
 import yaml
+import sys
 
 from store_data import connect_database, update_parsed_data
 from data_parser import parse_data
 from Analyzer.rule_handler import rule_handler
 from Analyzer.query_handler import query_handler
-from Analyzer.predictor import predictor
+from Analyzer.evaluator import predictor
 
 
 def get_random_string(length):
@@ -43,54 +44,56 @@ def generate_runID():
     except IndexError:
         gen_run_ID = 1
 
-    print("~ Unique ID for run is: ", gen_run_ID)
+    print("\n~ Unique Run ID: ", gen_run_ID)
     return gen_run_ID
 
 
-def execute_parsers(run_ID):
+def execute_parsers(run_ID, config_file_path):
     # execute parsers
-    with open("./config.yml", 'r') as config_file:
+    with open(config_file_path, 'r') as config_file:
         configs = yaml.safe_load(config_file)
 
-    print("\n~ PHASE 1: Parsing data files...")
+    print("\n~ PHASE 1: Reading results...")
     try:
-        run_directories = [configs['runfiles']['hs'], configs['runfiles']['cos'], configs['runfiles']['s3']]
-        logging_files = [configs['logger']['hs'], configs['logger']['cos'], configs['logger']['s3']]
+        run_directories = [configs['runfiles']['hs'],
+                           configs['runfiles']['cos'], configs['runfiles']['s3']]
+        logging_files = [configs['logger']['hs'],
+                         configs['logger']['cos'], configs['logger']['s3']]
 
-        parse_data(run_ID, run_directories, logging_files, configs['cos_object_size'])
+        if all([elem == None for elem in run_directories]):
+            print("\n~ Exiting as no data files are given.")
+            print("~ ----------------------------------\n")
+            exit()
+        else:
+            parse_data(run_ID, run_directories, logging_files,
+                       configs['cos_object_size'])
 
     except Exception as e:
         print("Observed exception: ", e)
 
 
 def update_database():
-    # push data to database
-    print("~ Pushing performance data to database...")
     try:
         update_parsed_data()
-        print("~ Done!")
+        print("~ PerfBot DB updated")
+        print("~ PHASE 1: Done")
 
     except Exception as e:
         print("Observed exception: ", e)
 
 
 def analyzer(run_ID):
-    print("~ Analyzing data...")
     try:
         print("\n~ PHASE 2: Reading rules...")
         rules = rule_handler(run_ID)
-        # print(f"Current rules are: {rules}")
-        print("~ Done!")
+        print("~ PHASE 2: Done")
 
         print("\n~ PHASE 3: Applying rules...")
         outcome_map = query_handler(rules)
-        # print(f"Rule outcome map: {outcome_map}")
-        print("~ Done!")
+        print("~ PHASE 3: Done")
 
         print("\n~ PHASE 4: Analyzing results...")
-        print("~ ----------------------------------")
         predictor(outcome_map, run_ID)
-        print("~ ----------------------------------")
 
     except Exception as e:
         print("Observed exception: ", e)
@@ -99,8 +102,9 @@ def analyzer(run_ID):
 if __name__ == '__main__':
     print("~ Executing PerfBot...")
 
+    config_file_path = sys.argv[1]
     run_ID = generate_runID()
-    execute_parsers(run_ID)
+    execute_parsers(run_ID, config_file_path)
     update_database()
     analyzer(run_ID)
 

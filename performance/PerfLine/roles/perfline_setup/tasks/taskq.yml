@@ -78,6 +78,7 @@
         - tqdm
         - iostat-tool
         - peewee
+        - graphviz
       executable: pip3
       extra_args: -i https://pypi.org/simple
     delegate_to: "{{ item }}"

@@ -1,0 +1,114 @@
+#
+# Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+
+common:
+  version: 1
+  description: Perf benchmark example
+  priority: 1
+  batch_id: null
+  user: user@seagate.com
+  send_email: false
+
+# Optional section. It may be deleted in case you don't want
+# to build/deploy custom version of Cortx components
+custom_build:  
+  github_PAT: ""
+  github_username: ""
+  build_machine: ""                    # Build Anywhere (it could be client, any one cortx cluster server or VM)
+  motr_repo_path: ""
+  hare_repo_path: ""
+  s3server_repo_path: ""
+  hare_commit_id: ""
+  motr_commit_id: ""
+  s3server_commit_id: ""
+
+# Optional section. It may be deleted in case you don't want
+# to customize Cortx components configuration.
+configuration:
+  hare:
+    custom_cdf: /root/path/to/cdf/file.yaml
+    data_units: 4
+    parity_units: 2
+    spare_units: 2
+  motr:
+    custom_file: /root/path/to/motr/file.yaml
+    config_overrides:
+      MOTR_MOD_ADDB_RECORD_SIZE: 1073741824
+  s3:
+    custom_file: /root/path/to/s3conf/file.yaml
+    instances_per_node: 23
+    config_overrides:
+      S3_BUCKET_METADATA_CACHE_MAX_SIZE: 10000
+      S3_BUCKET_METADATA_CACHE_EXPIRE_SEC: 5
+      S3_BUCKET_METADATA_CACHE_REFRESH_SEC: 4 
+  s3bg_delete:
+    custom_file: /root/path/to/s3bgdelete/file.yaml
+    config_overrides:
+      scheduler_schedule_interval: 1200
+  haproxy:
+    custom_file: /root/path/to/haproxy/file.yaml
+    execution_type: nbthread
+    parallel_instances: 16
+    total_maxconn: 200
+    maxconn_per_instance: 50
+  lnet:
+    custom_file: /root/path/to/lnet/file.yaml
+  ko2iblnd:
+    custom_file: /root/path/to/ko2iblnd/file.yaml
+
+stats_collection:
+  iostat: false
+  dstat: false
+  blktrace: false
+  glances: false
+
+# List of benchmarks and parameters. This section must include
+# at least one benchmark (custom/fio/s3bench/m0crate).
+benchmarks:
+  - custom:
+      cmd: sleep 1
+  - lnet:
+      LNET_OPS:              # user can pass value operation separated by ',' Ex: read,write,ping
+  - fio:
+      Duration:
+      BlockSize:
+      NumJobs:
+      Template: #Template for fio like seq_read_fio, seq_write_fio, randmix_80-20_fio, randmix_20-80_fio and rand_fio
+  - s3bench:
+      BucketName: mybucket
+      NumClients: 10
+      NumSample: 100
+      ObjSize: 32Mb
+      EndPoint: https://s3.seagate.com
+  - m0crate:
+      NR_INSTANCES_PER_NODE: 2
+      NR_THREADS: 2
+      BLOCK_SIZE: 2m
+      IOSIZE: 4m
+  - iperf:
+      Interval: 1
+      Duration: 60
+      Parallel: 2
+
+
+execution_options:
+  mkfs: false
+  collect_m0trace: false
+  collect_addb: false
+  backup_result: false

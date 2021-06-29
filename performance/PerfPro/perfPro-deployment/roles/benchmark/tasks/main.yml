@@ -20,6 +20,7 @@
        - sysstat
        - python3
        - python3-pip
+       - pdsh
      state: present
    delegate_to: "{{ item }}"
    with_items: "{{ groups['all'] }}"
@@ -92,13 +93,6 @@
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
 
- - name: System monitoring started
-   command: python3 /root/PerfProBenchmark/system_monitoring/systemMonitoring.py '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'
-   async: 21600
-   poll: 0
-   delegate_to: "{{ item }}"
-   with_items: "{{ groups['all'] }}"
- 
  - name: Configuration of s3bench benchmark tools  
    command: go get github.com/igneous-systems/s3bench
    delegate_to: "{{ item }}"
@@ -127,10 +121,6 @@
 
  - include: hsbench.yml
 
- - name: Stop system monitoring
-   command: python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py
-   delegate_to: "{{ item }}"
-   with_items: "{{ groups['nodes'] }}"
 
 #Copying ansible.log for the run to NFS share
  - name: Mounting nfs share

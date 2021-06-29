@@ -1,12 +1,12 @@
 runfiles:
-    hs: './Data/hsbench/hsbench.log'
-    cos: './Data/cosbench/s3-5050rw.csv'
-    s3: './Data/s3bench/s3bench_Numclients_1_NS_20_size_128Mb.log'
+    hs:     # path for hsbench run file
+    cos:    # path for cosbench run file
+    s3:     # path for s3bench run file
 
 logger:
-    hs: './Data/hsbench/hsbench.log'
-    cos: './Data/cosbench/workload.log'
-    s3: './Data/s3bench/s3bench_Numclients_1_NS_20_size_128Mb.log'
+    hs:     # path for hsbench run log file
+    cos:    # path for cosbench run log file
+    s3:     # path for s3bench run log file
 
 # shoulb be in MB
-cos_object_size: 64
+cos_object_size:    # object size for the cosbench run

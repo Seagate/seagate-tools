@@ -54,28 +54,34 @@ def convert_HSlogs_to_JSON(run_ID, reference_doc, HS_input_file_path, quantum, H
             mode_change = False
             mode = stripped_data[9]
 
-            while end_time > current_line_time and line < num_of_lines:
-                try:
-                    total_latency += float(stripped_data[20])
-                    total_iops += float(stripped_data[15])
-                    total_throughput += float(stripped_data[13])
+            if current_line_time > end_time:
+                samples = 0
+            else:
+                while end_time > current_line_time and line < num_of_lines:
+                    try:
+                        total_latency += float(stripped_data[20])
+                        total_iops += float(stripped_data[15])
+                        total_throughput += float(stripped_data[13])
 
-                    line += 1
-                    if line < num_of_lines:
-                        stripped_data = clean_the_line(lines[line])
-                        if stripped_data[9] != mode:
-                            mode_change = True
-                            break
-                        current_line_time = get_date_time_object(stripped_data)
+                        line += 1
+                        if line < num_of_lines:
+                            stripped_data = clean_the_line(lines[line])
+                            if stripped_data[9] != mode:
+                                mode_change = True
+                                break
+                            current_line_time = get_date_time_object(
+                                stripped_data)
 
-                except IndexError:
-                    line += 1
+                    except IndexError:
+                        line += 1
 
-            samples = line - initial_line
+                samples = line - initial_line
+
+            # print(current_line_time, end_time)
             if samples == 0:
-                average_latency = -1
-                total_iops = -1
-                total_throughput = -1
+                average_latency = 0
+                total_iops = 0
+                total_throughput = 0
             else:
                 average_latency = round(total_latency/samples, 5)
 

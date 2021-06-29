@@ -63,9 +63,9 @@ def convert_S3logs_to_JSON(run_ID, reference_doc, S3_input_file_path, quantum, S
 
             samples = line - initial_line
             if samples == 0:
-                average_latency = -1
-                RPS = -1
-                MBPS = -1
+                average_latency = 0
+                RPS = 0
+                MBPS = 0
             else:
                 average_latency = round(total_latency/samples, 5)*1000
                 RPS = samples / quantum

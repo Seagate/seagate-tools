@@ -5,6 +5,13 @@ import csv
 from schemas import get_performance_schema
 
 
+def get_metrics(iops, latency, throughput, objectSize):
+    if float(iops) == 0.0:
+        return 0, 0, 0
+    else:
+        return iops, latency, float(throughput)/1000000/objectSize
+
+
 def convert_COSlogs_to_JSON(run_ID, reference_doc, COS_input_file_path, objectSize):
     data = []
     filename = reference_doc.split("/")[-1]
@@ -18,22 +25,30 @@ def convert_COSlogs_to_JSON(run_ID, reference_doc, COS_input_file_path, objectSi
         for line in lines:
             try:
                 if 'rw' in filename:
-                    entry = get_performance_schema(time_now, run_ID, line[5], line[9], float(
-                        line[11])/1000000/objectSize, str(line[0]), 'read', 'cosbench', reference_doc)
+                    iops, latency, throughput = get_metrics(
+                        line[9], line[5], line[11], objectSize)
+                    entry = get_performance_schema(time_now, run_ID, latency, iops, throughput, str(
+                        line[0]), 'read', 'cosbench', reference_doc)
                     data.append(entry)
 
-                    entry = get_performance_schema(time_now, run_ID, line[6], line[10], float(
-                        line[12])/1000000/objectSize, str(line[0]), 'write', 'cosbench', reference_doc)
+                    iops, latency, throughput = get_metrics(
+                        line[10], line[6], line[12], objectSize)
+                    entry = get_performance_schema(
+                        time_now+1, run_ID, latency, iops, throughput, str(line[0]), 'write', 'cosbench', reference_doc)
                     data.append(entry)
 
                 elif 'r' in filename:
-                    entry = get_performance_schema(time_now, run_ID, line[3], line[5], float(
-                        line[7])/1000000/objectSize, str(line[0]), 'read', 'cosbench', reference_doc)
+                    iops, latency, throughput = get_metrics(
+                        line[5], line[3], line[7], objectSize)
+                    entry = get_performance_schema(time_now, run_ID, latency, iops, throughput, str(
+                        line[0]), 'read', 'cosbench', reference_doc)
                     data.append(entry)
 
                 elif 'w' in filename:
-                    entry = get_performance_schema(time_now, run_ID, line[3], line[5], float(
-                        line[7])/1000000/objectSize, str(line[0]), 'write', 'cosbench',reference_doc)
+                    iops, latency, throughput = get_metrics(
+                        line[5], line[3], line[7], objectSize)
+                    entry = get_performance_schema(time_now, run_ID, latency, iops, throughput, str(
+                        line[0]), 'write', 'cosbench', reference_doc)
                     data.append(entry)
 
                 time_now = time_now + 10

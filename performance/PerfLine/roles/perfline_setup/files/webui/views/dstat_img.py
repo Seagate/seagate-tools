@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,26 +16,24 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 
+import os
+from os.path import join, isdir
+from flask import send_file
 
-import config
-from core import pl_api
 from app_global_data import *
-from views import *
-from views.api import *
-
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 
-@app.after_request
-def add_header(response):
-    # response.cache_control.no_store = True
-    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
-    response.headers['Pragma'] = 'no-cache'
-    response.headers['Expires'] = '-1'
-    return response
+@app.route('/report/<string:tid>/dstat_imgs/<string:node_id>/<string:img_type>')
+def serve_dstat_imgs(tid, node_id, img_type):
+    # Easy safe check
+    if ':' in img_type or '/' in img_type or '|' in img_type or ';' in img_type:
+        return None
 
+    location = cache.get_location(tid)
+    path_to_stats = f'{location}/result_{tid}/stats'
+    nodes_stat_dirs = [join(path_to_stats, f) for f in os.listdir(
+        path_to_stats) if isdir(join(path_to_stats, f))]
 
-if __name__ == '__main__':
-    pl_api.init_tq_endpoint("./perfline_proxy.sh")
-    cache.update(config.artifacts_dirs)
-    app.run(**config.server_ep)
+    path_to_img = join(
+        nodes_stat_dirs[int(node_id)], 'dstat', img_type + '.png')
+    return send_file(path_to_img, mimetype='image')

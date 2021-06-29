@@ -1,3 +1,15 @@
+<style>
+
+#deleteBtn {
+    margin-top: 2px;
+    float: right;
+    margin-right: 20px;
+}
+</style>
+<div>
+<p id="deletebtn" ng-click="deleteValue()" ></p>
+</div>
+
 <table width=100%>
   <tr>
     <td>
@@ -18,7 +30,7 @@
 <table class="table table-striped">
   <thead>
     <tr>
-      <th>tid</th>
+      <th><input type="checkbox" ng-click="checkAll()" ng-model="selectAll" >&nbsp tid</th>
       <th>status</th>
       <th>user</th>
       <th>time</th>
@@ -29,7 +41,7 @@
     </tr>
   </thead>
   <tr ng-repeat="row in names | filter:searchText | limitTo:itemsPerPage:(currentPage-1)*itemsPerPage">
-      <td>{{row.task_id_short}}</td>
+      <td><label><input type="checkbox" ng-true-value=true ng-false-value=false ng-checked="row.checked" ng-model="row.selected" ng-click="selectTask(row)">&nbsp {{row.task_id_short}}</label></td>
       <td>{{row.status}}</td>
       <td>{{row.user}}</td>
       <td>
@@ -95,6 +107,9 @@
 			  <tr>
 				  <td> <a href="{{row.artifacts.artifacts_page}}">artifacts</a> </td>
 			  </tr>
+                          <tr>
+                                <td> <a  ng-click='OnRun(row.task_id)'>re-run</a> </td>
+                          </tr>
 		  </table>
       </td>
   </tr>

@@ -67,9 +67,10 @@ def run_s3bench_parser(run_ID, S3_source_file_path):
 def parse_data(run_ID, run_dirs, log_files, cos_obj_size):
     check_os_paths()
 
+    print("~ Parsing performance data...")
     if run_dirs[0] is not None:
         run_hsbench_parser(run_ID, run_dirs[0])
-        print("~ collected performance data from HSBench run directories")
+        print("~     hsbench completed")
     else:
         print("~ HSbench run data file is not given, skipping...")
 
@@ -78,13 +79,13 @@ def parse_data(run_ID, run_dirs, log_files, cos_obj_size):
             print("~ object size is not provided for COSbench, skipping...")
         else:
             run_cosbench_parser(run_ID, run_dirs[1], cos_obj_size)
-            print("~ collected performance data from COSBench run directories")
+            print("~     cosbench completed")
     else:
         print("~ COSbench run data file is not given, skipping...")
 
     if run_dirs[2] is not None:
         run_s3bench_parser(run_ID, run_dirs[2])
-        print("~ collected performance data from S3Bench run directories")
+        print("~     s3bench completed")
     else:
         print("~ S3bench run data file is not given, skipping...")
 
@@ -92,7 +93,6 @@ def parse_data(run_ID, run_dirs, log_files, cos_obj_size):
         print("~ Parsing run logs...")
         parse_errors(run_ID, log_files[0], log_files[1], log_files[2])
 
-        print("\n~ Collected Error logs and pushed them to the database")
         os.removedirs(parsed_data_path)
     else:
         print("~ Run log files are not provided for at least 1 tool, skipping...")

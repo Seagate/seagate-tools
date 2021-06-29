@@ -8,6 +8,11 @@ debug = False
 
 
 def extract_S3Bench_logs(reference_doc, S3_destination_file_path):
+    """
+    A function to structurize data from raw data files
+    arguments: log file path (str), intermediate path to store structured data (str)
+    returns: object size of that file (float)
+    """
     with open(S3_destination_file_path, "w") as modified:
         with open(reference_doc, "r") as reference_file:
 
@@ -21,6 +26,11 @@ def extract_S3Bench_logs(reference_doc, S3_destination_file_path):
 
 
 def get_date_time_object(line):
+    """
+    A function to get date time object from a line
+    arguments: line to extract date time from (str)
+    returns: date time from the line (datetime object)
+    """
     splits = line.split(' ')
 
     date_time_str = splits[1] + ' ' + splits[2][:8]
@@ -28,6 +38,10 @@ def get_date_time_object(line):
 
 
 def convert_S3logs_to_JSON(run_ID, reference_doc, S3_input_file_path, quantum, S3_objectSize, S3_source_file_path):
+    """
+    a function to convert raw s3bench run results into a json format
+    arguments: run ID (int), data file path (str), path to store json files (str), interval size (int), object size (float), path of raw data file (str)
+    """
     data = []
     time_now = time.time_ns()
 

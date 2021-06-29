@@ -1,3 +1,12 @@
+"""
+A Cosbench parser module
+
+Depends on: 
+1. run results of performance
+2. run log of the tool run
+3. Object size associated in the run
+4. rw / r / w in the run dir file name to identify the workload type
+"""
 import json
 import time
 import csv
@@ -5,14 +14,20 @@ import csv
 from schemas import get_performance_schema
 
 
-def get_metrics(iops, latency, throughput, objectSize):
-    if float(iops) == 0.0:
-        return 0, 0, 0
-    else:
-        return iops, latency, float(throughput)/1000000/objectSize
+def get_throughput(bandwidth, objectSize):
+    """
+    Function to return throughput from bandwidth
+    arguments: bandwidth (float), objectsize (int)
+    return: throughput (float)
+    """
+    return float(bandwidth)/1000000/objectSize
 
 
 def convert_COSlogs_to_JSON(run_ID, reference_doc, COS_input_file_path, objectSize):
+    """
+    a function to convert raw cosbench run results into a json format
+    arguments: run ID (int), data file path (str), path to store json files (str), object size (int)
+    """
     data = []
     filename = reference_doc.split("/")[-1]
     time_now = time.time_ns()
@@ -25,29 +40,21 @@ def convert_COSlogs_to_JSON(run_ID, reference_doc, COS_input_file_path, objectSi
         for line in lines:
             try:
                 if 'rw' in filename:
-                    iops, latency, throughput = get_metrics(
-                        line[9], line[5], line[11], objectSize)
-                    entry = get_performance_schema(time_now, run_ID, latency, iops, throughput, str(
+                    entry = get_performance_schema(time_now, run_ID, line[5], line[9], get_throughput(line[11], objectSize), str(
                         line[0]), 'read', 'cosbench', reference_doc)
                     data.append(entry)
 
-                    iops, latency, throughput = get_metrics(
-                        line[10], line[6], line[12], objectSize)
                     entry = get_performance_schema(
-                        time_now+1, run_ID, latency, iops, throughput, str(line[0]), 'write', 'cosbench', reference_doc)
+                        time_now+1, run_ID, line[6], line[10], get_throughput(line[12], objectSize), str(line[0]), 'write', 'cosbench', reference_doc)
                     data.append(entry)
 
                 elif 'r' in filename:
-                    iops, latency, throughput = get_metrics(
-                        line[5], line[3], line[7], objectSize)
-                    entry = get_performance_schema(time_now, run_ID, latency, iops, throughput, str(
+                    entry = get_performance_schema(time_now, run_ID, line[3], line[5], get_throughput(line[7], objectSize), str(
                         line[0]), 'read', 'cosbench', reference_doc)
                     data.append(entry)
 
                 elif 'w' in filename:
-                    iops, latency, throughput = get_metrics(
-                        line[5], line[3], line[7], objectSize)
-                    entry = get_performance_schema(time_now, run_ID, latency, iops, throughput, str(
+                    entry = get_performance_schema(time_now, run_ID, line[3], line[5], get_throughput(line[7], objectSize), str(
                         line[0]), 'write', 'cosbench', reference_doc)
                     data.append(entry)
 

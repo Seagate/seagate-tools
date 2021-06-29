@@ -1,6 +1,6 @@
 
 from store_data import connect_database
-from Analyzer.predictor import read_lookuptable
+from Analyzer.evaluator import read_lookuptable
 
 
 def validator_handler(rule_ID, client, rules, rule_outcome_map):

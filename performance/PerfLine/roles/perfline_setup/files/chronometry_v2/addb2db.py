@@ -391,7 +391,6 @@ class ADDB2PP:
             "tx-state"          : (ADDB2PP.p_sm_req,      "be_tx"),
             "fom-phase"         : (ADDB2PP.p_sm_req,      "fom_req"),
             "fom-state"         : (ADDB2PP.p_sm_req,      "fom_req_state"),
-            "cas-fom"           : (ADDB2PP.p_sm_req,      "cas_fom"),
             "fom-to-tx"         : (ADDB2PP.p_1_to_2,      "fom_to_tx"),
             "tx-to-gr"          : (ADDB2PP.p_1_to_2,      "tx_to_gr"),
             "cas-to-rpc"        : (ADDB2PP.p_1_to_2,      "cas_to_rpc"),

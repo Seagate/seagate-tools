@@ -8,8 +8,9 @@
 
   - name: "Creating perfline directory {{ perfline_dir }}"
     file:
-      path: "{{ perfline_dir }}"
+      path: "{{ perfline_dir }}/bin"
       state: directory
+      recurse: yes
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
@@ -37,4 +38,19 @@
     with_items:
        - { variable: 'HA_TYPE', value: '{{ ha_type }}'}
        - { variable: 'NODES', value: '{{ nodelist }}' }
+
+  - name: "Installing golang version above 1.15 on localhost"
+    yum:
+      name: go >= 1.15
+      state: present
+
+  - name: "Generating S3bench binary files"
+    shell: GO111MODULE=on go get github.com/Seagate/s3bench@{{ S3BENCH_COMMIT_ID }}
+
+  - name: "Copy new s3bench binary file to client machine"
+    copy:
+       src: "/root/go/bin/s3bench"
+       dest: "/root/perfline/bin/s3bench_perfline"
+       mode: '0751'
+    delegate_to: "client-1"
 

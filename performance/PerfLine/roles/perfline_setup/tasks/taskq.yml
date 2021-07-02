@@ -96,6 +96,7 @@
         - python3-devel
         - ftp
         - fio
+        - iperf
       state: present
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"

@@ -42,9 +42,10 @@ def get_disks(ips_map, ips): # returns disks from cluster config file
                 for m0_server in config['nodes'][node-1]['m0_servers']:
                     disks.extend(m0_server['io_disks']['data'])
                     
-                    md_disk = m0_server['io_disks']['meta_data']
-                    if md_disk:
-                        md_disks.append(md_disk)
+                    if 'meta_data' in m0_server['io_disks']:
+                        md_disk = m0_server['io_disks']['meta_data']
+                        if md_disk:
+                            md_disks.append(md_disk)
 
                 return disks, md_disks, node
         except Exception as e:

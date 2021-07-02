@@ -79,7 +79,7 @@ class TaskCache:
             self._last_update_time = datetime.now()
 
 
-    def get_tasks(self, limit):
+    def get_tasks(self, limit, locations=None):
 
         def start_time(pl_metadata):
             return datetime.strptime(pl_metadata['start_time'],
@@ -91,7 +91,14 @@ class TaskCache:
                     {'info': task_data}]
 
         with self._lock:
-            tasks = sorted(self._storage.items(), reverse=True,
+
+            if locations is not None:
+                filtered = filter(lambda kv: kv[1]['location'] in locations,
+                                  self._storage.items())
+            else:
+                filtered = self._storage.items()
+
+            tasks = sorted(filtered, reverse=True,
                            key=lambda kv: start_time(kv[1]['pl_metadata']))
 
         tasks = [prepare_dat(i[0], i[1]['pl_metadata']) for i in tasks]

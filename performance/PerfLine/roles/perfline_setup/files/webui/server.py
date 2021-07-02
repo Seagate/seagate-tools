@@ -39,5 +39,7 @@ def add_header(response):
 
 if __name__ == '__main__':
     pl_api.init_tq_endpoint("./perfline_proxy.sh")
-    cache.update(config.artifacts_dirs)
+    cache.update(all_artif_dirs)
+    async_worker.start()
     app.run(**config.server_ep)
+    async_worker.stop()

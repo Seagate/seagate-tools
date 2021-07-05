@@ -2,11 +2,14 @@
  - name: "Create List of nodes to be added into Cluster"
    set_fact: nodelist={%for host in groups['nodes']%}{{hostvars[host]['ansible_host']}}{% if not loop.last %},{% endif %}{% endfor %}
 
- - name: "[S3bench-small-objects]: S3benchmark running ( size='1Kb,4Kb,100Kb,256Kb' clients=300)"
+ - name: "Defining numclients variable for concurrency"
+   set_fact: numclients="50,100,200,300,400,500,600"
+
+ - name: "[S3bench-small-objects]: S3benchmark running ( size='1Kb,4Kb,100Kb,256Kb')"
    shell: |
       cd /root/PerfProBenchmark/s3bench_meta/
       pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' 'root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
-      ./run_s3benchmark.sh -nc 300 -ns {{ item.numsamples }} -s {{ item.objsize }}
+      ./run_s3benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }}
       pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
    loop:
@@ -15,11 +18,11 @@
        - { objsize: '100Kb', numsamples: '130000'}
        - { objsize: '256Kb', numsamples: '96000'}
 
- - name: "[S3bench-medium-objects]: S3benchmark running ( size='1Mb,5Mb,16Mb' clients=300)"
+ - name: "[S3bench-medium-objects]: S3benchmark running ( size='1Mb,5Mb,16Mb')"
    shell: |
       cd /root/PerfProBenchmark/s3bench_meta/
       pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' 'root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
-      ./run_s3benchmark.sh -nc 300 -ns {{ item.numsamples }} -s {{ item.objsize }}
+      ./run_s3benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }}
       pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
    loop:
@@ -27,11 +30,11 @@
        - { objsize: '5Mb', numsamples: '82000'}
        - { objsize: '16Mb', numsamples: '40000'}
 
- - name: "[S3bench-large-objects]: S3benchmark running ( size='36Mb,64Mb,128Mb,256Mb' clients=300)"
+ - name: "[S3bench-large-objects]: S3benchmark running ( size='36Mb,64Mb,128Mb,256Mb')"
    shell: |
       cd /root/PerfProBenchmark/s3bench_meta/
       pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' 'root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
-      ./run_s3benchmark.sh -nc 300 -ns {{ item.numsamples }} -s {{ item.objsize }}
+      ./run_s3benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }}
       pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
    loop:

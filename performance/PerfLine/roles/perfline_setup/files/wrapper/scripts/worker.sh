@@ -11,7 +11,7 @@ TOOLS_DIR="$SCRIPT_DIR/../../chronometry"
 PERFLINE_DIR="$SCRIPT_DIR/../"
 STAT_DIR="$SCRIPT_DIR/../stat"
 BUILD_DEPLOY_DIR="$SCRIPT_DIR/../../build_deploy"
-PUBLIC_DATA_INTERFACE=$(ip addr show | egrep 'data0|enp179s0|enp175s0f0' | grep -Po 'inet \K[\d.]+')
+PUBLIC_DATA_INTERFACE=$(ip addr show | egrep 'data0|enp179s0|enp175s0f0|eth0' | grep -Po 'inet \K[\d.]+')
 
 source "$SCRIPT_DIR/../../perfline.conf"
 

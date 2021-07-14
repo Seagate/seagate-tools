@@ -29,7 +29,7 @@ def define_path_for_report_imgs(tid, location):
     path_to_workload = f'{location}/result_{tid}/client'
     path_to_m0crate_logs = f'{location}/result_{tid}/m0crate'
     nodes_stat_dirs = [join(path_to_stats, f) for f in os.listdir(
-        path_to_stats) if isdir(join(path_to_stats, f))]
+        path_to_stats) if isdir(join(path_to_stats, f)) and not "addb" in f]
 
     workload_files = {}
 

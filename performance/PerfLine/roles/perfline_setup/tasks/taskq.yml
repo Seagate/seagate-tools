@@ -78,6 +78,7 @@
         - tqdm
         - iostat-tool
         - peewee
+        - graphviz
       executable: pip3
       extra_args: -i https://pypi.org/simple
     delegate_to: "{{ item }}"
@@ -95,6 +96,7 @@
         - python3-devel
         - ftp
         - fio
+        - iperf
       state: present
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"

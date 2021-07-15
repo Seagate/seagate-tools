@@ -9,8 +9,8 @@ SCRIPT_DIR="${SCRIPT_PATH%/*}"
 RESULT=$(python3 $SCRIPT_DIR/extract_disks.py $CLUSTER_CONFIG_FILE $ASSIGNED_IPS)
 NODE=`echo $RESULT | cut -d' ' -f 1`
 CURRENT_NODE="srvnode-${NODE}"
-DISKS=`echo $RESULT | cut -d' ' -f 2-`
-# CURRENT_NODE=$(cat /etc/salt/minion_id)
+DISKS=`echo "$RESULT" | grep 'IO:' | sed 's/IO://'`
+MD_DISKS=`echo "$RESULT" | grep 'MD:' | sed 's/MD://'`
 
 function iostat_service_stop()
 {
@@ -20,24 +20,22 @@ function iostat_service_stop()
      while kill -0 "$iostat_pid"; do
          sleep 1
      done
-     
-     md=`mount | grep -e mero -e m0tr -e motr | awk '{print $1}'`
-     md_base=`echo $md | awk -F/ '{print $NF}'`
-     md_base=${md_base::-1}
 
      pushd /var/perfline/iostat.$(hostname -s)
 
-     disks_dm=
-     > disks.mapping
-     for d in $DISKS; do
-         dm=`realpath $d | xargs basename`
-         disks_dm="$disks_dm $dm"
-         echo "IO $d $dm" >> disks.mapping
-     done
+    disks_dm=""
 
-     dm=`multipath -ll | grep $md_base | awk '{print $3}'`
-     disks_dm="$disks_dm $dm"
-     echo "MD $md $dm" >> disks.mapping
+    for d in $DISKS; do
+        dm=`realpath $d | xargs basename`
+        disks_dm="$disks_dm $dm"
+        echo "IO $d $dm" >> disks.mapping
+    done
+
+    for d in $MD_DISKS; do
+        dm=`realpath $d | xargs basename`
+        disks_dm="$disks_dm $dm"
+        echo "MD $d $dm" >> disks.mapping
+    done
 
      iostat-cli --fig-size 20,20 --data iostat.log \
            --disks $disks_dm \
@@ -49,18 +47,15 @@ function iostat_service_stop()
            --fig-output iostat.$plot.png plot --subplots $plot
      done
 
-#     current_node=$(cat /etc/salt/minion_id)
      > nodes.mapping
      echo "$CURRENT_NODE $(hostname)" >> nodes.mapping
 
      popd
-
- 
 }
 
 function dstat_service_stop ()
 {
-     pids=`ps ax | grep dstat | grep -v grep | grep -v dstat_stop | grep -v dstat_start | awk '{print $1}'`
+     pids=`ps ax | grep dstat | grep -v grep | grep -v worker | grep -v dstat_stop | grep -v dstat_start | awk '{print $1}'`
      for pid in $pids ; do
         kill $pid
 
@@ -100,7 +95,7 @@ function blktrace_service_stop()
 
 function glances_service_stop()
 {
-     pids=`ps ax | grep glances |  grep -v grep | awk '{print $1}'`
+     pids=`ps ax | grep glances | grep -v worker | grep -v grep | awk '{print $1}'`
      for pid in $pids ; do
         kill -9 $pid
 

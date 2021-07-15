@@ -33,6 +33,7 @@
     <ul class="nav navbar-nav">
       <li><a href="#!queue">Queue</a></li>
       <li><a href="#!results">Results</a></li>
+      <li><a href="#!backups">Backups</a></li>
       <li><a href="#!log">Log</a></li>
 
       <li class="dropdown">
@@ -162,6 +163,9 @@ app.config(function($routeProvider) {
     }).when("/results", {
         templateUrl : "templates/results.html",
 	controller: "resultsCC"
+    }).when("/backups", {
+        templateUrl : "templates/results.html",
+	controller: "backupsCC"
     }).when("/queue", {
         templateUrl : "templates/queue.html",
 	controller: "queueCC"
@@ -183,15 +187,24 @@ app.controller('resultsCC', function($scope, $window, $http) {
     $scope.currentPage  = 1;
     $scope.itemsPerPage = 10;
     $scope.limit = 100;
+    $scope.checkboxes = true;
     var taskList = new Set();
 
-    $scope.displayDeleteButton = function() {
-       if (taskList.size > 0){
-          document.getElementById("deletebtn").innerHTML = '<input type="button" id="deleteBtn" value="Delete"  />';
-       }
-       else{
-          document.getElementById("deletebtn").innerHTML = null;
-       }
+    $scope.updateButtonsVisibility = function() {
+
+        let backup_button = document.getElementById("backup_button");
+        let delete_button = document.getElementById("delete_button");
+
+        if (taskList.size > 0)
+        {
+            backup_button.hidden = false;
+            delete_button.hidden = false;
+        }
+        else
+        {
+            backup_button.hidden = true;
+            delete_button.hidden = true;
+        }
     }
 
     $scope.selectTask = function(row) {
@@ -202,26 +215,27 @@ app.controller('resultsCC', function($scope, $window, $http) {
        else{
           taskList.delete(row.task_id);
        }
-       $scope.displayDeleteButton();
+       $scope.updateButtonsVisibility();
        console.log(taskList)
     }
 
     $scope.checkAll = function() {
-    console.log($scope.selectAll)
-    if ($scope.selectAll == 1) {
-         angular.forEach($scope.names, function(row) {
-         row.selected = $scope.selectAll;
-         taskList.add(row.task_id);
-         });
-    }
-    else{
-        angular.forEach($scope.names, function(row) {
-         row.selected = $scope.selectAll;
-        });
-        taskList.clear();
-    }
-    $scope.displayDeleteButton();
-    console.log(taskList)
+        let checkbox = document.getElementById("common_checkbox")
+
+        if(checkbox.checked) {
+            angular.forEach($scope.names, function(row) {
+                row.selected = true;
+                taskList.add(row.task_id);
+            });
+        }
+        else{
+            angular.forEach($scope.names, function(row) {
+                row.selected = false;
+            });
+            taskList.clear();
+        }
+        $scope.updateButtonsVisibility();
+        console.log(taskList)
     }
 
     $scope.deleteValue = function() {
@@ -234,9 +248,34 @@ app.controller('resultsCC', function($scope, $window, $http) {
                        $scope.reload();
                });
            taskList.clear();
-           $scope.displayDeleteButton();
+           $scope.updateButtonsVisibility();
            }
         }
+    }
+
+    $scope.backupTasks = function() {
+
+        if(taskList.size == 0)
+        {
+            return;
+        }
+
+        
+        let is_confirmed = confirm("Results will be moved to backup directory");
+           
+        if(!is_confirmed)
+        {
+            return;
+        }
+
+        $http.get("/api/task/backup_tasks/" + Array.from(taskList))
+            .then(function (response) {
+                console.log(response.data)
+                $scope.reload();
+            });
+        taskList.clear();
+        $scope.updateButtonsVisibility();
+        
     }
  
     $scope.reload = function() {
@@ -277,6 +316,32 @@ app.controller('resultsCC', function($scope, $window, $http) {
 
     $scope.reload();
 
+});
+app.controller('backupsCC', function($scope, $window, $http) {
+    $scope.currentPage  = 1;
+    $scope.itemsPerPage = 10;
+    $scope.limit = 100;
+    $scope.checkboxes = false;
+
+    $scope.reload = function() {
+	$('#cover-spin').show(0);
+	$http.get("/api/backup_results/" + $scope.limit)
+	    .then(function (response) {
+		$scope.heads = response.data.heads;
+		$scope.names = response.data.results;
+		$('#cover-spin').hide(0);
+	    });
+    }
+
+    $scope.pageChanged = function() {
+	    $scope.reload();
+    };
+
+    $scope.toTop = function() {
+	    //$("html, body").animate({scrollTop:0}, 250, 'swing');
+    }
+
+    $scope.reload();
 });
 app.controller('queueCC', function($scope, $http) {
     $scope.currentPage  = 1;

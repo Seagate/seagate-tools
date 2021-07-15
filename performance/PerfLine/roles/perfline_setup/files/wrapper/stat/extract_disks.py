@@ -6,6 +6,7 @@ python3 extract_disks.py /var/lib/hare/cluster.yaml $(ifconfig | grep inet | awk
 '''
 import sys
 import yaml
+import re
 
 cluster_config_file = sys.argv[1] 
 assigned_IPs = sys.argv[2:]
@@ -14,16 +15,17 @@ hosts_file_path = '/etc/hosts'
 def check_IPs(hosts_file_path): # function to check IPs present for all nodes
     host_file_lines = open(hosts_file_path).readlines()
     
+    srv_node_pattern = r'srvnode-(?P<node_id>[0-9]+)'
+
     ips_map = {}
-    node = 0
     for line in host_file_lines:
-        if 'srvnode' in line:
-            node+=1
+        match_res = re.search(srv_node_pattern, line)
+        if match_res:
             try:
-                ips_map['srvnode-{}'.format(node)] = line.split()[0]
+                ips_map['srvnode-{}'.format(match_res.group('node_id'))] = line.split()[0]
             except Exception as e:
                 # print("IP not found for node {}, occured Exception : {}".format(node,e))
-                ips_map['srvnode-{}'.format(node)] = None # add None if not found
+                pass
     return ips_map
 
 def get_disks(ips_map, ips): # returns disks from cluster config file
@@ -33,20 +35,30 @@ def get_disks(ips_map, ips): # returns disks from cluster config file
             if ip and ip in ips: # checks for ips in assigned ips
                 with open(sys.argv[1], 'r') as config_file:
                     config = yaml.safe_load(config_file)
-                disks = config['nodes'][node-1]['m0_servers'][1]['io_disks']['data']
 
-                return disks, node
+                disks = []
+                md_disks = []
+
+                for m0_server in config['nodes'][node-1]['m0_servers']:
+                    disks.extend(m0_server['io_disks']['data'])
+                    
+                    if 'meta_data' in m0_server['io_disks']:
+                        md_disk = m0_server['io_disks']['meta_data']
+                        if md_disk:
+                            md_disks.append(md_disk)
+
+                return disks, md_disks, node
         except Exception as e:
-            # print("Exception during getting disks : {}".format(e))
             pass
     return None # returns none if not found
   
     
 def main():
     ips_map = check_IPs(hosts_file_path)
-    disks, node = get_disks(ips_map, assigned_IPs)
+    disks, md_disks, node = get_disks(ips_map, assigned_IPs)
     if disks:
         print(node)
-        print(' '.join(disks))
+        print('IO:' + ' '.join(disks))
+        print('MD:' + ' '.join(md_disks))
 if __name__ == "__main__":
     main()

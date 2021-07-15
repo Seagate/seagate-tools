@@ -1,3 +1,10 @@
+"""
+A hsbench parser module
+
+Depends on: 
+1. run results of performance
+2. run log of the tool run
+"""
 import json
 import os
 import re
@@ -8,6 +15,10 @@ from schemas import get_performance_schema
 
 
 def extract_HSBench_logs(reference_doc, HS_destination_file_path):
+    """
+    A function to structurize data from raw data files
+    arguments: log file path (str), intermediate path to store structured data (str)
+    """
     with open(HS_destination_file_path, "w") as modified:
         with open(reference_doc, 'r') as reference_file:
 
@@ -17,6 +28,11 @@ def extract_HSBench_logs(reference_doc, HS_destination_file_path):
 
 
 def clean_the_line(line):
+    """
+    A function to clear clutter, whitespaces from the given line of the hsbench log
+    arguments: line to clean (str)
+    returns: list of line components splitted wrt " " & "," (list)
+    """
     not_needed_chars = ('', '-', '[', ']', ',')
     stripped_data = re.split(" |,", line)
     for element in stripped_data:
@@ -27,11 +43,20 @@ def clean_the_line(line):
 
 
 def get_date_time_object(stripped_data):
+    """
+    A function to convert string to date time object
+    arguments: list of a line component with date at the beginning (list)
+    returns: datetime value (datetime object)
+    """
     date_time_str = stripped_data[0]+" "+stripped_data[1]
     return dt.datetime.strptime(date_time_str, '%Y/%m/%d %H:%M:%S')
 
 
-def convert_HSlogs_to_JSON(run_ID, reference_doc, HS_input_file_path, quantum):
+def convert_HSlogs_to_JSON(run_ID, reference_doc, HS_input_file_path, quantum, HS_source_file_path):
+    """
+    a function to convert raw hsbench run results into a json format
+    arguments: run ID (int), data file path (str), path to store json files (str), interval size (int), path of raw data file (str)
+    """
     data = []
     time_now = time.time_ns()
 
@@ -54,29 +79,38 @@ def convert_HSlogs_to_JSON(run_ID, reference_doc, HS_input_file_path, quantum):
             mode_change = False
             mode = stripped_data[9]
 
-            while end_time > current_line_time and line < num_of_lines:
-                total_latency += float(stripped_data[20])
-                total_iops += float(stripped_data[15])
-                total_throughput += float(stripped_data[13])
+            if current_line_time > end_time:
+                samples = 0
+            else:
+                while end_time > current_line_time and line < num_of_lines:
+                    try:
+                        total_latency += float(stripped_data[20])
+                        total_iops += float(stripped_data[15])
+                        total_throughput += float(stripped_data[13])
 
-                line += 1
-                if line < num_of_lines:
-                    stripped_data = clean_the_line(lines[line])
-                    if stripped_data[9] != mode:
-                        mode_change = True
-                        break
-                    current_line_time = get_date_time_object(stripped_data)
+                        line += 1
+                        if line < num_of_lines:
+                            stripped_data = clean_the_line(lines[line])
+                            if stripped_data[9] != mode:
+                                mode_change = True
+                                break
+                            current_line_time = get_date_time_object(
+                                stripped_data)
 
-            samples = line - initial_line
+                    except IndexError:
+                        line += 1
+
+                samples = line - initial_line
+
             if samples == 0:
-                average_latency = -1
-                total_iops = -1
-                total_throughput = -1
+                average_latency = 0
+                total_iops = 0
+                total_throughput = 0
             else:
                 average_latency = round(total_latency/samples, 5)
 
             entry = get_performance_schema(time_now, run_ID, average_latency, total_iops, total_throughput, str(
-                end_time - dt.timedelta(seconds=quantum)), mode, 'hsbench', reference_doc)
+                end_time - dt.timedelta(seconds=quantum)), mode, 'hsbench', HS_source_file_path)
             data.append(entry)
             time_now = time_now + 10
 

@@ -44,16 +44,16 @@
             "rule": 1,
             "status": "ON",
             "label": "LOG ERROR FOUND",
-            "description": "Keyword error occured at least 4 times.",
+            "description": "Error related keywords occured at least 3 times.",
             "custom_query": "NA",
             "query": {
                 "filter": {
-                    "keyword": "err",
+                    "keyword": "(error|fail|unsuccessful|stderr)",
                     "operator": "=~"
                 },
                 "grouping": {
                     "constraint": "any",
-                    "interval": 4
+                    "interval": 3
                 }
             }
         }

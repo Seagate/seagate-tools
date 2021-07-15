@@ -88,14 +88,15 @@ parse_params()
 function process_motr_addb()
 {
     local host="$(hostname -s)"
-    local motr_addb_dir="/var/log/seagate/motr/addb"
 
-    local tmp_dir="$motr_addb_dir/$(mktemp -u addb_tmp_XXXXXXX)"
+    MOTR_ADDB_DIR=$($SCRIPT_DIR/find_motr_addb_location.sh)
+
+    local tmp_dir="$MOTR_ADDB_DIR/$(mktemp -u addb_tmp_XXXXXXX)"
     mkdir $tmp_dir
     pushd $tmp_dir
 
     for ios_fid in $IO_SERVICES; do
-       local ios_dir="$motr_addb_dir/m0d-$ios_fid"
+       local ios_dir="$MOTR_ADDB_DIR/m0d-$ios_fid"
 
         if [[ ! -d "$ios_dir" ]]; then
             continue

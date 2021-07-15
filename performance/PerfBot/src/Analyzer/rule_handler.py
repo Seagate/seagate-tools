@@ -1,6 +1,8 @@
 import json
 import os.path
 
+from src.data_parser import quantum
+
 
 def read_rulebook():
     filename = os.path.dirname(__file__) + "/../rules.json"
@@ -9,9 +11,51 @@ def read_rulebook():
 
     return data
 
-def get_consecutive_clause(metric, threshold):
-    clause = f"stateCount( fn: (r) => r.{metric} == {threshold}, column: {metric})"
-    return clause
+
+def get_no_of_occurances(given_thresh):
+    try:
+        unit = given_thresh.split(" ")
+        if unit[1].lower() == "ms":
+            threshold_value = float(unit[0])
+        elif unit[1].lower().startswith("s"):
+            threshold_value = float(unit[0])*1000
+        else:
+            threshold_value = float(unit[0])
+    except IndexError:
+        threshold_value = float(unit[0])
+
+    return threshold_value
+
+
+def get_consecutive_grouping_query(rule, run_ID):
+    if rule['query']['filter']['operator'] == "<=" and int(rule['query']['filter']['threshold']) == 0:
+        operator = "="
+    else:
+        operator = rule['query']['filter']['operator']
+
+    occurance = int(get_no_of_occurances(
+        rule['query']['grouping']['interval'])/quantum/1000)
+    select_clause = f"SELECT round(moving_average({rule['query']['filter']['metric']}, {occurance})*1000)/1000"
+    from_clause = "FROM data"
+    where_clause = f"WHERE run_ID = {run_ID}"
+    threshold = get_no_of_occurances(rule['query']['filter']['threshold'])
+
+    query = f"SELECT * from ({select_clause} {from_clause} {where_clause}) WHERE round {operator} {threshold}"
+    return query
+
+
+def get_any_grouping_query(rule, run_ID):
+    query = ""
+    select_clause = "SELECT *"
+    from_clause = "FROM data"
+
+    threshold_value = get_no_of_occurances(
+        rule['query']['filter']['threshold'])
+    where_clause = f"WHERE run_ID = {run_ID} AND {rule['query']['filter']['metric']} {rule['query']['filter']['operator']} {threshold_value}"
+
+    query = " ".join([select_clause, from_clause, where_clause])
+
+    return query
 
 
 def get_db_query_for_data(rule, run_ID):
@@ -19,26 +63,13 @@ def get_db_query_for_data(rule, run_ID):
         return rule['custom_query']
 
     else:
-        query = ""
-        select_clause = "SELECT *"
-        from_clause = "FROM data"
+        grouping = rule['query']['grouping']['constraint'].lower()
 
-        given_thresh = rule['query']['filter']['threshold']
-        try:
-            unit = given_thresh.split(" ")
-            if unit[1].lower() == "ms":
-                threshold_value = float(unit[0])
-            elif unit[1].lower().startswith("s"):
-                threshold_value = float(unit[0])*1000
-            else:
-                threshold_value = float(unit[0])
+        if grouping == 'consecutive':
+            query = get_consecutive_grouping_query(rule, run_ID)
+        else:
+            query = get_any_grouping_query(rule, run_ID)
 
-        except IndexError:
-            threshold_value = float(unit[0])
-
-        where_clause = f"WHERE run_ID = {run_ID} AND {rule['query']['filter']['metric']} {rule['query']['filter']['operator']} {threshold_value}"
-
-        query = " ".join([select_clause, from_clause, where_clause])
         return query
 
 

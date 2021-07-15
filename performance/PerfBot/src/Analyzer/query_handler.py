@@ -1,6 +1,6 @@
 
 from store_data import connect_database
-from Analyzer.predictor import read_lookuptable
+from Analyzer.evaluator import read_lookuptable
 
 
 def validator_handler(rule_ID, client, rules, rule_outcome_map):
@@ -24,7 +24,7 @@ def query_handler(rules):
             if rule_ID in logic[3]:
                 functionality = logic[1]
                 break
-        
+
         if functionality.lower() == 'validation':
             validator_handler(rule_ID, client, rules, rule_outcome_map)
         else:

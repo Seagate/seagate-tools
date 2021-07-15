@@ -6,7 +6,7 @@ input_folder_path =  "./Input/"
 
 
 def connect_database():
-    file_name = "./config.yml"
+    file_name = "./perfbot_config.yml"
     with open(file_name, 'r') as config_file:
         configs = yaml.safe_load(config_file)
 

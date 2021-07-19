@@ -78,7 +78,7 @@
   - name: Install perfline python dependencies
     pip:
       name:
-        - huey
+        - huey >= 2.3.0
         - plumbum
         - cerberus
         - pandas

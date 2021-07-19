@@ -76,7 +76,7 @@ function blktrace_service_stop()
      done
      
      pushd /var/perfline/blktrace.$(hostname -s)
-     for d in $(ls -1 | grep dm | awk -F. '{print $1}' | sort | uniq); do
+     for d in $(ls -1 | grep blktrace | awk -F. '{print $1}' | sort | uniq); do
          echo $d
          blkparse -i "$d.blktrace.*" -d $d.dump -O
          iowatcher -t $d.dump -o $d.aggregated.svg
@@ -85,7 +85,7 @@ function blktrace_service_stop()
          done
      done
      
-     dumps=$(ls -1 | grep "dm.*dump" | awk '{print "-t "$1}' | tr '\n' ' ')
+     dumps=$(ls -1 | grep "dump" | awk '{print "-t "$1}' | tr '\n' ' ')
      iowatcher $dumps -o node.$(hostname -s).aggregated.svg
      for graph in io tput latency queue_depth iops; do
          iowatcher $dumps -o node.$(hostname -s).$graph.svg -O $graph

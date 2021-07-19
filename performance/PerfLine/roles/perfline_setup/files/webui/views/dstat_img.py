@@ -32,7 +32,7 @@ def serve_dstat_imgs(tid, node_id, img_type):
     location = cache.get_location(tid)
     path_to_stats = f'{location}/result_{tid}/stats'
     nodes_stat_dirs = [join(path_to_stats, f) for f in os.listdir(
-        path_to_stats) if isdir(join(path_to_stats, f))]
+        path_to_stats) if isdir(join(path_to_stats, f)) and not "addb" in f]
 
     path_to_img = join(
         nodes_stat_dirs[int(node_id)], 'dstat', img_type + '.png')

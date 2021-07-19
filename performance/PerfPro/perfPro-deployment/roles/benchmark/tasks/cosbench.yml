@@ -8,7 +8,7 @@
  - name: "[Cosbench]: Cosbench running with clients=300 bucket=1"
    shell: |
       cd /root/PerfProBenchmark/cosbench/
-      pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' 'root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
+      pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
       ./s3cosbench_benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }} -b 1 -w mixed -t 600
       pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
@@ -27,7 +27,7 @@
  - name: "[Cosbench]: Cosbench running with clients=300 bucket=10"
    shell: |
       cd /root/PerfProBenchmark/cosbench/
-      pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' 'root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
+      pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
       ./s3cosbench_benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }} -b 10 -w mixed -t 600
       pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
@@ -46,7 +46,7 @@
  - name: "[Cosbench]: Cosbench running with clients=300 bucket=50"
    shell: |
       cd /root/PerfProBenchmark/cosbench/
-      pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' 'root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
+      pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
       ./s3cosbench_benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }} -b 50 -w mixed -t 600
       pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"

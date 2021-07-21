@@ -28,33 +28,11 @@ import yaml
 def get_overrides(overrides):
     return " ".join([f"{x}={y}" for (x, y) in overrides.items()])
 
-
 def parse_options(conf, result_dir):
     options = []
 
     options.append('-p')
     options.append(result_dir)
-
-    if 'custom_build' in conf:
-       options.append('--deploybuild')
-       options.append('-token')
-       options.append(conf['custom_build']['github_PAT'])
-       options.append('-github_user')
-       options.append(conf['custom_build']['github_username'])
-       options.append('-build_machine')
-       options.append(conf['custom_build']['build_machine'])
-       options.append('-motr_repo')
-       options.append(conf['custom_build']['motr_repo_path'])
-       options.append('-hare_repo')
-       options.append(conf['custom_build']['hare_repo_path'])
-       options.append('-s3server_repo')
-       options.append(conf['custom_build']['s3server_repo_path'])
-       options.append('-motr_commit_id')
-       options.append(conf['custom_build']['motr_commit_id'])
-       options.append('-hare_commit_id')
-       options.append(conf['custom_build']['hare_commit_id'])
-       options.append('-s3server_commit_id')
-       options.append(conf['custom_build']['s3server_commit_id'])
 
     # Stats collection
     if conf['stats_collection']['iostat']:
@@ -65,7 +43,6 @@ def parse_options(conf, result_dir):
         options.append('--blktrace')
     if conf['stats_collection']['glances']:
         options.append('--glances')
-
 
     # Benchmarks
     for b in conf['benchmarks']:
@@ -163,6 +140,40 @@ def pack_artifacts(path):
     rm = plumbum.local["rm"]
     # rm[f"-rf {path}".split(" ")]()
 
+def sw_update(conf, log_dir):
+    options = []
+    result = 'SUCCESS'
+
+    if 'custom_build' in conf:
+        mv = plumbum.local['mv']
+        params = conf['custom_build']
+
+        options.append('-m')
+        options.append(params['motr']['repo'])
+        options.append(params['motr']['branch'])
+        options.append('-s')
+        options.append(params['s3server']['repo'])
+        options.append(params['s3server']['branch'])
+        options.append('-h')
+        options.append(params['hare']['repo'])
+        options.append(params['hare']['branch'])
+
+        if 'py-utils' in conf['custom_build']:
+            options.append('-u')
+            options.append(params['py-utils']['repo'])
+            options.append(params['py-utils']['branch'])
+
+        with plumbum.local.env():
+            update = plumbum.local["scripts/update.sh"]
+            try:
+                tee = plumbum.local['tee']
+                (update[options] | tee['/tmp/update.log']) & plumbum.FG
+            except plumbum.commands.processes.ProcessExecutionError:
+                result = 'FAILED'
+                
+        mv['/tmp/update.log', log_dir] & plumbum.FG
+
+    return result
 
 @huey.task(context=True)
 def worker_task(conf_opt, task):
@@ -192,10 +203,16 @@ def worker_task(conf_opt, task):
         run_cmds(conf['pre_exec_cmds'], result['artifacts_dir'])
 
     with plumbum.local.env():
-
         mkdir = plumbum.local['mkdir']
+        mv = plumbum.local['mv']
         mkdir["-p", result["artifacts_dir"]] & plumbum.FG
 
+        ret = sw_update(conf, result["artifacts_dir"])
+        if ret == 'FAILED':
+            result['status'] = 'FAILED'
+            result['finish_time'] = str(datetime.now())
+            return result
+        
         run_workload = plumbum.local["scripts/worker.sh"]
         try:
             tee = plumbum.local['tee']
@@ -205,7 +222,6 @@ def worker_task(conf_opt, task):
         except plumbum.commands.processes.ProcessExecutionError:
             result['status'] = 'FAILED'
 
-        mv = plumbum.local['mv']
         mv['/tmp/workload.log', result["artifacts_dir"]] & plumbum.FG
 
     result['finish_time'] = str(datetime.now())

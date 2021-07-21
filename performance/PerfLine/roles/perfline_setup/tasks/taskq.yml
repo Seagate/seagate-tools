@@ -101,17 +101,40 @@
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
- 
-  - name: Copy perfline-ui systemd file
-    copy:
-      src: files/perfline-ui.service
-      dest: /etc/systemd/system/perfline-ui.service
-    delegate_to: "client-1"
 
-  - name: Copy perfline systemd file
-    copy:
-      src: files/perfline.service
-      dest: /etc/systemd/system/perfline.service
+  - name: "Coping a block of statement in perfline.service file"
+    blockinfile:
+      path: /etc/systemd/system/perfline-ui.service
+      create: yes
+      block: |
+                [Unit]
+                Description=web ui for perfline
+                
+                [Service]
+                Type=simple
+                WorkingDirectory={{ perfline_dir }}/webui
+                ExecStart=/usr/bin/python3.6 {{ perfline_dir }}/webui/server.py
+                
+                [Install]
+                WantedBy=multi-user.target
+    delegate_to: "client-1" 
+
+  - name: "Coping a block of statement in perfline-ui.service file"
+    blockinfile:
+      path: /etc/systemd/system/perfline.service
+      create: yes
+      block: |
+                [Unit]
+                Description=Perfline service
+                
+                [Service]
+                Type=simple
+                Restart=always
+                WorkingDirectory={{ perfline_dir }}/wrapper
+                ExecStart=/usr/bin/bash {{ perfline_dir }}/wrapper/run_pl
+                
+                [Install]
+                WantedBy=multi-user.target
     delegate_to: "client-1"
 
   - name: Start perfline-ui service

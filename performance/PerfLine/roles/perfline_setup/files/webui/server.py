@@ -19,7 +19,6 @@
 #
 
 
-import config
 from core import pl_api
 from app_global_data import *
 from views import *
@@ -41,5 +40,5 @@ if __name__ == '__main__':
     pl_api.init_tq_endpoint("./perfline_proxy.sh")
     cache.update(all_artif_dirs)
     async_worker.start()
-    app.run(**config.server_ep)
+    app.run(host='0.0.0.0',port=PERFLINE_UI_PORT)
     async_worker.stop()

@@ -23,7 +23,6 @@ import gzip
 from flask import request, make_response
 
 from app_global_data import *
-import config
 
 
 logcookies = {}
@@ -41,7 +40,7 @@ def getlog(morelines: str):
     # no coookie found: open log, seek to its end
     else:
         uid = str(uuid.uuid1())
-        logf = open(config.logfile, "r")
+        logf = open(LOGFILE, "r")
         logf.seek(0, os.SEEK_END)
         logcookies.update({uid: logf})
 

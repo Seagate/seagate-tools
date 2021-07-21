@@ -1,7 +1,6 @@
 from flask import Flask
 from plumbum import local
 
-import config
 from core import task_cache
 from core.async.async_worker import AsyncWorker
 exec(open('./../perfline.conf').read())
@@ -12,4 +11,4 @@ cache = task_cache.TaskCache()
 async_worker = AsyncWorker()
 report_resource_map = dict()
 
-all_artif_dirs = config.artifacts_dirs + config.backup_artifacts_dirs
+all_artif_dirs = ARTIFACTS_DIRS + BACKUP_ARTIFACTS_DIRS

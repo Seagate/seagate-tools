@@ -30,7 +30,7 @@
   - name: "Create List of nodes to be added into Cluster"
     set_fact: nodelist={%for host in groups['nodes']%}{{hostvars[host]['ansible_host']}}{% if not loop.last %},{% endif %}{% endfor %}
 
-  - name: "Defining HA_TYPE and NODES variables in perfline.conf"
+  - name: "Updating value of a variables in perfline.conf"
     lineinfile:
        path: "{{ role_path }}/files/perfline.conf"
        regexp: "^{{ item.variable }}"
@@ -38,6 +38,10 @@
     with_items:
        - { variable: 'HA_TYPE', value: '{{ ha_type }}'}
        - { variable: 'NODES', value: '{{ nodelist }}' }
+       - { variable: 'PERFLINE_DIR', value: '{{ perfline_dir }}'}
+       - { variable: 'WORKLOAD_DIR', value: '{{ perfline_dir }}/wrapper/workload'}
+       - { variable: 'VALIDATOR', value: '{{ perfline_dir }}/wrapper/task_validation'}
+       - { variable: 'PERFLINE_SCRIPT_PATH', value: '{{ perfline_dir }}/wrapper/perfline.py'}
 
   - name: "Installing golang version above 1.15 on localhost"
     yum:
@@ -50,7 +54,7 @@
   - name: "Copy new s3bench binary file to client machine"
     copy:
        src: "/root/go/bin/s3bench"
-       dest: "/root/perfline/bin/s3bench_perfline"
+       dest: "{{ perfline_dir }}/bin/s3bench_perfline"
        mode: '0751'
     delegate_to: "client-1"
 

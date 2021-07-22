@@ -1,5 +1,5 @@
 ---
 # vars file for perfline_setup
 S3BENCH_COMMIT_ID: 0126b7f
-perfline_dir: /root/perfline_dir
+perfline_dir: /root/perfline
 CLUSTER_PASS: seagate1

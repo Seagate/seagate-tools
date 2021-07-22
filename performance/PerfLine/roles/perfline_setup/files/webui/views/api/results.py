@@ -81,10 +81,10 @@ def create_response(limit, locations):
 @app.route('/api/results', defaults={'limit': 9999999})
 @app.route('/api/results/<int:limit>')
 def results(limit=9999999):
-    return create_response(limit, ARTIFACTS_DIRS)
+    return create_response(limit, artifacts_dirs)
 
 
 @app.route('/api/backup_results', defaults={'limit': 9999999})
 @app.route('/api/backup_results/<int:limit>')
 def backup_results(limit=9999999):
-    return create_response(limit, BACKUP_ARTIFACTS_DIRS)
+    return create_response(limit, backup_artifacts_dirs)

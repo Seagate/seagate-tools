@@ -19,6 +19,9 @@
 #
 
 set -x
+SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_DIR="${SCRIPT_PATH%/*}"
+source "$SCRIPT_DIR/../../perfline.conf"
 
 
 
@@ -80,7 +83,7 @@ function run_s3bench()
     if [[ -z $FILE ]]; then
 	FILE="s3bench_workload_${NUM_SAMPLES}_${NUM_CLIENTS}_${OBJ_SIZE}.log"
     fi
-    /root/perfline/bin/s3bench_perfline -accessKey $ACCESS_KEY -accessSecret $SECRET_KEY -bucket $BUCKET_NAME -numSamples $NUM_SAMPLES -objectSize $OBJ_SIZE -numClients $NUM_CLIENTS -endpoint "$ENDPOINT" 
+    $PERFLINE_DIR/bin/s3bench_perfline -accessKey $ACCESS_KEY -accessSecret $SECRET_KEY -bucket $BUCKET_NAME -numSamples $NUM_SAMPLES -objectSize $OBJ_SIZE -numClients $NUM_CLIENTS -endpoint "$ENDPOINT" 
 
     
 }

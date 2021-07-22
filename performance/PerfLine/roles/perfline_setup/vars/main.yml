@@ -1,5 +1,23 @@
 ---
 # vars file for perfline_setup
+
+# Specify POSTFIX value to customize the location of PerfLine (artifacts directory,
+# log file location) or to be able install more than one version of PerfLine
+# on the same cluster.
+# Don't forget to use different ports for the PerfLine UI service
+# if you are installing two (or more) versions of PerfLine.
+# Example:
+# POSTFIX: '-dev'
+# PERFLINE_UI_PORT: 8006
+
+POSTFIX: ''
+PERFLINE_UI_PORT: 8005
+
 S3BENCH_COMMIT_ID: 0126b7f
-perfline_dir: /root/perfline
+PERFLINE_DIR: /root/perfline{{ POSTFIX }}
+ARTIFACTS_DIR: '/var/perfline{{ POSTFIX }}'
+PERFLINE_LOGFILE: '/var/log/perfline{{ POSTFIX }}.log'
+PERFLINE_SERVICE_NAME: 'perfline{{ POSTFIX }}'
+PERFLINE_UI_SERVICE_NAME: 'perfline-ui{{ POSTFIX }}'
+
 CLUSTER_PASS: seagate1

@@ -13,7 +13,7 @@ PerfLine can be installed from any machine, To setup PerfLine or deploying PerfL
 3. Ansible package installed (ver. 2.9+)
 4. Setup config for cluster nodes
     4.1 Change ./inventories/perfline_hosts/hosts file and set target cluster nodes dns-name/ip. Accordingly for nodes and client groups.
- Build machine is optional to user, if user want to create new build for io-path components on LR2 setup.
+ 
     ```
     [nodes]
     srvnode-1 ansible_host=<PRIMARY NODE-FQDN>
@@ -23,8 +23,6 @@ PerfLine can be installed from any machine, To setup PerfLine or deploying PerfL
     [client]
     client-1 ansible_host=<CLIENT NODE-FQDN>
 
-    [build_machine]
-    #build-server ansible_host=<BUILD-MACHINE-FQDN>
     ```
     4.2 Change ./inventories/perfline_hosts/hosts file and set target ha_type.
     ```
@@ -55,10 +53,8 @@ PerfLine can be installed from any machine, To setup PerfLine or deploying PerfL
 As per need, Create a "<any name of your choice>.yaml" file inside `/root/perfline/wrapper/workload` directory. An expample.yaml is already provided for user's reference.
 Custom build:
 ```
-1. If user want to use build-deploy(uses seagate internal docker service) feature then user must generate "github personal access token"(github_PAT) and need to provide it along with "github username" in workload yaml file, otherwise user can move ahead with build-deploy(using docker service for external community) without "github_PAT" and "github_username". External docker service is slow and takes more time to build. Hence it is highly encouraged for seagate-internal users to use internal docker service.
-2. User have an option to choose build machine either VM or HW machine.
-3. No need to mention anything for motr_repo_path, hare_repo_path and s3server_repo_path. This feature is currently disabled, as build service only support building main branch code which is default and need not be metioned vi repo_path parameters.
-4. User can provide any working git committ hash/ID combination for io-path components as long as user can ensure build won't fail. CORTX build on cluster would be updated accordingly. If not provided, default is ToT branch mentioned in bullet 3 above.
+1. User have an optional feature to update R2 Cluster either using URL or can use specific commitID of IO-PATH components.
+2. User can provide any working git committ hash/ID combination for io-path components as long as user can ensure build won't fail. CORTX build on cluster would be updated accordingly.
 ```
 
 For ex:
@@ -70,19 +66,19 @@ common:
   batch_id: null
   user: user@seagate.com
   send_email: false
-  
-# Optional section. It may be deleted in case you don't want
-# to build/deploy custom version of Cortx components
+
+#Either of the option you to choose like URL or IO-PATH components
 custom_build:
-  github_PAT:
-  github_username:
-  build_machine:                     # Build Anywhere (it could be client, any one cortx cluster server or VM)
-  motr_repo_path: ""
-  hare_repo_path: ""
-  s3server_repo_path: ""
-  hare_commit_id: ""
-  motr_commit_id: ""
-  s3server_commit_id: ""
+  url: ""
+  motr:
+    repo: "https://github.com/Seagate/cortx-motr.git"
+    branch: b64b1bba
+  s3server:
+    repo: "https://github.com/Seagate/cortx-s3server.git"
+    branch: c482a593
+  hare:
+    repo: "https://github.com/Seagate/cortx-hare.git"
+    branch: daddc4a
 
 stats_collection:
   iostat: false

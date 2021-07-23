@@ -33,6 +33,36 @@ def get_schema_motr():
                 'send_email': {'type': 'boolean', 'required': False}
             }
         },
+        'configuration': {
+            'required': False,
+            'type': 'dict',
+            'schema': {
+                'hare': {
+                    'type': 'dict',
+                    'schema': {
+                        'custom_cdf': {'type': 'string', 'required': False, 'empty': False},
+                        'sns': {
+                            'required': False,
+                            'type': 'dict',
+                            'schema': {
+                                'data_units': {'type': 'integer', 'empty': False},
+                                'parity_units': {'type': 'integer', 'empty': False},
+                                'spare_units': {'type': 'integer', 'empty': False},
+                            }
+                        },
+                        'dix': {
+                            'required': False,
+                            'type': 'dict',
+                            'schema': {
+                                'data_units': {'type': 'integer', 'empty': False},
+                                'parity_units': {'type': 'integer', 'empty': False},
+                                'spare_units': {'type': 'integer', 'empty': False},
+                            }
+                        }
+                    }
+                }
+            }  
+        },
         'stats_collection': {
             'type': 'dict',
             'schema': {

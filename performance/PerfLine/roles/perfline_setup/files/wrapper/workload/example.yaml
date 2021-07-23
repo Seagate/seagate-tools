@@ -38,6 +38,21 @@ custom_build:
   motr_commit_id: ""
   s3server_commit_id: ""
 
+# Optional section. if this section exists PerfLine will
+# change software configurations before starting the cluster.
+# Additional info may be found in:
+# https://seagate-systems.atlassian.net/wiki/spaces/PRIVATECOR/pages/481625195/Components+configuration
+configuration:
+  hare:
+    custom_cdf: /path/to/custom/cdf.yaml # custom CDF have to be located on client node
+    sns:
+      data_units: 1
+      parity_units: 0
+      spare_units: 0
+    dix:
+      data_units: 4
+      parity_units: 2
+      spare_units: 2
 
 stats_collection:
   iostat: false

@@ -56,6 +56,33 @@ def parse_options(conf, result_dir):
        options.append('-s3server_commit_id')
        options.append(conf['custom_build']['s3server_commit_id'])
 
+    if 'configuration' in conf:
+        if 'hare' in conf['configuration']:
+            hare = conf['configuration']['hare']
+            if 'custom_cdf' in hare:
+                options.append('--hare-custom-cdf')
+                options.append(hare['custom_cdf'])
+
+            if 'sns' in hare:
+                options.append('--hare-sns-data-units')
+                options.append(hare['sns']['data_units'])
+
+                options.append('--hare-sns-parity-units')
+                options.append(hare['sns']['parity_units'])
+
+                options.append('--hare-sns-spare-units')
+                options.append(hare['sns']['spare_units'])
+
+            if 'dix' in hare:
+                options.append('--hare-dix-data-units')
+                options.append(hare['dix']['data_units'])
+
+                options.append('--hare-dix-parity-units')
+                options.append(hare['dix']['parity_units'])
+
+                options.append('--hare-dix-spare-units')
+                options.append(hare['dix']['spare_units'])
+
     # Stats collection
     if conf['stats_collection']['iostat']:
         options.append('--iostat')

@@ -1,6 +1,0 @@
-[local_iso]
-name=CentOS-$releasever - local packages for $basearch
-baseurl=file:///var/artifacts/0/cortx_iso
-enabled=1
-gpgcheck=0
-protect=1

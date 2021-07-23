@@ -147,7 +147,13 @@ function copy() {
 }
 
 function download() {
-    echo "This is code section for download"
+    pdsh -S -w $NODES "rm -rf -- $RPM_DIR/update"
+    pdsh -S -w $NODES "mkdir -p $RPM_DIR/update/cortx_iso/"
+
+    for file in $(curl -s $URL/prod/cortx_iso/ | grep href | sed 's/.*href="//' | sed 's/".*//' | grep '^[a-zA-Z].*' | grep 'rpm')
+    do
+        pdsh -S -w $NODES "cd $RPM_DIR/update/cortx_iso/; curl -s -O $URL/prod/cortx_iso/$file"
+    done
 }
 
 function stop_cluster() {
@@ -255,8 +261,15 @@ function start_services() {
 function main() {
     check_version
     checkout
-    build
-    copy
+    if [[ ! -z "$MOTR_BRANCH" ]] && [[ ! -z "$S3_BRANCH" ]] && [[ ! -z "$HARE_BRANCH" ]]; then
+         build
+         copy
+    fi
+
+    if [[ ! -z "$URL" ]]; then
+         download
+    fi
+
     stop_cluster
     stop_services
     update
@@ -266,19 +279,21 @@ function main() {
 function validate() {
     local leave=
 
-    if [[ -z "$MOTR_BRANCH" ]]; then
-        echo "Motr branch is not specified"
-        leave="1"
-    fi
-
-    if [[ -z "$S3_BRANCH" ]]; then
-        echo "S3 server branch is not specified"
-        leave="1"
-    fi
-
-    if [[ -z "$HARE_BRANCH" ]]; then
-        echo "Hare branch is not specified"
-        leave="1"
+    if [[ -z "$URL" ]]; then
+       if [[ -z "$MOTR_BRANCH" ]]; then
+           echo "Motr branch is not specified"
+           leave="1"
+       fi
+   
+       if [[ -z "$S3_BRANCH" ]]; then
+           echo "S3 server branch is not specified"
+           leave="1"
+       fi
+   
+       if [[ -z "$HARE_BRANCH" ]]; then
+           echo "Hare branch is not specified"
+           leave="1"
+       fi
     fi
 
     if [[ -n $leave ]]; then

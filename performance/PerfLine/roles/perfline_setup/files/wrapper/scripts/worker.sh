@@ -86,11 +86,63 @@ function cleanup_logs() {
     pdsh -S -w $NODES 'rm -rf /var/log/seagate/s3/s3server-*' || true
 }
 
+function update_sw_configs() {
+    
+    # Hare config customization
+    HARE_CONFIG='/var/lib/hare/cluster.yaml'
+
+    HARE_CONFIG_TMP_LOCATION="/tmp/$(mktemp -u hare_conf_XXXXXXX)"
+
+    if [[ -n "$HARE_CONF_CUSTOM_CDF" ]]; then
+        ssh $PRIMARY_NODE "mkdir -p $HARE_CONFIG_TMP_LOCATION"
+        local custom_cdf_path="$HARE_CONFIG_TMP_LOCATION/base_cluster_cdf.yaml"
+        scp $HARE_CONF_CUSTOM_CDF root@${PRIMARY_NODE}:${custom_cdf_path}
+        HARE_CONFIG="$custom_cdf_path"
+    fi
+
+    # generate params string
+    local params=""
+
+    if [[ -n "$HARE_CONF_SNS_DATA_UNITS" ]]; then
+        params="$params --sns-data-units $HARE_CONF_SNS_DATA_UNITS"
+    fi
+
+    if [[ -n "$HARE_CONF_SNS_PARITY_UNITS" ]]; then
+        params="$params --sns-parity-units $HARE_CONF_SNS_PARITY_UNITS"
+    fi
+
+    if [[ -n "$HARE_CONF_SNS_SPARE_UNITS" ]]; then
+        params="$params --sns-spare-units $HARE_CONF_SNS_SPARE_UNITS"
+    fi
+
+    if [[ -n "$HARE_CONF_DIX_DATA_UNITS" ]]; then
+        params="$params --dix-data-units $HARE_CONF_DIX_DATA_UNITS"
+    fi
+
+    if [[ -n "$HARE_CONF_DIX_PARITY_UNITS" ]]; then
+        params="$params --dix-parity-units $HARE_CONF_DIX_PARITY_UNITS"
+    fi
+
+    if [[ -n "$HARE_CONF_DIX_SPARE_UNITS" ]]; then
+        params="$params --dix-spare-units $HARE_CONF_DIX_SPARE_UNITS"
+    fi
+
+
+    if [[ -n "$params" ]]; then
+        ssh $PRIMARY_NODE "mkdir -p $HARE_CONFIG_TMP_LOCATION"
+        local base_hare_config="$HARE_CONFIG"
+        HARE_CONFIG="$HARE_CONFIG_TMP_LOCATION/cluster_cdf.yaml"
+
+        ssh $PRIMARY_NODE "$SCRIPT_DIR/conf_customization/customize_hare_conf.py \
+          -s $base_hare_config -d $HARE_CONFIG $params"
+    fi
+}
+
 function restart_hare() {
     if [[ -n "$MKFS" ]]; then
-        ssh $PRIMARY_NODE 'hctl bootstrap --mkfs /var/lib/hare/cluster.yaml'
+        ssh $PRIMARY_NODE "hctl bootstrap --mkfs $HARE_CONFIG"
     else
-        ssh $PRIMARY_NODE 'hctl bootstrap /var/lib/hare/cluster.yaml'
+        ssh $PRIMARY_NODE "hctl bootstrap $HARE_CONFIG"
     fi
     wait_for_cluster_start
     $SCRIPT_DIR/hostconfig.sh $NODES
@@ -257,7 +309,7 @@ function save_motr_artifacts() {
     mkdir -p $configs_dir
     pushd $configs_dir
     scp -r $PRIMARY_NODE:/etc/sysconfig/motr ./
-    scp -r $PRIMARY_NODE:/var/lib/hare/cluster.yaml ./
+    scp -r $PRIMARY_NODE:$HARE_CONFIG ./cluster.yaml
     popd
 
     mkdir -p $ios_m0trace_dir
@@ -466,6 +518,16 @@ function collect_artifacts() {
     fi
 }
 
+function remove_tmp_files() {
+    echo "removing temporary files generated during task execution"
+
+    if [[ -n "$HARE_CONFIG_TMP_LOCATION" ]]; then
+        ssh $PRIMARY_NODE "if [[ -d "$HARE_CONFIG_TMP_LOCATION" ]]; then \
+                               rm -rf $HARE_CONFIG_TMP_LOCATION; fi"
+    fi
+
+}
+
 function close_results_dir() {
     echo "Close results dir"
     popd
@@ -572,6 +634,7 @@ function main() {
         run_lnet_workloads
     fi
 
+    update_sw_configs
     restart_cluster
 
     # @artem -- place code below
@@ -619,6 +682,9 @@ function main() {
 
     # Collect ADDBs/m0traces/m0play.db
     collect_artifacts
+
+    # Remove all temporary files
+    remove_tmp_files
 
     # Generate plots, hists, etc
     echo "Generate plots, hists, etc"
@@ -777,6 +843,34 @@ while [[ $# -gt 0 ]]; do
             ;;
         --backup-result)
             BACKUP_RESULT="1"
+            ;;
+        --hare-custom-cdf)
+            HARE_CONF_CUSTOM_CDF="$2"
+            shift
+            ;;
+        --hare-sns-data-units)
+            HARE_CONF_SNS_DATA_UNITS="$2"
+            shift
+            ;;
+        --hare-sns-parity-units)
+            HARE_CONF_SNS_PARITY_UNITS="$2"
+            shift
+            ;;
+        --hare-sns-spare-units)
+            HARE_CONF_SNS_SPARE_UNITS="$2"
+            shift
+            ;;
+        --hare-dix-data-units)
+            HARE_CONF_DIX_DATA_UNITS="$2"
+            shift
+            ;;
+        --hare-dix-parity-units)
+            HARE_CONF_DIX_PARITY_UNITS="$2"
+            shift
+            ;;
+        --hare-dix-spare-units)
+            HARE_CONF_DIX_SPARE_UNITS="$2"
+            shift
             ;;
         *)
             echo -e "Invalid option: $1\nUse --help option"

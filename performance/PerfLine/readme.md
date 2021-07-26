@@ -37,9 +37,9 @@ PerfLine can be installed from any machine, To setup PerfLine or deploying PerfL
     For Minimal(io-path components) configuration `ha_type=hare`
     For Complete cluster configuration `ha_type=pcs`
 
-    4.3 Default root password is "seagate1" for cortx cluster including client, If user having different password then please update on "/roles/perfline_setup/vars/main.yml"
+    4.3 Default root password is "seagate1" for cortx cluster including client, If user having different password then please update on "./inventories/perfline_hosts/hosts"
     ```
-    CLUSTER_PASS: seagate1
+    cluster_pass=seagate1
     ```
 
 # Installation
@@ -62,8 +62,9 @@ of this variable to `-dev` will change:
   systemd services names: `perfline-dev`, `perfline-ui-dev`
 
 In case you want to install more than one version of PerfLine on the same cluster you have
-to specify `POSTFIX` variable described above and change value of `PERFLINE_UI_PORT` variable
-to garantee that different instances of PerfLine use different ports for UI service.
+to specify `POSTFIX` variable described above and change value of `perfline_ui_port` variable
+specified in `PerfLine/inventories/perfline_hosts/hosts` file to garantee that different
+instances of PerfLine use different ports for UI service.
 
 # Define own workload
 As per need, Create a "<any name of your choice>.yaml" file inside `/root/perfline/wrapper/workload` directory. An expample.yaml is already provided for user's reference.

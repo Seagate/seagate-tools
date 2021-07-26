@@ -50,7 +50,7 @@
        regexp: "^{{ item.variable }}"
        line: "{{ item.variable }}={{ item.value }}"
     with_items:
-       - { variable: 'PERFLINE_UI_PORT', value: '{{ PERFLINE_UI_PORT }}'}
+       - { variable: 'PERFLINE_UI_PORT', value: '{{ perfline_ui_port }}'}
 
   - name: "Installing golang version above 1.15 on localhost"
     yum:

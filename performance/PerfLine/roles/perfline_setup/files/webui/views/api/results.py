@@ -24,8 +24,6 @@ from app_global_data import *
 
 from core.utils import tq_task_common_get
 
-import config
-
 
 def tq_results_read(limit, locations_list=None):
     
@@ -83,10 +81,10 @@ def create_response(limit, locations):
 @app.route('/api/results', defaults={'limit': 9999999})
 @app.route('/api/results/<int:limit>')
 def results(limit=9999999):
-    return create_response(limit, config.artifacts_dirs)
+    return create_response(limit, ARTIFACTS_DIRS)
 
 
 @app.route('/api/backup_results', defaults={'limit': 9999999})
 @app.route('/api/backup_results/<int:limit>')
 def backup_results(limit=9999999):
-    return create_response(limit, config.backup_artifacts_dirs)
+    return create_response(limit, BACKUP_ARTIFACTS_DIRS)

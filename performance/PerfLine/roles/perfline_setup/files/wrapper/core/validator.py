@@ -47,15 +47,38 @@ def get_schema_motr():
             'type': 'dict',
             'required': False,
             'schema': {
-                'github_PAT': {'type': 'string', 'empty': False},
-                'github_username': {'type': 'string', 'empty': False},
-                'build_machine': {'type': 'string', 'empty': False},
-                'motr_repo_path': {'type': 'string', 'empty': False},
-                'hare_repo_path': {'type': 'string', 'empty': False},
-                's3server_repo_path': {'type': 'string', 'empty': False},
-                'hare_commit_id': {'type': 'string', 'empty': False},
-                'motr_commit_id': {'type': 'string', 'empty': False},
-                's3server_commit_id': {'type': 'string', 'empty': False},
+                'motr': {
+                    'type': 'dict', 
+                    'required': False,
+                    'schema': {
+                        'repo':   {'type': 'string', 'empty': False},
+                        'branch': {'type': 'string', 'empty': False},
+                    }
+                },
+                's3server': {
+                    'type': 'dict', 
+                    'required': False,
+                    'schema': {
+                        'repo':   {'type': 'string', 'empty': False},
+                        'branch': {'type': 'string', 'empty': False},
+                    }
+                },
+                'hare': {
+                    'type': 'dict', 
+                    'required': False,
+                    'schema': {
+                        'repo':   {'type': 'string', 'empty': False},
+                        'branch': {'type': 'string', 'empty': False},
+                    }
+                },
+                'py-utils': {
+                    'type': 'dict', 
+                    'required': False,
+                    'schema': {
+                        'repo':   {'type': 'string', 'empty': False},
+                        'branch': {'type': 'string', 'empty': False},
+                    }
+                },
             }
          },
          'benchmarks': {

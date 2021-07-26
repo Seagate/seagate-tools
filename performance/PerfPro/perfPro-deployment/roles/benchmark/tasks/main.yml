@@ -113,6 +113,18 @@
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
 
+ - name: Read build from RELEASE.INFO file
+   shell: python3 /root/PerfProBenchmark/read_build.py /root/PerfProBenchmark/config.yml
+   register: build
+
+ - name: Create perfpro_build<build> directory structure 
+   shell: |
+     rm -rf /root/PerfProBenchmark/perfpro_build{{ build.stdout }}
+     mkdir -p /root/PerfProBenchmark/perfpro_build{{ build.stdout }}
+     cd /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/
+     mkdir results
+     mkdir logs
+
  - include: prefill.yml
 
  - include: s3bench.yml
@@ -131,4 +143,16 @@
 
  - name: Unmounting NFS share
    shell:  umount -l {{ NFS_MOUNT_POINT }}
+
+ - name: Get timestamp from the system
+   shell: "date +%F-%H-%M-%S"
+   register: tstamp
+
+
+ - name: Rename perfpro_build<build> directory
+   shell: mv /root/PerfProBenchmark/perfpro_build{{ build.stdout }} /root/PerfProBenchmark/perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}
+
+ - name: Archiving artifacts to NFS server
+   shell: python3 /root/PerfProBenchmark/archive_artifacts.py /root/PerfProBenchmark/config.yml /root/PerfProBenchmark/ perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}
+
 

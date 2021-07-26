@@ -260,14 +260,13 @@ function start_services() {
 
 function main() {
     check_version
-    checkout
-    if [[ ! -z "$MOTR_BRANCH" ]] && [[ ! -z "$S3_BRANCH" ]] && [[ ! -z "$HARE_BRANCH" ]]; then
+
+    if [[ -n "$URL" ]]; then
+         download
+    else
+         checkout
          build
          copy
-    fi
-
-    if [[ ! -z "$URL" ]]; then
-         download
     fi
 
     stop_cluster

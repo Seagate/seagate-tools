@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #
 # Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
 #
@@ -18,27 +17,41 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 
+common:
+  version: 1
+  description: PerfLine SW update example
+  priority: 3
+  batch_id: null
+  user: user@seagate.com
+  send_email: false
 
-from core import pl_api
-from app_global_data import *
-from views import *
-from views.api import *
+custom_build:
+  motr:
+    repo: "https://github.com/Seagate/cortx-motr.git"
+    branch: b64b1bba
+  s3server:
+    repo: "https://github.com/Seagate/cortx-s3server.git"
+    branch: c482a593
+  hare:
+    repo: "https://github.com/Seagate/cortx-hare.git"
+    branch: daddc4a
 
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+stats_collection:
+  iostat: true
+  dstat: false
+  blktrace: true
+  glances: false
 
+benchmarks:
+  - s3bench:
+      BucketName: mybucket
+      NumClients: 10
+      NumSample: 100
+      ObjSize: 32Mb
+      EndPoint: https://s3.seagate.com
 
-@app.after_request
-def add_header(response):
-    # response.cache_control.no_store = True
-    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
-    response.headers['Pragma'] = 'no-cache'
-    response.headers['Expires'] = '-1'
-    return response
-
-
-if __name__ == '__main__':
-    pl_api.init_tq_endpoint("./perfline_proxy.sh")
-    cache.update(all_artif_dirs)
-    async_worker.start()
-    app.run(host='0.0.0.0',port=PERFLINE_UI_PORT)
-    async_worker.stop()
+execution_options:
+  mkfs: true
+  collect_m0trace: true
+  collect_addb: false
+  backup_result: false

@@ -35,24 +35,6 @@
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
-  - name: Compress directory files/build_deploy into files/build_deploy.tar.gz
-    archive:
-      path: "{{ role_path }}/files/build_deploy"
-      dest: "{{ role_path }}/files/build_deploy.tar.gz"
-
-  - name: Copy perfline build_deploy scripts
-    unarchive:
-      src: "{{ role_path }}/files/build_deploy.tar.gz"
-      dest: "{{ perfline_dir }}"
-    delegate_to: "{{ item }}"
-    with_items: "{{ groups['all'] }}"
-
-  - name: copy inventory file to perfline/build_deploy
-    copy:
-       src: "{{ playbook_dir }}/inventories/perfline_hosts/hosts"
-       dest: "{{ perfline_dir }}/build_deploy/hosts"
-    delegate_to: "client-1"
-
   - name: Copy huey_consumer python bin
     copy:
       src: files/huey_consumer
@@ -78,7 +60,7 @@
   - name: Install perfline python dependencies
     pip:
       name:
-        - huey
+        - huey >= 2.3.0
         - plumbum
         - cerberus
         - pandas
@@ -116,17 +98,40 @@
     shell: cd "{{ perfline_dir }}/glances"; python3 setup.py install
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
- 
-  - name: Copy perfline-ui systemd file
-    copy:
-      src: files/perfline-ui.service
-      dest: /etc/systemd/system/perfline-ui.service
-    delegate_to: "client-1"
 
-  - name: Copy perfline systemd file
-    copy:
-      src: files/perfline.service
-      dest: /etc/systemd/system/perfline.service
+  - name: "Coping a block of statement in perfline.service file"
+    blockinfile:
+      path: /etc/systemd/system/perfline-ui.service
+      create: yes
+      block: |
+                [Unit]
+                Description=web ui for perfline
+                
+                [Service]
+                Type=simple
+                WorkingDirectory={{ perfline_dir }}/webui
+                ExecStart=/usr/bin/python3.6 {{ perfline_dir }}/webui/server.py
+                
+                [Install]
+                WantedBy=multi-user.target
+    delegate_to: "client-1" 
+
+  - name: "Coping a block of statement in perfline-ui.service file"
+    blockinfile:
+      path: /etc/systemd/system/perfline.service
+      create: yes
+      block: |
+                [Unit]
+                Description=Perfline service
+                
+                [Service]
+                Type=simple
+                Restart=always
+                WorkingDirectory={{ perfline_dir }}/wrapper
+                ExecStart=/usr/bin/bash {{ perfline_dir }}/wrapper/run_pl
+                
+                [Install]
+                WantedBy=multi-user.target
     delegate_to: "client-1"
 
   - name: Start perfline-ui service

@@ -25,15 +25,6 @@ common:
   user: user@seagate.com
   send_email: false
 
-# Optional section. It may be deleted in case you don't want
-# to build/deploy custom version of Cortx components
-#custom_build:
-#  motr_repo_path: ""
-#  hare_repo_path: ""
-#  s3server_repo_path: ""
-#  hare_commit_id: ""
-#  motr_commit_id: ""
-#  s3server_commit_id: ""
 
 
 stats_collection:

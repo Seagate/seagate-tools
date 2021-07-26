@@ -40,7 +40,7 @@
        - { variable: 'NODES', value: '{{ nodelist }}' }
        - { variable: 'PERFLINE_DIR', value: '{{ perfline_dir }}'}
        - { variable: 'WORKLOAD_DIR', value: '{{ perfline_dir }}/wrapper/workload'}
-       - { variable: 'VALIDATOR', value: '{{ perfline_dir }}/wrapper/task_validation'}
+       - { variable: 'VALIDATOR', value: '{{ perfline_dir }}/wrapper/core'}
        - { variable: 'PL_SCRIPT_PATH', value: '{{ perfline_dir }}/wrapper/perfline.py'}
 
   - name: "Installing golang version above 1.15 on localhost"

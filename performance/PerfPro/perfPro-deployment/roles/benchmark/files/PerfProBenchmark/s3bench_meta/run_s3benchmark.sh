@@ -1,4 +1,5 @@
 #! /usr/bin/bash
+TOOL_NAME='s3bench'
 ACCESS_KEY=`cat /root/.aws/credentials | grep -A 3 default | grep aws_access_key_id | cut -d " " -f3`
 SECRET_KEY=`cat /root/.aws/credentials | grep -A 3 default | grep secret_access_key | cut -d " " -f3`
 BINPATH=/root/go/bin
@@ -14,6 +15,8 @@ MAIN="/root/PerfProBenchmark/main.yml"
 CONFIG="/root/PerfProBenchmark/config.yml"
 LOG_COLLECT="/root/PerfProBenchmark/collect_logs.py"
 ITERATION=$(yq -r .ITERATION $CONFIG)
+BUILD=`python3 /root/PerfProBenchmark/read_build.py $CONFIG 2>&1`
+RESULT_DIR=/root/PerfProBenchmark/perfpro_build$BUILD/results
 
 validate_args() {
 
@@ -28,7 +31,7 @@ show_usage() {
         echo -e "\t -nc\t:\t number of clients \n"
         echo -e "\t -ns\t:\t number of samples\n"
         echo -e "\t -s\t:\t size of the objects in bytes\n"       
-        echo -e "\tExample\t:\t ./run_s3benchmark.sh -nc 128,256,512 -ns 1024,2048,4096 -s 1Kb,4Kb,16Kb,1Mb,4Mb,128Mb  \n"
+        echo -e "\tExample\t:\t ./run_s3benchmark.sh -nc 128,256,512 -ns 1024,2048,4096 -s 4Kb,16Kb,1Mb,4Mb,128Mb  \n"
         exit 1
 }
 
@@ -57,17 +60,16 @@ do
             echo "S3Benchmark is running for object size : $SIZE_OF_OBJECTS, Clients: $NUMCLIENTS"
 
             TIMESTAMP=`date +'%d-%m-%Y_%H:%M:%S'`
-            MKDIR=$BENCHMARKLOG/$TIMESTAMP\_object_$SIZE_OF_OBJECTS\_numclient_$NO_OF_SAMPLES
-
-            mkdir $MKDIR
+            TOOL_DIR=$BENCHMARKLOG/$TOOL_NAME/numclients_$NUMCLIENTS/buckets_1/$SIZE_OF_OBJECTS
+            mkdir -p $TOOL_DIR 
             if [ $SIZE_OF_OBJECTS = "1Kb" ]; then         
-                  echo "$BINPATH/s3bench_meta -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -headObj -putObjTag -getObjTag -verbose -sampleReads=2 > $MKDIR/s3bench_Numclients_$NUMCLIENTS\_NS_$NO_OF_SAMPLES\_size_$SIZE_OF_OBJECTS\.log" 
+                  echo "$BINPATH/s3bench_meta -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -headObj -putObjTag -getObjTag -verbose -sampleReads=2 > $TOOL_DIR/s3bench_object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_1\_sessions_$NUMCLIENTS\.log" 
 
-                  $BINPATH/s3bench_meta -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -headObj -putObjTag -getObjTag -verbose -sampleReads=2 > $MKDIR/s3bench_Numclients_$NUMCLIENTS\_NS_$NO_OF_SAMPLES\_size_$SIZE_OF_OBJECTS\.log 
+                  $BINPATH/s3bench_meta -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -headObj -putObjTag -getObjTag -verbose -sampleReads=2 > $TOOL_DIR/s3bench_object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_1\_sessions_$NUMCLIENTS\.log 
             else
-               echo "$BINPATH/s3bench_meta -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -verbose > $MKDIR/s3bench_Numclients_$NUMCLIENTS\_NS_$NO_OF_SAMPLES\_size_$SIZE_OF_OBJECTS\.log"
+               echo "$BINPATH/s3bench_meta -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -verbose > $TOOL_DIR/s3bench_object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_1\_sessions_$NUMCLIENTS\.log"
 
-                  $BINPATH/s3bench_meta -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -verbose > $MKDIR/s3bench_Numclients_$NUMCLIENTS\_NS_$NO_OF_SAMPLES\_size_$SIZE_OF_OBJECTS\.log
+                  $BINPATH/s3bench_meta -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -verbose > $TOOL_DIR/s3bench_object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_1\_sessions_$NUMCLIENTS\.log
             fi
             aws s3 rb s3://$bucket
             echo "S3Benchmark is completed for object size : $SIZE_OF_OBJECTS"
@@ -114,15 +116,17 @@ do
     if [ ! -d $BENCHMARKLOG ]; then
           mkdir $BENCHMARKLOG
           s3benchmark
+          sleep 20
           python3 s3bench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG $ITR
-          python3 $LOG_COLLECT $CONFIG
+          cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/
 
     else
-          mv $BENCHMARKLOG $CURRENTPATH/benchmark.bak_$TIMESTAMP
+          rm -rf $BENCHMARKLOG
           mkdir $BENCHMARKLOG
           s3benchmark
-          python3 s3bench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG $ITR      
-          python3 $LOG_COLLECT $CONFIG
+          sleep 20
+          python3 s3bench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG $ITR
+          cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/     
 
     fi
 done

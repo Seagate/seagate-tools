@@ -52,7 +52,6 @@ config_s3workloads() {
           do
                for io_size in ${object_size//,/ }
                do
-                    echo $bucket $clients $sample $io_size
                     TOOL_DIR=$BENCHMARKLOG/$TOOL_NAME/numclients_$clients/buckets_$bucket/$io_size
                     mkdir -p $TOOL_DIR
                     workload_file=$TOOL_DIR/workloads_workers_$clients\_sample_$sample\_size_$io_size
@@ -130,21 +129,15 @@ validate_args
 #
 ./installCosbench.sh `hostname`
 #
-for ((ITR=1;ITR<=ITERATION;ITR++))
-do
-    if [ ! -d $BENCHMARKLOG ]; then
-          mkdir $BENCHMARKLOG
-          config_s3workloads
-          sleep 20
-          python3 cosbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG $ITR
-          cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/   
-    else
-          rm -rf $BENCHMARKLOG
-          mkdir $BENCHMARKLOG
-          config_s3workloads
-          sleep 20
-          python3 cosbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG $ITR
-          cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/  
-
-    fi
-done
+if [ ! -d $BENCHMARKLOG ]; then
+    mkdir $BENCHMARKLOG
+    config_s3workloads
+    python3 cosbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG
+    cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/   
+else
+    rm -rf $BENCHMARKLOG
+    mkdir $BENCHMARKLOG
+    config_s3workloads
+    python3 cosbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG
+    cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/  
+fi

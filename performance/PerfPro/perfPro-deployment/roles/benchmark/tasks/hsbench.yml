@@ -9,57 +9,54 @@
    shell: |
       cd /root/PerfProBenchmark/hsbench/
       pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
-      ./run_benchmark.sh -b 1 -o {{ item.numsamples }} -s {{ item.objsize }} -t {{ numclients }} -d 600
+      ./run_benchmark.sh -b 1 -o {{ item.numsamples }} -s {{ item.objsize }} -t {{ numclients }} -d 900
       pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
    loop:
-       - { objsize: '4Kb', numsamples: '33000'}
-       - { objsize: '100Kb', numsamples: '130000'}
-       - { objsize: '256Kb', numsamples: '96000'}
-       - { objsize: '1Mb', numsamples: '150000'}
-       - { objsize: '5Mb', numsamples: '82000'}
-       - { objsize: '16Mb', numsamples: '40000'}
-       - { objsize: '36Mb', numsamples: '24000'}
-       - { objsize: '64Mb', numsamples: '15000'}
-       - { objsize: '128Mb', numsamples: '7400'}
-       - { objsize: '256Mb', numsamples: '4600'}
+       - { objsize: '1Kb', numsamples: '100000'}
+       - { objsize: '4Kb', numsamples: '100000'}
+       - { objsize: '64Kb', numsamples: '100000'}
+       - { objsize: '256Kb', numsamples: '100000'}
+       - { objsize: '1Mb', numsamples: '10000'}
+       - { objsize: '5Mb', numsamples: '10000'}
+       - { objsize: '16Mb', numsamples: '10000'}
+       - { objsize: '1000Mb', numsamples: '100'}
+       - { objsize: '5000Mb', numsamples: '100'}
 
  - name: "[HSbench-10-Buckets]: HSbench running for 10 Buckets"
    shell: |
       cd /root/PerfProBenchmark/hsbench/
       pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
-      ./run_benchmark.sh -b 10 -o {{ item.numsamples }} -s {{ item.objsize }} -t {{ numclients }} -d 600
+      ./run_benchmark.sh -b 10 -o {{ item.numsamples }} -s {{ item.objsize }} -t {{ numclients }} -d 900
       pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
    loop:
-       - { objsize: '4Kb', numsamples: '33000'}
-       - { objsize: '100Kb', numsamples: '130000'}
-       - { objsize: '256Kb', numsamples: '96000'}
-       - { objsize: '1Mb', numsamples: '150000'}
-       - { objsize: '5Mb', numsamples: '82000'}
-       - { objsize: '16Mb', numsamples: '40000'}
-       - { objsize: '36Mb', numsamples: '24000'}
-       - { objsize: '64Mb', numsamples: '15000'}
-       - { objsize: '128Mb', numsamples: '7400'}
-       - { objsize: '256Mb', numsamples: '4600'}
+       - { objsize: '1Kb', numsamples: '100000'}
+       - { objsize: '4Kb', numsamples: '100000'}
+       - { objsize: '64Kb', numsamples: '100000'}
+       - { objsize: '256Kb', numsamples: '100000'}
+       - { objsize: '1Mb', numsamples: '10000'}
+       - { objsize: '5Mb', numsamples: '10000'}
+       - { objsize: '16Mb', numsamples: '10000'}
+       - { objsize: '1000Mb', numsamples: '100'}
+       - { objsize: '5000Mb', numsamples: '100'}
 
- - name: "[HSbench-50-Buckets]: HSbench running for 50 Buckets"
+ - name: "[HSbench-100-Buckets]: HSbench running for 100 Buckets"
    shell: |
       cd /root/PerfProBenchmark/hsbench/
       pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
-      ./run_benchmark.sh -b 50 -o {{ item.numsamples }} -s {{ item.objsize }} -t {{ numclients }} -d 600
+      ./run_benchmark.sh -b 100 -o {{ item.numsamples }} -s {{ item.objsize }} -t {{ numclients }} -d 900
       pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
    loop:
-       - { objsize: '4Kb', numsamples: '33000'}
-       - { objsize: '100Kb', numsamples: '130000'}
-       - { objsize: '256Kb', numsamples: '96000'}
-       - { objsize: '1Mb', numsamples: '150000'}
-       - { objsize: '5Mb', numsamples: '82000'}
-       - { objsize: '16Mb', numsamples: '40000'}
-       - { objsize: '36Mb', numsamples: '24000'}
-       - { objsize: '64Mb', numsamples: '15000'}
-       - { objsize: '128Mb', numsamples: '7400'}
-       - { objsize: '256Mb', numsamples: '4600'}
+       - { objsize: '1Kb', numsamples: '100000'}
+       - { objsize: '4Kb', numsamples: '100000'}
+       - { objsize: '64Kb', numsamples: '100000'}
+       - { objsize: '256Kb', numsamples: '100000'}
+       - { objsize: '1Mb', numsamples: '10000'}
+       - { objsize: '5Mb', numsamples: '10000'}
+       - { objsize: '16Mb', numsamples: '10000'}
+       - { objsize: '1000Mb', numsamples: '100'}
+       - { objsize: '5000Mb', numsamples: '100'}
 
 

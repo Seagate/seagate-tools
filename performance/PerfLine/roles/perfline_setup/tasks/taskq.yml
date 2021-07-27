@@ -8,7 +8,7 @@
   - name: Copy perfline webui scripts
     unarchive:
       src: "{{ role_path }}/files/webui.tar.gz"
-      dest: "{{ perfline_dir }}"
+      dest: "{{ PERFLINE_DIR }}"
     delegate_to: "client-1"
 
   - name: Compress directory files/chronometry into files/chronometry.tar.gz
@@ -19,7 +19,7 @@
   - name: Copy perfline chronometry scripts
     unarchive:
       src: "{{ role_path }}/files/chronometry.tar.gz"
-      dest: "{{ perfline_dir }}"
+      dest: "{{ PERFLINE_DIR }}"
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
  
@@ -31,9 +31,27 @@
   - name: Copy perfline chronometry_v2 scripts
     unarchive:
       src: "{{ role_path }}/files/chronometry_v2.tar.gz"
-      dest: "{{ perfline_dir }}"
+      dest: "{{ PERFLINE_DIR }}"
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
+
+  - name: Compress directory files/build_deploy into files/build_deploy.tar.gz
+    archive:
+      path: "{{ role_path }}/files/build_deploy"
+      dest: "{{ role_path }}/files/build_deploy.tar.gz"
+
+  - name: Copy perfline build_deploy scripts
+    unarchive:
+      src: "{{ role_path }}/files/build_deploy.tar.gz"
+      dest: "{{ PERFLINE_DIR }}"
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['all'] }}"
+
+  - name: copy inventory file to perfline/build_deploy
+    copy:
+       src: "{{ playbook_dir }}/inventories/perfline_hosts/hosts"
+       dest: "{{ PERFLINE_DIR }}/build_deploy/hosts"
+    delegate_to: "client-1"
 
   - name: Copy huey_consumer python bin
     copy:
@@ -44,7 +62,7 @@
   - name: Copy perfline.conf file
     copy:
       src: files/perfline.conf
-      dest: "{{ perfline_dir }}"
+      dest: "{{ PERFLINE_DIR }}"
     delegate_to: "client-1"
 
 #  - name: Open port for webui
@@ -95,13 +113,13 @@
     with_items: "{{ groups['all'] }}"
 
   - name: Insalling Glances services
-    shell: cd "{{ perfline_dir }}/glances"; python3 setup.py install
+    shell: cd "{{ PERFLINE_DIR }}/glances"; python3 setup.py install
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
   - name: "Coping a block of statement in perfline.service file"
     blockinfile:
-      path: /etc/systemd/system/perfline-ui.service
+      path: /etc/systemd/system/{{ PERFLINE_UI_SERVICE_NAME }}.service
       create: yes
       block: |
                 [Unit]
@@ -109,8 +127,8 @@
                 
                 [Service]
                 Type=simple
-                WorkingDirectory={{ perfline_dir }}/webui
-                ExecStart=/usr/bin/python3.6 {{ perfline_dir }}/webui/server.py
+                WorkingDirectory={{ PERFLINE_DIR }}/webui
+                ExecStart=/usr/bin/python3.6 {{ PERFLINE_DIR }}/webui/server.py
                 
                 [Install]
                 WantedBy=multi-user.target
@@ -118,7 +136,7 @@
 
   - name: "Coping a block of statement in perfline-ui.service file"
     blockinfile:
-      path: /etc/systemd/system/perfline.service
+      path: /etc/systemd/system/{{ PERFLINE_SERVICE_NAME }}.service
       create: yes
       block: |
                 [Unit]
@@ -127,17 +145,17 @@
                 [Service]
                 Type=simple
                 Restart=always
-                WorkingDirectory={{ perfline_dir }}/wrapper
-                ExecStart=/usr/bin/bash {{ perfline_dir }}/wrapper/run_pl
+                WorkingDirectory={{ PERFLINE_DIR }}/wrapper
+                ExecStart=/usr/bin/bash {{ PERFLINE_DIR }}/wrapper/run_pl
                 
                 [Install]
                 WantedBy=multi-user.target
     delegate_to: "client-1"
 
-  - name: Start perfline-ui service
-    systemd: state=restarted name=perfline-ui daemon_reload=yes
+  - name: Start {{ PERFLINE_UI_SERVICE_NAME }} service
+    systemd: state=restarted name={{ PERFLINE_UI_SERVICE_NAME }} daemon_reload=yes
     delegate_to: "client-1"
 
-  - name: Start perfline service
-    systemd: state=restarted name=perfline daemon_reload=yes
+  - name: Start {{ PERFLINE_SERVICE_NAME }} service
+    systemd: state=restarted name={{ PERFLINE_SERVICE_NAME }} daemon_reload=yes
     delegate_to: "client-1"

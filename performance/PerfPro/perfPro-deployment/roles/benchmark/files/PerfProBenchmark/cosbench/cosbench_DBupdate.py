@@ -19,7 +19,8 @@ import urllib.request
 
 Main_path = sys.argv[2]
 Config_path = sys.argv[3]
-iteration = sys.argv[4]
+iteration = 1
+#sys.argv[4]
 
 def makeconfig(name):  # function for connecting with configuration file
     with open(name) as config_file:
@@ -98,7 +99,7 @@ def insert_data(file,Build,Version,Config_ID,db,col,Branch,OS):  # function for 
                         "Buckets": buckets,
                         "Objects": objects, 
                         "Sessions": sessions ,
-                        "Iteration" : iteration ,
+                        #"Iteration" : iteration ,
                         "PC_Full" : pc_full ,
                         "Custom" : str(custom).upper()
                         }
@@ -112,7 +113,8 @@ def insert_data(file,Build,Version,Config_ID,db,col,Branch,OS):  # function for 
                         "Latency": lat, 
                         "HOST": socket.gethostname(), 
                         "Config_ID": Config_ID, 
-                        "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        "Iteration" : iteration 
                         }
                     db_data={}
                     db_data.update(entry)
@@ -123,15 +125,18 @@ def insert_data(file,Build,Version,Config_ID,db,col,Branch,OS):  # function for 
                         if count_documents == 0:
                             db[col].insert_one(db_data)
                             action = "Inserted"
-                        #update_data = {"Log_File": filename, "Operation": row[1], "IOPS": iops, "Throughput": throughput, "Latency": lat, "HOST": socket.gethostname(),
-                        #"Config_ID": Config_ID, "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
-                        #    db[col].update_one(pattern, {"$set": update_data})
                         elif overwrite == True: 
-                            db[col].update_one(entry, {"$set": db_data})
+                            update_data.update(Iteration=count_documents)
+                            db_data.update(update_data)
+                            entry.update(Iteration=count_documents)
+                            db[col].update_one(entry , {"$set": db_data})
                             action = "Updated"
                         else :
-                            print("'Overwrite' is false in config. Hence, DB not updated")
-                            action = "Not Updated"
+                            update_data.update(Iteration=count_documents+1)
+                            db_data.update(update_data)
+                            db[col].insert_one(db_data)
+                            print("'Overwrite' is false in config. Hence, new DB entry inserted")
+                            action = "New iteration inserted"
 
                     except Exception as e:
                         print("Unable to insert/update documents into database. Observed following exception:")
@@ -193,7 +198,7 @@ def getconfig():
     pc_full=configs_config.get('PC_FULL')
     custom=configs_config.get('CUSTOM')
     overwrite=configs_config.get('OVERWRITE')
-    iteration=configs_config.get('ITERATION')
+    #iteration=configs_config.get('ITERATION')
     cluster_pass=configs_config.get('CLUSTER_PASS')
     change_pass=configs_config.get('CHANGE_PASS')
     prv_cli=configs_config.get('PRVSNR_CLI_REPO')
@@ -205,7 +210,7 @@ def getconfig():
     nfs_mp=configs_config.get('NFS_MOUNT_POINT')
     nfs_fol=configs_config.get('NFS_FOLDER')
 
-    dic={'NODES' :str(nodes_list) , 'CLIENTS' : str(clients_list) ,'BUILD_URL': build_url ,'CLUSTER_PASS': cluster_pass ,'CHANGE_PASS': change_pass ,'PRVSNR_CLI_REPO': prv_cli ,'PREREQ_URL': prereq_url ,'SERVICE_USER': srv_usr ,'SERVICE_PASS': srv_pass , 'PC_FULL': pc_full , 'CUSTOM': custom , 'OVERWRITE':overwrite , 'ITERATION': iteration,'NFS_SERVER': nfs_serv ,'NFS_EXPORT' : nfs_exp ,'NFS_MOUNT_POINT' : nfs_mp , 'NFS_FOLDER' : nfs_fol }
+    dic={'NODES' :str(nodes_list) , 'CLIENTS' : str(clients_list) ,'BUILD_URL': build_url ,'CLUSTER_PASS': cluster_pass ,'CHANGE_PASS': change_pass ,'PRVSNR_CLI_REPO': prv_cli ,'PREREQ_URL': prereq_url ,'SERVICE_USER': srv_usr ,'SERVICE_PASS': srv_pass , 'PC_FULL': pc_full , 'CUSTOM': custom , 'OVERWRITE':overwrite , 'NFS_SERVER': nfs_serv ,'NFS_EXPORT' : nfs_exp ,'NFS_MOUNT_POINT' : nfs_mp , 'NFS_FOLDER' : nfs_fol }
     return (dic)
 
 

@@ -5,7 +5,7 @@
  - name: "Defining numclients variable for concurrency"
    set_fact: numclients="50,100,200,300,400,500,600"
 
- - name: "[Cosbench]: Cosbench running with clients=300 bucket=1"
+ - name: "[Cosbench]: Cosbench running with bucket-1"
    shell: |
       cd /root/PerfProBenchmark/cosbench/
       pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
@@ -24,7 +24,7 @@
        - { objsize: '128Mb', numsamples: '7400'}
        - { objsize: '256Mb', numsamples: '4600'}
 
- - name: "[Cosbench]: Cosbench running with clients=300 bucket=10"
+ - name: "[Cosbench]: Cosbench running with bucket-10"
    shell: |
       cd /root/PerfProBenchmark/cosbench/
       pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
@@ -43,7 +43,7 @@
        - { objsize: '128Mb', numsamples: '740'}
        - { objsize: '256Mb', numsamples: '460'}
 
- - name: "[Cosbench]: Cosbench running with clients=300 bucket=50"
+ - name: "[Cosbench]: Cosbench running with bucket-50"
    shell: |
       cd /root/PerfProBenchmark/cosbench/
       pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &

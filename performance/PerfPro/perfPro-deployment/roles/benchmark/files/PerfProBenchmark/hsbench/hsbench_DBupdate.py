@@ -19,7 +19,8 @@ import urllib.request
 # Path for yaml files locations
 Main_path = sys.argv[2]  # database url
 Config_path = sys.argv[3]
-iteration = sys.argv[4]
+iteration = 1
+#sys.argv[4]
 
 # Function for connecting with configuration file
 def makeconfig(name):  
@@ -109,7 +110,7 @@ def getconfig():
     pc_full=configs_config.get('PC_FULL')
     overwrite=configs_config.get('OVERWRITE')
     custom=configs_config.get('CUSTOM')
-    iteration=configs_config.get('ITERATION')
+    #iteration=configs_config.get('ITERATION')
     cluster_pass=configs_config.get('CLUSTER_PASS')
     change_pass=configs_config.get('CHANGE_PASS')
     prv_cli=configs_config.get('PRVSNR_CLI_REPO')
@@ -121,7 +122,7 @@ def getconfig():
     nfs_mp=configs_config.get('NFS_MOUNT_POINT')
     nfs_fol=configs_config.get('NFS_FOLDER')
 
-    dic={'NODES' :str(nodes_list) , 'CLIENTS' : str(clients_list) ,'BUILD_URL': build_url ,'CLUSTER_PASS': cluster_pass ,'CHANGE_PASS': change_pass ,'PRVSNR_CLI_REPO': prv_cli ,'PREREQ_URL': prereq_url ,'SERVICE_USER': srv_usr ,'SERVICE_PASS': srv_pass , 'PC_FULL': pc_full , 'CUSTOM': custom , 'OVERWRITE':overwrite , 'ITERATION': iteration,'NFS_SERVER': nfs_serv ,'NFS_EXPORT' : nfs_exp ,'NFS_MOUNT_POINT' : nfs_mp , 'NFS_FOLDER' : nfs_fol }
+    dic={'NODES' :str(nodes_list) , 'CLIENTS' : str(clients_list) ,'BUILD_URL': build_url ,'CLUSTER_PASS': cluster_pass ,'CHANGE_PASS': change_pass ,'PRVSNR_CLI_REPO': prv_cli ,'PREREQ_URL': prereq_url ,'SERVICE_USER': srv_usr ,'SERVICE_PASS': srv_pass , 'PC_FULL': pc_full , 'CUSTOM': custom , 'OVERWRITE':overwrite , 'NFS_SERVER': nfs_serv ,'NFS_EXPORT' : nfs_exp ,'NFS_MOUNT_POINT' : nfs_mp , 'NFS_FOLDER' : nfs_fol }
     return (dic)
 
 
@@ -158,10 +159,10 @@ def push_data(files, host, db, Build, Version, Branch , OS):
         filename = doc 
         doc = filename.strip(".json")
         attr = re.split("_", doc)
-        obj_size = attr[-1]
-        buckets = int(attr[-4])
-        objects = int(attr[-6])
-        sessions = int(attr[-8])
+        obj_size = attr[-7]
+        buckets = int(attr[-3])
+        objects = int(attr[-5])
+        sessions = int(attr[-1])
 
         with open(filename) as json_file:
             data = json.load(json_file)
@@ -182,7 +183,7 @@ def push_data(files, host, db, Build, Version, Branch , OS):
                         'OS': OS,
                         'Count_of_Servers': nodes_num, 
                         'Count_of_Clients': clients_num,
-                        'Iteration': iteration,
+                        #'Iteration': iteration,
                         'Percentage_full' : pc_full ,
                         'Name': 'Hsbench',
                         'Operation': operation,
@@ -204,7 +205,8 @@ def push_data(files, host, db, Build, Version, Branch , OS):
                         'Log_File': doc,
                         'Bucket_Ops' : data_dict, 
                         'Config_ID':Config_ID,
-                        'Timestamp':datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        'Timestamp':datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        'Iteration': iteration
                     }
                     action = "updated"
                     db_data={}
@@ -218,11 +220,17 @@ def push_data(files, host, db, Build, Version, Branch , OS):
                             action = "inserted"
                             #db[collection].update(pattern,{ "$set": updation_Set})                     
                         elif overwrite == True :
+                            updation_Set.update(Iteration=count_documents)
+                            db_data.update(updation_Set)
+                            primary_Set.update(Iteration=count_documents)
                             db[collection].update(primary_Set,{ "$set": db_data})
                             action= "updated"
                         else :
-                            print("'Overwrite' is false in config. Hence, DB not updated")
-                            action = "Not Updated"
+                            updation_Set.update(Iteration=count_documents+1)
+                            db_data.update(updation_Set)
+                            db[collection].insert_one(db_data)
+                            print("'Overwrite' is false in config. Hence, new DB entry inserted")
+                            action = "New iteration inserted"
 
                     except Exception as e:
                         print("Unable to insert/update documents into database. Observed following exception:")

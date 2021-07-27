@@ -28,7 +28,7 @@ from app_global_data import *
 @app.route('/api/task/backup_tasks/<string:task_id_list>')
 def backup_task(task_id_list):
 
-    if len(BACKUP_ARTIFACTS_DIRS) == 0:
+    if len(backup_artifacts_dirs) == 0:
         err_resp = {"status": "failed",
                     "error_message": "directory for backups was not specified"}
 
@@ -36,7 +36,7 @@ def backup_task(task_id_list):
         return response
 
 
-    backup_dir = BACKUP_ARTIFACTS_DIRS[0]
+    backup_dir = backup_artifacts_dirs[0]
 
     result = dict()
     result['status'] = 'success'

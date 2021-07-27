@@ -19,15 +19,15 @@
 
 common:
   version: 1
-  description: Perf benchmark example
-  priority: 1
+  description: PerfLine SW update example
+  priority: 3
   batch_id: null
   user: user@seagate.com
   send_email: false
 
 # Optional section. It may be deleted in case you don't want
-# # to build/deploy custom version of Cortx components. Either of the option
-# # you have to choose like Only URL or commitID of motr, s3server and hare.
+#  to build/deploy custom version of Cortx components. Either of the option
+#   you have to choose like Only URL or commitID of motr, s3server and hare.
 custom_build:
   url: http://cortx-storage.colo.seagate.com/releases/cortx/github/stable/centos-7.8.2003/272
   motr:
@@ -40,26 +40,22 @@ custom_build:
     repo: "https://github.com/Seagate/cortx-hare.git"
     branch: daddc4a
 
-
 stats_collection:
-  iostat: false
+  iostat: true
   dstat: false
-  blktrace: false
+  blktrace: true
   glances: false
 
-# List of benchmarks and parameters. This section must include
-# at least one benchmark (custom/fio/s3bench/m0crate).
 benchmarks:
   - s3bench:
       BucketName: mybucket
-      NumClients: 600
-      NumSample: 40000
-      ObjSize: 256Kb, 16Mb, 5Gb
-      EndPoint: https://<node1_public_data_IP>
+      NumClients: 10
+      NumSample: 100
+      ObjSize: 32Mb
+      EndPoint: https://s3.seagate.com
 
 execution_options:
-  mkfs: false
-  fill_cluster: 30%
-  collect_m0trace: false
+  mkfs: true
+  collect_m0trace: true
   collect_addb: false
   backup_result: false

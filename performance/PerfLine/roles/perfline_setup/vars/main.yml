@@ -1,17 +1,17 @@
 ---
 # vars file for perfline_setup
 
-# Specify POSTFIX value to customize the location of PerfLine (artifacts directory,
+# Specify PURPOSE value to customize the location of PerfLine (artifacts directory,
 # log file location) or to be able install more than one version of PerfLine
 # on the same cluster.
 # Example:
-# POSTFIX: '-dev'
+# PURPOSE: '-dev'
 
-POSTFIX: ''
+PURPOSE: ''
 
 S3BENCH_COMMIT_ID: 0126b7f
-PERFLINE_DIR: /root/perfline{{ POSTFIX }}
-ARTIFACTS_DIR: '/var/perfline{{ POSTFIX }}'
-PERFLINE_LOGFILE: '/var/log/perfline{{ POSTFIX }}.log'
-PERFLINE_SERVICE_NAME: 'perfline{{ POSTFIX }}'
-PERFLINE_UI_SERVICE_NAME: 'perfline-ui{{ POSTFIX }}'
+PERFLINE_DIR: /root/perfline{{ PURPOSE }}
+ARTIFACTS_DIR: '/var/perfline{{ PURPOSE }}'
+PERFLINE_LOGFILE: '/var/log/perfline{{ PURPOSE }}.log'
+PERFLINE_SERVICE_NAME: 'perfline{{ PURPOSE }}'
+PERFLINE_UI_SERVICE_NAME: 'perfline-ui{{ PURPOSE }}'

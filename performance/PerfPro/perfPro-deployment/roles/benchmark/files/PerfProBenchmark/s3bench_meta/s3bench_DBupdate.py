@@ -20,7 +20,8 @@ import urllib.request
 #Config_path = '/root/Modified/config.yml'
 Main_path = sys.argv[2]
 Config_path = sys.argv[3]
-iteration = sys.argv[4]
+iteration = 1
+#sys.argv[4]
 
 def makeconfig(name):  #function for connecting with configuration file
     with open(name) as config_file:
@@ -96,7 +97,7 @@ class s3bench:
                 "OS" : self.OS ,
                 "Count_of_Servers": self.Nodes_Num ,
                 "Count_of_Clients" : self.Clients_Num,
-                "Iteration" : self.Iteration ,
+                #"Iteration" : self.Iteration ,
                 "PC_Full" : self.PC_Full ,
                 "Custom" : self.Custom
                 }
@@ -108,7 +109,8 @@ class s3bench:
                 "TTFB" : self.TTFB,
                 "Timestamp":self.Timestamp,
                 "Config_ID":self.Config_ID,
-                "HOST" : socket.gethostname()
+                "HOST" : socket.gethostname(),
+                "Iteration" : self.Iteration
                 }
 
         collection = db[self.Col]
@@ -122,11 +124,17 @@ class s3bench:
                 collection.insert_one(db_data)
                 action = "Inserted"
             elif self.Overwrite == True : 
+                updateentry.update(Iteration=count_documents)
+                db_data.update(updateentry)
+                insertentry.update(Iteration=count_documents)
                 collection.update_one(insertentry, { "$set": db_data})
                 action = "Updated"
             else:
-                print("'Overwrite' is false in config. Hence, DB not updated")
-                action = "Not Updated"
+                updateentry.update(Iteration=count_documents+1)
+                db_data.update(updateentry)
+                collection.insert_one(db_data)
+                print("'Overwrite' is false in config. Hence, new DB entry inserted")
+                action = "New DB entry inserted"
         except Exception as e:
             print("Unable to insert/update documents into database. Observed following exception:")
             print(e)
@@ -229,7 +237,7 @@ def getconfig():
     pc_full=configs_config.get('PC_FULL')
     custom=configs_config.get('CUSTOM')
     overwrite=configs_config.get('OVERWRITE')
-    iteration=configs_config.get('ITERATION')
+    #iteration=configs_config.get('ITERATION')
     cluster_pass=configs_config.get('CLUSTER_PASS')
     change_pass=configs_config.get('CHANGE_PASS')
     prv_cli=configs_config.get('PRVSNR_CLI_REPO')
@@ -241,7 +249,7 @@ def getconfig():
     nfs_mp=configs_config.get('NFS_MOUNT_POINT')
     nfs_fol=configs_config.get('NFS_FOLDER')
 
-    dic={'NODES' :str(nodes_list) , 'CLIENTS' : str(clients_list) ,'BUILD_URL': build_url ,'CLUSTER_PASS': cluster_pass ,'CHANGE_PASS': change_pass ,'PRVSNR_CLI_REPO': prv_cli ,'PREREQ_URL': prereq_url ,'SERVICE_USER': srv_usr ,'SERVICE_PASS': srv_pass , 'PC_FULL': pc_full , 'CUSTOM': custom , 'OVERWRITE':overwrite , 'ITERATION': iteration,'NFS_SERVER': nfs_serv ,'NFS_EXPORT' : nfs_exp ,'NFS_MOUNT_POINT' : nfs_mp , 'NFS_FOLDER' : nfs_fol }
+    dic={'NODES' :str(nodes_list) , 'CLIENTS' : str(clients_list) ,'BUILD_URL': build_url ,'CLUSTER_PASS': cluster_pass ,'CHANGE_PASS': change_pass ,'PRVSNR_CLI_REPO': prv_cli ,'PREREQ_URL': prereq_url ,'SERVICE_USER': srv_usr ,'SERVICE_PASS': srv_pass , 'PC_FULL': pc_full , 'CUSTOM': custom , 'OVERWRITE':overwrite ,'NFS_SERVER': nfs_serv ,'NFS_EXPORT' : nfs_exp ,'NFS_MOUNT_POINT' : nfs_mp , 'NFS_FOLDER' : nfs_fol }
     return (dic)
 
 

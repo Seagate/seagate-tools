@@ -147,21 +147,23 @@ def sw_update(conf, log_dir):
     if 'custom_build' in conf:
         mv = plumbum.local['mv']
         params = conf['custom_build']
-
-        options.append('-m')
-        options.append(params['motr']['repo'])
-        options.append(params['motr']['branch'])
-        options.append('-s')
-        options.append(params['s3server']['repo'])
-        options.append(params['s3server']['branch'])
-        options.append('-h')
-        options.append(params['hare']['repo'])
-        options.append(params['hare']['branch'])
-
-        if 'py-utils' in conf['custom_build']:
-            options.append('-u')
-            options.append(params['py-utils']['repo'])
-            options.append(params['py-utils']['branch'])
+        if 'url' in params:
+            options.append('--url')
+            options.append(params['url'])
+        else:
+            options.append('-m')
+            options.append(params['motr']['repo'])
+            options.append(params['motr']['branch'])
+            options.append('-s')
+            options.append(params['s3server']['repo'])
+            options.append(params['s3server']['branch'])
+            options.append('-h')
+            options.append(params['hare']['repo'])
+            options.append(params['hare']['branch'])
+            if 'py-utils' in conf['custom_build']:
+               options.append('-u')
+               options.append(params['py-utils']['repo'])
+               options.append(params['py-utils']['branch'])
 
         with plumbum.local.env():
             update = plumbum.local["scripts/update.sh"]

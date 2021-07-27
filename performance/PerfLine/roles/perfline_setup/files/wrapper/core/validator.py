@@ -46,8 +46,15 @@ def get_schema_motr():
         'custom_build': {
             'type': 'dict',
             'required': False,
-            'schema': {
-                'motr': {
+            'oneof': [
+                {
+                    'schema': {
+                        'url': {'type': 'string', 'empty': False},
+                    }
+                },
+                {
+                'schema': {
+                 'motr': {
                     'type': 'dict', 
                     'required': False,
                     'schema': {
@@ -55,7 +62,7 @@ def get_schema_motr():
                         'branch': {'type': 'string', 'empty': False},
                     }
                 },
-                's3server': {
+                 's3server': {
                     'type': 'dict', 
                     'required': False,
                     'schema': {
@@ -63,7 +70,7 @@ def get_schema_motr():
                         'branch': {'type': 'string', 'empty': False},
                     }
                 },
-                'hare': {
+                 'hare': {
                     'type': 'dict', 
                     'required': False,
                     'schema': {
@@ -71,15 +78,16 @@ def get_schema_motr():
                         'branch': {'type': 'string', 'empty': False},
                     }
                 },
-                'py-utils': {
+                 'py-utils': {
                     'type': 'dict', 
                     'required': False,
                     'schema': {
                         'repo':   {'type': 'string', 'empty': False},
                         'branch': {'type': 'string', 'empty': False},
                     }
-                },
-            }
+                  }
+               }
+            }]
          },
          'benchmarks': {
              'type': 'list',

@@ -5,14 +5,12 @@ srvnode-2 ansible_host=<SECONDARY-NODE-2>
 [client]
 client-1 ansible_host=<CLIENT-NODE-1>
 
-[build_machine]
-#build-server ansible_host=<BUILD-MACHINE-FQDN>
 
 [all:vars]
 ansible_connection=ssh
 ansible_user=root
 # It's mandatory to define ha_type either 'hare' or 'pcs'. Please refer readme.md file 
-ha_type=                          
+ha_type=                         
 ansible_ssh_common_args='-o StrictHostKeyChecking=no'
 
 cluster_pass=seagate1

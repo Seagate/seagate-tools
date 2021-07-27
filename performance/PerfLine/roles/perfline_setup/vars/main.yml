@@ -1,5 +1,17 @@
 ---
 # vars file for perfline_setup
+
+# Specify PURPOSE value to customize the location of PerfLine (artifacts directory,
+# log file location) or to be able install more than one version of PerfLine
+# on the same cluster.
+# Example:
+# PURPOSE: '-dev'
+
+PURPOSE: ''
+
 S3BENCH_COMMIT_ID: 0126b7f
-perfline_dir: /root/perfline
-CLUSTER_PASS: seagate1
+PERFLINE_DIR: /root/perfline{{ PURPOSE }}
+ARTIFACTS_DIR: '/var/perfline{{ PURPOSE }}'
+PERFLINE_LOGFILE: '/var/log/perfline{{ PURPOSE }}.log'
+PERFLINE_SERVICE_NAME: 'perfline{{ PURPOSE }}'
+PERFLINE_UI_SERVICE_NAME: 'perfline-ui{{ PURPOSE }}'

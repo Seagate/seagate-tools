@@ -1,14 +1,14 @@
 ---
-  - name: "Creating artifacts directory /var/perfline"
+  - name: "Creating artifacts directory {{ ARTIFACTS_DIR }}"
     file:
-      path: /var/perfline
+      path: '{{ ARTIFACTS_DIR }}'
       state: directory
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
-  - name: "Creating perfline directory {{ perfline_dir }}"
+  - name: "Creating perfline directory {{ PERFLINE_DIR }}"
     file:
-      path: "{{ perfline_dir }}/bin"
+      path: "{{ PERFLINE_DIR }}/bin"
       state: directory
       recurse: yes
     delegate_to: "{{ item }}"
@@ -22,7 +22,7 @@
   - name: "Copy perfline wrapper scripts"
     unarchive:
       src: "{{ role_path }}/files/wrapper.tar.gz"
-      dest: "{{ perfline_dir }}"
+      dest: "{{ PERFLINE_DIR }}"
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
@@ -43,6 +43,15 @@
        - { variable: 'VALIDATOR', value: '{{ perfline_dir }}/wrapper/core'}
        - { variable: 'PL_SCRIPT_PATH', value: '{{ perfline_dir }}/wrapper/perfline.py'}
 
+  - name: "Updating numeric values of a variables in perfline.conf"
+    lineinfile:
+       path: "{{ role_path }}/files/perfline.conf"
+       regexp: "^{{ item.variable }}"
+       line: "{{ item.variable }}={{ item.value }}"
+    with_items:
+       - { variable: 'PERFLINE_UI_PORT', value: '{{ perfline_ui_port }}'}
+
+
   - name: "Installing golang version above 1.15 on localhost"
     yum:
       name: go >= 1.15
@@ -54,7 +63,7 @@
   - name: "Copy new s3bench binary file to client machine"
     copy:
        src: "/root/go/bin/s3bench"
-       dest: "{{ perfline_dir }}/bin/s3bench_perfline"
+       dest: "{{ PERFLINE_DIR }}/bin/s3bench_perfline"
        mode: '0751'
     delegate_to: "client-1"
 

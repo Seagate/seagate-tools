@@ -160,11 +160,10 @@ def sw_update(conf, log_dir):
             options.append('-h')
             options.append(params['hare']['repo'])
             options.append(params['hare']['branch'])
-
-        if 'py-utils' in conf['custom_build']:
-            options.append('-u')
-            options.append(params['py-utils']['repo'])
-            options.append(params['py-utils']['branch'])
+            if 'py-utils' in conf['custom_build']:
+               options.append('-u')
+               options.append(params['py-utils']['repo'])
+               options.append(params['py-utils']['branch'])
 
         with plumbum.local.env():
             update = plumbum.local["scripts/update.sh"]

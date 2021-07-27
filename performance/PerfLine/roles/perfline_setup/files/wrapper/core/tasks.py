@@ -28,11 +28,13 @@ import yaml
 def get_overrides(overrides):
     return " ".join([f"{x}={y}" for (x, y) in overrides.items()])
 
+
 def parse_options(conf, result_dir):
     options = []
 
     options.append('-p')
     options.append(result_dir)
+
 
     # Stats collection
     if conf['stats_collection']['iostat']:
@@ -43,6 +45,7 @@ def parse_options(conf, result_dir):
         options.append('--blktrace')
     if conf['stats_collection']['glances']:
         options.append('--glances')
+
 
     # Benchmarks
     for b in conf['benchmarks']:
@@ -140,6 +143,80 @@ def pack_artifacts(path):
     rm = plumbum.local["rm"]
     # rm[f"-rf {path}".split(" ")]()
 
+
+def update_configs(conf, log_dir):
+    options = []
+    result = 'SUCCESS'
+
+    if 'configuration' in conf:
+        if 'hare' in conf['configuration']:
+            hare = conf['configuration']['hare']
+            if 'custom_cdf' in hare:
+                options.append('--hare-custom-cdf')
+                options.append(hare['custom_cdf'])
+
+            if 'sns' in hare:
+                options.append('--hare-sns-data-units')
+                options.append(hare['sns']['data_units'])
+
+                options.append('--hare-sns-parity-units')
+                options.append(hare['sns']['parity_units'])
+
+                options.append('--hare-sns-spare-units')
+                options.append(hare['sns']['spare_units'])
+
+            if 'dix' in hare:
+                options.append('--hare-dix-data-units')
+                options.append(hare['dix']['data_units'])
+
+                options.append('--hare-dix-parity-units')
+                options.append(hare['dix']['parity_units'])
+
+                options.append('--hare-dix-spare-units')
+                options.append(hare['dix']['spare_units'])
+
+        update_configs = plumbum.local["scripts/conf_customization/update_configs.sh"]
+        mv = plumbum.local['mv']
+        try:
+            tee = plumbum.local['tee']
+            (update_configs[options] | tee['/tmp/update_configs.log']) & plumbum.FG
+        except plumbum.commands.processes.ProcessExecutionError:
+            result = 'FAILED'
+
+        mv['/tmp/update_configs.log', log_dir] & plumbum.FG
+
+    return result
+
+
+def restore_original_configs():    
+    result = 'SUCCESS'
+
+    restore_configs = plumbum.local["scripts/conf_customization/restore_orig_configs.sh"]
+    
+    try:
+        (restore_configs['']) & plumbum.FG
+    except plumbum.commands.processes.ProcessExecutionError:
+        result = 'FAILED'
+
+    return result
+
+
+def run_worker(conf, result_dir):
+    result = 'SUCCESS'
+
+    worker = plumbum.local["scripts/worker.sh"]
+    try:
+        tee = plumbum.local['tee']
+        options = parse_options(conf, result_dir)
+        (worker[options] | tee['/tmp/workload.log']) & plumbum.FG
+    except plumbum.commands.processes.ProcessExecutionError:
+        result = 'FAILED'
+
+    mv = plumbum.local['mv']
+    mv['/tmp/workload.log', result_dir] & plumbum.FG
+    return result
+
+
 def sw_update(conf, log_dir):
     options = []
     result = 'SUCCESS'
@@ -177,6 +254,7 @@ def sw_update(conf, log_dir):
 
     return result
 
+
 @huey.task(context=True)
 def worker_task(conf_opt, task):
     conf, opt = conf_opt
@@ -205,28 +283,44 @@ def worker_task(conf_opt, task):
         run_cmds(conf['pre_exec_cmds'], result['artifacts_dir'])
 
     with plumbum.local.env():
+
         mkdir = plumbum.local['mkdir']
-        mv = plumbum.local['mv']
         mkdir["-p", result["artifacts_dir"]] & plumbum.FG
 
-        ret = sw_update(conf, result["artifacts_dir"])
-        if ret == 'FAILED':
-            result['status'] = 'FAILED'
-            result['finish_time'] = str(datetime.now())
-            return result
-        
-        run_workload = plumbum.local["scripts/worker.sh"]
-        try:
-            tee = plumbum.local['tee']
-            options = parse_options(conf, result["artifacts_dir"])
-            (run_workload[options] | tee['/tmp/workload.log']) & plumbum.FG
-            result['status'] = 'SUCCESS'
-        except plumbum.commands.processes.ProcessExecutionError:
-            result['status'] = 'FAILED'
+        failed = False
 
-        mv['/tmp/workload.log', result["artifacts_dir"]] & plumbum.FG
+        if not failed:
+            ret = restore_original_configs()
+            if ret == 'FAILED':
+                result['finish_time'] = str(datetime.now())
+                failed = True
+                
+        if not failed:
+            ret = sw_update(conf, result["artifacts_dir"])
+            if ret == 'FAILED':
+                result['finish_time'] = str(datetime.now())
+                failed = True
+
+        if not failed:
+            ret = update_configs(conf, result["artifacts_dir"])
+            if ret == 'FAILED':
+                result['finish_time'] = str(datetime.now())
+                failed = True
+
+        if not failed:
+            ret = run_worker(conf, result["artifacts_dir"])
+            if ret == 'FAILED':
+                result['finish_time'] = str(datetime.now())
+                failed = True
+
+        ret = restore_original_configs()
+        if ret == 'FAILED':
+            result['finish_time'] = str(datetime.now())
+            failed = True
+            
 
     result['finish_time'] = str(datetime.now())
+    result['status'] = 'FAILED' if failed else 'SUCCESS'
 
     if 'post_exec_cmds' in conf:
         run_cmds(conf['post_exec_cmds'], result['artifacts_dir'])

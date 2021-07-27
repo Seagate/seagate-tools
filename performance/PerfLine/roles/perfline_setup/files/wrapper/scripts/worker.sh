@@ -10,7 +10,6 @@ SCRIPT_DIR="${SCRIPT_PATH%/*}"
 TOOLS_DIR="$SCRIPT_DIR/../../chronometry"
 PERFLINE_DIR="$SCRIPT_DIR/../"
 STAT_DIR="$SCRIPT_DIR/../stat"
-BUILD_DEPLOY_DIR="$SCRIPT_DIR/../../build_deploy"
 PUBLIC_DATA_INTERFACE=$(ip addr show | egrep 'data0|enp179s0|enp175s0f0|eth0' | grep -Po 'inet \K[\d.]+')
 
 source "$SCRIPT_DIR/../../perfline.conf"
@@ -46,15 +45,6 @@ function validate() {
     if [[ -n $leave ]]; then
 	exit 1
     fi
-}
-
-function build_deploy() {
-    pushd $BUILD_DEPLOY_DIR
-    ansible-playbook -i hosts run_build_deploy.yml --extra-vars "motr_repo_path=$MOTR_REPO \
-    hare_repo_path=$HARE_REPO s3server_repo_path=$S3SERVER_REPO hare_commit_id=$HARE_COMMIT_ID \
-    motr_commit_id=$MOTR_COMMIT_ID s3server_commit_id=$S3SERVER_COMMIT_ID github_PAT=$GITHUB_PAT \
-    github_username=$GITHUB_USER build_machine=$BUILD_MACHINE" -v
-    popd
 }
 
 function stop_hare() {
@@ -562,11 +552,6 @@ function main() {
     # go to artifacts folder
     pushd_to_results_dir
    
-    # Deploy build
-    if [[ -n $BUILD_DEPLOY ]]; then
-        build_deploy       
-    fi
-    
     # lnet workload
     if [[ -n $LNET ]]; then
         run_lnet_workloads
@@ -649,45 +634,6 @@ while [[ $# -gt 0 ]]; do
             RESULTS_DIR=$2
             shift
             ;;
-        --deploybuild)
-            BUILD_DEPLOY="1"
-            ;;
-        -token)
-            GITHUB_PAT=$2
-            shift
-            ;;
-        -github_user)
-            GITHUB_USER=$2
-            shift
-            ;;
-        -build_machine)
-            BUILD_MACHINE=$2
-            shift
-            ;;
-        -motr_repo)
-            MOTR_REPO=$2
-            shift
-            ;;
-        -hare_repo)
-            HARE_REPO=$2
-            shift
-            ;;
-	-s3server_repo)
-            S3SERVER_REPO=$2
-            shift
-            ;;
-	-motr_commit_id)
-            MOTR_COMMIT_ID=$2
-            shift
-            ;;
-	-hare_commit_id)
-            HARE_COMMIT_ID=$2
-            shift
-            ;;
-	-s3server_commit_id)
-	    S3SERVER_COMMIT_ID=$2
-	    shift
-	    ;;
         -bucket)
             BUCKETNAME=$2
             shift

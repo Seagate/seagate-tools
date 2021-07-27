@@ -37,9 +37,9 @@ PerfLine can be installed from any machine, To setup PerfLine or deploying PerfL
     For Minimal(io-path components) configuration `ha_type=hare`
     For Complete cluster configuration `ha_type=pcs`
 
-    4.3 Default root password is "seagate1" for cortx cluster including client, If user having different password then please update on "/roles/perfline_setup/vars/main.yml"
+    4.3 Default root password is "seagate1" for cortx cluster including client, If user having different password then please update on "./inventories/perfline_hosts/hosts"
     ```
-    CLUSTER_PASS: seagate1
+    cluster_pass=
     ```
 
 # Installation
@@ -49,7 +49,22 @@ PerfLine can be installed from any machine, To setup PerfLine or deploying PerfL
 2. Wait till ansible installiation finishes on provided nodes under location 
 	2.1 executables  at `/root/perfline`
 	2.2 results at `/var/perfline`
-	2.3 logs at `/var/log/perfline`
+	2.3 log file at `/var/log/perfline.log`
+
+If you want to install PerfLine into non-default directory you can specify `PURPOSE`
+variable at `PerfLine/roles/perfline_setup/vars/main.yml` before playbook execution.
+`PURPOSE` variable affects PerfLine directory, artifacts directory, log file location
+and systemd services names. By default `PURPOSE` is an empty string. Setting the value
+of this variable to `-dev` will change:
+  executables: `/root/perfline-dev`
+  results: `/var/perfline-dev`
+  log file: `/var/log/perfline-dev.log`
+  systemd services names: `perfline-dev`, `perfline-ui-dev`
+
+In case you want to install more than one version of PerfLine on the same cluster you have
+to specify `PURPOSE` variable described above and change value of `perfline_ui_port` variable
+specified in `PerfLine/inventories/perfline_hosts/hosts` file to garantee that different
+instances of PerfLine use different ports for UI service.
 
 # Define own workload
 As per need, Create a "<any name of your choice>.yaml" file inside `/root/perfline/wrapper/workload` directory. An expample.yaml is already provided for user's reference.

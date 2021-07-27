@@ -51,10 +51,10 @@ PerfLine can be installed from any machine, To setup PerfLine or deploying PerfL
 	2.2 results at `/var/perfline`
 	2.3 log file at `/var/log/perfline.log`
 
-If you want to install PerfLine into non-default directory you can specify `POSTFIX`
+If you want to install PerfLine into non-default directory you can specify `PURPOSE`
 variable at `PerfLine/roles/perfline_setup/vars/main.yml` before playbook execution.
-`POSTFIX` variable affects PerfLine directory, artifacts directory, log file location
-and systemd services names. By default `POSTFIX` is an empty string. Setting the value
+`PURPOSE` variable affects PerfLine directory, artifacts directory, log file location
+and systemd services names. By default `PURPOSE` is an empty string. Setting the value
 of this variable to `-dev` will change:
   executables: `/root/perfline-dev`
   results: `/var/perfline-dev`
@@ -62,7 +62,7 @@ of this variable to `-dev` will change:
   systemd services names: `perfline-dev`, `perfline-ui-dev`
 
 In case you want to install more than one version of PerfLine on the same cluster you have
-to specify `POSTFIX` variable described above and change value of `perfline_ui_port` variable
+to specify `PURPOSE` variable described above and change value of `perfline_ui_port` variable
 specified in `PerfLine/inventories/perfline_hosts/hosts` file to garantee that different
 instances of PerfLine use different ports for UI service.
 

@@ -38,11 +38,10 @@
     with_items:
        - { variable: 'HA_TYPE', value: '{{ ha_type }}'}
        - { variable: 'NODES', value: '{{ nodelist }}' }
-       - { variable: 'PERFLINE_DIR', value: '{{ PERFLINE_DIR }}'}
-       - { variable: 'WORKLOAD_DIR', value: '{{ PERFLINE_DIR }}/wrapper/workload'}
-       - { variable: 'VALIDATOR', value: '{{ PERFLINE_DIR }}/wrapper/task_validation'}
-       - { variable: 'LOGFILE', value: '{{ PERFLINE_LOGFILE }}'}
-       - { variable: 'ARTIFACTS_DIR', value: '{{ ARTIFACTS_DIR }}'}
+       - { variable: 'PERFLINE_DIR', value: '{{ perfline_dir }}'}
+       - { variable: 'WORKLOAD_DIR', value: '{{ perfline_dir }}/wrapper/workload'}
+       - { variable: 'VALIDATOR', value: '{{ perfline_dir }}/wrapper/core'}
+       - { variable: 'PL_SCRIPT_PATH', value: '{{ perfline_dir }}/wrapper/perfline.py'}
 
   - name: "Updating numeric values of a variables in perfline.conf"
     lineinfile:
@@ -51,6 +50,7 @@
        line: "{{ item.variable }}={{ item.value }}"
     with_items:
        - { variable: 'PERFLINE_UI_PORT', value: '{{ perfline_ui_port }}'}
+
 
   - name: "Installing golang version above 1.15 on localhost"
     yum:

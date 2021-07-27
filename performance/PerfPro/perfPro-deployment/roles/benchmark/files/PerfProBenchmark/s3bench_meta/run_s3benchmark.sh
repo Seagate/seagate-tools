@@ -14,7 +14,7 @@ IO_SIZE=""
 MAIN="/root/PerfProBenchmark/main.yml"
 CONFIG="/root/PerfProBenchmark/config.yml"
 LOG_COLLECT="/root/PerfProBenchmark/collect_logs.py"
-ITERATION=$(yq -r .ITERATION $CONFIG)
+#ITERATION=$(yq -r .ITERATION $CONFIG)
 BUILD=`python3 /root/PerfProBenchmark/read_build.py $CONFIG 2>&1`
 RESULT_DIR=/root/PerfProBenchmark/perfpro_build$BUILD/results
 
@@ -111,22 +111,19 @@ validate_args
 #
 ./installS3bench.sh
 #
-for ((ITR=1;ITR<=ITERATION;ITR++))
-do
-    if [ ! -d $BENCHMARKLOG ]; then
-          mkdir $BENCHMARKLOG
-          s3benchmark
-          sleep 20
-          python3 s3bench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG $ITR
-          cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/
+if [ ! -d $BENCHMARKLOG ]; then
+     mkdir $BENCHMARKLOG
+     s3benchmark
+     sleep 20
+     python3 s3bench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG 
+     cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/
 
-    else
-          rm -rf $BENCHMARKLOG
-          mkdir $BENCHMARKLOG
-          s3benchmark
-          sleep 20
-          python3 s3bench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG $ITR
-          cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/     
+else
+     rm -rf $BENCHMARKLOG
+     mkdir $BENCHMARKLOG
+     s3benchmark
+     sleep 20
+     python3 s3bench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG 
+     cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/     
 
-    fi
-done
+fi

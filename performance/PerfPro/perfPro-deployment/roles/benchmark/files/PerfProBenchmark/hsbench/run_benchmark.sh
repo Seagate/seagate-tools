@@ -1,4 +1,5 @@
 #! /bin/bash
+TOOL_NAME='hsbench'
 BENCHMARK_PATH=/root/go/bin
 CURRENTPATH=`pwd`
 ACCESS_KEY=`cat /root/.aws/credentials | grep -A 3 default | grep aws_access_key_id | cut -d " " -f3`		
@@ -20,9 +21,9 @@ TIMESTAMP=`date +'%Y-%m-%d_%H:%M:%S'`
 #IFS=”,”
 MAIN="/root/PerfProBenchmark/main.yml"
 CONFIG="/root/PerfProBenchmark/config.yml"
-LOG_COLLECT="/root/PerfProBenchmark/collect_logs.py"
-ITERATION=$(yq -r .ITERATION $CONFIG)
-
+#ITERATION=$(yq -r .ITERATION $CONFIG)
+BUILD=`python3 /root/PerfProBenchmark/read_build.py $CONFIG 2>&1`
+RESULT_DIR=/root/PerfProBenchmark/perfpro_build$BUILD/results
 validate_args() {
 
         if [[ -z $NO_OF_BUCKET ]] ||  [[ -z $SIZE_OF_OBJECTS ]] || [[ -z $NO_OF_OBJECTS ]] || [[ -z $NO_OF_THREADS ]] ;
@@ -48,8 +49,6 @@ hotsause_benchmark()
     while [ $MAX_ATTEMPT -gt $COUNT ]
     do
                
-      MKDIR=runid_$TIMESTAMP
-      mkdir -p $BENCHMARKLOG/$MKDIR
       SAMPLES=($NO_OF_OBJECTS)
       THREAD=($NO_OF_THREADS)
       OBJ_SIZE=($SIZE_OF_OBJECTS)
@@ -62,21 +61,22 @@ hotsause_benchmark()
                for size in ${OBJ_SIZE//,/ }
                do
                  echo -e "Thread: $client \t SAMPLE: $sample \t OBJECT_SIZE: $size \t BUCKET: $bucket"        
-                 JSON_FILENAME=Clients_$client\_Objects_$sample\_Bucket_$bucket\_object_size_$size\.json
+                 JSON_FILENAME=$TOOL_NAME\_object_$size\_numsamples_$sample\_buckets_$bucket\_sessions_$client\.json
                  obj_size=$(echo "$size" | tr -d 'b')
                  NUMSAMPLE=$((sample / client))
+                 TOOL_DIR=$BENCHMARKLOG/$TOOL_NAME/numclients_$client/buckets_$bucket/$size
                  echo "$BENCHMARK_PATH/hsbench -a $ACCESS_KEY -s $SECRET_KEY -u $ENDPOINTS -z $obj_size -d $TEST_DURATION -t $client -b $bucket -n $sample -r $REGION -j $JSON_FILENAME"
 
                  $BENCHMARK_PATH/hsbench -a $ACCESS_KEY -s $SECRET_KEY -u $ENDPOINTS -z $obj_size -d $TEST_DURATION -t $client -b $bucket -n $sample -r $REGION -j $JSON_FILENAME
 
+                 mkdir -p $TOOL_DIR
+                 mv $CURRENTPATH/*.json $TOOL_DIR/
+                 sleep 30
                done 
            done
         done
       done
-      mv $CURRENTPATH/*.json $CURRENTPATH/benchmark.log/$MKDIR/
       COUNT=$(($COUNT + 1))
-      sleep 30
-#        python3 $CURRENTPATH/hsbenchReport.py $BENCHMARKLOG/$MKDIR/    
     done
 } 
 
@@ -116,20 +116,21 @@ validate_args
 #
 ./installHSbench.sh
 #
-for ((ITR=1;ITR<=ITERATION;ITR++))
-do
-    if [ ! -d $BENCHMARKLOG ]; then
-          mkdir $BENCHMARKLOG
-          hotsause_benchmark 2>&1 | tee benchmark.log/output.log 
-          python3 hsbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG $ITR
-          python3 $LOG_COLLECT $CONFIG
+if [ ! -d $BENCHMARKLOG ]; then
+    mkdir $BENCHMARKLOG
+    hotsause_benchmark 2>&1 | tee benchmark.log/output.log
+    sleep 20 
+    python3 hsbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG 
+    cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/    
+    cp $BENCHMARKLOG/output.log $RESULT_DIR/$TOOL_NAME/    
       
-    else
-          mv $BENCHMARKLOG $CURRENTPATH/benchmark.bak_$TIMESTAMP
-          mkdir $BENCHMARKLOG
-          hotsause_benchmark 2>&1 | tee benchmark.log/output.log 
-          python3 hsbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG $ITR
-          python3 $LOG_COLLECT $CONFIG
+else
+    rm -rf $BENCHMARKLOG
+    mkdir $BENCHMARKLOG
+    hotsause_benchmark 2>&1 | tee benchmark.log/output.log
+    sleep 20 
+    python3 hsbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG
+    cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/    
+    cp  $BENCHMARKLOG/output.log $RESULT_DIR/$TOOL_NAME/    
 
-    fi
-done
+fi

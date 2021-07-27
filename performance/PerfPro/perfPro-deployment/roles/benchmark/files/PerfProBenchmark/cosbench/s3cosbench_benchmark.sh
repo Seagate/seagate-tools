@@ -3,21 +3,24 @@
 #
 #  variables Declaration
 #
+TOOL_NAME='cosbench'
 no_of_buckets=""
 no_of_objects=""
 object_size=""
 no_of_workers=""
 workload_type=""
 run_time_in_seconds=""
-CURRENT_PATH=`pwd`
-LOG=$CURRENT_PATH/benchmark.log
+CURRENTPATH=`pwd`
+BENCHMARKLOG=$CURRENTPATH/benchmark.log
 HOSTNAME=`hostname`
 TIMESTAMP=`date +'%Y-%m-%d_%H:%M:%S'`
 size=
 MAIN="/root/PerfProBenchmark/main.yml"
 CONFIG="/root/PerfProBenchmark/config.yml"
-LOG_COLLECT="/root/PerfProBenchmark/collect_logs.py"
-ITERATION=$(yq -r .ITERATION $CONFIG)
+#ITERATION=$(yq -r .ITERATION $CONFIG)
+
+BUILD=`python3 /root/PerfProBenchmark/read_build.py $CONFIG 2>&1`
+RESULT_DIR=/root/PerfProBenchmark/perfpro_build$BUILD/results
 
 validate_args() {
 
@@ -49,7 +52,9 @@ config_s3workloads() {
           do
                for io_size in ${object_size//,/ }
                do
-                    workload_file=$LOG/workloads_workers_$clients\_sample_$sample\_size_$io_size
+                    TOOL_DIR=$BENCHMARKLOG/$TOOL_NAME/numclients_$clients/buckets_$bucket/$io_size
+                    mkdir -p $TOOL_DIR
+                    workload_file=$TOOL_DIR/workloads_workers_$clients\_sample_$sample\_size_$io_size
                     size=$(echo "$io_size" | sed 's/[a-zA-Z]//g' )
                     obj_type=$(echo "$io_size" | sed 's/[0-9]*//g' | sed 's/b/B/g' )
                     echo "no_of_workers=$clients" > $workload_file
@@ -58,11 +63,17 @@ config_s3workloads() {
                     echo "object_size=$size" >> $workload_file
                     echo "no_of_buckets=$bucket" >> $workload_file
                     echo "workload_type=$workload_type" >> $workload_file
-                    echo "run_time_in_seconds=$run_time_in_seconds" >> $workload_file
+                    echo "run_time_in_seconds=$run_time_in_seconds" >> $workload_file                    
                     sh configure.sh
-                    sh run-test.sh --s3setup s3setup.properties --controller $HOSTNAME --workload $workload_file >> $LOG/workloads
-                    check_completion `tail -n 3 $LOG/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' '`
+                    sh run-test.sh --s3setup s3setup.properties --controller $HOSTNAME --workload $workload_file >> $TOOL_DIR/workloads 
+                    check_completion `tail -n 3 $TOOL_DIR/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' '`
                     echo "Cosbench Triggered for worker: $clients sample: $sample obj_size:$io_size bucket:$bucket"
+                    sleep 20
+                    for i in `cat $TOOL_DIR/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' '`; 
+                    do 
+                      cp -r ~/cos/archive/$i* $TOOL_DIR/;
+                    done
+                    
                     
                done
           done
@@ -118,29 +129,15 @@ validate_args
 #
 ./installCosbench.sh `hostname`
 #
-for ((ITR=1;ITR<=ITERATION;ITR++))
-do
-    if [ ! -d $LOG ]; then
-          mkdir $LOG
-          config_s3workloads
-          sleep 20
-          for i in `cat $LOG/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' '`; 
-          do 
-              cp -r ~/cos/archive/$i* $LOG;
-          done     
-          python3 cosbench_DBupdate.py $LOG $MAIN $CONFIG $ITR
-          python3 $LOG_COLLECT $CONFIG
-    else
-          mv $LOG $CURRENT_PATH/benchmark.bak_$TIMESTAMP
-          mkdir $LOG
-          config_s3workloads
-          sleep 20
-          for i in `cat $LOG/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' '`;
-          do
-              cp -r ~/cos/archive/$i* $LOG;
-          done
-          python3 cosbench_DBupdate.py $LOG $MAIN $CONFIG $ITR
-          python3 $LOG_COLLECT $CONFIG
-
-    fi
-done
+if [ ! -d $BENCHMARKLOG ]; then
+    mkdir $BENCHMARKLOG
+    config_s3workloads
+    python3 cosbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG
+    cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/   
+else
+    rm -rf $BENCHMARKLOG
+    mkdir $BENCHMARKLOG
+    config_s3workloads
+    python3 cosbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG
+    cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/  
+fi

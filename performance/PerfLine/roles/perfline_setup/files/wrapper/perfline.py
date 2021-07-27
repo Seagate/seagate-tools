@@ -20,7 +20,7 @@
 import os
 import sys
 sys.path.insert(1, os.path.join(os.getcwd(), 'sys'))
-sys.path.insert(1, os.path.join(os.getcwd(), 'task_validation'))
+sys.path.insert(1, os.path.join(os.getcwd(), 'core'))
 
 from huey import exceptions
 from config import huey

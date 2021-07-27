@@ -19,8 +19,8 @@
 
 common:
   version: 1
-  description: Perf benchmark example
-  priority: 1
+  description: PerfLine SW update example
+  priority: 3
   batch_id: null
   user: user@seagate.com
   send_email: false
@@ -29,7 +29,7 @@ common:
 #  to build/deploy custom version of Cortx components. Either of the option
 #   you have to choose like Only URL or commitID of motr, s3server and hare.
 custom_build:
-  url: ""
+  url: 
   motr:
     repo: "https://github.com/Seagate/cortx-motr.git"
     branch: b64b1bba
@@ -40,59 +40,22 @@ custom_build:
     repo: "https://github.com/Seagate/cortx-hare.git"
     branch: daddc4a
 
-# Optional section. if this section exists PerfLine will
-# change software configurations before starting the cluster.
-# Additional info may be found in:
-# https://seagate-systems.atlassian.net/wiki/spaces/PRIVATECOR/pages/481625195/Components+configuration
-configuration:
-  hare:
-    custom_cdf: /path/to/custom/cdf.yaml # custom CDF have to be located on client node
-    sns:
-      data_units: 1
-      parity_units: 0
-      spare_units: 0
-    dix:
-      data_units: 4
-      parity_units: 2
-      spare_units: 2
-
 stats_collection:
-  iostat: false
+  iostat: true
   dstat: false
-  blktrace: false
+  blktrace: true
   glances: false
 
-# List of benchmarks and parameters. This section must include
-# at least one benchmark (custom/fio/s3bench/m0crate).
 benchmarks:
-  - custom:
-      cmd: sleep 1
-  - lnet:
-      LNET_OPS: read,write,ping              # user can pass value operation separated by ',' Ex: read,write,ping
-  - fio:
-      Duration: 600
-      BlockSize: 8M
-      NumJobs: 32
-      Template: seq_read_fio       #Template for fio like seq_read_fio, seq_write_fio, randmix_80-20_fio, randmix_20-80_fio and rand_fio
   - s3bench:
       BucketName: mybucket
       NumClients: 10
       NumSample: 100
       ObjSize: 32Mb
       EndPoint: https://s3.seagate.com
-  - m0crate:
-      NR_INSTANCES_PER_NODE: 2
-      NR_THREADS: 2
-      BLOCK_SIZE: 2m
-      IOSIZE: 4m
-  - iperf:
-      Interval: 1
-      Duration: 60
-      Parallel: 2
-
 
 execution_options:
-  mkfs: false
-  collect_m0trace: false
+  mkfs: true
+  collect_m0trace: true
   collect_addb: false
   backup_result: false

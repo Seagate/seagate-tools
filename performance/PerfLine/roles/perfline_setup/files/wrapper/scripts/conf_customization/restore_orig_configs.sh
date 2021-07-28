@@ -33,14 +33,23 @@ HARE_CONF_LOCATION="/var/lib/hare"
 HARE_CONFIG="$HARE_CONF_LOCATION/cluster.yaml"
 HARE_CONFIG_BACKUP="$HARE_CONF_LOCATION/.perfline__cluster.yaml__backup"
 
+MOTR_CONFIG="/etc/sysconfig/motr"
+MOTR_CONFIG_BACKUP="/etc/sysconfig/.perfline__motr__backup"
+
 function restore_hare_config()
 {
     $EX_SRV "if [[ -e $HARE_CONFIG_BACKUP ]]; then mv -f $HARE_CONFIG_BACKUP $HARE_CONFIG; fi"
 }
 
+function restore_motr_config()
+{
+    $EX_SRV "if [[ -e $MOTR_CONFIG_BACKUP ]]; then mv -f $MOTR_CONFIG_BACKUP $MOTR_CONFIG; fi"
+}
+
 function main()
 {
     restore_hare_config
+    restore_motr_config
 }
 
 main $@

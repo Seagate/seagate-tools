@@ -38,6 +38,7 @@ def get_schema_motr():
             'type': 'dict',
             'schema': {
                 'hare': {
+                    'required': False,
                     'type': 'dict',
                     'schema': {
                         'custom_cdf': {'type': 'string', 'required': False, 'empty': False},
@@ -60,8 +61,21 @@ def get_schema_motr():
                             }
                         }
                     }
+                },
+                'motr': {
+                    'required': False,
+                    'type': 'dict',
+                    'schema': {
+                        'custom_conf': {'type': 'string', 'required': False, 'empty': False},
+                        'params': {
+                            'required': False,
+                            'type': 'dict',
+                            'empty': False
+                            }
+                        }
+                    }
                 }
-            }  
+             
         },
         'stats_collection': {
             'type': 'dict',

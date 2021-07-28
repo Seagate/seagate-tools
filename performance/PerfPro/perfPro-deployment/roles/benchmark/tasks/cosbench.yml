@@ -3,62 +3,58 @@
    set_fact: nodelist={%for host in groups['nodes']%}{{hostvars[host]['ansible_host']}}{% if not loop.last %},{% endif %}{% endfor %}
 
  - name: "Defining numclients variable for concurrency"
-   set_fact: numclients="50,100,200,300,400,500,600"
+   set_fact: numclients="1,3,300,600,900,1200,1500,1800"
 
- - name: "[Cosbench]: Cosbench running with bucket-1"
+ - name: "[COSBench-1-Bucket]: Cosbench running for 1 Bucket"
    shell: |
       cd /root/PerfProBenchmark/cosbench/
       pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
-      ./s3cosbench_benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }} -b 1 -w mixed -t 600
+      ./s3cosbench_benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }} -b 1 -w mixed -t 900
       pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
    loop:
-       - { objsize: '4Kb', numsamples: '33000'}
-       - { objsize: '100Kb', numsamples: '130000'}
-       - { objsize: '256Kb', numsamples: '96000'}
-       - { objsize: '1Mb', numsamples: '150000'}
-       - { objsize: '5Mb', numsamples: '82000'}
-       - { objsize: '16Mb', numsamples: '40000'}
-       - { objsize: '36Mb', numsamples: '24000'}
-       - { objsize: '64Mb', numsamples: '15000'}
-       - { objsize: '128Mb', numsamples: '7400'}
-       - { objsize: '256Mb', numsamples: '4600'}
+       - { objsize: '1Kb', numsamples: '100000'}
+       - { objsize: '4Kb', numsamples: '100000'}
+       - { objsize: '64Kb', numsamples: '100000'}
+       - { objsize: '256Kb', numsamples: '100000'}
+       - { objsize: '1Mb', numsamples: '10000'}
+       - { objsize: '5Mb', numsamples: '10000'}
+       - { objsize: '16Mb', numsamples: '10000'}
+       - { objsize: '1000Mb', numsamples: '100'}
+       - { objsize: '5000Mb', numsamples: '100'}
 
- - name: "[Cosbench]: Cosbench running with bucket-10"
+ - name: "[COSBench-10-Buckets]: Cosbench running for 10 Buckets"
    shell: |
       cd /root/PerfProBenchmark/cosbench/
       pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
-      ./s3cosbench_benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }} -b 10 -w mixed -t 600
+      ./s3cosbench_benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }} -b 10 -w mixed -t 900
       pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
    loop:
-       - { objsize: '4Kb', numsamples: '3300'}
-       - { objsize: '100Kb', numsamples: '13000'}
-       - { objsize: '256Kb', numsamples: '9600'}
-       - { objsize: '1Mb', numsamples: '15000'}
-       - { objsize: '5Mb', numsamples: '8200'}
-       - { objsize: '16Mb', numsamples: '4000'}
-       - { objsize: '36Mb', numsamples: '2400'}
-       - { objsize: '64Mb', numsamples: '1500'}
-       - { objsize: '128Mb', numsamples: '740'}
-       - { objsize: '256Mb', numsamples: '460'}
-
- - name: "[Cosbench]: Cosbench running with bucket-50"
+       - { objsize: '1Kb', numsamples: '10000'}
+       - { objsize: '4Kb', numsamples: '10000'}
+       - { objsize: '64Kb', numsamples: '10000'}
+       - { objsize: '256Kb', numsamples: '10000'}
+       - { objsize: '1Mb', numsamples: '1000'}
+       - { objsize: '5Mb', numsamples: '1000'}
+       - { objsize: '16Mb', numsamples: '1000'}
+       - { objsize: '1000Mb', numsamples: '10'}
+       - { objsize: '5000Mb', numsamples: '10'}
+ - name: "[COSBench-100-Buckets]: Cosbench running for 100 Buckets"
    shell: |
       cd /root/PerfProBenchmark/cosbench/
       pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
-      ./s3cosbench_benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }} -b 50 -w mixed -t 600
+      ./s3cosbench_benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }} -b 100 -w mixed -t 900
       pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
    loop:
-       - { objsize: '4Kb', numsamples: '660'}
-       - { objsize: '100Kb', numsamples: '2600'}
-       - { objsize: '256Kb', numsamples: '1920'}
-       - { objsize: '1Mb', numsamples: '3000'}
-       - { objsize: '5Mb', numsamples: '1640'}
-       - { objsize: '16Mb', numsamples: '800'}
-       - { objsize: '36Mb', numsamples: '480'}
-       - { objsize: '64Mb', numsamples: '300'}
-       - { objsize: '128Mb', numsamples: '148'}
-       - { objsize: '256Mb', numsamples: '92'}
+       - { objsize: '1Kb', numsamples: '1000'}
+       - { objsize: '4Kb', numsamples: '1000'}
+       - { objsize: '64Kb', numsamples: '1000'}
+       - { objsize: '256Kb', numsamples: '1000'}
+       - { objsize: '1Mb', numsamples: '100'}
+       - { objsize: '5Mb', numsamples: '100'}
+       - { objsize: '16Mb', numsamples: '100'}
+       - { objsize: '1000Mb', numsamples: '1'}
+       - { objsize: '5000Mb', numsamples: '1'}
 

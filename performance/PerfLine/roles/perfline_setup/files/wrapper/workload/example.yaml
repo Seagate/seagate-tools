@@ -45,6 +45,11 @@ custom_build:
 # Additional info may be found in:
 # https://seagate-systems.atlassian.net/wiki/spaces/PRIVATECOR/pages/481625195/Components+configuration
 configuration:
+  motr:
+    custom_conf: /path/to/custom/motr # custom config have to be located on client node
+    params:
+      MOTR_M0T1FS: yes
+      MOTR_LOG_DIR: /var/log/motr
   hare:
     custom_cdf: /path/to/custom/cdf.yaml # custom CDF have to be located on client node
     sns:

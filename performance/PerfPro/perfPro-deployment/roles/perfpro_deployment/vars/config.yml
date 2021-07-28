@@ -20,7 +20,7 @@ SERVICE_PASS:
 
 # For PerfPro MongoDB related Entries
 #ITERATION: 1 # <removed iteration> 
-PC_FULL: 0 # Select for system percentage full before test. 
+PC_FULL: 30 # Select for system percentage full before test. 
 OVERWRITE: False # select True or False to overwrite the DB entries for same Primary Key
 CUSTOM: NA # Default is NA. Update with single string for special config eg: SSD, DIEnabled, PODsetup etc
 

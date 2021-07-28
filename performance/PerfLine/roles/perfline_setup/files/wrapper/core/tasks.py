@@ -149,6 +149,19 @@ def update_configs(conf, log_dir):
     result = 'SUCCESS'
 
     if 'configuration' in conf:
+
+        if 'motr' in conf['configuration']:
+            motr = conf['configuration']['motr']
+            
+            if 'custom_conf' in motr:
+                options.append('--motr-custom-conf')
+                options.append(motr['custom_conf'])
+
+            if 'params' in motr:
+                for p_name, p_val in motr['params'].items():
+                    options.append('--motr-param')
+                    options.append(f'{p_name}={p_val}')
+
         if 'hare' in conf['configuration']:
             hare = conf['configuration']['hare']
             if 'custom_cdf' in hare:

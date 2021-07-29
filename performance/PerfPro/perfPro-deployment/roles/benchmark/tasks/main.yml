@@ -25,6 +25,17 @@
    delegate_to: "{{ item }}"
    with_items: "{{ groups['all'] }}"
 
+ - name: Upgrade pip version
+   shell: pip install update pip
+
+ - name: Pre-requisites python3 library on client server
+   pip:
+     name:
+       - setuptools_rust
+     executable: pip3
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
+ 
  - name: Installation of golang on client server
    yum:
      name: go

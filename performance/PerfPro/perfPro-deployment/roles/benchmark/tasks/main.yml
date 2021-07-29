@@ -26,7 +26,7 @@
    with_items: "{{ groups['all'] }}"
 
  - name: Upgrade pip version
-   shell: pip install update pip
+   shell: pip3 install update pip
 
  - name: Pre-requisites python3 library on client server
    pip:

@@ -27,6 +27,8 @@
 
  - name: Upgrade pip version
    shell: pip3 install update pip
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['all'] }}"
 
  - name: Pre-requisites python3 library on client server
    pip:

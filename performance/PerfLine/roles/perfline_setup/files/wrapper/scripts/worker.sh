@@ -100,6 +100,7 @@ function restart_pcs() {
 
 function restart_cluster() {
     echo "Restart cluster"
+    systemctl restart haproxy
     
     case $HA_TYPE in
 	"hare") restart_hare ;;

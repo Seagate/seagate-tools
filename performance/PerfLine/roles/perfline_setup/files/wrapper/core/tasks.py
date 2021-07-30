@@ -162,6 +162,27 @@ def update_configs(conf, log_dir):
                     options.append('--motr-param')
                     options.append(f'{p_name}={p_val}')
 
+        if 's3' in conf['configuration']:
+            s3 = conf['configuration']['s3']
+
+            if 'custom_conf' in s3:
+                options.append('--s3-custom-conf')
+                options.append(s3['custom_conf'])
+
+            if 'instances_per_node' in s3:
+                options.append('--s3-instance-nr')
+                options.append(s3['instances_per_node'])
+
+            # S3 config file parameters overriding
+            for section, p_name in (('S3_SERVER_CONFIG', '--s3-srv-param'),
+                                    ('S3_AUTH_CONFIG', '--s3-auth-param'),
+                                    ('S3_MOTR_CONFIG', '--s3-motr-param'),
+                                    ('S3_THIRDPARTY_CONFIG', '--s3-thirdparty-param')):
+                if section in s3:
+                    for k, v in s3[section].items():
+                        options.append(p_name)
+                        options.append('{}={}'.format(k, repr(v)))
+
         if 'hare' in conf['configuration']:
             hare = conf['configuration']['hare']
             if 'custom_cdf' in hare:

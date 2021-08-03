@@ -125,13 +125,4 @@
   delegate_to: "{{ item }}"
   with_items: "{{ groups['nodes'] }}"
 
-#Copying ansible.log for the run to NFS share
-- name: Mounting nfs share
-  shell: mount {{ NFS_SERVER }}:/{{ NFS_EXPORT }} {{ NFS_MOUNT_POINT }}
-
-- name: Copying ansible log to NFS share
-  shell: mkdir -p {{ NFS_MOUNT_POINT }}/{{ NFS_FOLDER }}; echo y | cp /var/log/ansible.log-{{ tstamp.stdout }} {{ NFS_MOUNT_POINT }}/{{ NFS_FOLDER }}/
-
-- name: Unmounting NFS share
-  shell:  umount -l {{ NFS_MOUNT_POINT }}
-
+#Removed ansible log archival to NFS as these logs are also present when we collect ansible logs from benchmark role.

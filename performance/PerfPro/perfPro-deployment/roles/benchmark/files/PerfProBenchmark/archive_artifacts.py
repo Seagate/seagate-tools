@@ -1,10 +1,10 @@
 import os
 import sys
-import shutil
+#import shutil
 import yaml
-from datetime import datetime as DT
-now=DT.now()
-time_string = now.strftime("%m-%d-%Y-%H-%M-%S")
+#from datetime import datetime as DT
+#now=DT.now()
+#time_string = now.strftime("%m-%d-%Y-%H-%M-%S")
 conf_yaml = open(sys.argv[1])
 parse_conf = yaml.load(conf_yaml , Loader=yaml.FullLoader)
 
@@ -15,19 +15,22 @@ mount_point=parse_conf.get('NFS_MOUNT_POINT')
 log_dest=parse_conf.get('NFS_FOLDER')
 
 #source_zip_prefix=''
-log_path=sys.argv[2]
-log_source=sys.argv[3]
+#log_path=sys.argv[2]
+log_source=sys.argv[2]
 
 class collect_logs:
     '''Mounts the NFS export on the mountpoint to copy the collected logs'''    
     def mount_nfs(self):
+        if str(os.system('mount|grep '+mount_point)) == '0' :
+            logs.unmount_nfs()
+            print('unmounting dedicated perftool mountpoint') 
         os.system('mkdir -p '+mount_point)
         os.system('mount '+nfs_server+':'+nfs_export+' '+mount_point)
         return('Export mounted')
 
     '''Create the Zipped copy of recently collected logs by benchmarking tool'''
     def zip_logs(self):
-        os.system(' tar -cvzf '+mount_point+'/'+log_dest+'/'+log_source+'.tar.gz'+' '+log_path+log_source)
+        os.system(' tar -cvzf '+mount_point+'/'+log_dest+'/'+log_source+'.tar.gz'+' -P '+log_source)
         return('logs collected and zipped as '+log_source+'.tar.gz')
    
     '''Copy the Zipped copy to NFS Repo'''
@@ -54,5 +57,5 @@ print(logs.mount_nfs())
 print(logs.zip_logs())
 #print(logs.copy_logs())
 #print(logs.delete_tarfile())
-print(logs.show_logs())
-#print(logs.unmount_nfs())
+#print(logs.show_logs())
+print(logs.unmount_nfs())

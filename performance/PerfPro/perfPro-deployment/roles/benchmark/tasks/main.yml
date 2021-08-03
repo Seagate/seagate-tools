@@ -25,15 +25,16 @@
    delegate_to: "{{ item }}"
    with_items: "{{ groups['all'] }}"
 
- - name: Upgrade pip version
+ - name: Upgrade pip version on client nodes
    shell: pip3 install update pip
    delegate_to: "{{ item }}"
-   with_items: "{{ groups['all'] }}"
+   with_items: "{{ groups['clients'] }}"
 
  - name: Pre-requisites python3 library on client server
    pip:
      name:
        - setuptools_rust
+       - wheel
      executable: pip3
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
@@ -137,6 +138,10 @@
      cd /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/
      mkdir results
      mkdir logs
+     mkdir logs/ansible
+     mkdir configs
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
 
  - include: prefill.yml
 
@@ -147,15 +152,16 @@
  - include: hsbench.yml
 
 
-#Copying ansible.log for the run to NFS share
- - name: Mounting nfs share
-   shell: mount {{ NFS_SERVER }}:/{{ NFS_EXPORT }} {{ NFS_MOUNT_POINT }}
+#Copying ansible.log for the run to logs/ansible folder
 
- - name: Copying ansible log to NFS share
-   shell: mkdir -p {{ NFS_MOUNT_POINT }}/{{ NFS_FOLDER }}; echo y | cp /var/log/ansible.log-{{ tstamp.stdout }} {{ NFS_MOUNT_POINT }}/{{ NFS_FOLDER }}/
+ - name: Copying ansible log to ansible log folder
+   copy:
+     src: /var/log/ansible.log-{{ tstamp.stdout }}
+     dest: /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/logs/ansible/
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
 
- - name: Unmounting NFS share
-   shell:  umount -l {{ NFS_MOUNT_POINT }}
+#Archival of all the results and logs to NFS repository
 
  - name: Get timestamp from the system
    shell: "date +%F-%H-%M-%S"
@@ -164,8 +170,15 @@
 
  - name: Rename perfpro_build<build> directory
    shell: mv /root/PerfProBenchmark/perfpro_build{{ build.stdout }} /root/PerfProBenchmark/perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
+
 
  - name: Archiving artifacts to NFS server
-   shell: python3 /root/PerfProBenchmark/archive_artifacts.py /root/PerfProBenchmark/config.yml /root/PerfProBenchmark/ perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}
+   shell: |
+     cd /root/PerfProBenchmark/ 
+     python3 /root/PerfProBenchmark/archive_artifacts.py /root/PerfProBenchmark/config.yml perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
 
 

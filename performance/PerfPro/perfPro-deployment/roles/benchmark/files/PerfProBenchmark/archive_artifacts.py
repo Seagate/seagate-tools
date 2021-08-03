@@ -15,8 +15,8 @@ mount_point=parse_conf.get('NFS_MOUNT_POINT')
 log_dest=parse_conf.get('NFS_FOLDER')
 
 #source_zip_prefix=''
-log_path=sys.argv[2]
-log_source=sys.argv[3]
+#log_path=sys.argv[2]
+log_source=sys.argv[2]
 
 class collect_logs:
     '''Mounts the NFS export on the mountpoint to copy the collected logs'''    
@@ -30,7 +30,7 @@ class collect_logs:
 
     '''Create the Zipped copy of recently collected logs by benchmarking tool'''
     def zip_logs(self):
-        os.system(' tar -cvzf '+mount_point+'/'+log_dest+'/'+log_source+'.tar.gz'+' -P '+log_path+log_source)
+        os.system(' tar -cvzf '+mount_point+'/'+log_dest+'/'+log_source+'.tar.gz'+' -P '+log_source)
         return('logs collected and zipped as '+log_source+'.tar.gz')
    
     '''Copy the Zipped copy to NFS Repo'''

@@ -9,7 +9,7 @@
    shell: |
       cd /root/PerfProBenchmark/hsbench/
       pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
-      ./run_benchmark.sh -b 1 -o {{ item.numsamples }} -s {{ item.objsize }} -t {{ numclients }} -d 900
+      ./run_benchmark.sh -b 1 -o {{ item.numsamples }} -s {{ item.objsize }} -t {{ numclients }} 
       pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
    loop:
@@ -27,7 +27,7 @@
    shell: |
       cd /root/PerfProBenchmark/hsbench/
       pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
-      ./run_benchmark.sh -b 10 -o {{ item.numsamples }} -s {{ item.objsize }} -t {{ numclients }} -d 900
+      ./run_benchmark.sh -b 10 -o {{ item.numsamples }} -s {{ item.objsize }} -t {{ numclients }} 
       pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
    loop:
@@ -45,7 +45,7 @@
    shell: |
       cd /root/PerfProBenchmark/hsbench/
       pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
-      ./run_benchmark.sh -b 100 -o {{ item.numsamples }} -s {{ item.objsize }} -t {{ numclients }} -d 900
+      ./run_benchmark.sh -b 100 -o {{ item.numsamples }} -s {{ item.objsize }} -t {{ numclients }} 
       pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
    loop:

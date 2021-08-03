@@ -1,5 +1,5 @@
 ---
- - name: "Create List of nodes to be added into Cluster"
+ - name: "Preaparing Cluster Node List"
    set_fact: nodelist={%for host in groups['nodes']%}{{hostvars[host]['ansible_host']}}{% if not loop.last %},{% endif %}{% endfor %}
 
  - name: "Defining numclients variable for concurrency"

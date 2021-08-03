@@ -9,7 +9,7 @@
    shell: |
       cd /root/PerfProBenchmark/cosbench/
       pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
-      ./s3cosbench_benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }} -b 1 -w mixed -t 900
+      ./s3cosbench_benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }} -b 1 -w mixed 
       pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
    loop:
@@ -27,7 +27,7 @@
    shell: |
       cd /root/PerfProBenchmark/cosbench/
       pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
-      ./s3cosbench_benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }} -b 10 -w mixed -t 900
+      ./s3cosbench_benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }} -b 10 -w mixed 
       pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
    loop:
@@ -44,7 +44,7 @@
    shell: |
       cd /root/PerfProBenchmark/cosbench/
       pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
-      ./s3cosbench_benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }} -b 100 -w mixed -t 900
+      ./s3cosbench_benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }} -b 100 -w mixed 
       pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
    delegate_to: "clientnode-1"
    loop:

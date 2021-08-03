@@ -25,7 +25,7 @@
    delegate_to: "{{ item }}"
    with_items: "{{ groups['all'] }}"
 
- - name: Upgrade pip version
+ - name: Upgrade pip version on client nodes
    shell: pip3 install update pip
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
@@ -175,7 +175,9 @@
 
 
  - name: Archiving artifacts to NFS server
-   shell: python3 /root/PerfProBenchmark/archive_artifacts.py /root/PerfProBenchmark/config.yml /root/PerfProBenchmark/ perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}
+   shell: |
+     cd /root/PerfProBenchmark/ 
+     python3 /root/PerfProBenchmark/archive_artifacts.py /root/PerfProBenchmark/config.yml perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
 

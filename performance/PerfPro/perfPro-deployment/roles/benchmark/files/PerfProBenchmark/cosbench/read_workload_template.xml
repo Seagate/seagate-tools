@@ -12,7 +12,7 @@
 
     <!-- 100% Read -->
     <workstage name="100r">
-      <work name="100r" workers="_WORKERS_" runtime="_RUNTIME_" division="object">
+      <work name="100r" workers="_WORKERS_" totalOps="_TOTAL_OBJECTS_" division="object">
         <operation type="read" ratio="100" config="cprefix=_SIZE_mb-;containers=u(1,_BUCKETS_);oprefix=r-_HASH_;objects=u(1,_OBJECTS_)" />
       </work>
     </workstage>

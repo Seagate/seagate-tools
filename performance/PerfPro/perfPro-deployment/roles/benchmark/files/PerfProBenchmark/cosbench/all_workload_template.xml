@@ -12,7 +12,7 @@
 
     <!-- 100% Write -->
     <workstage name="100w">
-      <work name="100w" workers="_WORKERS_" runtime="_RUNTIME_" division="object">
+      <work name="100w" workers="_WORKERS_" totalOps="_TOTAL_OBJECTS_" division="object">
         <operation type="write" ratio="100" config="cprefix=_SIZE_mb-;containers=u(1,_BUCKETS_);oprefix=100w-_HASH_;objects=u(1,_OBJECTS_);sizes=c(_SIZE_)MB" />
       </work>
     </workstage>
@@ -22,14 +22,14 @@
 
     <!-- 100% Read -->
     <workstage name="100r">
-      <work name="100r" workers="_WORKERS_" runtime="_RUNTIME_" division="object">
+      <work name="100r" workers="_WORKERS_" totalOps="_TOTAL_OBJECTS_" division="object">
         <operation type="read" ratio="100" config="cprefix=_SIZE_mb-;containers=u(1,_BUCKETS_);oprefix=r-_HASH_;objects=u(1,_OBJECTS_)" />
       </work>
     </workstage>
 
     <!-- 50/50 Read/Write -->
     <workstage name="50r50w">
-      <work name="50r50w" workers="_WORKERS_" runtime="_RUNTIME_" division="object">
+      <work name="50r50w" workers="_WORKERS_" totalOps="_TOTAL_OBJECTS_" division="object">
         <operation type="read" ratio="50" config="cprefix=_SIZE_mb-;containers=u(1,_BUCKETS_);oprefix=r-_HASH_;objects=u(1,_OBJECTS_)" />
         <operation type="write" ratio="50" config="cprefix=_SIZE_mb-;containers=u(1,_BUCKETS_);oprefix=50w-_HASH_;objects=u(1,_OBJECTS_);sizes=c(_SIZE_)MB" />
       </work>
@@ -40,7 +40,7 @@
 
     <!-- 25/75 Read/Write -->
     <workstage name="25r75w">
-      <work name="25r75w" workers="_WORKERS_" runtime="_RUNTIME_" division="object">
+      <work name="25r75w" workers="_WORKERS_" totalOps="_TOTAL_OBJECTS_" division="object">
         <operation type="read" ratio="25" config="cprefix=_SIZE_mb-;containers=u(1,_BUCKETS_);oprefix=r-_HASH_;objects=u(1,_OBJECTS_)" />
         <operation type="write" ratio="75" config="cprefix=_SIZE_mb-;containers=u(1,_BUCKETS_);oprefix=75w-_HASH_;objects=u(1,_OBJECTS_);sizes=c(_SIZE_)MB" />
       </work>
@@ -51,7 +51,7 @@
 
     <!-- 75/25 Read/Write -->
     <workstage name="75r25w">
-      <work name="75r25w" workers="_WORKERS_" runtime="_RUNTIME_" division="object">
+      <work name="75r25w" workers="_WORKERS_" totalOps="_TOTAL_OBJECTS_" division="object">
         <operation type="read" ratio="75" config="cprefix=_SIZE_mb-;containers=u(1,_BUCKETS_);oprefix=r-_HASH_;objects=u(1,_OBJECTS_)" />
         <operation type="write" ratio="25" config="cprefix=_SIZE_mb-;containers=u(1,_BUCKETS_);oprefix=25w-_HASH_;objects=u(1,_OBJECTS_);sizes=c(_SIZE_)MB" />
       </work>

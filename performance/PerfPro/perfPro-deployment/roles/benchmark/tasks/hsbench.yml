@@ -18,8 +18,9 @@
        - { objsize: '64Kb', numsamples: '100000'}
        - { objsize: '256Kb', numsamples: '100000'}
        - { objsize: '1Mb', numsamples: '10000'}
-       - { objsize: '5Mb', numsamples: '10000'}
+       - { objsize: '8Mb', numsamples: '10000'}
        - { objsize: '16Mb', numsamples: '10000'}
+       - { objsize: '128Mb', numsamples: '10000'}
        - { objsize: '1000Mb', numsamples: '100'}
        - { objsize: '5000Mb', numsamples: '100'}
 
@@ -36,8 +37,9 @@
        - { objsize: '64Kb', numsamples: '100000'}
        - { objsize: '256Kb', numsamples: '100000'}
        - { objsize: '1Mb', numsamples: '10000'}
-       - { objsize: '5Mb', numsamples: '10000'}
+       - { objsize: '8Mb', numsamples: '10000'}
        - { objsize: '16Mb', numsamples: '10000'}
+       - { objsize: '128Mb', numsamples: '100'}
        - { objsize: '1000Mb', numsamples: '100'}
        - { objsize: '5000Mb', numsamples: '100'}
 
@@ -54,8 +56,9 @@
        - { objsize: '64Kb', numsamples: '100000'}
        - { objsize: '256Kb', numsamples: '100000'}
        - { objsize: '1Mb', numsamples: '10000'}
-       - { objsize: '5Mb', numsamples: '10000'}
+       - { objsize: '8Mb', numsamples: '10000'}
        - { objsize: '16Mb', numsamples: '10000'}
+       - { objsize: '128Mb', numsamples: '10000'}
        - { objsize: '1000Mb', numsamples: '100'}
        - { objsize: '5000Mb', numsamples: '100'}
 

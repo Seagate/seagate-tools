@@ -183,9 +183,12 @@ def parse_s3_info(report_dir):
 
 def parse_report_info(report_dir):
     rw_stats = {}
-    s3bench_log = join(report_dir, 'client/workload_s3bench.log')
-    if isfile(s3bench_log):
-        rw_stats = s3bench_log_parser.parse_s3bench_log(s3bench_log)
+    workload_log = join(report_dir, 'client')
+    s3bench_log_list = [ f for f in listdir(workload_log) if f.startswith('workload_s3bench')]    
+    for s3bench_log in s3bench_log_list:
+        s3bench_loc = join(workload_log,s3bench_log)
+        if isfile(s3bench_loc):
+            rw_stats = s3bench_log_parser.parse_s3bench_log(s3bench_loc)
 
     workload_filenames = []
 
@@ -195,6 +198,12 @@ def parse_report_info(report_dir):
     if isdir(workload_dir):
         workload_filenames.extend([f for f in listdir(
             workload_dir) if isfile(join(workload_dir, f))])
+
+    workload_dir = join(report_dir, 'core_benchmark')
+    if isdir(workload_dir):
+        workload_filenames.extend([f for f in listdir(
+            workload_dir) if isfile(join(workload_dir, f))])
+
     #Iperf
     iperf_rw_stat = {}
     iperf_log_list = fnmatch.filter(listdir(workload_dir), '*iperf_workload.log')
@@ -208,7 +217,6 @@ def parse_report_info(report_dir):
     #m0crate
     m0crate_dir = join(report_dir, 'm0crate')
     m0crate_rw_stats = {}
-
     if isdir(m0crate_dir):
         m0crate_logs = [f for f in listdir(
             m0crate_dir) if isfile(join(m0crate_dir, f)) and f.endswith('.log')]

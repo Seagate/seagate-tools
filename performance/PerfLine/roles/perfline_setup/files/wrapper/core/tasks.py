@@ -46,24 +46,11 @@ def parse_options(conf, result_dir):
     if conf['stats_collection']['glances']:
         options.append('--glances')
 
-
-    # Benchmarks
-    for b in conf['benchmarks']:
-        if 'lnet' in b:
-            options.append('--lnet')
-            options.append('-ops')
-            options.append(b['lnet']['LNET_OPS'])
-        if 'fio' in b:
-            options.append('--fio')
-            # Fio Parameter
-            options.append('-t')
-            options.append(b['fio']['Duration'])
-            options.append('-bs')
-            options.append(b['fio']['BlockSize'])
-            options.append('-nj')
-            options.append(b['fio']['NumJobs'])
-            options.append('-tm')
-            options.append(b['fio']['Template'])
+    # Workloads
+    for b in conf['workloads']:
+        if 'custom' in b:
+            options.append('-w')
+            options.append(b['custom']['cmd'])
         elif 's3bench' in b:
             options.append('--s3bench')
             # Parameter
@@ -83,22 +70,6 @@ def parse_options(conf, result_dir):
             for param_name, param_val in b['m0crate'].items():
                 params_str += "{}={} ".format(param_name, param_val)
             options.append('--m0crate-params')
-            options.append(params_str)
-        elif 'custom' in b:
-            options.append('-w')
-            options.append(b['custom']['cmd'])
-        elif 'iperf' in b:
-            options.append('--iperf')
-            params_str = ''
-            for param_name, param_val in b['iperf'].items():
-                if param_name == "Interval":
-                   param_name = "-i"
-                elif param_name == "Duration":
-                   param_name = "-t"
-                elif param_name == "Parallel":
-                   param_name = "-P"
-                params_str += "{} {} ".format(param_name, param_val)
-            options.append('--iperf-params')
             options.append(params_str)
 
     # Execution options:
@@ -216,7 +187,6 @@ def run_worker(conf, result_dir):
     mv['/tmp/workload.log', result_dir] & plumbum.FG
     return result
 
-
 def sw_update(conf, log_dir):
     options = []
     result = 'SUCCESS'
@@ -254,6 +224,66 @@ def sw_update(conf, log_dir):
 
     return result
 
+def run_corebenchmark(conf, log_dir):
+    options = []
+    options.append('-p')
+    options.append(log_dir)
+    result = 'SUCCESS'
+    mv = plumbum.local['mv']
+    # Benchmarks
+    for b in conf['benchmarks']:
+       if 'lnet' in b:
+           options.append('--lnet')
+           options.append('-ops')
+           options.append(b['lnet']['LNET_OPS'])
+       elif 'fio' in b:
+           options.append('--fio')
+           # Fio Parameter
+           options.append('-t')
+           options.append(b['fio']['Duration'])
+           options.append('-bs')
+           options.append(b['fio']['BlockSize'])
+           options.append('-nj')
+           options.append(b['fio']['NumJobs'])
+           options.append('-tm')
+           options.append(b['fio']['Template'])
+       elif 'custom' in b:
+           options.append('-w')
+           options.append(b['custom']['cmd'])
+       elif 'iperf' in b:
+           options.append('--iperf')
+           params_str = ''
+           for param_name, param_val in b['iperf'].items():
+               if param_name == "Interval":
+                  param_name = "-i"
+               elif param_name == "Duration":
+                  param_name = "-t"
+               elif param_name == "Parallel":
+                  param_name = "-P"
+               params_str += "{} {} ".format(param_name, param_val)
+           options.append('--iperf-params')
+           options.append(params_str)
+    		
+    
+    with plumbum.local.env():
+        benchmark_update = plumbum.local["scripts/core_benchmarks.sh"]
+        try:
+           tee = plumbum.local['tee']
+           (benchmark_update[options] | tee['/tmp/core_benchmarks.log']) & plumbum.FG
+        except plumbum.commands.processes.ProcessExecutionError:
+           result = 'FAILED'
+     
+    mv['/tmp/core_benchmarks.log', log_dir] & plumbum.FG
+
+    return result
+
+def save_workloadconfig(conf, result_dir):
+    workload = "{}/workload.yaml".format(result_dir)
+    try:
+        with open(workload, 'w') as file:
+            yaml.dump(conf, file,default_flow_style=False, sort_keys=False)
+    except FileNotFoundError as e:
+        print(e)
 
 @huey.task(context=True)
 def worker_task(conf_opt, task):
@@ -289,12 +319,14 @@ def worker_task(conf_opt, task):
 
         failed = False
 
+        ret = save_workloadconfig(conf, result["artifacts_dir"])
+
         if not failed:
             ret = restore_original_configs()
             if ret == 'FAILED':
                 result['finish_time'] = str(datetime.now())
                 failed = True
-                
+               
         if not failed:
             ret = sw_update(conf, result["artifacts_dir"])
             if ret == 'FAILED':
@@ -303,6 +335,12 @@ def worker_task(conf_opt, task):
 
         if not failed:
             ret = update_configs(conf, result["artifacts_dir"])
+            if ret == 'FAILED':
+                result['finish_time'] = str(datetime.now())
+                failed = True
+
+        if not failed:
+            ret = run_corebenchmark(conf, result["artifacts_dir"])
             if ret == 'FAILED':
                 result['finish_time'] = str(datetime.now())
                 failed = True
@@ -333,11 +371,8 @@ def worker_task(conf_opt, task):
         pack_artifacts(result["artifacts_dir"])
 
     pl_metadata_file = "{}/perfline_metadata.json".format(result["artifacts_dir"])
-    
-    workload = "{}/workload.yaml".format(result["artifacts_dir"])
+
     try:
-        with open(workload, 'w') as file:
-            yaml.dump(conf, file,default_flow_style=False, sort_keys=False)
         with open(pl_metadata_file, "wt") as f:
             f.write(json.dumps(result))
     except FileNotFoundError as e:

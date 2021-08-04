@@ -56,7 +56,21 @@
 	<!-- workload -->
 	<td>
 		<table>
-			<tr ng-repeat="bench in row.benchmarks">
+                        <tr ng-repeat="bench in row.benchmarks">
+                                <td>
+                                        <table ng-repeat="(b_name, b_params) in bench">
+                                                <tr>
+                                                        <th>{{b_name}}:</th>
+                                                </tr>
+                                                <tr ng-repeat="(p_name, p_val) in b_params">
+                                                        <td>{{p_name}}:</td>
+                                                        <td>{{p_val}}</td>
+                                                </tr>
+
+                                        </table>
+                                </td>
+                        </tr>
+			<tr ng-repeat="bench in row.workloads">
 				<td>
 					<table ng-repeat="(b_name, b_params) in bench">
 						<tr>

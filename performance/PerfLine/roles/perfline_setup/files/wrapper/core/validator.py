@@ -118,9 +118,10 @@ def get_schema_motr():
                   }
                }
             }]
-         },
-         'benchmarks': {
+        },
+        'benchmarks': {
              'type': 'list',
+             'required': False,
              'schema': {
                 'type': 'dict', 
                 'oneof': [{
@@ -158,6 +159,34 @@ def get_schema_motr():
                 },
                 {
                             'schema': {
+                                'iperf': {
+                                    'type': 'dict',
+                                    'schema': {
+                                        'Interval': {'type': 'integer', 'required': False },
+                                        'Duration': {'type': 'integer', 'required': True, 'default': 60 },
+                                        'Parallel': {'type': 'integer', 'required': False },
+                                    }
+                                }
+                            } 
+                }]
+            }  
+        },         
+        'workloads': {
+             'type': 'list',
+             'schema': {
+                'type': 'dict', 
+                'oneof': [{
+                            'schema': {
+                                'custom': {
+                                    'type': 'dict',
+                                    'schema': {
+                                        'cmd': {'type': 'string', 'required': True}
+                                    }
+                                }
+                            }
+                },
+				{
+                            'schema': {
                                 's3bench': {
                                     'type': 'dict',
                                     'schema': {
@@ -169,19 +198,7 @@ def get_schema_motr():
                                     }
                                 }
                             }
-                },
-                {
-                            'schema': {
-                                'iperf': {
-                                    'type': 'dict',
-                                    'schema': {
-                                        'Interval': {'type': 'integer', 'required': False },
-                                        'Duration': {'type': 'integer', 'required': True, 'default': 60 },
-                                        'Parallel': {'type': 'integer', 'required': False },
-                                    }
-                                }
-                            } 
-                },
+                },               
                 {
                             'schema': {
                                 'm0crate': {
@@ -203,8 +220,8 @@ def get_schema_motr():
                                 }
                             }
                 }]
-             }    
-         },
+			}
+        },
         'execution_options': {
             'type': 'dict',
             'schema': {

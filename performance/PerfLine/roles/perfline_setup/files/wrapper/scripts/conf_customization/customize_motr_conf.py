@@ -54,6 +54,7 @@ def read_src_config(src_config_path):
 
     return conf_file_content
 
+
 def detect_key(line):
     # ignore comments and empty lines
     if line.startswith('#') or line == '':
@@ -71,13 +72,13 @@ def detect_key(line):
 
     return key_value_parts[0].strip()
 
+
 def process_conf_file_content(file_content, params_vals):
     tmp_params_vals = params_vals.copy()
     result = list()
 
     for line in file_content:
         key = detect_key(line)
-
 
         if key is not None and key in tmp_params_vals:
             new_val = tmp_params_vals[key]

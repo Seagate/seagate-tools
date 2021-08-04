@@ -18,8 +18,9 @@
        - { objsize: '64Kb', numsamples: '100000'}
        - { objsize: '256Kb', numsamples: '100000'}
        - { objsize: '1Mb', numsamples: '10000'}
-       - { objsize: '5Mb', numsamples: '10000'}
+       - { objsize: '8Mb', numsamples: '10000'}
        - { objsize: '16Mb', numsamples: '10000'}
+       - { objsize: '128Mb', numsamples: '10000'}
        - { objsize: '1000Mb', numsamples: '100'}
        - { objsize: '5000Mb', numsamples: '100'}
 
@@ -36,10 +37,12 @@
        - { objsize: '64Kb', numsamples: '10000'}
        - { objsize: '256Kb', numsamples: '10000'}
        - { objsize: '1Mb', numsamples: '1000'}
-       - { objsize: '5Mb', numsamples: '1000'}
+       - { objsize: '8Mb', numsamples: '1000'}
        - { objsize: '16Mb', numsamples: '1000'}
+       - { objsize: '128Mb', numsamples: '1000'}
        - { objsize: '1000Mb', numsamples: '10'}
        - { objsize: '5000Mb', numsamples: '10'}
+
  - name: "[COSBench-100-Buckets]: Cosbench running for 100 Buckets"
    shell: |
       cd /root/PerfProBenchmark/cosbench/
@@ -53,8 +56,9 @@
        - { objsize: '64Kb', numsamples: '1000'}
        - { objsize: '256Kb', numsamples: '1000'}
        - { objsize: '1Mb', numsamples: '100'}
-       - { objsize: '5Mb', numsamples: '100'}
+       - { objsize: '8Mb', numsamples: '100'}
        - { objsize: '16Mb', numsamples: '100'}
+       - { objsize: '128Mb', numsamples: '100'}
        - { objsize: '1000Mb', numsamples: '1'}
        - { objsize: '5000Mb', numsamples: '1'}
 

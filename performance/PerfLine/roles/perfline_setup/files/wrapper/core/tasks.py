@@ -231,49 +231,50 @@ def run_corebenchmark(conf, log_dir):
     result = 'SUCCESS'
     mv = plumbum.local['mv']
     # Benchmarks
-    for b in conf['benchmarks']:
-       if 'lnet' in b:
-           options.append('--lnet')
-           options.append('-ops')
-           options.append(b['lnet']['LNET_OPS'])
-       elif 'fio' in b:
-           options.append('--fio')
-           # Fio Parameter
-           options.append('-t')
-           options.append(b['fio']['Duration'])
-           options.append('-bs')
-           options.append(b['fio']['BlockSize'])
-           options.append('-nj')
-           options.append(b['fio']['NumJobs'])
-           options.append('-tm')
-           options.append(b['fio']['Template'])
-       elif 'custom' in b:
-           options.append('-w')
-           options.append(b['custom']['cmd'])
-       elif 'iperf' in b:
-           options.append('--iperf')
-           params_str = ''
-           for param_name, param_val in b['iperf'].items():
-               if param_name == "Interval":
-                  param_name = "-i"
-               elif param_name == "Duration":
-                  param_name = "-t"
-               elif param_name == "Parallel":
-                  param_name = "-P"
-               params_str += "{} {} ".format(param_name, param_val)
-           options.append('--iperf-params')
-           options.append(params_str)
-    		
+    if 'benchmarks' in conf:
+       for b in conf['benchmarks']:
+          if 'custom' in b:
+              options.append('-w')
+              options.append(b['custom']['cmd'])
+          elif 'lnet' in b:
+              options.append('--lnet')
+              options.append('-ops')
+              options.append(b['lnet']['LNET_OPS'])
+          elif 'fio' in b:
+              options.append('--fio')
+              # Fio Parameter
+              options.append('-t')
+              options.append(b['fio']['Duration'])
+              options.append('-bs')
+              options.append(b['fio']['BlockSize'])
+              options.append('-nj')
+              options.append(b['fio']['NumJobs'])
+              options.append('-tm')
+              options.append(b['fio']['Template'])
+          elif 'iperf' in b:
+              options.append('--iperf')
+              params_str = ''
+              for param_name, param_val in b['iperf'].items():
+                  if param_name == "Interval":
+                     param_name = "-i"
+                  elif param_name == "Duration":
+                     param_name = "-t"
+                  elif param_name == "Parallel":
+                     param_name = "-P"
+                  params_str += "{} {} ".format(param_name, param_val)
+              options.append('--iperf-params')
+              options.append(params_str)
+      		
     
-    with plumbum.local.env():
-        benchmark_update = plumbum.local["scripts/core_benchmarks.sh"]
-        try:
-           tee = plumbum.local['tee']
-           (benchmark_update[options] | tee['/tmp/core_benchmarks.log']) & plumbum.FG
-        except plumbum.commands.processes.ProcessExecutionError:
-           result = 'FAILED'
-     
-    mv['/tmp/core_benchmarks.log', log_dir] & plumbum.FG
+       with plumbum.local.env():
+           benchmark_update = plumbum.local["scripts/core_benchmarks.sh"]
+           try:
+              tee = plumbum.local['tee']
+              (benchmark_update[options] | tee['/tmp/core_benchmarks.log']) & plumbum.FG
+           except plumbum.commands.processes.ProcessExecutionError:
+              result = 'FAILED'
+        
+       mv['/tmp/core_benchmarks.log', log_dir] & plumbum.FG
 
     return result
 

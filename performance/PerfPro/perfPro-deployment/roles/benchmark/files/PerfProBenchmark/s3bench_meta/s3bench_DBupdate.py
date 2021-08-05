@@ -90,7 +90,7 @@ class s3bench:
                 "Object_Size" : self.Object_Size ,
                 "Sessions": self.Sessions ,
                 "Objects" : self.Objects ,
-                "Buckets": "1" ,
+                "Buckets": 1 ,
                 "Build" : self.Build ,
                 "Version" : self.Version ,
                 "Branch" : self.Branch ,
@@ -157,10 +157,10 @@ def insertOperations(file,Build,Version,col,Config_ID,Branch,OS):   #function fo
     while count<150:
         if "numSamples:" in lines[count].strip().replace(" ", ""):
             r=lines[count].strip().replace(" ", "").split(":")
-            Objects=r[1]
+            Objects = int(r[1])
         if "numClients:" in lines[count].strip().replace(" ", ""):
             r=lines[count].strip().replace(" ", "").split(":")
-            sessions=r[1]
+            sessions = int(r[1])
         if "objectSize(MB):" in lines[count].strip().replace(" ", ""):
             r=lines[count].strip().replace(" ", "").split(":")
             Objsize = float(r[1])

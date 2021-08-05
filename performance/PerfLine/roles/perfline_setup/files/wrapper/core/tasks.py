@@ -154,6 +154,25 @@ def update_configs(conf, log_dir):
                         options.append(p_name)
                         options.append('{}={}'.format(k, repr(v)))
 
+        if 'haproxy' in conf['configuration']:
+            haproxy = conf['configuration']['haproxy']
+
+            if 'maxconn_total' in haproxy:
+                options.append('--haproxy-maxconn-total')
+                options.append(haproxy['maxconn_total'])
+
+            if 'maxconn_per_s3_instance' in haproxy:
+                options.append('--haproxy-maxconn-per-s3-instance')
+                options.append(haproxy['maxconn_per_s3_instance'])
+
+            if 'nbproc' in haproxy:
+                options.append('--haproxy-nbproc')
+                options.append(haproxy['nbproc'])
+
+            if 'nbthread' in haproxy:
+                options.append('--haproxy-nbthread')
+                options.append(haproxy['nbthread'])
+
         if 'hare' in conf['configuration']:
             hare = conf['configuration']['hare']
             if 'custom_cdf' in hare:

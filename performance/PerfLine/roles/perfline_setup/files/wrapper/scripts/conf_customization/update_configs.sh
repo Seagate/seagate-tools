@@ -97,6 +97,22 @@ function parse_args()
                 S3_PARAMS="$S3_PARAMS $1 \"$2\""
                 shift
                 ;;
+            --haproxy-maxconn-total)
+                HAPROXY_PARAMS="$HAPROXY_PARAMS --maxconn-total $2"
+                shift
+                ;;
+            --haproxy-maxconn-per-s3-instance)
+                HAPROXY_PARAMS="$HAPROXY_PARAMS --maxconn-per-s3-instance $2"
+                shift
+                ;;
+            --haproxy-nbproc)
+                HAPROXY_PARAMS="$HAPROXY_PARAMS --nbproc $2"
+                shift
+                ;;
+            --haproxy-nbthread)
+                HAPROXY_PARAMS="$HAPROXY_PARAMS --nbthread $2"
+                shift
+                ;;
             *)
                 echo -e "Invalid option: $1\nUse --help option"
                 exit 1
@@ -213,9 +229,19 @@ function customize_motr_config()
 
 function customize_haproxy_config()
 {
+    local params=""
+
     if [[ -n "$S3_INSTANCE_NR" ]]; then
+        params="$params --s3-instance-nr $S3_INSTANCE_NR"
+    fi
+
+    if [[ -n "$HAPROXY_PARAMS" ]]; then
+        params="$params $HAPROXY_PARAMS"
+    fi
+
+    if [[ -n "$params" ]]; then
         $EX_SRV "$SCRIPT_DIR/customize_haproxy_conf.py -s $HAPROXY_CONFIG \
-            -d $HAPROXY_CONFIG --s3-instance-nr $S3_INSTANCE_NR"
+            -d $HAPROXY_CONFIG $params"
     fi
 }
 

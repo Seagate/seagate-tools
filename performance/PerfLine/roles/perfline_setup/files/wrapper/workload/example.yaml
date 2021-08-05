@@ -62,6 +62,11 @@ configuration:
       S3_MOTR_LOCAL_ADDR: <ipaddress>@tcp:12345:33:100
     S3_THIRDPARTY_CONFIG:
       S3_LIBEVENT_POOL_BUFFER_SIZE: 16384
+  haproxy:
+    maxconn_total: 1000
+    maxconn_per_s3_instance: 300
+    nbproc: 1 # can't be used together with nbthread
+    nbthread: 2 # can't be used together with nbproc
   hare:
     custom_cdf: /path/to/custom/cdf.yaml # custom CDF have to be located on client node
     sns:

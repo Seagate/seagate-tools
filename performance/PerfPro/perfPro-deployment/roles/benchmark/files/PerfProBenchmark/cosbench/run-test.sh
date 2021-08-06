@@ -96,11 +96,20 @@ replace_placeholders() {
     fi
   done <$S3_SETUP_FILE
 
+  #Handling objects per bucket to keep total objects constant
+   total_objects=$no_of_objects
+   no_of_objects=$(( no_of_objects/no_of_buckets ))
+   if [ $(( total_objects%no_of_buckets )) -ne 0 ]
+   then
+         no_of_objects=$(( no_of_objects + 1 ))
+   fi
+
   #generate hash of 32 char
   hash=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
 
   sed -i  's/_SIZE_/'"$object_size"'/g' $workload_file_name
   sed -i  's/_TYPE_/'"$type_of_object_MB_or_KB"'/g' $workload_file_name
+  sed -i  's/_TOTAL_OBJECTS_/'"$total_objects"'/g' $workload_file_name
   sed -i  's/_OBJECTS_/'"$no_of_objects"'/g' $workload_file_name
   sed -i  's/_WORKERS_/'"$no_of_workers"'/g' $workload_file_name
   sed -i  's/_RUNTIME_/'"$run_time_in_seconds"'/g' $workload_file_name

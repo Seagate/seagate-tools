@@ -113,16 +113,5 @@
 
 - include: enable_cross_connect.yml
 
-- name: Taking backup of yum repo
-  command: mv /etc/yum.repos.d /etc/yum.repos.d.BAK
-  delegate_to: "{{ item }}"
-  with_items: "{{ groups['nodes'] }}"
-
-- name: restore yum repo
-  unarchive:
-     src: files/yum.repos.d.tar.gz
-     dest: /etc/
-  delegate_to: "{{ item }}"
-  with_items: "{{ groups['nodes'] }}"
-
+#Removed yum backup and restore yum repo part and included in benchmark tasks
 #Removed ansible log archival to NFS as these logs are also present when we collect ansible logs from benchmark role.

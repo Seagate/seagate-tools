@@ -98,7 +98,7 @@ class s3bench:
                 "Count_of_Servers": self.Nodes_Num ,
                 "Count_of_Clients" : self.Clients_Num,
                 #"Iteration" : self.Iteration ,
-                "PC_Full" : self.PC_Full ,
+                "Percentage_full" : self.PC_Full ,
                 "Custom" : self.Custom
                 }
         updateentry={

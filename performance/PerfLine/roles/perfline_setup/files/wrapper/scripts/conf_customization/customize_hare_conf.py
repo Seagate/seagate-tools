@@ -57,6 +57,9 @@ specified by user.
     parser.add_argument("--dix-spare-units", type=int,
                         help="set new value for dix spare units")
 
+    parser.add_argument("--s3-instance-nr", type=int,
+                        help="set new s3 instances number")
+
     return parser.parse_args()
 
 
@@ -91,6 +94,11 @@ def override_units_value(cdf_data, pool_type, units_type, new_value):
     pool[units_type] = new_value
 
 
+def override_s3_instance_nr(cdf_data, s3_instance_nr):
+    for node in cdf_data['nodes']:
+        node['m0_clients']['s3'] = s3_instance_nr
+
+
 def main():
     args = parse_args()
     cdf_data = read_src_config(args.src_conf_file)
@@ -112,6 +120,9 @@ def main():
 
     if args.dix_spare_units is not None:
         override_units_value(cdf_data, 'dix', 'spare_units', args.dix_spare_units)
+
+    if args.s3_instance_nr is not None:
+        override_s3_instance_nr(cdf_data, args.s3_instance_nr)
 
     write_dst_config(cdf_data, args.dst_conf_file)
 

@@ -71,10 +71,22 @@ def get_schema_motr():
                             'required': False,
                             'type': 'dict',
                             'empty': False
-                            }
                         }
                     }
+                },
+                's3': {
+                    'required': False,
+                    'type': 'dict',
+                    'schema': {
+                        'custom_conf': {'type': 'string', 'required': False, 'empty': False},
+                        'instances_per_node': {'type': 'integer', 'required': False, 'empty': False},
+                        'S3_SERVER_CONFIG': {'type': 'dict', 'required': False, 'empty': False},
+                        'S3_AUTH_CONFIG': {'type': 'dict', 'required': False, 'empty': False},
+                        'S3_MOTR_CONFIG': {'type': 'dict', 'required': False, 'empty': False},
+                        'S3_THIRDPARTY_CONFIG': {'type': 'dict', 'required': False, 'empty': False},
+                    }
                 }
+            }
              
         },
         'stats_collection': {

@@ -12,7 +12,7 @@
 
     <!-- 50/50 Read/Write -->
     <workstage name="5050rw">
-      <work name="5050rw" workers="_WORKERS_" runtime="_RUNTIME_" division="object">
+      <work name="5050rw" workers="_WORKERS_" totalOps="_TOTAL_OBJECTS_" division="object">
         <operation type="read" ratio="50" config="cprefix=_SIZE_mb-;containers=u(1,_BUCKETS_);oprefix=r-_HASH_;objects=u(1,_OBJECTS_)" />
         <operation type="write" ratio="50" config="cprefix=_SIZE_mb-;containers=u(1,_BUCKETS_);oprefix=50w-_HASH_;objects=u(1,_OBJECTS_);sizes=c(_SIZE_)_TYPE_" />
       </work>

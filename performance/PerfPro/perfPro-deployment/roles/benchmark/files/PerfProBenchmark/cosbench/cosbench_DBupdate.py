@@ -100,7 +100,7 @@ def insert_data(file,Build,Version,Config_ID,db,col,Branch,OS):  # function for 
                         "Objects": objects, 
                         "Sessions": sessions ,
                         #"Iteration" : iteration ,
-                        "PC_Full" : pc_full ,
+                        "Percentage_full" : pc_full ,
                         "Custom" : str(custom).upper()
                         }
                        # 'PKey' : Version[0]+'_'+Branch[0].upper()+'_'+Build+'_ITR'+str(iteration)+'_'+str(nodes_num)+'N_'+str(clients_num)+'C_'+str(pc_full)+'PC_'+str(custom).upper()+'_COS_'+str(obj_size.replace(" ","").upper())+'_'+str(buckets)+'_'+operation[0].upper()+'_'+str(sessions) 

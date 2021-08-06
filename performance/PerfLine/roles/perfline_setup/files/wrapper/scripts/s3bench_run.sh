@@ -72,18 +72,18 @@ function parse_creds()
     if [[ -n "$ACCESS_KEY" && -n "$SECRET_KEY" ]]; then
         return 0
     fi
-
-    ACCESS_KEY=$(cat ~/.aws/credentials | grep aws_access_key_id | cut -d= -f2)
-    SECRET_KEY=$(cat ~/.aws/credentials | grep aws_secret_access_key | cut -d= -f2)
+    ACCESS_KEY=$(egrep ^[^#] ~/.aws/credentials | grep aws_access_key_id | cut -d= -f2 | tr -d " ")
+    SECRET_KEY=$(egrep ^[^#] ~/.aws/credentials | grep aws_secret_access_key | cut -d= -f2 | tr -d " ")
 }
 
 
 function run_s3bench()
 {
-    if [[ -z $FILE ]]; then
-	FILE="s3bench_workload_${NUM_SAMPLES}_${NUM_CLIENTS}_${OBJ_SIZE}.log"
+    if [[ -f "s3bench_report.csv" ]]; then
+        $PERFLINE_DIR/bin/s3bench_perfline -accessKey $ACCESS_KEY -accessSecret $SECRET_KEY -bucket $BUCKET_NAME -numSamples $NUM_SAMPLES -objectSize $OBJ_SIZE -numClients $NUM_CLIENTS -endpoint "$ENDPOINT" -o s3bench_report.csv -t csv+
+    else
+        $PERFLINE_DIR/bin/s3bench_perfline -accessKey $ACCESS_KEY -accessSecret $SECRET_KEY -bucket $BUCKET_NAME -numSamples $NUM_SAMPLES -objectSize $OBJ_SIZE -numClients $NUM_CLIENTS -endpoint "$ENDPOINT" -o s3bench_report.csv -t csv
     fi
-    $PERFLINE_DIR/bin/s3bench_perfline -accessKey $ACCESS_KEY -accessSecret $SECRET_KEY -bucket $BUCKET_NAME -numSamples $NUM_SAMPLES -objectSize $OBJ_SIZE -numClients $NUM_CLIENTS -endpoint "$ENDPOINT" 
 
     
 }

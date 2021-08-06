@@ -50,7 +50,7 @@ stats_collection:
 
 # List of benchmarks and parameters. This section must include
 # at least one benchmark (custom/fio/s3bench/m0crate).
-benchmarks:
+workloads:
   - s3bench:
       BucketName: mybucket
       NumClients: 1, [100-900:100]

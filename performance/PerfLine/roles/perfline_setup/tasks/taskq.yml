@@ -84,7 +84,7 @@
     with_items: "{{ groups['all'] }}"
 
 
-  - name: "Coping a block of statement in perfline.service file"
+  - name: "Coping a block of statement in perfline-ui.service file"
     blockinfile:
       path: /etc/systemd/system/{{ PERFLINE_UI_SERVICE_NAME }}.service
       create: yes
@@ -101,7 +101,7 @@
                 WantedBy=multi-user.target
     delegate_to: "client-1" 
 
-  - name: "Coping a block of statement in perfline-ui.service file"
+  - name: "Coping a block of statement in perfline.service file"
     blockinfile:
       path: /etc/systemd/system/{{ PERFLINE_SERVICE_NAME }}.service
       create: yes

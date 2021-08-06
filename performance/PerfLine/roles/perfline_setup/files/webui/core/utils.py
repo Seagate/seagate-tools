@@ -37,6 +37,9 @@ def tq_task_common_get(elem, r):
     if 'benchmarks' in info['info']['conf']:
         elem['benchmarks'] = info['info']['conf']['benchmarks']
 
+    if 'workloads' in info['info']['conf']:
+        elem['workloads'] = info['info']['conf']['workloads']
+
     fmt = '%Y-%m-%d %H:%M:%S.%f'
     hms = '%Y-%m-%d %H:%M:%S'
     q = datetime.datetime.strptime(info['info']['enqueue_time'], fmt)

@@ -1,4 +1,6 @@
 ---
+#yum and pip installation are part of prepare_setup.yml
+
  - include: hostconfig.yml
 
  - include: prepare_setup.yml

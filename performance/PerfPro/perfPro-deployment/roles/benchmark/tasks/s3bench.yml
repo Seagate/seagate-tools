@@ -1,5 +1,5 @@
 ---
- - name: "Create List of nodes to be added into Cluster"
+ - name: "Preaparing Cluster Node List"
    set_fact: nodelist={%for host in groups['nodes']%}{{hostvars[host]['ansible_host']}}{% if not loop.last %},{% endif %}{% endfor %}
 
  - name: "Defining numclients variable for concurrency"
@@ -27,8 +27,9 @@
    delegate_to: "clientnode-1"
    loop:
        - { objsize: '1Mb', numsamples: '10000'}
-       - { objsize: '5Mb', numsamples: '10000'}
+       - { objsize: '8Mb', numsamples: '10000'}
        - { objsize: '16Mb', numsamples: '10000'}
+       - { objsize: '128Mb', numsamples: '10000'}
 
  - name: "[S3bench-Xtralarge-objects]: S3benchmark running (size='1Gb,5Gb')"
    shell: |

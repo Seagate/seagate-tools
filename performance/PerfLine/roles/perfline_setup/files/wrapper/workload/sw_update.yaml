@@ -46,7 +46,7 @@ stats_collection:
   blktrace: true
   glances: false
 
-benchmarks:
+workloads:
   - s3bench:
       BucketName: mybucket
       NumClients: 10

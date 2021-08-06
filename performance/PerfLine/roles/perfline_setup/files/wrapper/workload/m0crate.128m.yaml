@@ -33,7 +33,7 @@ stats_collection:
   blktrace: true
   glances: false
 
-benchmarks:
+workloads:
   - m0crate:
       NR_THREADS: 8
       BLOCK_SIZE: 1m

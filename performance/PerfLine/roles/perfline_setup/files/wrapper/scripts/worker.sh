@@ -141,16 +141,16 @@ function is_cluster_online() {
     return 0
 }
 
-function run_workloads()
+function custom_workloads()
 {
     mkdir -p $CLIENT_ARTIFACTS_DIR
     pushd $CLIENT_ARTIFACTS_DIR
 
     START_TIME=`date +%s000000000`
-    for ((i = 0; i < $((${#WORKLOADS[*]})); i++)); do
+    for ((i = 0; i < $((${#CUSTOM_WORKLOADS[*]})); i++)); do
         echo "workload $i"
-        local cmd=${WORKLOADS[((i))]}
-        eval $cmd | tee custom-${i}.log
+        local cmd=${CUSTOM_WORKLOADS[((i))]}
+        eval $cmd | tee custom-workload-${i}.log
 	STATUS=${PIPESTATUS[0]}
     done
 
@@ -159,36 +159,15 @@ function run_workloads()
     popd			# $CLIENT_ARTIFACTS_DIR
 }
 
-function fio_workloads()
-{
-   START_TIME=`date +%s000000000`  
-   echo "Fio workload triggered on $NODES" 
-   $EX_SRV "$SCRIPT_DIR/run_fiobenchmark.sh -t $DURATION -bs $BLOCKSIZE -nj $NUMJOBS -tm $TEMPATE"
-   STATUS=${PIPESTATUS[0]}
-   STOP_TIME=`date +%s000000000`
-   sleep 120
-}
-
 function s3bench_workloads()
 {
     mkdir -p $CLIENT_ARTIFACTS_DIR
     pushd $CLIENT_ARTIFACTS_DIR
     START_TIME=`date +%s000000000`
-    $SCRIPT_DIR/s3bench_run.sh -b $BUCKETNAME -n $SAMPLE -c $CLIENT -o $IOSIZE -e $ENDPOINT | tee $S3BENCH_LOGFILE
+    $SCRIPT_DIR/s3bench_run.sh -b $BUCKETNAME -n $SAMPLE -c $CLIENT -o $IOSIZE -e $ENDPOINT | tee $S3BENCH_LOGFILE-$START_TIME.log
     STATUS=${PIPESTATUS[0]}
     STOP_TIME=`date +%s000000000`
     sleep 120
-    popd
-}
-
-function run_lnet_workloads()
-{
-    mkdir -p $CLIENT_ARTIFACTS_DIR
-    pushd $CLIENT_ARTIFACTS_DIR
-    START_TIME=`date +%s000000000`
-    ssh $PRIMARY_NODE "$SCRIPT_DIR/lnet_workload.sh $NODES $LNET_OPS" | tee $LNET_WORKLOG
-    STATUS=${PIPESTATUS[0]}
-    STOP_TIME=`date +%s000000000`
     popd
 }
 
@@ -208,22 +187,6 @@ function m0crate_workload()
 
     STOP_TIME=`date +%s000000000`
     sleep 120
-}
-
-function iperf_workload()
-{
-    mkdir -p $CLIENT_ARTIFACTS_DIR
-    pushd $CLIENT_ARTIFACTS_DIR
-    START_TIME=`date +%s000000000`
-    iperf -s | tee $(hostname)_iperf.log &
-    for node in ${NODES//,/ }
-    do
-        ssh $node "iperf -c $PUBLIC_DATA_INTERFACE $IPERF_PARAMS" > $node\_iperf_workload.log
-    done
-    pkill iperf
-    STATUS=${PIPESTATUS[0]}
-    STOP_TIME=`date +%s000000000`
-    popd
 }
 
 function pushd_to_results_dir() {
@@ -265,7 +228,6 @@ function save_motr_artifacts() {
     fi
     popd # $dumps_dir
 }
-
 
 function save_s3srv_artifacts() {
     local auth_dir="auth"
@@ -359,8 +321,8 @@ function save_stats() {
 }
 
 function save_perf_results() {
-    local s3bench_log="$CLIENT_ARTIFACTS_DIR/$S3BENCH_LOGFILE"
-
+    local s3bench_file=$(ls $CLIENT_ARTIFACTS_DIR | grep $S3BENCH_LOGFILE)
+    local s3bench_log="$CLIENT_ARTIFACTS_DIR/$s3bench_file"
     if [[ -f "$s3bench_log" ]]; then
         echo "Benchmark: s3bench" >> $PERF_RESULTS_FILE
         $SCRIPT_DIR/../stat/report_generator/s3bench_log_parser.py $s3bench_log >> $PERF_RESULTS_FILE
@@ -381,11 +343,11 @@ function save_perf_results() {
         done
     fi
     
-    if `ls $CLIENT_ARTIFACTS_DIR/*iperf.log > /dev/null`; then
+    if `ls $CORE_BENCHMARK/*iperf.log > /dev/null`; then
         echo "Benchmark: iPerf" >> $PERF_RESULTS_FILE
         for node in ${NODES//,/ }
         do
-            $SCRIPT_DIR/../stat/report_generator/iperf_log_parser.py $CLIENT_ARTIFACTS_DIR/$node\_iperf_workload.log >> $PERF_RESULTS_FILE
+            $SCRIPT_DIR/../stat/report_generator/iperf_log_parser.py $CORE_BENCHMARK/$node\_iperf_workload.log >> $PERF_RESULTS_FILE
             echo "" >> $PERF_RESULTS_FILE
         done
     fi
@@ -488,7 +450,6 @@ function start_measuring_workload_time()
 function stop_measuring_workload_time()
 {
     WORKLOAD_TIME_STOP_SEC=$(date +'%s')
-
     local stats="stats"
     mkdir -p $stats
     pushd $stats
@@ -506,7 +467,6 @@ function start_measuring_test_time()
 function stop_measuring_test_time()
 {
     TEST_TIME_STOP_SEC=$(date +'%s')
-    
     local stats="stats"
     mkdir -p $stats
     pushd $stats
@@ -552,11 +512,6 @@ function main() {
 
     # go to artifacts folder
     pushd_to_results_dir
-   
-    # lnet workload
-    if [[ -n $LNET ]]; then
-        run_lnet_workloads
-    fi
 
     restart_cluster
 
@@ -568,14 +523,9 @@ function main() {
     # Start workload time execution measuring
     start_measuring_workload_time
     
-    # fio workload
-    if [[ -n $FIO ]]; then
-        fio_workloads
-    fi
-
     # Start custom workloads
-    if [[ -n "$WORKLOADS" ]]; then
-        run_workloads
+    if [[ -n "$CUSTOM_WORKLOADS" ]]; then
+        custom_workloads
     fi
     
     # Start s3bench workload
@@ -585,10 +535,6 @@ function main() {
 
     if [[ -n "$RUN_M0CRATE" ]]; then
         m0crate_workload
-    fi
-    
-    if [[ -n $RUN_IPERF ]]; then
-        iperf_workload
     fi
 
     # Stop workload time execution measuring
@@ -628,12 +574,15 @@ echo "parameters: $@"
 while [[ $# -gt 0 ]]; do
     case $1 in
         -w|--workload_config)
-            WORKLOADS+=("$2")
+            CUSTOM_WORKLOADS+=("$2")
             shift
             ;;
         -p|--result-path)
             RESULTS_DIR=$2
             shift
+            ;;
+        --s3bench)
+            S3BENCH="1"
             ;;
         -bucket)
             BUCKETNAME=$2
@@ -653,42 +602,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         -endpoint)
             ENDPOINT=$2
-            shift
-            ;;
-        -t)
-            DURATION=$2
-            shift
-            ;;
-        -bs)
-            BLOCKSIZE=$2
-            shift
-            ;;
-        -nj)
-            NUMJOBS=$2
-            shift
-            ;;
-        -tm)
-            TEMPATE=$2
-            shift
-            ;;
-        --lnet)
-            LNET="1"
-            ;;
-        -ops)
-            LNET_OPS=$2
-            shift
-            ;;       
-        --fio)                 
-            FIO="1"
-            ;;
-        --s3bench)
-            S3BENCH="1"
-            ;;
-        --iperf)
-            RUN_IPERF="1"
-            ;;
-        --iperf-params)
-            IPERF_PARAMS="$2"
             shift
             ;;
         --iostat)

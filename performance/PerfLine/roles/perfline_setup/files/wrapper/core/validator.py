@@ -71,10 +71,22 @@ def get_schema_motr():
                             'required': False,
                             'type': 'dict',
                             'empty': False
-                            }
                         }
                     }
+                },
+                's3': {
+                    'required': False,
+                    'type': 'dict',
+                    'schema': {
+                        'custom_conf': {'type': 'string', 'required': False, 'empty': False},
+                        'instances_per_node': {'type': 'integer', 'required': False, 'empty': False},
+                        'S3_SERVER_CONFIG': {'type': 'dict', 'required': False, 'empty': False},
+                        'S3_AUTH_CONFIG': {'type': 'dict', 'required': False, 'empty': False},
+                        'S3_MOTR_CONFIG': {'type': 'dict', 'required': False, 'empty': False},
+                        'S3_THIRDPARTY_CONFIG': {'type': 'dict', 'required': False, 'empty': False},
+                    }
                 }
+            }
              
         },
         'stats_collection': {
@@ -132,9 +144,10 @@ def get_schema_motr():
                   }
                }
             }]
-         },
-         'benchmarks': {
+        },
+        'benchmarks': {
              'type': 'list',
+             'required': False,
              'schema': {
                 'type': 'dict', 
                 'oneof': [{
@@ -172,6 +185,34 @@ def get_schema_motr():
                 },
                 {
                             'schema': {
+                                'iperf': {
+                                    'type': 'dict',
+                                    'schema': {
+                                        'Interval': {'type': 'integer', 'required': False },
+                                        'Duration': {'type': 'integer', 'required': True, 'default': 60 },
+                                        'Parallel': {'type': 'integer', 'required': False },
+                                    }
+                                }
+                            } 
+                }]
+            }  
+        },         
+        'workloads': {
+             'type': 'list',
+             'schema': {
+                'type': 'dict', 
+                'oneof': [{
+                            'schema': {
+                                'custom': {
+                                    'type': 'dict',
+                                    'schema': {
+                                        'cmd': {'type': 'string', 'required': True}
+                                    }
+                                }
+                            }
+                },
+				{
+                            'schema': {
                                 's3bench': {
                                     'type': 'dict',
                                     'schema': {
@@ -183,19 +224,7 @@ def get_schema_motr():
                                     }
                                 }
                             }
-                },
-                {
-                            'schema': {
-                                'iperf': {
-                                    'type': 'dict',
-                                    'schema': {
-                                        'Interval': {'type': 'integer', 'required': False },
-                                        'Duration': {'type': 'integer', 'required': True, 'default': 60 },
-                                        'Parallel': {'type': 'integer', 'required': False },
-                                    }
-                                }
-                            } 
-                },
+                },               
                 {
                             'schema': {
                                 'm0crate': {
@@ -217,8 +246,8 @@ def get_schema_motr():
                                 }
                             }
                 }]
-             }    
-         },
+			}
+        },
         'execution_options': {
             'type': 'dict',
             'schema': {

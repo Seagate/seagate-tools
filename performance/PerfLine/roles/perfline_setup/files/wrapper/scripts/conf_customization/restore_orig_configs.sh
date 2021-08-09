@@ -36,6 +36,12 @@ HARE_CONFIG_BACKUP="$HARE_CONF_LOCATION/.perfline__cluster.yaml__backup"
 MOTR_CONFIG="/etc/sysconfig/motr"
 MOTR_CONFIG_BACKUP="/etc/sysconfig/.perfline__motr__backup"
 
+HAPROXY_CONFIG="/etc/haproxy/haproxy.cfg"
+HAPROXY_CONFIG_BACKUP="/etc/haproxy/.perfline__haproxy.cfg__backup"
+
+S3_CONFIG="/opt/seagate/cortx/s3/conf/s3config.yaml"
+S3_CONFIG_BACKUP="/opt/seagate/cortx/s3/conf/.perfline__s3config.yaml__backup"
+
 function restore_hare_config()
 {
     $EX_SRV "if [[ -e $HARE_CONFIG_BACKUP ]]; then mv -f $HARE_CONFIG_BACKUP $HARE_CONFIG; fi"
@@ -46,10 +52,22 @@ function restore_motr_config()
     $EX_SRV "if [[ -e $MOTR_CONFIG_BACKUP ]]; then mv -f $MOTR_CONFIG_BACKUP $MOTR_CONFIG; fi"
 }
 
+function restore_haproxy_config()
+{
+    $EX_SRV "if [[ -e $HAPROXY_CONFIG_BACKUP ]]; then mv -f $HAPROXY_CONFIG_BACKUP $HAPROXY_CONFIG; fi"
+}
+
+function restore_s3_config()
+{
+    $EX_SRV "if [[ -e $S3_CONFIG_BACKUP ]]; then mv -f $S3_CONFIG_BACKUP $S3_CONFIG; fi"
+}
+
 function main()
 {
     restore_hare_config
     restore_motr_config
+    restore_haproxy_config
+    restore_s3_config
 }
 
 main $@

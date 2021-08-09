@@ -50,6 +50,18 @@ configuration:
     params:
       MOTR_M0T1FS: yes
       MOTR_LOG_DIR: /var/log/motr
+  s3:
+    custom_conf: /path/to/custom/s3config.yaml # custom config have to be located on client node
+    instances_per_node: 2
+    S3_SERVER_CONFIG:
+      S3_DI_DISABLE_DATA_CORRUPTION_IEM: false
+      S3_SERVER_REGION_ENDPOINTS: [s3-us-west-2.seagate.com, s3-us.seagate.com, s3-europe.seagate.com, s3-asia.seagate.com]
+    S3_AUTH_CONFIG:
+      S3_AUTH_IP_ADDR: ipv4:127.0.0.1
+    S3_MOTR_CONFIG:
+      S3_MOTR_LOCAL_ADDR: <ipaddress>@tcp:12345:33:100
+    S3_THIRDPARTY_CONFIG:
+      S3_LIBEVENT_POOL_BUFFER_SIZE: 16384
   hare:
     custom_cdf: /path/to/custom/cdf.yaml # custom CDF have to be located on client node
     sns:
@@ -79,6 +91,12 @@ benchmarks:
       BlockSize: 8M
       NumJobs: 32
       Template: seq_read_fio       #Template for fio like seq_read_fio, seq_write_fio, randmix_80-20_fio, randmix_20-80_fio and rand_fio
+  - iperf:
+      Interval: 1
+      Duration: 60
+      Parallel: 2
+
+workloads:
   - s3bench:
       BucketName: mybucket
       NumClients: 10
@@ -90,11 +108,6 @@ benchmarks:
       NR_THREADS: 2
       BLOCK_SIZE: 2m
       IOSIZE: 4m
-  - iperf:
-      Interval: 1
-      Duration: 60
-      Parallel: 2
-
 
 execution_options:
   mkfs: false

@@ -74,7 +74,8 @@ def makeconnection(collection):  #function for making connection with database
     db=client[configs['db_database']]  #database name=performance
     Version=get_release_info('VERSION')
     Version=Version[1:-1]
-    col_stats=collection+'_'+Version[0]
+#    col_stats=collection+'_'+Version[0]
+    col_stats=configs.get('R'+Version[0])[collection]
     col=db[col_stats]  #collection name = systemresults
     return col
 
@@ -102,7 +103,8 @@ def getconfig():
 
 def adddata(data,device,col):
     dict1 = getconfig()
-    conf = makeconnection('configurations')
+#    conf = makeconnection('configurations')
+    conf = makeconnection('config_collection')
     Config_ID = "NA"
     result = conf.find_one(dict1)
     if result:
@@ -131,7 +133,8 @@ def adddata(data,device,col):
 
 
 def addReport(): #function for getting system report accoordiing to 'cmd' argument
-    col = makeconnection('systemresults')
+#    col = makeconnection('systemresults')
+    col = makeconnection('sysstat_collection')
     cmd = [['sar 5','p1',"CPU"],['sar -r 5','p2',"MEMORY"],['sar -d 5','p3',"DISK"],['sar -b 5','p4',"I/O"],['sar -n DEV 5','p5',"NETWORK"]]
     count =0
     f = open("pidfile","w+")

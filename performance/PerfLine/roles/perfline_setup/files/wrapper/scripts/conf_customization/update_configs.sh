@@ -42,6 +42,11 @@ HAPROXY_CONFIG_BACKUP="/etc/haproxy/.perfline__haproxy.cfg__backup"
 S3_CONFIG="/opt/seagate/cortx/s3/conf/s3config.yaml"
 S3_CONFIG_BACKUP="/opt/seagate/cortx/s3/conf/.perfline__s3config.yaml__backup"
 
+LNET_CONFIG="/etc/modprobe.d/lnet.conf"
+LNET_CONFIG_BACKUP="/etc/modprobe.d/.perfline__lnet.conf__backup"
+
+IB_CONFIG="/etc/modprobe.d/ko2iblnd.conf"
+IB_CONFIG_BACKUP="/etc/modprobe.d/.perfline__ko2iblnd.conf__backup"
 
 function parse_args()
 {
@@ -97,6 +102,14 @@ function parse_args()
                 S3_PARAMS="$S3_PARAMS $1 \"$2\""
                 shift
                 ;;
+	    --lnet-custom-conf)
+		LNET_CUSTOM_CONF="$2"
+		shift
+		;;
+	    --ib-custom-conf)
+		IB_CUSTOM_CONF="$2"
+		shift
+		;;
             *)
                 echo -e "Invalid option: $1\nUse --help option"
                 exit 1
@@ -112,6 +125,8 @@ function check_backup_files()
     $EX_SRV "[[ ! -e $MOTR_CONFIG_BACKUP ]]"
     $EX_SRV "[[ ! -e $HAPROXY_CONFIG_BACKUP ]]"
     $EX_SRV "[[ ! -e $S3_CONFIG_BACKUP ]]"
+    $EX_SRV "[[ ! -e $LNET_CONFIG_BACKUP ]]"
+    $EX_SRV "[[ ! -e $IB_CONFIG_BACKUP ]]"
 }
 
 function save_original_configs()
@@ -120,6 +135,8 @@ function save_original_configs()
     save_original_motr_config
     save_original_haproxy_config
     save_original_s3_config
+    save_original_lnet_config
+    save_original_ib_config
 }
 
 function save_original_hare_config()
@@ -142,12 +159,24 @@ function save_original_s3_config()
     $EX_SRV cp $S3_CONFIG $S3_CONFIG_BACKUP
 }
 
+function save_original_lnet_config()
+{
+    $EX_SRV cp $LNET_CONFIG $LNET_CONFIG_BACKUP
+}
+
+function save_original_ib_config()
+{
+    $EX_SRV cp $IB_CONFIG $IB_CONFIG_BACKUP
+}
+
 function customize_configs()
 {
     customize_hare_config
     customize_motr_config
     customize_haproxy_config
     customize_s3_config
+    customize_lnet_config
+    customize_ib_config
 }
 
 function customize_hare_config()
@@ -231,6 +260,28 @@ function customize_s3_config()
     fi
 }
 
+function customize_lnet_config()
+{
+    if [[ -n "$LNET_CUSTOM_CONF" ]]; then
+        $EX_SRV "scp root@$(hostname):$LNET_CUSTOM_CONF $LNET_CONFIG"
+    fi
+}
+
+function customize_ib_config()
+{
+    if [[ -n "$IB_CUSTOM_CONF" ]]; then
+        $EX_SRV "scp root@$(hostname):$IB_CUSTOM_CONF $IB_CONFIG"
+    fi
+}
+
+function apply_configs()
+{
+    set +e
+    $EX_SRV "systemctl stop lnet"
+    $EX_SRV "systemctl start lnet"
+    $EX_SRV "systemctl restart haproxy"
+    set -e
+}
 
 function main()
 {
@@ -238,6 +289,7 @@ function main()
     check_backup_files
     save_original_configs
     customize_configs
+    apply_configs
 }
 
 main "$@"

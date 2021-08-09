@@ -269,7 +269,8 @@ def main(argv):
     OS=OS[1:-1]
 
     #col_config = db[configs_main['config_collection']]
-    col_config='configurations_'+Version[0]
+    #col_config='configurations_'+Version[0]
+    col_config=configs_main.get('R'+Version[0])['config_collection']
     dic = getconfig()
     Config_ID = "NA"
     result = db[col_config].find_one(dic)    
@@ -277,8 +278,8 @@ def main(argv):
         Config_ID = result['_id'] # foreign key : it will map entry in configurations to results entry
     
     #col=db[configs_main['db_collection']]
-    col='results_'+Version[0]
-
+    #col='results_'+Version[0]
+    col=configs_main.get('R'+Version[0])['db_collection']
     for f in files:
         insertOperations(f,Build,Version,col,Config_ID,Branch,OS)
     #update_mega_chain(Build,Version, col)

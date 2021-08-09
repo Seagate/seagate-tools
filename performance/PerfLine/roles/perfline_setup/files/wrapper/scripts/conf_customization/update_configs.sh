@@ -36,6 +36,12 @@ HARE_CONFIG_BACKUP="$HARE_CONF_LOCATION/.perfline__cluster.yaml__backup"
 MOTR_CONFIG="/etc/sysconfig/motr"
 MOTR_CONFIG_BACKUP="/etc/sysconfig/.perfline__motr__backup"
 
+HAPROXY_CONFIG="/etc/haproxy/haproxy.cfg"
+HAPROXY_CONFIG_BACKUP="/etc/haproxy/.perfline__haproxy.cfg__backup"
+
+S3_CONFIG="/opt/seagate/cortx/s3/conf/s3config.yaml"
+S3_CONFIG_BACKUP="/opt/seagate/cortx/s3/conf/.perfline__s3config.yaml__backup"
+
 
 function parse_args()
 {
@@ -79,6 +85,18 @@ function parse_args()
                 MOTR_PARAMS="$MOTR_PARAMS $2"
                 shift
                 ;;
+            --s3-custom-conf)
+                S3_CUSTOM_CONF="$2"
+                shift
+                ;;
+            --s3-instance-nr)
+                S3_INSTANCE_NR="$2"
+                shift
+                ;;
+            --s3-srv-param|--s3-auth-param|--s3-motr-param|--s3-thirdparty-param)
+                S3_PARAMS="$S3_PARAMS $1 \"$2\""
+                shift
+                ;;
             *)
                 echo -e "Invalid option: $1\nUse --help option"
                 exit 1
@@ -92,12 +110,16 @@ function check_backup_files()
 {
     $EX_SRV "[[ ! -e $HARE_CONFIG_BACKUP ]]"
     $EX_SRV "[[ ! -e $MOTR_CONFIG_BACKUP ]]"
+    $EX_SRV "[[ ! -e $HAPROXY_CONFIG_BACKUP ]]"
+    $EX_SRV "[[ ! -e $S3_CONFIG_BACKUP ]]"
 }
 
 function save_original_configs()
 {
     save_original_hare_config
     save_original_motr_config
+    save_original_haproxy_config
+    save_original_s3_config
 }
 
 function save_original_hare_config()
@@ -110,10 +132,22 @@ function save_original_motr_config()
     $EX_SRV cp $MOTR_CONFIG $MOTR_CONFIG_BACKUP
 }
 
+function save_original_haproxy_config()
+{
+    $EX_SRV cp $HAPROXY_CONFIG $HAPROXY_CONFIG_BACKUP
+}
+
+function save_original_s3_config()
+{
+    $EX_SRV cp $S3_CONFIG $S3_CONFIG_BACKUP
+}
+
 function customize_configs()
 {
     customize_hare_config
     customize_motr_config
+    customize_haproxy_config
+    customize_s3_config
 }
 
 function customize_hare_config()
@@ -149,6 +183,10 @@ function customize_hare_config()
         params="$params --dix-spare-units $HARE_CONF_DIX_SPARE_UNITS"
     fi
 
+    if [[ -n "$S3_INSTANCE_NR" ]]; then
+        params="$params --s3-instance-nr $S3_INSTANCE_NR"
+    fi
+
     if [[ -n "$params" ]]; then
         $EX_SRV "$SCRIPT_DIR/customize_hare_conf.py \
           -s $HARE_CONFIG -d $HARE_CONFIG $params"
@@ -173,14 +211,34 @@ function customize_motr_config()
     fi
 }
 
+function customize_haproxy_config()
+{
+    if [[ -n "$S3_INSTANCE_NR" ]]; then
+        $EX_SRV "$SCRIPT_DIR/customize_haproxy_conf.py -s $HAPROXY_CONFIG \
+            -d $HAPROXY_CONFIG --s3-instance-nr $S3_INSTANCE_NR"
+    fi
+}
+
+function customize_s3_config()
+{
+    if [[ -n "$S3_CUSTOM_CONF" ]]; then
+        $EX_SRV "scp root@$(hostname):$S3_CUSTOM_CONF $S3_CONFIG"
+    fi
+
+    if [[ -n "$S3_PARAMS" ]]; then
+        $EX_SRV "$SCRIPT_DIR/customize_s3_conf.py -s $S3_CONFIG \
+            -d $S3_CONFIG $S3_PARAMS"
+    fi
+}
+
 
 function main()
 {
-    parse_args $@
+    parse_args "$@"
     check_backup_files
     save_original_configs
     customize_configs
 }
 
-main $@
+main "$@"
 exit $?

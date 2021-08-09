@@ -113,6 +113,12 @@ benchmarks:
       BlockSize: 8M
       NumJobs: 32
       Template: seq_read_fio       #Template for fio like seq_read_fio, seq_write_fio, randmix_80-20_fio, randmix_20-80_fio and rand_fio
+  - iperf:
+      Interval: 1
+      Duration: 60
+      Parallel: 2
+
+workloads:
   - s3bench:
       BucketName: mybucket
       NumClients: 10
@@ -120,13 +126,10 @@ benchmarks:
       ObjSize: 32Mb
       EndPoint: https://s3.seagate.com
   - m0crate:
+      NR_INSTANCES_PER_NODE: 2
       NR_THREADS: 2
       BLOCK_SIZE: 2m
       IOSIZE: 4m
-  - iperf:
-      Interval: 1
-      Duration: 60
-      Parallel: 2
 
 
 execution_options:
@@ -165,3 +168,14 @@ If you go to report page you could see detailed report for executed task, includ
 
 # DISCLAIMER / WARNING
 PerfLine is a tool, not a service, which is available to users to install and use at their own setups/machines. For multi-user use, PerfLine provide all required infrastructure with task/run queues and optional email notifications. But, It is outside scope of PerfLine to ensure that nothing runs outside of PerfLine infrastructure on user machines, when PerfLine is executing tasks/runs. This islolation is necessary for accurate data measurements / artifacts collection and must be ensured by user. If not ensured, results might have data which is adulterated unintentionally and accuracy compromised due to user machines being shared and used in parallel to PerfLine.
+
+# Known Issues
+Description:
+- Perfline installation process will generate it's own key-pair, and it will add new identity file on "/etc/sshd/ssh_config" then it will execute reload  sshd service on all cortx servers. But we had noticed, Cortx cluster automatically reverted back to previous version of "ssh_config" file, which is responsible for connection lost.
+ 
+- Solution: This issues occurred due to puppet service. 
+To solve this issues, Please run below command on all cortx servers:
+```
+systemctl stop puppet
+systemctl disable puppet
+```

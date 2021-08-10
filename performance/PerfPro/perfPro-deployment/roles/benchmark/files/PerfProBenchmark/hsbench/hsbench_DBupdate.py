@@ -138,9 +138,11 @@ def push_data(files, host, db, Build, Version, Branch , OS):
     global nodes_num, clients_num, pc_full, iteration , overwrite, custom
     print("logged in from ", host)
     #collection=db[configs_main['db_collection']]
-    collection='results_'+Version[0]
+#    collection='results_'+Version[0]
+    collection=configs_main.get('R'+Version[0])['db_collection']
     #col_config = db[configs_main['config_collection']]
-    col_config ='configurations_'+Version[0]
+#    col_config ='configurations_'+Version[0]
+    col_config =configs_main.get('R'+Version[0])['config_collection']
     dic = getconfig()
     result = db[col_config].find_one(dic)  # find entry from configurations collection
     Config_ID = "NA"

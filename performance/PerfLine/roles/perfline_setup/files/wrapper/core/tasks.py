@@ -199,6 +199,18 @@ def update_configs(conf, log_dir):
                 options.append('--hare-dix-spare-units')
                 options.append(hare['dix']['spare_units'])
 
+        if 'lnet' in conf['configuration']:
+            lnet = conf['configuration']['lnet']
+            if 'custom_conf' in lnet:
+                options.append('--lnet-custom-conf')
+                options.append(lnet['custom_conf'])
+            
+        if 'ko2iblnd' in conf['configuration']:
+            ib = conf['configuration']['ko2iblnd']
+            if 'custom_conf' in ib:
+                options.append('--ib-custom-conf')
+                options.append(ib['custom_conf'])
+            
         update_configs = plumbum.local["scripts/conf_customization/update_configs.sh"]
         mv = plumbum.local['mv']
         try:

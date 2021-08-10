@@ -1,0 +1,78 @@
+---
+ - name: Check 'bak.yum.repos.d'directory exists and remove it if it exists
+   file:
+     state: absent
+     path: /etc/bak.yum.repos.d
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['all'] }}"
+
+ - name: Backing up 'yum.repos.d' as 'bak.yum.repos.d'
+   shell: mv /etc/yum.repos.d /etc/bak.yum.repos.d; sleep 1
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['all'] }}"
+
+ 
+ - name: Backing up 'pip.conf' as 'bak.pip.conf'
+   shell: mv /etc/pip.conf /etc/bak.pip.conf; sleep 1
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['all'] }}"
+
+ - name: Setting up perfpro yum dir
+   unarchive:
+     src: files/yum.repos.d.tar.gz
+     dest: /etc/
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['all'] }}"
+
+ - name: "[pre-requisites]: Required for regression test cases"
+   yum:
+     name:
+       - ansible
+       - ntp
+       - sysstat
+       - python3
+       - python3-pip
+       - pdsh
+     state: present
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['all'] }}"
+
+ - name: "[Services/daemons:start|stop|restart]: Required for regression test cases"
+   shell: systemctl stop ntpd ; /usr/sbin/ntpdate time.seagate.com ; systemctl start ntpd
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['all'] }}"
+
+ - name: Upgrade pip version on client nodes
+   shell: pip3 install update pip
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
+
+ - name: Pre-requisites python3 library on client server
+   pip:
+     name:
+       - setuptools_rust
+       - wheel
+     executable: pip3
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
+
+ - name: Installation of golang on client server
+   yum:
+     name: go
+     state: present
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
+
+ - name: Pre-requisites python3 library
+   pip:
+     name:
+       - PyYAML==5.3.1
+       - requests==2.24.0
+       - jsonschema==3.2.0
+       - pymongo==3.11.0
+       - pandas==1.0.5
+       - datetime==4.3
+       - yq
+     executable: pip3
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['all'] }}"

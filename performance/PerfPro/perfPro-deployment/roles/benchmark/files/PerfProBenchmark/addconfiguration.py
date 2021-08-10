@@ -44,7 +44,8 @@ def makeconnection():  #function for making connection with database
     db=client[configs['db_database']]  #database name=performance 
     Version=get_release_info('VERSION')
     Version=Version[1:-1]
-    col_conf='configurations_'+Version[0]
+#    col_conf='configurations_'+Version[0]
+    col_conf=configs.get('R'+Version[0])['config_collection']
     col=db[col_conf]  #collection name = configurations
     return col
 

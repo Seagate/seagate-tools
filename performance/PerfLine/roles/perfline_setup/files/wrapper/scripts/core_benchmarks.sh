@@ -1,5 +1,8 @@
 #!/bin/bash
 
+declare -A benchmark_type
+declare -A benchmarks
+
 set -e
 set -x
 
@@ -12,7 +15,8 @@ source "$SCRIPT_DIR/../../perfline.conf"
 
 EX_SRV="pdsh -S -w $NODES"
 PRIMARY_NODE=$(echo "$NODES" | cut -d "," -f1)
-
+CUSTOM_COUNT=1
+COUNT=0
 
 function validate() {
     local leave=
@@ -60,12 +64,9 @@ function custom_benchmark()
     mkdir -p $CORE_BENCHMARK
     pushd $CORE_BENCHMARK
     START_TIME=`date +%s000000000`
-    for ((i = 0; i < $((${#CUSTOM_BENCHMARKS[*]})); i++)); do
-        echo "workload $i"
-        local cmd=${CUSTOM_BENCHMARKS[((i))]}
-        eval $cmd | tee custom-corebenchmark-${i}.log
-	STATUS=${PIPESTATUS[0]}
-    done
+    eval $CUSTOM_BENCHMARKS | tee custom-benchmark-$CUSTOM_COUNT-$(date +"%F_%T.%3N").log
+    ((CUSTOM_COUNT=CUSTOM_COUNT+1))
+    STATUS=${PIPESTATUS[0]}
     STOP_TIME=`date +%s000000000`
     sleep 30
     popd			# $CORE_BENCHMARK
@@ -77,7 +78,7 @@ function fio_workloads()
    pushd $CORE_BENCHMARK
    START_TIME=`date +%s000000000`  
    echo "Fio workload triggered on $NODES" 
-   $EX_SRV "$SCRIPT_DIR/run_fiobenchmark.sh -t $DURATION -bs $BLOCKSIZE -nj $NUMJOBS -tm $TEMPATE"
+   $EX_SRV "$SCRIPT_DIR/run_fiobenchmark.sh $FIO_PARAMS"
    STATUS=${PIPESTATUS[0]}
    STOP_TIME=`date +%s000000000`
    sleep 120
@@ -89,7 +90,7 @@ function run_lnet_workloads()
     mkdir -p $CORE_BENCHMARK
     pushd $CORE_BENCHMARK
     START_TIME=`date +%s000000000`
-    ssh $PRIMARY_NODE "$SCRIPT_DIR/lnet_workload.sh $NODES $LNET_OPS" | tee $LNET_WORKLOG
+    ssh $PRIMARY_NODE "$SCRIPT_DIR/lnet_workload.sh $NODES $LNET_OPS" | tee $LNET_WORKLOG-$(date +"%F_%T.%3N").log
     STATUS=${PIPESTATUS[0]}
     STOP_TIME=`date +%s000000000`
     popd
@@ -100,10 +101,10 @@ function iperf_workload()
     mkdir -p $CORE_BENCHMARK
     pushd $CORE_BENCHMARK
     START_TIME=`date +%s000000000`
-    iperf -s | tee $(hostname)_iperf.log &
+    iperf -s | tee $(hostname)_iperf-$(date +"%F_%T.%3N").log &
     for node in ${NODES//,/ }
     do
-        ssh $node "iperf -c $PUBLIC_DATA_INTERFACE $IPERF_PARAMS" > $node\_iperf_workload.log
+        ssh $node "iperf -c $PUBLIC_DATA_INTERFACE $IPERF_PARAMS" > $node-iperf_workload-$(date +"%F_%T.%3N").log
     done
     pkill iperf
     STATUS=${PIPESTATUS[0]}
@@ -123,24 +124,33 @@ function main() {
     # go to artifacts folder
     pushd_to_results_dir
     
-    # Start custom benchmarks
-    if [[ -n "$CUSTOM_BENCHMARKS" ]]; then
-        custom_benchmark
-    fi
-
-    # lnet workload
-    if [[ -n $LNET ]]; then
-        run_lnet_workloads
-    fi
-    
-    # fio workload
-    if [[ -n $FIO ]]; then
-        fio_workloads
-    fi
-    
-    if [[ -n $RUN_IPERF ]]; then
-        iperf_workload
-    fi
+    for key in ${!benchmark_type[@]}; do
+        case "${benchmark_type[${key}]}" in
+             "custom")
+                echo "Start custom benchmarkss"
+                CUSTOM_BENCHMARKS=${benchmarks[${key}]}
+                custom_benchmark
+                ;;
+             "lnet")
+                echo "Start lnet workload"
+                LNET_OPS=${benchmarks[${key}]}
+                run_lnet_workloads
+                ;;
+             "fio")
+                echo "Start fio workload"
+                FIO_PARAMS=${benchmarks[${key}]}
+                fio_workloads
+                ;;
+             "iperf")
+                echo "Start iperf workload"
+                IPERF_PARAMS=${benchmarks[${key}]}
+                iperf_workload
+                ;;
+             *)
+                echo "Default condition to be executed"
+                ;;
+        esac
+    done
 
     # Stop workload time execution measuring
     stop_measuring_benchmark_time
@@ -153,7 +163,9 @@ echo "parameters: $@"
 while [[ $# -gt 0 ]]; do
     case $1 in
         -w|--workload_config)
-            CUSTOM_BENCHMARKS+=("$2")
+            benchmark_type["$COUNT"]+="custom"
+            benchmarks["$COUNT"]+="$2"
+            ((COUNT=COUNT+1))
             shift
             ;;
 
@@ -164,34 +176,28 @@ while [[ $# -gt 0 ]]; do
         --fio)                 
             FIO="1"
             ;;
-        -t)
-            DURATION=$2
-            shift
-            ;;
-        -bs)
-            BLOCKSIZE=$2
-            shift
-            ;;
-        -nj)
-            NUMJOBS=$2
-            shift
-            ;;
-        -tm)
-            TEMPATE=$2
+        --fio-params)
+            benchmark_type["$COUNT"]+="fio"
+            benchmarks["$COUNT"]+="$2"
+            ((COUNT=COUNT+1))
             shift
             ;;
         --lnet)
             LNET="1"
             ;;
         -ops)
-            LNET_OPS=$2
+            benchmark_type["$COUNT"]+="lnet"
+            benchmarks["$COUNT"]+="$2"
+            ((COUNT=COUNT+1))
             shift
             ;;       
         --iperf)
             RUN_IPERF="1"
             ;;
         --iperf-params)
-            IPERF_PARAMS="$2"
+            benchmark_type["$COUNT"]+="iperf"
+            benchmarks["$COUNT"]+="$2"
+            ((COUNT=COUNT+1))
             shift
             ;;
         *)

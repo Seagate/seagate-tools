@@ -71,6 +71,7 @@ Custom build:
 1. User have an optional feature to update R2 Cluster either using URL or can use specific commitID of IO-PATH components.
 2. User can provide any working git committ hash/ID combination for io-path components as long as user can ensure build won't fail. CORTX build on cluster would be updated accordingly.
 ```
+Order of execution and multiple execution of same workloads are allowed for benchmarks and workloads sections.. 
 
 For ex:
 ```
@@ -119,6 +120,8 @@ benchmarks:
       Parallel: 2
 
 workloads:
+  - custom:
+      cmd: sleep 1
   - s3bench:
       BucketName: mybucket
       NumClients: 10

@@ -199,6 +199,9 @@ def parse_report_info(report_dir):
         workload_filenames.extend([f for f in listdir(
             workload_dir) if isfile(join(workload_dir, f))])
 
+    # Excluding auto generated s3bench log files or duplicate logs.
+    workload_filenames = list(filter(lambda a: not a.startswith("s3bench-"), workload_filenames))
+
     workload_dir = join(report_dir, 'core_benchmark')
     if isdir(workload_dir):
         workload_filenames.extend([f for f in listdir(

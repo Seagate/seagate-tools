@@ -31,9 +31,9 @@ def parse_iperf_log(iperf_log_path):
       lines = f.read().splitlines()
       DataList = re.split('\s+', lines[-1])
       filename = re.split('\/', iperf_log_path)
-      index = [i for i, item in enumerate(filename) if item.endswith('workload.log')][0]
+      index = [i for i, item in enumerate(filename) if 'iperf-' in item ][0]
       host = re.split('_',filename[index])
-      index1 = [i for i, item in enumerate(host) if item.endswith('seagate.com')][0]
+      index1 = [i for i, item in enumerate(host) if 'seagate.com' in item ][0]
       res['Hostname'] = host[index1]
       for index in range(len(DataList)-6):
            DataList.remove(DataList[0])

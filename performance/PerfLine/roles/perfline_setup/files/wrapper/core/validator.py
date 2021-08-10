@@ -85,6 +85,20 @@ def get_schema_motr():
                         'S3_MOTR_CONFIG': {'type': 'dict', 'required': False, 'empty': False},
                         'S3_THIRDPARTY_CONFIG': {'type': 'dict', 'required': False, 'empty': False},
                     }
+                },
+                'lnet': {
+                    'required': False,
+                    'type': 'dict',
+                    'schema': {
+                        'custom_conf': {'type': 'string', 'required': False, 'empty': False},
+                    }
+                },
+                'ko2iblnd': {
+                    'required': False,
+                    'type': 'dict',
+                    'schema': {
+                        'custom_conf': {'type': 'string', 'required': False, 'empty': False},
+                    }
                 }
             }
              

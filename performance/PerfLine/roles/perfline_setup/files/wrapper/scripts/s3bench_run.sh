@@ -29,27 +29,23 @@ function parse_args()
 {
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -b|--bucket)
+            -b|--BucketName)
                 BUCKET_NAME="$2"
                 shift
                 ;;
-            -n|--num-samples)
+            -n|--NumSample)
                 NUM_SAMPLES="$2"
                 shift
                 ;;
-            -c|--num-clients)
+            -c|--NumClients)
                 NUM_CLIENTS="$2"
                 shift
                 ;;
-            -o|--object-size)
+            -o|--ObjSize)
                 OBJ_SIZE="$2"
                 shift
                 ;;
-            -f|--dump-file)
-                FILE="$2"
-                shift
-                ;;
-            -e|--endpoint)
+            -e|--EndPoint)
                 ENDPOINT="$2"
                 shift
                 ;;

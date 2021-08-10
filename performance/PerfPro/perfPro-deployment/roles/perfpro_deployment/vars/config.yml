@@ -1,4 +1,5 @@
 ---
+REIMAGE: 'No'
 # For host file update : add for more nodes/clients in environment or remove if less nodes/clients .
 NODES:  
   - 1:  # node_number_srvnode-1: hostname of node1 .

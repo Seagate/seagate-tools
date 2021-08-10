@@ -95,9 +95,22 @@ def get_schema_motr():
                         'nbproc': {'type': 'integer', 'required': False, 'empty': False, 'excludes': 'nbthread'},
                         'nbthread': {'type': 'integer', 'required': False, 'empty': False, 'excludes': 'nbproc'},
                     }
+                },
+                'lnet': {
+                    'required': False,
+                    'type': 'dict',
+                    'schema': {
+                        'custom_conf': {'type': 'string', 'required': False, 'empty': False},
+                    }
+                },
+                'ko2iblnd': {
+                    'required': False,
+                    'type': 'dict',
+                    'schema': {
+                        'custom_conf': {'type': 'string', 'required': False, 'empty': False},
+                    }
                 }
             }
-             
         },
         'stats_collection': {
             'type': 'dict',

@@ -1,5 +1,6 @@
 #!/bin/bash
-
+declare -A workloads
+declare -A workload_type
 set -e
 set -x
 
@@ -20,6 +21,9 @@ EX_SRV="pdsh -S -w $NODES"
 PRIMARY_NODE=$(echo "$NODES" | cut -d "," -f1)
 S3SERVER=$(ssh $PRIMARY_NODE "cat /var/lib/hare/cluster.yaml | \
             grep -o 's3: [[:digit:]]*'| head -1 | cut -d ':' -f2 | tr -d ' '")
+
+COUNT=0
+CUSTOM_COUNT=1
 
 function validate() {
     local leave=
@@ -101,7 +105,7 @@ function restart_pcs() {
 function restart_cluster() {
     echo "Restart cluster"
     systemctl restart haproxy
-    
+
     case $HA_TYPE in
 	"hare") restart_hare ;;
 	"pcs") restart_pcs ;;
@@ -147,13 +151,10 @@ function custom_workloads()
     pushd $CLIENT_ARTIFACTS_DIR
 
     START_TIME=`date +%s000000000`
-    for ((i = 0; i < $((${#CUSTOM_WORKLOADS[*]})); i++)); do
-        echo "workload $i"
-        local cmd=${CUSTOM_WORKLOADS[((i))]}
-        eval $cmd | tee custom-workload-${i}.log
-	STATUS=${PIPESTATUS[0]}
-    done
-
+    eval $CUSTOM_WORKLOADS | tee custom-workload-$CUSTOM_COUNT-$(date +"%F_%T.%3N").log
+    ((CUSTOM_COUNT=CUSTOM_COUNT+1))
+    STATUS=${PIPESTATUS[0]}
+    
     STOP_TIME=`date +%s000000000`
     sleep 30
     popd			# $CLIENT_ARTIFACTS_DIR
@@ -164,10 +165,10 @@ function s3bench_workloads()
     mkdir -p $CLIENT_ARTIFACTS_DIR
     pushd $CLIENT_ARTIFACTS_DIR
     START_TIME=`date +%s000000000`
-    $SCRIPT_DIR/s3bench_run.sh -b $BUCKETNAME -n $SAMPLE -c $CLIENT -o $IOSIZE -e $ENDPOINT | tee $S3BENCH_LOGFILE-$START_TIME.log
+    $SCRIPT_DIR/s3bench_run.sh $S3BENCH_PARAMS | tee $S3BENCH_LOGFILE-$(date +"%F_%T.%3N").log
     STATUS=${PIPESTATUS[0]}
     STOP_TIME=`date +%s000000000`
-    sleep 120
+    sleep 60
     popd
 }
 
@@ -321,13 +322,16 @@ function save_stats() {
 }
 
 function save_perf_results() {
-    local s3bench_file=$(ls $CLIENT_ARTIFACTS_DIR | grep $S3BENCH_LOGFILE)
-    local s3bench_log="$CLIENT_ARTIFACTS_DIR/$s3bench_file"
-    if [[ -f "$s3bench_log" ]]; then
-        echo "Benchmark: s3bench" >> $PERF_RESULTS_FILE
-        $SCRIPT_DIR/../stat/report_generator/s3bench_log_parser.py $s3bench_log >> $PERF_RESULTS_FILE
-        echo "" >> $PERF_RESULTS_FILE
-    fi
+    local s3bench_files=$(ls $CLIENT_ARTIFACTS_DIR | grep $S3BENCH_LOGFILE)
+    for s3bench_file in $s3bench_files;
+    do
+       local s3bench_log="$CLIENT_ARTIFACTS_DIR/$s3bench_file"
+       if [[ -f "$s3bench_log" ]]; then
+           echo "Benchmark: $s3bench_file" >> $PERF_RESULTS_FILE
+           $SCRIPT_DIR/../stat/report_generator/s3bench_log_parser.py $s3bench_log >> $PERF_RESULTS_FILE
+           echo "" >> $PERF_RESULTS_FILE
+       fi
+    done
 
     if [[ -n "$RUN_M0CRATE" ]]; then
         for m0crate_log in $M0CRATE_ARTIFACTS_DIR/m0crate.*.log; do
@@ -343,11 +347,14 @@ function save_perf_results() {
         done
     fi
     
-    if `ls $CORE_BENCHMARK/*iperf.log > /dev/null`; then
-        echo "Benchmark: iPerf" >> $PERF_RESULTS_FILE
-        for node in ${NODES//,/ }
+    if `ls $CORE_BENCHMARK/*iperf-* > /dev/null`; then
+        i=0
+        iperf_logs=$(ls $CORE_BENCHMARK/*iperf-*)
+        for iperf_log in $iperf_logs;
         do
-            $SCRIPT_DIR/../stat/report_generator/iperf_log_parser.py $CORE_BENCHMARK/$node\_iperf_workload.log >> $PERF_RESULTS_FILE
+            ((i=i+1))
+            echo "Benchmark: iPerf-$i" >> $PERF_RESULTS_FILE
+            $SCRIPT_DIR/../stat/report_generator/iperf_log_parser.py $iperf_log >> $PERF_RESULTS_FILE
             echo "" >> $PERF_RESULTS_FILE
         done
     fi
@@ -523,20 +530,29 @@ function main() {
     # Start workload time execution measuring
     start_measuring_workload_time
     
-    # Start custom workloads
-    if [[ -n "$CUSTOM_WORKLOADS" ]]; then
-        custom_workloads
-    fi
+    for key in ${!workload_type[@]}; do
+        case "${workload_type[${key}]}" in
+             "custom")
+                echo "Start custom workloads"
+                CUSTOM_WORKLOADS=${workloads[${key}]}
+                custom_workloads
+                ;;
+             "s3bench")
+                echo "Start s3bench workload"
+                S3BENCH_PARAMS=${workloads[${key}]}
+                s3bench_workloads
+                ;;
+             "m0crate")
+                echo "Start m0crate workload"
+                M0CRATE_PARAMS=${workloads[${key}]}
+                m0crate_workload
+                ;;
+             *)
+                echo "Default condition to be executed"
+                ;;
+        esac
+    done
     
-    # Start s3bench workload
-    if [[ -n $S3BENCH ]]; then
-        s3bench_workloads
-    fi
-
-    if [[ -n "$RUN_M0CRATE" ]]; then
-        m0crate_workload
-    fi
-
     # Stop workload time execution measuring
     stop_measuring_workload_time
 
@@ -574,7 +590,9 @@ echo "parameters: $@"
 while [[ $# -gt 0 ]]; do
     case $1 in
         -w|--workload_config)
-            CUSTOM_WORKLOADS+=("$2")
+            workload_type["$COUNT"]+="custom"
+            workloads["$COUNT"]+="$2"
+            ((COUNT=COUNT+1))
             shift
             ;;
         -p|--result-path)
@@ -584,24 +602,10 @@ while [[ $# -gt 0 ]]; do
         --s3bench)
             S3BENCH="1"
             ;;
-        -bucket)
-            BUCKETNAME=$2
-            shift
-            ;;
-        -clients)
-            CLIENT=$2
-            shift
-            ;;
-        -sample)
-            SAMPLE=$2
-            shift
-            ;;
-        -size)
-            IOSIZE=$2
-            shift
-            ;;
-        -endpoint)
-            ENDPOINT=$2
+        --s3bench-params)
+            workload_type["$COUNT"]+="s3bench"
+            workloads["$COUNT"]+="$2"
+            ((COUNT=COUNT+1))
             shift
             ;;
         --iostat)
@@ -629,7 +633,9 @@ while [[ $# -gt 0 ]]; do
             RUN_M0CRATE="1"
             ;;
         --m0crate-params)
-            M0CRATE_PARAMS="$2"
+            workload_type["$COUNT"]+="m0crate"
+            workloads["$COUNT"]+="$2"
+            ((COUNT=COUNT+1))
             shift
             ;;
         --mkfs)

@@ -54,16 +54,12 @@ def parse_options(conf, result_dir):
         elif 's3bench' in b:
             options.append('--s3bench')
             # Parameter
-            options.append('-bucket')
-            options.append(b['s3bench']['BucketName'])
-            options.append('-clients')
-            options.append(b['s3bench']['NumClients'])
-            options.append('-sample')
-            options.append(b['s3bench']['NumSample'])
-            options.append('-size')
-            options.append(b['s3bench']['ObjSize'])
-            options.append('-endpoint')
-            options.append(b['s3bench']['EndPoint'])
+            s3bench_params = ''
+            for param_name, param_val in b['s3bench'].items():
+                s3bench_params += "--{} {} ".format(param_name, param_val)
+            options.append('--s3bench-params')
+            options.append(s3bench_params)
+
         elif 'm0crate' in b:
             options.append('--m0crate')
             params_str = ''
@@ -277,14 +273,19 @@ def run_corebenchmark(conf, log_dir):
           elif 'fio' in b:
               options.append('--fio')
               # Fio Parameter
-              options.append('-t')
-              options.append(b['fio']['Duration'])
-              options.append('-bs')
-              options.append(b['fio']['BlockSize'])
-              options.append('-nj')
-              options.append(b['fio']['NumJobs'])
-              options.append('-tm')
-              options.append(b['fio']['Template'])
+              fio_params = ''
+              for param_name, param_val in b['fio'].items():
+                  if param_name == "Duration":
+                     param_name = "-t"
+                  elif param_name == "BlockSize":
+                     param_name = "-bs"
+                  elif param_name == "NumJobs":
+                     param_name = "-nj"
+                  elif param_name == "Template":
+                     param_name = "-tm"
+                  fio_params += "{} {} ".format(param_name, param_val)
+              options.append('--fio-params')
+              options.append(fio_params)
           elif 'iperf' in b:
               options.append('--iperf')
               params_str = ''

@@ -7,7 +7,6 @@
 - name: Updating host configuration file
   include: host_entry.yaml
 
-
 - meta: refresh_inventory
 
 - name: "[local-pre-req] : Install Pre-requisites on localhost"
@@ -18,6 +17,7 @@
       - curl
       - bc
       - jq
+      - nfs-utils
     state: latest
     update_cache: yes
 
@@ -62,6 +62,7 @@
 - name: "[reimage] : Enable Passwordless SSH"
   script: files/passwordless_ssh.sh {{ hostvars[item]['ansible_user'] }} {{ hostvars[item]['ansible_host'] }} {{ CLUSTER_PASS }}
   with_items: "{{ groups['all'] }}"
+  when: REIMAGE == "yes"
 
 - name: "[prov-prereq] : Download both ISOs and corresponding cortx-prep-<version>.sh script to both servers to /opt/isos"
   shell: mkdir -p /opt/isos; cd /opt/isos; for file in $(curl -s {{ BUILD_URL }} | grep href | sed 's/.*href="//' | sed 's/".*//' | grep '^[a-zA-Z].*'); do curl -s -O {{ BUILD_URL }}$file; done 
@@ -75,36 +76,39 @@
   when: REIMAGE == "yes"
 
 - include: inband.yml
+  when: REIMAGE == "yes"
 
 - include: disable_cross_connect.yml   
+  when: REIMAGE == "yes"
 
 - name: "[deploy-config] : copy Config File on Primary Node"
   copy:
      src: vars/config.ini
      dest: /root/
   delegate_to: "srvnode-1"
+  when: REIMAGE == "yes"
 
-- name: Copying expect rpm
-  copy:
-    src: files/expect-5.45-14.el7_1.x86_64.rpm
-    dest: /root/
-  delegate_to: "{{ item }}"
-  with_items: "{{ groups['nodes'] }}"
-
-- name: Installing expect packages
-  yum:
-    name: /root/expect-5.45-14.el7_1.x86_64.rpm
-    state: present
-  delegate_to: "{{ item }}"
-  with_items: "{{ groups['nodes'] }}"
-
-
+#- name: Copying expect rpm
+#  copy:
+#    src: files/expect-5.45-14.el7_1.x86_64.rpm
+#    dest: /root/
+#  delegate_to: "{{ item }}"
+#  with_items: "{{ groups['nodes'] }}"
+#
+#- name: Installing expect packages
+#  yum:
+#    name: /root/expect-5.45-14.el7_1.x86_64.rpm
+#    state: present
+#  delegate_to: "{{ item }}"
+#  with_items: "{{ groups['nodes'] }}"
+ 
 - name: Copying deployment scripts to srvnode-1
   copy:
     src: files/deploy_iso.sh
     dest: /root/
     mode: '0755'
   delegate_to: "srvnode-1"
+  when: REIMAGE == "yes"
  
 - name: "[deploy] : Deploy Cluster on Primary Node"
   shell: /root/deploy_iso.sh $(ls /opt/isos | grep single.iso) $(ls /opt/isos | grep os) {{ NODE1 }}  {{ NODE2 }}  {{ CLUSTER_PASS }}
@@ -112,6 +116,8 @@
   when: REIMAGE == "yes"
 
 - include: enable_cross_connect.yml
+  when: REIMAGE == "yes"
+
 
 #Removed yum backup and restore yum repo part and included in benchmark tasks
 #Removed ansible log archival to NFS as these logs are also present when we collect ansible logs from benchmark role.

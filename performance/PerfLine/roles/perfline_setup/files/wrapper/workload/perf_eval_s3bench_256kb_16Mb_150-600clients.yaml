@@ -38,53 +38,53 @@ workloads:
       NumClients: 150
       NumSample: 40000
       ObjSize: 256Kb
-      EndPoint: https://s3.seagate.com
+      EndPoint: http://s3.seagate.com
   - s3bench:
       BucketName: mybucket
       NumClients: 300
       NumSample: 40000
       ObjSize: 256Kb
-      EndPoint: https://s3.seagate.com
+      EndPoint: http://s3.seagate.com
   - s3bench:
       BucketName: mybucket
       NumClients: 450
       NumSample: 40000
       ObjSize: 256Kb
-      EndPoint: https://s3.seagate.com
+      EndPoint: http://s3.seagate.com
   - s3bench:
       BucketName: mybucket
       NumClients: 600
       NumSample: 40000
       ObjSize: 256Kb
-      EndPoint: https://s3.seagate.com
+      EndPoint: http://s3.seagate.com
   - s3bench:
       BucketName: mybucket
       NumClients: 150
       NumSample: 40000
       ObjSize: 16Mb
-      EndPoint: https://s3.seagate.com
+      EndPoint: http://s3.seagate.com
   - s3bench:
       BucketName: mybucket
       NumClients: 300
       NumSample: 40000
       ObjSize: 16Mb
-      EndPoint: https://s3.seagate.com
+      EndPoint: http://s3.seagate.com
   - s3bench:
       BucketName: mybucket
       NumClients: 450
       NumSample: 40000
       ObjSize: 16Mb
-      EndPoint: https://s3.seagate.com
+      EndPoint: http://s3.seagate.com
   - s3bench:
       BucketName: mybucket
       NumClients: 600
       NumSample: 40000
       ObjSize: 16Mb
-      EndPoint: https://s3.seagate.com
+      EndPoint: http://s3.seagate.com
 
 execution_options:
   mkfs: true
   collect_m0trace: true
-  collect_addb: true
+  collect_addb: false
   backup_result: false
 

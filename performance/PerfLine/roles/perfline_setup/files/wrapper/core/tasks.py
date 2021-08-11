@@ -76,6 +76,9 @@ def parse_options(conf, result_dir):
         options.append("--m0trace-files")
     if conf['execution_options']['collect_addb']:
         options.append("--addb-dumps")
+    if 'analyze_addb' in conf['execution_options']:
+        if conf['execution_options']['analyze_addb']:
+            options.append("--addb-analyze")
     if conf['execution_options']['backup_result']:
         options.append("--backup-result")
 

@@ -25,12 +25,10 @@ import argparse
 
 from os.path import basename
 
-MEAS_LABEL="[MEAS]"
+MEAS_LABEL = "[MEAS]"
+FOM_NAME_GEN = "fom-phase"
 
-sm_names_map = {
-    "Session states" : "session-state",
-    "Conn states"    : "conn-state"
-}
+fom_names = {"cas-fom"}
 
 def get_pid(file_path):
     file_name = basename(file_path)
@@ -40,6 +38,12 @@ def get_pid(file_path):
 def format_ts(ts):
     dt = datetime.datetime.fromtimestamp(ts / 1e9)
     return '{}.{:09.0f}'.format(dt.strftime('%Y-%m-%d-%H:%M:%S'), ts % 1e9)
+
+def fom_name_translate(name):
+    ret = name
+    if name in fom_names:
+        ret = FOM_NAME_GEN
+    return ret
 
 def consume_data(input_file):
     pid = get_pid(input_file)
@@ -58,12 +62,9 @@ def consume_data(input_file):
                 y = yaml.load(res[1])
 
                 time = y.pop('time', None)
-                conf_name = y.pop('conf_name', None)
+                name = y.pop('name', None)
 
-                if conf_name:
-                    name = sm_names_map[conf_name]
-                else:
-                    name = y.pop('name', None)
+                name = fom_name_translate(name)
 
                 if 'uuid' in y:
                     y['uuid'] = y['uuid'].replace(':', '&')

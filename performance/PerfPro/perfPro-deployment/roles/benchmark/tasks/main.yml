@@ -52,21 +52,6 @@
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
 
- - name: Configuration of s3bench benchmark tools  
-   command: go get github.com/igneous-systems/s3bench
-   delegate_to: "{{ item }}"
-   with_items: "{{ groups['clients'] }}"
-
- - name: copying s3bench_meta binaries file to client server
-   copy:
-       src: files/s3bench_meta
-       dest: /root/go/bin/
-       owner: root
-       group: root
-       mode: '0754'
-   delegate_to: "{{ item }}"
-   with_items: "{{ groups['clients'] }}"
-
  - include: finish_setup.yml
 
  - name: Make an entry for config.yml on a database

@@ -58,7 +58,7 @@
 
  - name: Installation of golang on client server
    yum:
-     name: go
+     name: go >= 1.15
      state: present
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"

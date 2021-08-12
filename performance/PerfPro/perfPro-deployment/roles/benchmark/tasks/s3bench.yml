@@ -7,7 +7,7 @@
 
  - name: "[S3bench-small-objects]: S3benchmark running (size='1Kb,4Kb,64Kb,256Kb')"
    shell: |
-      cd /root/PerfProBenchmark/s3bench_meta/
+      cd /root/PerfProBenchmark/s3bench/
       pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
       ./run_s3benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }}
       pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
@@ -20,7 +20,7 @@
 
  - name: "[S3bench-medium-objects]: S3benchmark running (size='1Mb,8Mb,16Mb,128Mb')"
    shell: |
-      cd /root/PerfProBenchmark/s3bench_meta/
+      cd /root/PerfProBenchmark/s3bench/
       pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
       ./run_s3benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }}
       pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
@@ -33,7 +33,7 @@
 
  - name: "[S3bench-Xtralarge-objects]: S3benchmark running (size='1Gb,5Gb')"
    shell: |
-      cd /root/PerfProBenchmark/s3bench_meta/
+      cd /root/PerfProBenchmark/s3bench/
       pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'" &
       ./run_s3benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }}
       pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"

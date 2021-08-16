@@ -1,0 +1,126 @@
+#
+# Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+
+common:
+  version: 1
+  description: s3bench workloads. Object sizes 1Kb-4Gb. Clients 400
+  priority: 1
+  batch_id: null
+  user: user@seagate.com
+  send_email: false
+
+
+stats_collection:
+  iostat: true
+  dstat: true
+  blktrace: true
+  glances: true
+
+workloads:
+  - s3bench:
+      BucketName: mybucket
+      NumClients: 400
+      NumSample: 100000
+      ObjSize: 1Kb
+      EndPoint: http://s3.seagate.com
+  - s3bench:
+      BucketName: mybucket
+      NumClients: 400
+      NumSample: 100000
+      ObjSize: 4Kb
+      EndPoint: http://s3.seagate.com
+  - s3bench:
+      BucketName: mybucket
+      NumClients: 400
+      NumSample: 100000
+      ObjSize: 16Kb
+      EndPoint: http://s3.seagate.com
+  - s3bench:
+      BucketName: mybucket
+      NumClients: 400
+      NumSample: 100000
+      ObjSize: 64Kb
+      EndPoint: http://s3.seagate.com
+  - s3bench:
+      BucketName: mybucket
+      NumClients: 400
+      NumSample: 100000
+      ObjSize: 256Kb
+      EndPoint: http://s3.seagate.com
+  - s3bench:
+      BucketName: mybucket
+      NumClients: 400
+      NumSample: 100000
+      ObjSize: 1Mb
+      EndPoint: http://s3.seagate.com
+  - s3bench:
+      BucketName: mybucket
+      NumClients: 400
+      NumSample: 100000
+      ObjSize: 4Mb
+      EndPoint: http://s3.seagate.com
+  - s3bench:
+      BucketName: mybucket
+      NumClients: 400
+      NumSample: 100000
+      ObjSize: 16Mb
+      EndPoint: http://s3.seagate.com
+  - s3bench:
+      BucketName: mybucket
+      NumClients: 400
+      NumSample: 100000
+      ObjSize: 64Mb
+      EndPoint: http://s3.seagate.com
+  - s3bench:
+      BucketName: mybucket
+      NumClients: 400
+      NumSample: 100000
+      ObjSize: 128Mb
+      EndPoint: http://s3.seagate.com
+  - s3bench:
+      BucketName: mybucket
+      NumClients: 400
+      NumSample: 100000
+      ObjSize: 256Mb
+      EndPoint: http://s3.seagate.com
+  - s3bench:
+      BucketName: mybucket
+      NumClients: 400
+      NumSample: 100000
+      ObjSize: 1Gb
+      EndPoint: http://s3.seagate.com
+  - s3bench:
+      BucketName: mybucket
+      NumClients: 400
+      NumSample: 100000
+      ObjSize: 2Gb
+      EndPoint: http://s3.seagate.com
+  - s3bench:
+      BucketName: mybucket
+      NumClients: 400
+      NumSample: 100000
+      ObjSize: 4Gb
+      EndPoint: http://s3.seagate.com
+
+execution_options:
+  mkfs: true
+  collect_m0trace: true
+  collect_addb: false
+  backup_result: false
+

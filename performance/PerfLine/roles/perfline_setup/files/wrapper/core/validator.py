@@ -85,9 +85,32 @@ def get_schema_motr():
                         'S3_MOTR_CONFIG': {'type': 'dict', 'required': False, 'empty': False},
                         'S3_THIRDPARTY_CONFIG': {'type': 'dict', 'required': False, 'empty': False},
                     }
+                },
+                'haproxy': {
+                    'required': False,
+                    'type': 'dict',
+                    'schema': {
+                        'maxconn_total': {'type': 'integer', 'required': False, 'empty': False},
+                        'maxconn_per_s3_instance': {'type': 'integer', 'required': False, 'empty': False},
+                        'nbproc': {'type': 'integer', 'required': False, 'empty': False, 'excludes': 'nbthread'},
+                        'nbthread': {'type': 'integer', 'required': False, 'empty': False, 'excludes': 'nbproc'},
+                    }
+                },
+                'lnet': {
+                    'required': False,
+                    'type': 'dict',
+                    'schema': {
+                        'custom_conf': {'type': 'string', 'required': False, 'empty': False},
+                    }
+                },
+                'ko2iblnd': {
+                    'required': False,
+                    'type': 'dict',
+                    'schema': {
+                        'custom_conf': {'type': 'string', 'required': False, 'empty': False},
+                    }
                 }
             }
-             
         },
         'stats_collection': {
             'type': 'dict',

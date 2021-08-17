@@ -150,6 +150,25 @@ def update_configs(conf, log_dir):
                         options.append(p_name)
                         options.append('{}={}'.format(k, repr(v)))
 
+        if 'haproxy' in conf['configuration']:
+            haproxy = conf['configuration']['haproxy']
+
+            if 'maxconn_total' in haproxy:
+                options.append('--haproxy-maxconn-total')
+                options.append(haproxy['maxconn_total'])
+
+            if 'maxconn_per_s3_instance' in haproxy:
+                options.append('--haproxy-maxconn-per-s3-instance')
+                options.append(haproxy['maxconn_per_s3_instance'])
+
+            if 'nbproc' in haproxy:
+                options.append('--haproxy-nbproc')
+                options.append(haproxy['nbproc'])
+
+            if 'nbthread' in haproxy:
+                options.append('--haproxy-nbthread')
+                options.append(haproxy['nbthread'])
+
         if 'hare' in conf['configuration']:
             hare = conf['configuration']['hare']
             if 'custom_cdf' in hare:
@@ -176,6 +195,18 @@ def update_configs(conf, log_dir):
                 options.append('--hare-dix-spare-units')
                 options.append(hare['dix']['spare_units'])
 
+        if 'lnet' in conf['configuration']:
+            lnet = conf['configuration']['lnet']
+            if 'custom_conf' in lnet:
+                options.append('--lnet-custom-conf')
+                options.append(lnet['custom_conf'])
+            
+        if 'ko2iblnd' in conf['configuration']:
+            ib = conf['configuration']['ko2iblnd']
+            if 'custom_conf' in ib:
+                options.append('--ib-custom-conf')
+                options.append(ib['custom_conf'])
+            
         update_configs = plumbum.local["scripts/conf_customization/update_configs.sh"]
         mv = plumbum.local['mv']
         try:

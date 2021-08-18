@@ -409,7 +409,7 @@ function collect_artifacts() {
         $SCRIPT_DIR/../../chronometry_v2/fix_reqid_collisions.py --fix-db --db ./m0play.db
     fi
 
-    if [[ -n $S3BENCH ]] && [[ -f "m0play.db" ]]; then
+    if [[ -n $ADDB_ANALYZE ]] && [[ -f "m0play.db" ]]; then
         local m0play_path="$(pwd)/m0play.db"
         local stats_addb="$stats/addb"
         mkdir -p $stats_addb
@@ -625,6 +625,9 @@ while [[ $# -gt 0 ]]; do
             ;;
         -d|--addb-dumps)
             ADDB_DUMPS="1"
+            ;;
+	--addb-analyze)
+            ADDB_ANALYZE="1"
             ;;
         --motr-trace)
             MOTR_TRACE="1"

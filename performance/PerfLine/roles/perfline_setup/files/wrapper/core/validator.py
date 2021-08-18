@@ -277,6 +277,7 @@ def get_schema_motr():
                 'mkfs': {'type': 'boolean'},
                 'collect_m0trace': {'type': 'boolean'},
                 'collect_addb': {'type': 'boolean'},
+                'analyze_addb': {'type': 'boolean', 'required': False},
                 'backup_result': {'type': 'boolean'}
             }
         }

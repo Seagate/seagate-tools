@@ -1,9 +1,9 @@
 #! /usr/bin/bash
 ACCESS_KEY=`cat /root/.aws/credentials | grep -A 3 default | grep aws_access_key_id | cut -d " " -f3`
 SECRET_KEY=`cat /root/.aws/credentials | grep -A 3 default | grep secret_access_key | cut -d " " -f3`
-BINPATH=/root/go/bin
-CURRENTPATH=`pwd`
-BENCHMARKLOG=$CURRENTPATH/benchmark.log
+BINPATH=/root/PerfProBenchmark/s3bench
+CURRENTPATH=/root/PerfProBenchmark
+BENCHMARKLOG=$CURRENTPATH/prefill/
 ENDPOINTS=https://s3.seagate.com         
 BUCKETNAME="prefill"
 TIMESTAMP=`date +'%Y-%m-%d_%H:%M:%S'`
@@ -58,9 +58,9 @@ do
 
             mkdir -p $MKDIR
 
-           echo "$BINPATH/s3bench_meta -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -skipCleanup -verbose > $MKDIR/s3bench_Numclients_$NUMCLIENTS\_NS_$NO_OF_SAMPLES\_size_$SIZE_OF_OBJECTS\.log"
+           echo "$BINPATH/s3bench_perfpro -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -skipRead -skipCleanup > $MKDIR/s3bench_Numclients_$NUMCLIENTS\_NS_$NO_OF_SAMPLES\_size_$SIZE_OF_OBJECTS\.log"
 
-           $BINPATH/s3bench_meta -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -skipCleanup -verbose > $MKDIR/s3bench_Numclients_$NUMCLIENTS\_NS_$NO_OF_SAMPLES\_size_$SIZE_OF_OBJECTS\.log
+           $BINPATH/s3bench_perfpro -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -skipCleanup -skipRead > $MKDIR/s3bench_Numclients_$NUMCLIENTS\_NS_$NO_OF_SAMPLES\_size_$SIZE_OF_OBJECTS\.log
 
             echo "S3Benchmark is completed for object size : $SIZE_OF_OBJECTS"
         done

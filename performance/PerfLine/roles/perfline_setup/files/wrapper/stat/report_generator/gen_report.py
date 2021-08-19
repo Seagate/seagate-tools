@@ -126,7 +126,7 @@ def parse_network_info(nodes_stat_dirs):
     return network_infos, lnet_conf, lnet_info, multipath_conf, multipath_info
 
 
-def parse_config_info(report_dir):
+def parse_config_info(report_dir, node_names):
     motr_config = []
     cluster_nodes_info = []
 
@@ -135,13 +135,14 @@ def parse_config_info(report_dir):
             cluster_yaml = yaml.safe_load(cluster_file)
             cluster_nodes_info = [n for n in cluster_yaml['nodes']]
 
-    if isfile(join(report_dir, 'm0d/configs/motr')):
-        with open(join(report_dir, 'm0d/configs/motr'), 'r') as motr_config_file:
-            motr_config = motr_config_file.readlines()
-            motr_config = [conf for conf in motr_config if len(
-                conf.split('=')) == 2 and conf[0] != '#']
+    for node in node_names:
+       if isfile(join(report_dir, 'm0d/configs/{}/motr'.format(node))):
+           with open(join(report_dir, 'm0d/configs/{}/motr'.format(node)), 'r') as motr_config_file:
+               motr_file = motr_config_file.readlines()
+               motr_file = [conf for conf in motr_file if len(
+                   conf.split('=')) == 2 and conf[0] != '#']
+               motr_config.append(motr_file)
     return motr_config, cluster_nodes_info
-
 
 def parse_s3_info(report_dir):
     s3_config_info = []
@@ -239,8 +240,8 @@ def parse_mapping_info(nodes_stat_dirs):
     nodes_mapping_info = []
 
     for path in nodes_stat_dirs:
-        if isfile(join(path, 'iostat/disks.mapping')):
-            with open(join(path, 'iostat/disks.mapping'), 'r') as disks_mapping_info_file:
+        if isfile(join(path, 'disks.mapping')):
+            with open(join(path, 'disks.mapping'), 'r') as disks_mapping_info_file:
                 lines = disks_mapping_info_file.readlines()
                 lines = [replace_spaces_for_html(line) for line in lines]
                 disks_mapping_info.append(lines)
@@ -484,7 +485,7 @@ def main():
         nodes_stat_dirs)
 
     # Configs
-    motr_config, cluster_nodes_info = parse_config_info(report_dir)
+    motr_config, cluster_nodes_info = parse_config_info(report_dir, node_names)
 
     # S3
     s3_config_info, hosts_info, haproxy_info = parse_s3_info(report_dir)

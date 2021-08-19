@@ -16,6 +16,7 @@ BUILD_DIR="$ARTIFACTS_DIR/0"
 
 source "$SCRIPT_DIR/../../perfline.conf"
 EX_SRV="pdsh -S -w $NODES"
+PRIMARY_NODE=$(echo "$NODES" | cut -d "," -f1)
 
 MOTR_BRANCH=
 S3_BRANCH=
@@ -157,7 +158,18 @@ function download() {
 }
 
 function stop_cluster() {
-    hctl shutdown || true
+    if [ "$HA_TYPE" == "pcs" ]; then
+         pdsh -S -w $NODES 'systemctl status haproxy' | grep Active
+         set +e
+         ssh $PRIMARY_NODE 'hctl status'
+         if [ $? -eq 0 ]; then
+            ssh $PRIMARY_NODE 'cortx cluster stop --all'
+         fi
+         set -e
+    else
+         ssh $PRIMARY_NODE 'hctl shutdown || true'
+    fi
+    
 }
 
 function backup_configs() {
@@ -241,13 +253,82 @@ function stop_services() {
     pdsh -S -w $NODES "systemctl stop haproxy || true"
 }
 
+function is_cluster_online() {
+    local all_services=$(ssh $PRIMARY_NODE 'hctl status | grep "\s*\[.*\]"')
+
+    local srvc_states=$(echo "$all_services" | grep -E 's3server|ioservice|confd|hax' | awk '{print $1}')
+
+    for state in $srvc_states; do
+        if [[ "$state" != "[started]" ]]; then
+            return 1
+        fi
+    done
+
+    return 0
+}
+
+function pcs_cluster_restart() {
+    
+    for i in {1..3}; 
+    do
+       pdsh -S -w $NODES "systemctl status haproxy" | grep Active
+
+       if is_cluster_online; then
+          ssh $PRIMARY_NODE 'cortx cluster stop --all'
+       fi
+ 
+       pdsh -S -w $NODES "systemctl start haproxy || true"
+       ssh $PRIMARY_NODE '/opt/seagate/cortx/s3/bin/s3_setup post_install --config "json:///opt/seagate/cortx_configs/provisioner_cluster.json"'
+       ssh $PRIMARY_NODE '/opt/seagate/cortx/s3/bin/s3_setup prepare --config "json:///opt/seagate/cortx_configs/provisioner_cluster.json"'
+       ssh $PRIMARY_NODE '/opt/seagate/cortx/s3/bin/s3_setup config --config "json:///opt/seagate/cortx_configs/provisioner_cluster.json"'
+       ssh $PRIMARY_NODE '/opt/seagate/cortx/s3/bin/s3_setup init --config "json:///opt/seagate/cortx_configs/provisioner_cluster.json"'
+       ssh $PRIMARY_NODE '/opt/seagate/cortx/motr/bin/motr_setup config --config "json:///opt/seagate/cortx_configs/provisioner_cluster.json"'
+       ssh $PRIMARY_NODE '/opt/seagate/cortx/hare/bin/hare_setup init --config "json:///opt/seagate/cortx_configs/provisioner_cluster.json"'
+       pdsh -S -w $NODES "systemctl start haproxy || true"
+       ssh $PRIMARY_NODE 'cortx cluster start'
+      
+       sleep 60
+       if is_cluster_online; then
+          create_s3Account
+          break
+       fi
+       
+    done
+}
+
+function create_s3Account() {
+    ssh $PRIMARY_NODE "$PERFLINE_DIR/s3account/create_user.sh"
+    ssh $PRIMARY_NODE "$PERFLINE_DIR/s3account/setup_aws.sh"
+    ssh $PRIMARY_NODE "cat /root/.aws/credentials" > /root/.aws/credentials
+}
+
+
 function start_services() {
     pdsh -S -w $NODES "systemctl start haproxy || true"
     pdsh -S -w $NODES "systemctl start slapd || true"
     pdsh -S -w $NODES "systemctl start s3authserver || true"
+    
+    set +e
+
+    if [[ "$HA_TYPE" == "pcs" ]]; then
+       ssh $PRIMARY_NODE '/opt/seagate/cortx/s3/bin/s3_setup post_install --config "json:///opt/seagate/cortx_configs/provisioner_cluster.json"'
+       ssh $PRIMARY_NODE '/opt/seagate/cortx/s3/bin/s3_setup prepare --config "json:///opt/seagate/cortx_configs/provisioner_cluster.json"'
+       ssh $PRIMARY_NODE '/opt/seagate/cortx/s3/bin/s3_setup config --config "json:///opt/seagate/cortx_configs/provisioner_cluster.json"'
+       ssh $PRIMARY_NODE '/opt/seagate/cortx/s3/bin/s3_setup init --config "json:///opt/seagate/cortx_configs/provisioner_cluster.json"'
+       ssh $PRIMARY_NODE '/opt/seagate/cortx/motr/bin/motr_setup config --config "json:///opt/seagate/cortx_configs/provisioner_cluster.json"'
+       ssh $PRIMARY_NODE '/opt/seagate/cortx/hare/bin/hare_setup init --config "json:///opt/seagate/cortx_configs/provisioner_cluster.json"'
+       pdsh -S -w $NODES "systemctl start haproxy || true"
+       ssh $PRIMARY_NODE 'cortx cluster start'
+    fi
+
+    sleep 60
+    if ! is_cluster_online; then
+         pcs_cluster_restart
+    else
+        create_s3Account
+    fi
 
     # Check status of s3authserver
-    set +e
     pdsh -S -w $NODES "systemctl status s3authserver"
     status=$?
     set -e
@@ -256,6 +337,7 @@ function start_services() {
 	echo "S3authserver failed"
 	exit 1
     fi
+    
 }
 
 function main() {

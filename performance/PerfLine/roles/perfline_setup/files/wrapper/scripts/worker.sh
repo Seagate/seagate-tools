@@ -56,9 +56,14 @@ function stop_hare() {
 }
 
 function stop_pcs() {
-    ssh $PRIMARY_NODE 'pcs resource disable motr-ios-c{1,2}'
-    ssh $PRIMARY_NODE 'pcs resource disable s3server-c{1,2}-{1,2,3,4,5,6,7,8,9,10,11}'
-    sleep 30
+#   ssh $PRIMARY_NODE 'pcs resource disable motr-ios-c{1,2}'
+#   ssh $PRIMARY_NODE 'pcs resource disable s3server-c{1,2}-{1,2,3,4,5,6,7,8,9,10,11}'    
+    set +e
+    ssh $PRIMARY_NODE 'hctl status'
+    if [ $? -eq 0 ]; then
+        ssh $PRIMARY_NODE 'cortx cluster stop --all'
+    fi
+    set -e
 }
 
 function stop_cluster() {
@@ -93,18 +98,21 @@ function restart_hare() {
 
 function restart_pcs() {
     if [[ -n "$MKFS" ]]; then
-        ssh $PRIMARY_NODE "ssh srvnode-1 'systemctl start motr-mkfs@0x7200000000000001:0xc'"
-        ssh $PRIMARY_NODE "ssh srvnode-2 'systemctl start motr-mkfs@0x7200000000000001:0x55'"
+#        ssh $PRIMARY_NODE "ssh srvnode-1 'systemctl start motr-mkfs@0x7200000000000001:0xc'"
+#        ssh $PRIMARY_NODE "ssh srvnode-2 'systemctl start motr-mkfs@0x7200000000000001:0x55'"
+        ssh $PRIMARY_NODE '/opt/seagate/cortx/hare/bin/hare_setup init --config "json:///opt/seagate/cortx_configs/provisioner_cluster.json"'
+        pdsh -S -w $NODES 'systemctl start haproxy'
     fi
 
-    ssh $PRIMARY_NODE 'pcs resource enable motr-ios-c{1,2}'
-    ssh $PRIMARY_NODE 'pcs resource enable s3server-c{1,2}-{1,2,3,4,5,6,7,8,9,10,11}'
+#    ssh $PRIMARY_NODE 'pcs resource enable motr-ios-c{1,2}'
+#    ssh $PRIMARY_NODE 'pcs resource enable s3server-c{1,2}-{1,2,3,4,5,6,7,8,9,10,11}'
+    ssh $PRIMARY_NODE 'cortx cluster start'    
     wait_for_cluster_start
 }
 
 function restart_cluster() {
     echo "Restart cluster"
-    systemctl restart haproxy
+    pdsh -S -w $NODES 'systemctl restart haproxy'
 
     case $HA_TYPE in
 	"hare") restart_hare ;;
@@ -211,7 +219,11 @@ function save_motr_artifacts() {
 
     mkdir -p $configs_dir
     pushd $configs_dir
-    scp -r $PRIMARY_NODE:/etc/sysconfig/motr ./
+    for srv in $(echo $NODES | tr ',' ' '); do
+        mkdir -p $srv
+        scp -r $srv:/etc/sysconfig/motr ./$srv/
+    done
+
     scp -r $PRIMARY_NODE:/var/lib/hare/cluster.yaml ./
     popd
 

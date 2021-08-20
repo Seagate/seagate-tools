@@ -33,6 +33,18 @@
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
+  - name: "Compress directory files/s3account into files/s3account.tar.gz"
+    archive:
+      path: "{{ role_path }}/files/s3account"
+      dest: "{{ role_path }}/files/s3account.tar.gz"
+
+  - name: "Copy s3account setup scripts"
+    unarchive:
+      src: "{{ role_path }}/files/s3account.tar.gz"
+      dest: "{{ PERFLINE_DIR }}"
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['all'] }}"
+    
   - name: "Create List of nodes to be added into Cluster"
     set_fact: nodelist={%for host in groups['nodes']%}{{hostvars[host]['ansible_host']}}{% if not loop.last %},{% endif %}{% endfor %}
 

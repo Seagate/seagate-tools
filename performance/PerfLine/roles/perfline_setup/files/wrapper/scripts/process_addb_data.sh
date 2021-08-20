@@ -29,7 +29,7 @@ function main()
 {
     parse_params "$@"
     check_params
-    generate_queue_imgs
+    #generate_queue_imgs
     generate_rps_imgs
     generate_latency_imgs
     generate_mbps_imgs
@@ -113,10 +113,10 @@ function generate_timeline_imgs()
             local motr_req_id=$(parse_val "cli_reqid" "$line")
 
             filename="motr_${filename}_${motr_req_pid}_${motr_req_id}"
-            $TOOLS_DIR/req_timelines.py --db $M0PLAY_DB --pid $motr_req_pid --depth 5 --no-window --output-file $filename $motr_req_id
+            $TOOLS_DIR/req_timelines.py --db $M0PLAY_DB --pid $motr_req_pid --no-window --output-file $filename $motr_req_id
         else
             filename="s3_${filename}"
-            $TOOLS_DIR/req_timelines.py --db $M0PLAY_DB --pid $pid --depth 1 --no-window --output-file $filename $req_id
+            $TOOLS_DIR/req_timelines.py --db $M0PLAY_DB --pid $pid --depth 2 --no-window --output-file $filename $req_id
         fi
     done
 

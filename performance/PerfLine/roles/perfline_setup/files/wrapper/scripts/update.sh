@@ -11,8 +11,8 @@ PERFLINE_DIR="$SCRIPT_DIR/../.."
 CORTX_DIR="$PERFLINE_DIR/docker/cortx"
 RPM_DIR="$PERFLINE_DIR/rpm"
 
-ARTIFACTS_DIR="/var/artifacts"
-BUILD_DIR="$ARTIFACTS_DIR/0"
+DOCKER_ARTIFACTS_DIR="/var/artifacts"
+BUILD_DIR="$DOCKER_ARTIFACTS_DIR/0"
 
 source "$SCRIPT_DIR/../../perfline.conf"
 EX_SRV="pdsh -S -w $NODES"
@@ -22,6 +22,47 @@ S3_BRANCH=
 HARE_BRANCH=
 UTILS_BRANCH=
 URL=
+
+function prepare_env() {
+    local docker_installed=
+    local status=
+    
+    set +e
+    yum list installed | grep docker
+    docker_installed=$?
+    set -e
+
+    if [ $docker_installed -ne 0 ]; then
+	yum install -y docker
+    fi
+
+    set +e
+    systemctl status docker
+    status=$?
+    set -e
+
+    if [ $status -ne 0 ]; then
+	systemctl restart docker
+	systemctl enable docker
+    fi
+
+    set +e
+    systemctl status docker
+    status=$?
+    set -e
+
+    if [ $status -ne 0 ]; then
+	echo "Docker failure, exit"
+	exit 1
+    fi
+
+    if [ ! -d "$CORTX_DIR" ]; then
+	mkdir -p $DOCKER_DIR
+	pushd $DOCKER_DIR
+	git clone --recursive https://github.com/Seagate/cortx
+	popd
+    fi
+}
 
 function check_version() {
     # If branch name is passed, find theirs commit id
@@ -128,10 +169,9 @@ function build() {
     
     cd $CORTX_DIR/..
 
-    time docker run --rm -v $ARTIFACTS_DIR:$ARTIFACTS_DIR -v ${CORTX_DIR}:/cortx-workspace ghcr.io/seagate/cortx-build:centos-7.8.2003 make clean build -i
+    time docker run --rm -v $DOCKER_ARTIFACTS_DIR:$DOCKER_ARTIFACTS_DIR -v ${CORTX_DIR}:/cortx-workspace ghcr.io/seagate/cortx-build:centos-7.8.2003 make clean build -i
 
     pushd $BUILD_DIR
-    tar -xf ./third-party-centos-7.8.2003*.tar.gz
     popd
 }
 
@@ -150,9 +190,9 @@ function download() {
     pdsh -S -w $NODES "rm -rf -- $RPM_DIR/update"
     pdsh -S -w $NODES "mkdir -p $RPM_DIR/update/cortx_iso/"
 
-    for file in $(curl -s $URL/prod/cortx_iso/ | grep href | sed 's/.*href="//' | sed 's/".*//' | grep '^[a-zA-Z].*' | grep 'rpm')
+    for file in $(curl -s $URL/cortx_iso/ | grep href | sed 's/.*href="//' | sed 's/".*//' | grep '^[a-zA-Z].*' | grep 'rpm')
     do
-        pdsh -S -w $NODES "cd $RPM_DIR/update/cortx_iso/; curl -s -O $URL/prod/cortx_iso/$file"
+        pdsh -S -w $NODES "cd $RPM_DIR/update/cortx_iso/; curl -s -O $URL/cortx_iso/$file"
     done
 }
 
@@ -259,6 +299,8 @@ function start_services() {
 }
 
 function main() {
+    echo $@
+    prepare_env
     check_version
 
     if [[ -n "$URL" ]]; then

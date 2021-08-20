@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 '''
-python3 hsbench_DBupdate.py <log file path> <main.yaml path> <config.yaml path> <ITR>
+python3 hsbench_DBupdate.py <log file path> <main.yaml path> <config.yaml path> 
 
 Task : Push HSBENCH data to mongoDB from user given path and host
 '''
@@ -19,8 +19,6 @@ import urllib.request
 # Path for yaml files locations
 Main_path = sys.argv[2]  # database url
 Config_path = sys.argv[3]
-iteration = 1
-#sys.argv[4]
 
 # Function for connecting with configuration file
 def makeconfig(name):  
@@ -110,7 +108,6 @@ def getconfig():
     pc_full=configs_config.get('PC_FULL')
     overwrite=configs_config.get('OVERWRITE')
     custom=configs_config.get('CUSTOM')
-    #iteration=configs_config.get('ITERATION')
     cluster_pass=configs_config.get('CLUSTER_PASS')
     change_pass=configs_config.get('CHANGE_PASS')
     prv_cli=configs_config.get('PRVSNR_CLI_REPO')
@@ -125,6 +122,15 @@ def getconfig():
     dic={'NODES' :str(nodes_list) , 'CLIENTS' : str(clients_list) ,'BUILD_URL': build_url ,'CLUSTER_PASS': cluster_pass ,'CHANGE_PASS': change_pass ,'PRVSNR_CLI_REPO': prv_cli ,'PREREQ_URL': prereq_url ,'SERVICE_USER': srv_usr ,'SERVICE_PASS': srv_pass , 'PC_FULL': pc_full , 'CUSTOM': custom , 'OVERWRITE':overwrite , 'NFS_SERVER': nfs_serv ,'NFS_EXPORT' : nfs_exp ,'NFS_MOUNT_POINT' : nfs_mp , 'NFS_FOLDER' : nfs_fol }
     return (dic)
 
+##Function to find latest iteration
+
+def get_latest_iteration(query, db, collection):
+    max = 0
+    cursor = db[collection].find(query)
+    for record in cursor:
+        if max < record['Iteration']:
+            max = record['Iteration']
+    return max
 
 # Function to push data to DB 
 '''
@@ -135,13 +141,12 @@ Parameters : input - (list) list containing file names with specified filter,
              returns - none
 '''
 def push_data(files, host, db, Build, Version, Branch , OS):
-    global nodes_num, clients_num, pc_full, iteration , overwrite, custom
+    find_iteration = True
+    delete_data = True
+    iteration_number = 0
+    global nodes_num, clients_num, pc_full , overwrite, custom
     print("logged in from ", host)
-    #collection=db[configs_main['db_collection']]
-#    collection='results_'+Version[0]
     collection=configs_main.get('R'+Version[0])['db_collection']
-    #col_config = db[configs_main['config_collection']]
-#    col_config ='configurations_'+Version[0]
     col_config =configs_main.get('R'+Version[0])['config_collection']
     dic = getconfig()
     result = db[col_config].find_one(dic)  # find entry from configurations collection
@@ -179,66 +184,68 @@ def push_data(files, host, db, Build, Version, Branch , OS):
 
                 if(entry['Mode'] == 'PUT' or entry['Mode'] == 'GET') and (entry['IntervalName'] == 'TOTAL'):
                     primary_Set = {
+                        'Name': 'Hsbench',
                         'Build': Build,
                         'Version': Version,
                         'Branch': Branch,
                         'OS': OS,
                         'Count_of_Servers': nodes_num, 
                         'Count_of_Clients': clients_num,
-                        #'Iteration': iteration,
                         'Percentage_full' : pc_full ,
-                        'Name': 'Hsbench',
+                        'Custom' : str(custom).upper()
+                        }
+
+                    runconfig_Set = {
                         'Operation': operation,
                         'Object_Size' : str(obj_size.upper()),
                         'Buckets' : buckets,
                         'Objects' : objects,
-                        'Sessions' : sessions,
-                        'Custom' : str(custom).upper()
+                        'Sessions' : sessions
                         }
-                        #'PKey' : Version[0]+'_'+Branch[0].upper()+'_'+Build+'_ITR'+str(iteration)+'_'+str(nodes_num)+'N_'+str(clients_num)+'C_'+str(pc_full)+'PC_'+str(custom).upper()+'_HSB_'+str(obj_size.upper())+'_'+str(buckets)+'_'+operation[0].upper()+'_'+str(sessions) ,
-                        #Version_Branch_Build_Iteration_NodeCount_ClientCount_PercentFull_Benchmark_ObjSize_NoOfBuckets_Operation_Sessions }
-
+                        
                     updation_Set = {  
                         'HOST' : host,
+                        'Config_ID':Config_ID,
                         'IOPS': entry['Iops'],
                         'Throughput': entry['Mbps'],
                         'Latency' : entry['AvgLat'],
                         'TTFB' : 'null',
                         'Log_File': doc,
                         'Bucket_Ops' : data_dict, 
-                        'Config_ID':Config_ID,
-                        'Timestamp':datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        'Iteration': iteration
+                        'Timestamp':datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     }
-                    action = "updated"
+
                     db_data={}
                     db_data.update(primary_Set)
+                    db_data.update(runconfig_Set)
                     db_data.update(updation_Set)
+
+# Function to insert data into db with iterration number
+                    def db_update(itr,db_data):
+                        db_data.update(Iteration=itr)
+                        db[collection].insert_one(db_data)
+                        print('Inserted new entries \n' + str(db_data))
+
                     try:
-                        #pattern = {'PKey' : primary_Set["PKey"]}
-                        count_documents= db[collection].count_documents(primary_Set)
-                        if count_documents == 0:
-                            db[collection].insert_one(db_data)
-                            action = "inserted"
-                            #db[collection].update(pattern,{ "$set": updation_Set})                     
+                        if find_iteration:
+                            iteration_number = get_latest_iteration(primary_Set, db, collection)
+                            find_iteration = False
+                        if iteration_number == 0:
+                            db_update(iteration_number+1 , db_data)
                         elif overwrite == True :
-                            updation_Set.update(Iteration=count_documents)
-                            db_data.update(updation_Set)
-                            primary_Set.update(Iteration=count_documents)
-                            db[collection].update(primary_Set,{ "$set": db_data})
-                            action= "updated"
+                            primary_Set.update(Iteration=iteration_number)
+                            if delete_data:
+                                db[collection].delete_many(primary_Set)
+                                delete_data = False
+                                print("'overwrite' is True in config. Hence, old DB entry deleted")
+                            db_update(iteration_number,db_data)
                         else :
-                            updation_Set.update(Iteration=count_documents+1)
-                            db_data.update(updation_Set)
-                            db[collection].insert_one(db_data)
-                            print("'Overwrite' is false in config. Hence, new DB entry inserted")
-                            action = "New iteration inserted"
+                            db_update(iteration_number+1 , db_data)
 
                     except Exception as e:
                         print("Unable to insert/update documents into database. Observed following exception:")
                         print(e)
 
-                    print(operation+ " " + action + ' - ' + doc + '\n' + str(db_data) )
 
 #    update_mega_chain(Build, Version, collection)
 

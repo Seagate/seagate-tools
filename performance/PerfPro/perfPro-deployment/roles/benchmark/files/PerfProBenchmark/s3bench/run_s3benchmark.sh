@@ -14,7 +14,6 @@ IO_SIZE=""
 MAIN="/root/PerfProBenchmark/main.yml"
 CONFIG="/root/PerfProBenchmark/config.yml"
 LOG_COLLECT="/root/PerfProBenchmark/collect_logs.py"
-#ITERATION=$(yq -r .ITERATION $CONFIG)
 BUILD=`python3 /root/PerfProBenchmark/read_build.py $CONFIG 2>&1`
 RESULT_DIR=/root/PerfProBenchmark/perfpro_build$BUILD/results
 
@@ -58,18 +57,27 @@ do
             esac
 
             echo "S3Benchmark is running for object size : $SIZE_OF_OBJECTS, Clients: $NUMCLIENTS"
+            
+            echo 'y' | rm report.s3bench > /dev/null 2>&1
+            rm -rf s3bench-*.log
 
-            TIMESTAMP=`date +'%d-%m-%Y_%H:%M:%S'`
             TOOL_DIR=$BENCHMARKLOG/$TOOL_NAME/numclients_$NUMCLIENTS/buckets_1/$SIZE_OF_OBJECTS
-            mkdir -p $TOOL_DIR 
+            mkdir -p $TOOL_DIR
+ 
             if [ $SIZE_OF_OBJECTS = "1Kb" ]; then         
-                  echo "$BINPATH/s3bench_perfpro -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -headObj -putObjTag -getObjTag  > $TOOL_DIR/s3bench_object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_1\_sessions_$NUMCLIENTS\.log" 
+                  echo "$BINPATH/s3bench_perfpro -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -headObj -putObjTag -getObjTag" 
 
-                  $BINPATH/s3bench_perfpro -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -headObj -putObjTag -getObjTag  > $TOOL_DIR/s3bench_object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_1\_sessions_$NUMCLIENTS\.log 
-            else
-               echo "$BINPATH/s3bench_perfpro -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS  > $TOOL_DIR/s3bench_object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_1\_sessions_$NUMCLIENTS\.log"
+                  $BINPATH/s3bench_perfpro -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -headObj -putObjTag -getObjTag -o $TOOL_DIR/report.s3bench -label object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_1\_sessions_$NUMCLIENTS
 
-                  $BINPATH/s3bench_perfpro -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS  > $TOOL_DIR/s3bench_object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_1\_sessions_$NUMCLIENTS\.log
+                  mv s3bench-object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_1\_sessions_$NUMCLIENTS.log $TOOL_DIR/s3bench_object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_1\_sessions_$NUMCLIENTS\.log
+   
+            else 
+               echo "$BINPATH/s3bench_perfpro -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS"
+
+                  $BINPATH/s3bench_perfpro -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -o $TOOL_DIR/report.s3bench -label object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_1\_sessions_$NUMCLIENTS
+
+                  mv s3bench-object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_1\_sessions_$NUMCLIENTS.log $TOOL_DIR/s3bench_object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_1\_sessions_$NUMCLIENTS\.log
+
             fi
             aws s3 rb s3://$bucket
             echo "S3Benchmark is completed for object size : $SIZE_OF_OBJECTS"
@@ -81,7 +89,6 @@ done
 echo 'Successfully completed'
 
 }
-
 
 while [ ! -z $1 ]; do
         

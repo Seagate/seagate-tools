@@ -14,6 +14,7 @@ STAT_DIR="$SCRIPT_DIR/../stat"
 PUBLIC_DATA_INTERFACE=$(ip addr show | egrep 'data0|enp179s0|enp175s0f0|eth0|p1p1' | grep -Po 'inet \K[\d.]+')
 
 source "$SCRIPT_DIR/../../perfline.conf"
+source "$SCRIPT_DIR/cluster_status.sh"
 
 STAT_COLLECTION=""
 MKFS=""
@@ -56,9 +57,16 @@ function stop_hare() {
 }
 
 function stop_pcs() {
-    ssh $PRIMARY_NODE 'pcs resource disable motr-ios-c{1,2}'
-    ssh $PRIMARY_NODE 'pcs resource disable s3server-c{1,2}-{1,2,3,4,5,6,7,8,9,10,11}'
-    sleep 30
+#    ssh $PRIMARY_NODE 'pcs resource disable motr-ios-c{1,2}'
+#    ssh $PRIMARY_NODE 'pcs resource disable s3server-c{1,2}-{1,2,3,4,5,6,7,8,9,10,11}'
+#    sleep 30
+    
+    set +e
+    ssh $PRIMARY_NODE 'hctl status'
+    if [ $? -eq 0 ]; then
+        ssh $PRIMARY_NODE 'cortx cluster stop --all'
+    fi
+    set -e
 }
 
 function stop_cluster() {
@@ -96,12 +104,15 @@ function restart_hare() {
 
 function restart_pcs() {
     if [[ -n "$MKFS" ]]; then
-        ssh $PRIMARY_NODE "ssh srvnode-1 'systemctl start motr-mkfs@0x7200000000000001:0xc'"
-        ssh $PRIMARY_NODE "ssh srvnode-2 'systemctl start motr-mkfs@0x7200000000000001:0x55'"
+#        ssh $PRIMARY_NODE "ssh srvnode-1 'systemctl start motr-mkfs@0x7200000000000001:0xc'"
+#        ssh $PRIMARY_NODE "ssh srvnode-2 'systemctl start motr-mkfs@0x7200000000000001:0x55'"
+        ssh $PRIMARY_NODE '/opt/seagate/cortx/hare/bin/hare_setup init --config "json:///opt/seagate/cortx_configs/provisioner_cluster.json"'
+        pdsh -S -w $NODES 'systemctl start haproxy'
     fi
 
-    ssh $PRIMARY_NODE 'pcs resource enable motr-ios-c{1,2}'
-    ssh $PRIMARY_NODE 'pcs resource enable s3server-c{1,2}-{1,2,3,4,5,6,7,8,9,10,11}'
+#    ssh $PRIMARY_NODE 'pcs resource enable motr-ios-c{1,2}'
+#    ssh $PRIMARY_NODE 'pcs resource enable s3server-c{1,2}-{1,2,3,4,5,6,7,8,9,10,11}'
+    ssh $PRIMARY_NODE 'cortx cluster start'
     wait_for_cluster_start
 }
 
@@ -119,7 +130,7 @@ function wait_for_cluster_start() {
 
     echo "wait for cluster start"
 
-    while ! is_cluster_online
+    while ! is_cluster_online $PRIMARY_NODE
     do
 #        if _check_is_cluster_failed; then
 #            _err "cluster is failed"
@@ -132,20 +143,6 @@ function wait_for_cluster_start() {
     $EX_SRV $SCRIPT_DIR/wait_s3_listeners.sh $S3SERVER
     sleep 300
 
-}
-
-function is_cluster_online() {
-    local all_services=$(ssh $PRIMARY_NODE 'hctl status | grep "\s*\[.*\]"')
-
-    local srvc_states=$(echo "$all_services" | grep -E 's3server|ioservice|confd|hax' | awk '{print $1}')
-    
-    for state in $srvc_states; do
-        if [[ "$state" != "[started]" ]]; then
-            return 1
-        fi
-    done
-
-    return 0
 }
 
 function custom_workloads()
@@ -215,7 +212,11 @@ function save_motr_artifacts() {
 
     mkdir -p $configs_dir
     pushd $configs_dir
-    scp -r $PRIMARY_NODE:/etc/sysconfig/motr ./
+    for srv in $(echo $NODES | tr ',' ' '); do
+        mkdir -p $srv
+        scp -r $srv:/etc/sysconfig/motr ./$srv/
+    done
+
     scp -r $PRIMARY_NODE:/var/lib/hare/cluster.yaml ./
     popd
 

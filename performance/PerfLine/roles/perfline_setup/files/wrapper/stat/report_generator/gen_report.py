@@ -182,14 +182,54 @@ def parse_s3_info(report_dir):
     return s3_config_info, hosts_info, haproxy_info
 
 
+def parse_s3bench_csv(csvfile_path):
+    fields = ('numSamples', 'numClients', 'objectSize (MB)', 'Operation',
+              'Errors Count', 'Total Throughput (MB/s)')
+    indexes = list()
+    result = list()
+
+    with open(csvfile_path, newline='') as csvfile:
+        header = None
+        spamreader = csv.reader(csvfile)
+
+        for row in spamreader:
+            if header is None:
+                header = list()
+
+                for i, field_name in enumerate(row):
+                    if field_name in fields:
+                        header.append(field_name)
+                        indexes.append(i)
+                
+                result.append(header)
+                continue
+                
+            bench_res = list()
+
+            for index in indexes:
+                value = row[index]
+                
+                # try to round float value
+                try:
+                    if '.' in value:
+                        value = float(value)
+                        value = round(value, 3)
+                except ValueError:
+                    pass
+
+                bench_res.append(value)
+
+            result.append(bench_res)
+
+    return result
+
+
 def parse_report_info(report_dir):
-    rw_stats = {}
-    workload_log = join(report_dir, 'client')
-    s3bench_log_list = [ f for f in listdir(workload_log) if f.startswith(S3BENCH_LOGFILE)]    
-    for s3bench_log in s3bench_log_list:
-        s3bench_loc = join(workload_log,s3bench_log)
-        if isfile(s3bench_loc):
-            rw_stats = s3bench_log_parser.parse_s3bench_log(s3bench_loc)
+    csv_report_content = list()
+    csvfile_path = join(report_dir, 'client', 's3bench_report.csv')
+
+    if isfile(csvfile_path):
+        csv_report_content = parse_s3bench_csv(csvfile_path)
 
     workload_filenames = []
 
@@ -232,7 +272,7 @@ def parse_report_info(report_dir):
             m0crate_log_path = join(m0crate_dir, m0crate_log)
             m0crate_rw_stats[m0crate_log] = m0crate_log_parser.parse_m0crate_log(m0crate_log_path)
 
-    return rw_stats, m0crate_rw_stats, workload_filenames, iperf_rw_stat
+    return m0crate_rw_stats, workload_filenames, iperf_rw_stat, csv_report_content
 
 
 def parse_mapping_info(nodes_stat_dirs):
@@ -491,7 +531,7 @@ def main():
     s3_config_info, hosts_info, haproxy_info = parse_s3_info(report_dir)
 
     # Read report output
-    rw_stats, m0crate_rw_stats, workload_filenames, iperf_rw_stat = parse_report_info(report_dir)
+    m0crate_rw_stats, workload_filenames, iperf_rw_stat, csv_report_content = parse_report_info(report_dir)
 
     # Disk and network mappings
     disks_mapping_info, nodes_mapping_info = parse_mapping_info(
@@ -526,7 +566,6 @@ def main():
             lnet_info=lnet_info,
             multipath_conf=multipath_conf,
             multipath_info=multipath_info,
-            rw_stats=rw_stats,
             m0crate_rw_stats=m0crate_rw_stats,
             workload_filenames=workload_filenames,
             iperf_rw_stat=iperf_rw_stat,
@@ -557,7 +596,8 @@ def main():
             percpu_metrics=percpu_metrics,
             net_metrics=net_metrics,
             datavolume_metrics=datavolume_metrics,
-            mdvolume_metrics=mdvolume_metrics
+            mdvolume_metrics=mdvolume_metrics,
+            csv_report_content=csv_report_content
         ))
 
 

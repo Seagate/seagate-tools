@@ -295,7 +295,7 @@ function stop_services() {
 }
 
 function check_cluster_status() {
-    wait_period=0
+    local wait_period=0
     while ! is_cluster_online $PRIMARY_NODE
     do
        wait_period=$(($wait_period+10))
@@ -308,7 +308,7 @@ function check_cluster_status() {
     done   
 }
 
-function pcs_commands() {
+function pcs_cluster_start() {
     pdsh -S -w $NODES "systemctl start haproxy || true"
     ssh $PRIMARY_NODE '/opt/seagate/cortx/s3/bin/s3_setup post_install --config "json:///opt/seagate/cortx_configs/provisioner_cluster.json"'
     ssh $PRIMARY_NODE '/opt/seagate/cortx/s3/bin/s3_setup prepare --config "json:///opt/seagate/cortx_configs/provisioner_cluster.json"'
@@ -329,7 +329,7 @@ function pcs_commands() {
        if is_cluster_online $PRIMARY_NODE; then
           ssh $PRIMARY_NODE 'cortx cluster stop --all'
        fi
-       pcs_commands
+       pcs_cluster_start
        check_cluster_status
        if is_cluster_online $PRIMARY_NODE; then
           create_s3Account
@@ -351,8 +351,8 @@ function start_services() {
 
     set +e
     if [[ "$HA_TYPE" == "pcs" ]]; then
-         pcs_commands
-         check_cluster_status   
+        pcs_cluster_start
+        check_cluster_status   
         if ! is_cluster_online $PRIMARY_NODE; then
             pcs_cluster_reinit
         else

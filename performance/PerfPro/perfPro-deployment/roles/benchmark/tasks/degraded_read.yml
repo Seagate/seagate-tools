@@ -1,0 +1,67 @@
+---
+ - name : "Doing cleanup before starting Degraded Read"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'cx'"
+
+ - name: "Running S3bench in write only mode"
+   include: dr_s3bench.yml
+   vars: 
+     s3_var: "'-skipRead -skipCleanup'"
+
+ - name: "Running HSbench in write only mode"
+   include: dr_hsbench.yml
+   vars: 
+     hsb_var: "'ip'"
+
+#Collecting read stats before failure
+
+ - name: "running S3bench in read only mode"
+   include: dr_s3bench.yml
+   vars:
+     s3_var: "'-skipWrite -skipCleanup'"
+
+ - name: "Running HSbench in read only mode"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'lg'"
+
+
+#Fail the node 
+## Yet to be implemented
+
+
+#collect read stats
+
+ - name: "running S3bench in read only mode"
+   include: dr_s3bench.yml
+   vars:
+     s3_var: "'-skipWrite -skipCleanup'"
+
+ - name: "Running HSbench in read only mode"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'lg'"
+
+#Boot the failed node
+## Yet to be implemented
+
+
+#Collect read starts after cluster is normal and cleanup
+
+ - name: "running S3bench in read only mode"
+   include: dr_s3bench.yml
+   vars:
+     s3_var: "'-skipWrite'"
+
+ - name: "Running HSbench in read only mode"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'lg'"
+
+ - name: "Cleaning up HSbench"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'dcx'"
+
+

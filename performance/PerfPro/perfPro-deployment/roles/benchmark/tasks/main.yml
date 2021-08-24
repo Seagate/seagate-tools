@@ -83,6 +83,10 @@
 
  - include: hsbench.yml
 
+#Performing Degraded read benchmarking
+
+ - include: degraded_read.yml
+   when: DEGRADED_READ == True
 
 #Copying ansible.log for the run to logs/ansible folder
 

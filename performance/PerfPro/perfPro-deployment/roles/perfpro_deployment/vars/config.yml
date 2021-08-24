@@ -24,6 +24,7 @@ SERVICE_PASS:
 PC_FULL: 30 # Select for system percentage full before test. 
 OVERWRITE: False # select True or False to overwrite the DB entries for same Primary Key
 CUSTOM: NA # Default is NA. Update with single string for special config eg: SSD, DIEnabled, PODsetup etc
+DEGRADED_READ: False   # Select True/False to test Degraded read feature
 
 #Enter Below details for log collection on NFS repo
 NFS_SERVER: 
@@ -43,6 +44,8 @@ required_vars:
   - CHANGE_PASS
   - PC_FULL
   - OVERWRITE
+  - CUSTOM
+  - DEGRADED_READ
   - NFS_SERVER
   - NFS_EXPORT
   - NFS_MOUNT_POINT

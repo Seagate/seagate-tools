@@ -35,7 +35,12 @@ PerfLine can be installed from any machine, To setup PerfLine or deploying PerfL
     For Minimal(io-path components) configuration `ha_type=hare`
     For Complete cluster configuration `ha_type=pcs`
 
-    4.3 Default root password is "seagate1" for cortx cluster including client, If user having different password then please update on "./inventories/perfline_hosts/hosts"
+    4.3 It will allow user to run perfline workload automatically like a cron jobs for a list of stable build. This workloads will run over the weekends( from friday mid night). If you do not want to enable daemon service then please mark it as "no".
+
+    ```
+    enable_daemon_service='yes'
+    ```
+    4.4 Default root password is "seagate1" for cortx cluster including client, If user having different password then please update on "./inventories/perfline_hosts/hosts"
     ```
     cluster_pass=
     ```
@@ -168,6 +173,12 @@ If you go to report page you could see detailed report for executed task, includ
 - in ./webui/config.py change `server_ep` variable for port:
     `...`
     `server_ep = {'host': '0.0.0.0', 'port': 'new_port'}`
+
+# Daemon services
+If user has enable daemon service then It would required to specify the build number to '/root/perfline/wrapper/.latest_stable_build' on client server. It's a one time activity. It will take the list of build above it and including "BUILDNO" value.
+```
+BUILDNO=307
+```
 
 # DISCLAIMER / WARNING
 PerfLine is a tool, not a service, which is available to users to install and use at their own setups/machines. For multi-user use, PerfLine provide all required infrastructure with task/run queues and optional email notifications. But, It is outside scope of PerfLine to ensure that nothing runs outside of PerfLine infrastructure on user machines, when PerfLine is executing tasks/runs. This islolation is necessary for accurate data measurements / artifacts collection and must be ensured by user. If not ensured, results might have data which is adulterated unintentionally and accuracy compromised due to user machines being shared and used in parallel to PerfLine.

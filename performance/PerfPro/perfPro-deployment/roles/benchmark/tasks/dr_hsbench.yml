@@ -1,0 +1,17 @@
+---
+ - name: "Create List of nodes to be added into Cluster"
+   set_fact: nodelist={%for host in groups['nodes']%}{{hostvars[host]['ansible_host']}}{% if not loop.last %},{% endif %}{% endfor %}
+
+ - name: "Defining numclients variable for concurrency"
+   set_fact: numclients="10"
+
+ - name: "[HSBench-1-Bucket]: HSBench running for 1 Bucket"
+   shell: |
+      cd /root/PerfProBenchmark/degraded_read/
+      ./degradedread_hsbench.sh -b 1 -o {{ item.numsamples }} -s {{ item.objsize }} -t {{ numclients }} -f {{ hsb_var }} 
+   delegate_to: "clientnode-1"
+   loop:
+       - { objsize: '1Kb', numsamples: '100'}
+       - { objsize: '4Kb', numsamples: '100'}
+       - { objsize: '64Kb', numsamples: '100'}
+

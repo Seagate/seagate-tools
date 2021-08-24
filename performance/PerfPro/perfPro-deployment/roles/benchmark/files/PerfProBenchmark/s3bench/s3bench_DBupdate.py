@@ -15,13 +15,9 @@ from os import listdir
 import yaml
 from datetime import datetime
 import urllib.request
-
-#Main_path = '/root/Modified/main.yml'
-#Config_path = '/root/Modified/config.yml'
 Main_path = sys.argv[2]
 Config_path = sys.argv[3]
 iteration = 1
-#sys.argv[4]
 
 def makeconfig(name):  #function for connecting with configuration file
     with open(name) as config_file:
@@ -73,7 +69,6 @@ class s3bench:
         self.Col = Col
         self.Config_ID = Config_ID
         self.Timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        #self.PKey = PKey
         self.Overwrite = Overwrite
         self.Sessions = Sessions
         self.Objects = Objects
@@ -97,7 +92,6 @@ class s3bench:
                 "OS" : self.OS ,
                 "Count_of_Servers": self.Nodes_Num ,
                 "Count_of_Clients" : self.Clients_Num,
-                #"Iteration" : self.Iteration ,
                 "Percentage_full" : self.PC_Full ,
                 "Custom" : self.Custom
                 }
@@ -115,7 +109,6 @@ class s3bench:
 
         collection = db[self.Col]
         try:
-            #pattern = {"PKey" : self.PKey}
             count_documents= collection.count_documents(insertentry)
             db_data={}
             db_data.update(insertentry)
@@ -152,38 +145,37 @@ def insertOperations(file,Build,Version,col,Config_ID,Branch,OS):   #function fo
     obj = "NA"
     sessions=1
     f = open(file)
-    lines = f.readlines()[-150:]
+    lines = f.readlines()[-200:]
     count=0
-    while count<150:
-        if "numSamples:" in lines[count].strip().replace(" ", ""):
+    while count<200:
+        if '''"numSamples":''' in lines[count].strip().replace(" ", ""):
             r=lines[count].strip().replace(" ", "").split(":")
-            Objects = int(r[1])
-        if "numClients:" in lines[count].strip().replace(" ", ""):
+            Objects = int(r[1].replace(",", ""))
+        if '''"numClients":''' in lines[count].strip().replace(" ", ""):
             r=lines[count].strip().replace(" ", "").split(":")
-            sessions = int(r[1])
-        if "objectSize(MB):" in lines[count].strip().replace(" ", ""):
+            sessions = int(r[1].replace(",", ""))
+        if '''"objectSize(MB)":''' in lines[count].strip().replace(" ", ""):
             r=lines[count].strip().replace(" ", "").split(":")
-            Objsize = float(r[1])
+            Objsize = float(r[1].replace(",", ""))
             if(Objsize.is_integer()):
                 obj=str(int(Objsize))+"MB"
             else:
                 obj=str(round(Objsize*1024))+"KB"
 
-        if "Operation:" in lines[count].replace(" ", ""):
+        if '''"Operation":''' in lines[count].replace(" ", ""):
             r=lines[count].strip().replace(" ", "").split(":")
-            opname = r[1]
+            opname = r[1].replace(",", "").strip('"')
             if opname in oplist:
                 count-=1
                 throughput="NA"
                 iops="NA"
                 if opname=="Write" or opname=="Read":
                     count+=1
-                    throughput = float(lines[count+3].split(":")[1])
+                    throughput = float(lines[count+4].split(":")[1].replace(",", ""))
                     iops=round((throughput/Objsize),6)
-                    throughput = round(throughput,6)
-                lat={"Max":float(lines[count+4].split(":")[1]),"Avg":float(lines[count+5].split(":")[1]),"Min":float(lines[count+6].split(":")[1])}
-                ttfb={"Max":float(lines[count+7].split(":")[1]),"Avg":float(lines[count+8].split(":")[1]),"Min":float(lines[count+9].split(":")[1])}
-                #PKey=Version[0]+'_'+Branch[0].upper()+'_'+Build+'_ITR'+str(iteration)+'_'+str(nodes_num)+'N_'+str(clients_num)+'C_'+str(pc_full)+'PC_'+str(custom).upper()+'_S3B_'+str(obj)+'_1_'+opname[0].upper()+'_'+sessions
+
+                lat={"Max":float(lines[count-4].split(":")[1][:-2]),"Avg":float(lines[count-5].split(":")[1][:-2]),"Min":float(lines[count-3].split(":")[1][:-2])}
+                ttfb={"Max":float(lines[count+12].split(":")[1][:-2]),"Avg":float(lines[count+11].split(":")[1][:-2]),"Min":float(lines[count+13].split(":")[1][:-2])}
                 data = s3bench(filename,opname,iops,throughput,lat,ttfb,obj,Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID,overwrite,sessions,Objects,iteration,pc_full,custom)
                 data.insert_update()
                 count += 9
@@ -237,7 +229,6 @@ def getconfig():
     pc_full=configs_config.get('PC_FULL')
     custom=configs_config.get('CUSTOM')
     overwrite=configs_config.get('OVERWRITE')
-    #iteration=configs_config.get('ITERATION')
     cluster_pass=configs_config.get('CLUSTER_PASS')
     change_pass=configs_config.get('CHANGE_PASS')
     prv_cli=configs_config.get('PRVSNR_CLI_REPO')
@@ -267,22 +258,16 @@ def main(argv):
     Branch=Branch[1:-1]
     OS=get_release_info('OS')
     OS=OS[1:-1]
-
-    #col_config = db[configs_main['config_collection']]
-    #col_config='configurations_'+Version[0]
     col_config=configs_main.get('R'+Version[0])['config_collection']
     dic = getconfig()
     Config_ID = "NA"
     result = db[col_config].find_one(dic)    
     if result:
         Config_ID = result['_id'] # foreign key : it will map entry in configurations to results entry
-    
-    #col=db[configs_main['db_collection']]
-    #col='results_'+Version[0]
     col=configs_main.get('R'+Version[0])['db_collection']
     for f in files:
+        print(f)
         insertOperations(f,Build,Version,col,Config_ID,Branch,OS)
-    #update_mega_chain(Build,Version, col)
 
 if __name__=="__main__":
     main(sys.argv) 

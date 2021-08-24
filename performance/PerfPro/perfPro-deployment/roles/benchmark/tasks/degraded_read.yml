@@ -16,12 +16,12 @@
 
 #Collecting read stats before failure
 
- - name: "running S3bench in read only mode"
+ - name: "Running read only S3bench in normal state of cluster"
    include: dr_s3bench.yml
    vars:
      s3_var: "'-skipWrite -skipCleanup'"
 
- - name: "Running HSbench in read only mode"
+ - name: "Running read only HSbench in normal state of cluster"
    include: dr_hsbench.yml
    vars:
      hsb_var: "'lg'"
@@ -33,12 +33,12 @@
 
 #collect read stats
 
- - name: "running S3bench in read only mode"
+ - name: "Running read only S3bench in degraded state of cluster"
    include: dr_s3bench.yml
    vars:
      s3_var: "'-skipWrite -skipCleanup'"
 
- - name: "Running HSbench in read only mode"
+ - name: "Running read only HSbench in degraded state of cluster"
    include: dr_hsbench.yml
    vars:
      hsb_var: "'lg'"
@@ -47,19 +47,19 @@
 ## Yet to be implemented
 
 
-#Collect read starts after cluster is normal and cleanup
+#Collect read starts after cluster is recovered and cleanup
 
- - name: "running S3bench in read only mode"
+ - name: "Running read only S3bench in recovered state of cluster"
    include: dr_s3bench.yml
    vars:
      s3_var: "'-skipWrite'"
 
- - name: "Running HSbench in read only mode"
+ - name: "Running read only HSbench in recovered state of cluster"
    include: dr_hsbench.yml
    vars:
      hsb_var: "'lg'"
 
- - name: "Cleaning up HSbench"
+ - name: "Cleaning up buckets and objects of HSbench"
    include: dr_hsbench.yml
    vars:
      hsb_var: "'dcx'"

@@ -2,7 +2,6 @@
 
 set -x
 
-curl https://raw.githubusercontent.com/Seagate/cortx-s3server/main/ansible/files/certs/stx-s3-clients/s3/ca.crt -o /etc/ssl/ca.crt
 AWSKEYID=`cat s3user.txt |cut -d ',' -f 4 |cut -d ' ' -f 4`
 AWSKEY=`cat s3user.txt |cut -d ',' -f 5 |cut -d ' ' -f 4`
 pip3 install -i https://pypi.org/simple awscli

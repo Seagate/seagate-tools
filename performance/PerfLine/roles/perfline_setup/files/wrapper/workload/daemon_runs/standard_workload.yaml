@@ -1,0 +1,214 @@
+#
+# Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+
+common:
+  version: 1
+  description: Deamon execution for 312
+  priority: 100
+  batch_id: null
+  user: deamon_run@seagate.com
+  send_email: false
+
+# Optional section. It may be deleted in case you don't want
+ #  to build/deploy custom version of Cortx components. Either of the option
+ #   you have to choose like Only URL or commitID of motr, s3server and hare.
+custom_build:
+  url: http://cortx-storage.colo.seagate.com/releases/cortx/github/stable/centos-7.8.2003/312/prod/
+
+stats_collection:
+  iostat: false
+  dstat: false
+  blktrace: false
+  glances: false
+
+workloads:                           
+- s3bench:                           
+    BucketName: bkt11                
+    NumClients: 150                  
+    NumSample: 40000                 
+    ObjSize: 256Kb                   
+    EndPoint: http://s3.seagate.com 
+        
+- s3bench:                           
+    BucketName: bkt12                
+    NumClients: 150                  
+    NumSample: 40000                 
+    ObjSize: 256Kb                   
+    EndPoint: http://s3.seagate.com 
+        
+- s3bench:                           
+    BucketName: bkt13                
+    NumClients: 150                  
+    NumSample: 40000                 
+    ObjSize: 256Kb                   
+    EndPoint: http://s3.seagate.com 
+        
+- s3bench:                           
+    BucketName: bkt21                
+    NumClients: 300                 
+    NumSample: 40000                 
+    ObjSize: 256Kb                   
+    EndPoint: http://s3.seagate.com 
+        
+- s3bench:                           
+    BucketName: bkt22                
+    NumClients: 300                 
+    NumSample: 40000                 
+    ObjSize: 256Kb                   
+    EndPoint: http://s3.seagate.com 
+        
+- s3bench:                           
+    BucketName: bkt23                
+    NumClients: 300                 
+    NumSample: 40000                 
+    ObjSize: 256Kb                   
+    EndPoint: http://s3.seagate.com 
+        
+- s3bench:                           
+    BucketName: bkt31                
+    NumClients: 450                 
+    NumSample: 40000                 
+    ObjSize: 256Kb                   
+    EndPoint: http://s3.seagate.com 
+        
+- s3bench:                           
+    BucketName: bkt32                
+    NumClients: 450                 
+    NumSample: 40000                 
+    ObjSize: 256Kb                   
+    EndPoint: http://s3.seagate.com     
+        
+- s3bench:                           
+    BucketName: bkt33                
+    NumClients: 450                 
+    NumSample: 40000                 
+    ObjSize: 256Kb                   
+    EndPoint: http://s3.seagate.com 
+        
+
+- s3bench:                           
+    BucketName: bkt41                
+    NumClients: 600                 
+    NumSample: 40000                 
+    ObjSize: 256Kb                   
+    EndPoint: http://s3.seagate.com 
+
+- s3bench:                           
+    BucketName: bkt42                
+    NumClients: 600                 
+    NumSample: 40000                 
+    ObjSize: 256Kb                   
+    EndPoint: http://s3.seagate.com 
+
+- s3bench:                           
+    BucketName: bkt43               
+    NumClients: 600                 
+    NumSample: 40000                 
+    ObjSize: 256Kb                   
+    EndPoint: http://s3.seagate.com 
+        
+- s3bench:
+    BucketName: bkt51
+    NumClients: 150
+    NumSample: 40000
+    ObjSize: 16Mb
+    EndPoint: http://s3.seagate.com
+        
+- s3bench:
+    BucketName: bkt52
+    NumClients: 150
+    NumSample: 40000
+    ObjSize: 16Mb
+    EndPoint: http://s3.seagate.com
+        
+- s3bench:
+    BucketName: bkt53
+    NumClients: 150
+    NumSample: 40000
+    ObjSize: 16Mb
+    EndPoint: http://s3.seagate.com
+        
+- s3bench:
+    BucketName: bkt61
+    NumClients: 300
+    NumSample: 40000
+    ObjSize: 16Mb
+    EndPoint: http://s3.seagate.com
+        
+- s3bench:
+    BucketName: bkt62
+    NumClients: 300
+    NumSample: 40000
+    ObjSize: 16Mb
+    EndPoint: http://s3.seagate.com
+        
+- s3bench:
+    BucketName: bkt63
+    NumClients: 300
+    NumSample: 40000
+    ObjSize: 16Mb
+    EndPoint: http://s3.seagate.com
+        
+- s3bench:
+    BucketName: bkt71
+    NumClients: 450
+    NumSample: 40000
+    ObjSize: 16Mb
+    EndPoint: http://s3.seagate.com
+        
+- s3bench:
+    BucketName: bkt72
+    NumClients: 450
+    NumSample: 40000
+    ObjSize: 16Mb
+    EndPoint: http://s3.seagate.com
+        
+- s3bench:
+    BucketName: bkt73
+    NumClients: 450
+    NumSample: 40000
+    ObjSize: 16Mb
+    EndPoint: http://s3.seagate.com
+        
+- s3bench:
+    BucketName: bkt81
+    NumClients: 600
+    NumSample: 40000
+    ObjSize: 16Mb
+    EndPoint: http://s3.seagate.com
+        
+- s3bench:
+    BucketName: bkt82
+    NumClients: 600
+    NumSample: 40000
+    ObjSize: 16Mb
+    EndPoint: http://s3.seagate.com
+        
+- s3bench:
+    BucketName: bkt83
+    NumClients: 600
+    NumSample: 40000
+    ObjSize: 16Mb
+    EndPoint: http://s3.seagate.com
+
+execution_options:
+  mkfs: false
+  collect_m0trace: false
+  collect_addb: false
+  backup_result: false

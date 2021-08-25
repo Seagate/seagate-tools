@@ -134,6 +134,43 @@
                 WantedBy=multi-user.target
     delegate_to: "client-1"
 
+  - name: "Coping a block of statement for {{ PERFLINE_DAEMON_SERVICE_NAME }}.service"
+    blockinfile:
+      path: /etc/systemd/system/{{ PERFLINE_DAEMON_SERVICE_NAME }}.service
+      create: yes
+      block: |
+                [Unit]
+                Description=Perfline daemon service to trigger perfline workloads automatically
+                Wants={{ PERFLINE_SERVICE_NAME }}.timer
+
+                [Service]
+                Type=oneshot
+                WorkingDirectory={{ PERFLINE_DIR }}/wrapper
+                ExecStart=/usr/bin/bash {{ PERFLINE_DIR }}/wrapper/perfline_daemon.sh  --url 'http://cortx-storage.colo.seagate.com/releases/cortx/github/stable/centos-7.8.2003' --workload_dir '{{ PERFLINE_DIR }}/wrapper/workload/daemon_runs/'
+
+                [Install]
+                WantedBy=multi-user.target
+    delegate_to: "client-1"
+    when: enable_daemon_service == "yes"
+
+  - name: "Coping a block of statement for {{ PERFLINE_SERVICE_NAME }}.timer"
+    blockinfile:
+      path: /etc/systemd/system/{{ PERFLINE_SERVICE_NAME }}.timer
+      create: yes
+      block: |
+                [Unit]
+                Description=Triggered perfline_daemon based on calendar value
+                Requires={{ PERFLINE_DAEMON_SERVICE_NAME }}.service
+                
+                [Timer]
+                Unit={{ PERFLINE_DAEMON_SERVICE_NAME }}.service
+                OnCalendar=Fri *-*-* 00:00:00
+                
+                [Install]
+                WantedBy=timers.target
+    delegate_to: "client-1"
+    when: enable_daemon_service == "yes"
+
   - name: Start {{ PERFLINE_UI_SERVICE_NAME }} service
     systemd: state=restarted name={{ PERFLINE_UI_SERVICE_NAME }} daemon_reload=yes
     delegate_to: "client-1"

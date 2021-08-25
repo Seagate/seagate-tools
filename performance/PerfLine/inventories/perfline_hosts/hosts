@@ -15,6 +15,8 @@ ansible_ssh_common_args='-o StrictHostKeyChecking=no'
 
 cluster_pass=
 
+enable_daemon_service='no'
+
 # Don't forget to use different ports for the PerfLine UI service
 # if you are installing two (or more) versions of PerfLine.
 perfline_ui_port=8005

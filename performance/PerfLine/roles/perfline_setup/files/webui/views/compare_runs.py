@@ -16,15 +16,20 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 
-__all__ = ["add_task",
-           "hostname",
-           "log",
-           "queue",
-           "results",
-           "save_task",
-           "workload_conf",
-           "rerun",
-           "delete_task",
-           "backup_task",
-           "get_perf_metrics",
-           "get_tasks_metadata"]
+import os
+from flask import make_response, request, render_template
+
+from app_global_data import *
+
+
+@app.route('/compare_runs')
+def compare_runs():
+    task_ids = request.args.getlist('task_id')
+
+    if len(task_ids) == 0:
+        return make_response("task_id parameter not found", 400)
+
+    context = dict()
+    context['task_ids'] = task_ids
+
+    return render_template("compare_runs.html", **context)

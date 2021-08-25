@@ -1,0 +1,48 @@
+<html>
+    <head>
+        <script src="templates/scripts/compare_runs.js"></script>
+        <title>
+            comparison of tasks
+        </title>
+        <style>
+            .red_text {
+             color: red;
+             text-align: center;
+             white-space: pre;
+             font-weight: bold;
+            }
+
+            .green_text {
+             color: green;
+             text-align: center;
+             white-space: pre;
+             font-weight: bold;
+            }
+
+            .black_text {
+                color: black;
+                text-align: center;
+                white-space: pre;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>
+            Comparison of tasks
+        </h2>
+
+        {% for task_id in task_ids %}
+        <input name="task_id_value" value="{{ task_id }}" hidden="true"></input>
+        {% endfor %}
+        <h3>
+            Summary
+        </h3>
+        <table border="1" width="100%" id="summary_table"></table>
+        <br><br>
+        <h3>
+            Details
+        </h3>
+        <table border="1" width="100%" id="data_table"></table>
+
+    </body>
+</html>

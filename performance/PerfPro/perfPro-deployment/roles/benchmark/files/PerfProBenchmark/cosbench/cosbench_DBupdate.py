@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-python3 cosbench_DBupdate.py <log file path> <main.yaml path> <config.yaml path> <ITR>
+python3 cosbench_DBupdate.py <log file path> <main.yaml path> <config.yaml path> 
 Attributes:
 _id,Log_File,Name,Operation,IOPS,Throughput,Latency,TTFB,Object_Size,HOST,Objects,Buckets,Session
 """
@@ -19,8 +19,6 @@ import urllib.request
 
 Main_path = sys.argv[2]
 Config_path = sys.argv[3]
-iteration = 1
-#sys.argv[4]
 
 def makeconfig(name):  # function for connecting with configuration file
     with open(name) as config_file:
@@ -56,96 +54,105 @@ def get_release_info(variable):
             strip_strinfo=re.split(': ',strinfo)
             return(strip_strinfo[1])
 
+##Function to find latest iteration
 
+def get_latest_iteration(query, db, collection):
+    max = 0
+    cursor = db[collection].find(query)
+    for record in cursor:
+        if max < record['Iteration']:
+            max = record['Iteration']
+    return max
 
-def insert_data(file,Build,Version,Config_ID,db,col,Branch,OS):  # function for retriving required data from log files and update into mongodb
-    _, filename = os.path.split(file)
-    global nodes_num , clients_num , pc_full , iteration , overwrite, custom
-    with open(file) as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        line_count = 0
-        for row in csv_reader:
-            if line_count == 0:
-                line_count += 1
-            else:
-                if(row[1] == "read" or row[1] == "write"):
-                    attr = re.split(',|-', filename)
-                    obj = attr[1]
-                    if('m' in obj) or ('M' in obj):
-                        Objsize = int(re.split('m|M', obj)[0])
-                    if('k' in obj) or ('K' in obj):
-                        Objsize = float(re.split('k|K', obj)[0])*0.001
+def insert_data(files,Build,Version,Config_ID,db,col,Branch,OS):  # function for retriving required data from log files and update into mongodb
+    find_iteration = True
+    delete_data = True
+    iteration_number = 0
+    global nodes_num , clients_num , pc_full  , overwrite, custom
+    for file in files:
+        _, filename = os.path.split(file)
+        with open(file) as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=',')
+            line_count = 0
+            for row in csv_reader:
+                if line_count == 0:
+                    line_count += 1
+                else:
+                    if(row[1] == "read" or row[1] == "write"):
+                        attr = re.split(',|-', filename)
+                        obj = attr[1]
+                        if('m' in obj) or ('M' in obj):
+                            Objsize = int(re.split('m|M', obj)[0])
+                        if('k' in obj) or ('K' in obj):
+                            Objsize = float(re.split('k|K', obj)[0])*0.001
+    
+                        iops = float(row[13])
+                        throughput = iops*Objsize
+                        lat = {"Max": float(row[12]), "Avg": float(row[5])}
+                        # check whether entry with same build -object size -buckets-objects-sessions is presernt or not
+                        operation= row[1]
+                        obj_size= attr[1]
+                        buckets= int(re.split(" ", attr[2])[1])
+                        objects= int(re.split(" ", attr[3])[1])
+                        sessions= int(re.split(" ", attr[4])[1])
+                        primary_Set = {
+                            "Name": "Cosbench", 
+                            "Build": Build, 
+                            "Version": Version,
+                            "Branch": Branch ,
+                            "OS": OS, 
+                            "Count_of_Servers": nodes_num ,
+                            "Count_of_Clients": clients_num , 
+                            "Percentage_full" : pc_full ,
+                            "Custom" : str(custom).upper()
+                            }
+                        runconfig_Set = {
+                            "Operation": "".join(operation[0].upper() + operation[1:].lower()) ,
+                            "Object_Size": str(obj_size.replace(" ","").upper()),
+                            "Buckets": buckets,
+                            "Objects": objects, 
+                            "Sessions": sessions
+                            }
+                        updation_Set = {
+                            "HOST": socket.gethostname(), 
+                            "Config_ID": Config_ID, 
+                            "IOPS": iops, 
+                            "Throughput": throughput, 
+                            "Latency": lat, 
+                            "Log_File": filename, 
+                            "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            }
+                        db_data={}
+                        db_data.update(primary_Set)
+                        db_data.update(runconfig_Set)
+                        db_data.update(updation_Set)
 
-                    iops = float(row[13])
-                    throughput = iops*Objsize
-                    lat = {"Max": float(row[12]), "Avg": float(row[5])}
-                    # check whether entry with same build -object size -buckets-objects-sessions is presernt or not
-                    action = "Updated"
-                    operation= row[1]
-                    obj_size= attr[1]
-                    buckets= int(re.split(" ", attr[2])[1])
-                    objects= int(re.split(" ", attr[3])[1])
-                    sessions= int(re.split(" ", attr[4])[1])
-                    entry = {
-                        "Name": "Cosbench", 
-                        "Operation": "".join(operation[0].upper() + operation[1:].lower()) , 
-                        "Build": Build, 
-                        "Version": Version,
-                        "Branch": Branch ,
-                        "OS": OS, 
-                        "Count_of_Servers": nodes_num ,
-                        "Count_of_Clients": clients_num , 
-                        "Object_Size": str(obj_size.replace(" ","").upper()), 
-                        "Buckets": buckets,
-                        "Objects": objects, 
-                        "Sessions": sessions ,
-                        #"Iteration" : iteration ,
-                        "Percentage_full" : pc_full ,
-                        "Custom" : str(custom).upper()
-                        }
-                       # 'PKey' : Version[0]+'_'+Branch[0].upper()+'_'+Build+'_ITR'+str(iteration)+'_'+str(nodes_num)+'N_'+str(clients_num)+'C_'+str(pc_full)+'PC_'+str(custom).upper()+'_COS_'+str(obj_size.replace(" ","").upper())+'_'+str(buckets)+'_'+operation[0].upper()+'_'+str(sessions) 
-                       # }
-                    update_data = {
-                        "Log_File": filename, 
-                        #"Operation": row[1], 
-                        "IOPS": iops, 
-                        "Throughput": throughput, 
-                        "Latency": lat, 
-                        "HOST": socket.gethostname(), 
-                        "Config_ID": Config_ID, 
-                        "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        "Iteration" : iteration 
-                        }
-                    db_data={}
-                    db_data.update(entry)
-                    db_data.update(update_data)   
-                    try:
-                        #pattern={'PKey' : entry['PKey']}
-                        count_documents = db[col].count_documents(entry)
-                        if count_documents == 0:
+# Function to insert data into db with iterration number
+
+                        def db_update(itr,db_data):
+                            db_data.update(Iteration=itr)
                             db[col].insert_one(db_data)
-                            action = "Inserted"
-                        elif overwrite == True: 
-                            update_data.update(Iteration=count_documents)
-                            db_data.update(update_data)
-                            entry.update(Iteration=count_documents)
-                            db[col].update_one(entry , {"$set": db_data})
-                            action = "Updated"
-                        else :
-                            update_data.update(Iteration=count_documents+1)
-                            db_data.update(update_data)
-                            db[col].insert_one(db_data)
-                            print("'Overwrite' is false in config. Hence, new DB entry inserted")
-                            action = "New iteration inserted"
+                            print('Inserted new entries \n' + str(db_data))
 
-                    except Exception as e:
-                        print("Unable to insert/update documents into database. Observed following exception:")
-                        print(e)
-                    else:
-                        print('Data {} : {}  \n'.format(
-                            action, db_data ))
-          
+                        try:
+                            if find_iteration:
+                                iteration_number = get_latest_iteration(primary_Set, db, col)
+                                find_iteration = False
+                            if iteration_number == 0:
+                                db_update(iteration_number+1 , db_data)
+                            elif overwrite == True :
+                                primary_Set.update(Iteration=iteration_number)
+                                if delete_data:
+                                    db[col].delete_many(primary_Set)
+                                    delete_data = False
+                                    print("'overwrite' is True in config. Hence, old DB entry deleted")
+                                db_update(iteration_number,db_data)
+                            else :
+                                db_update(iteration_number+1 , db_data)
 
+                        except Exception as e:
+                            print("Unable to insert/update documents into database. Observed following exception:")
+                            print(e)
 
 # function to return all file names with perticular extension
 def getallfiles(directory, extension):
@@ -159,9 +166,7 @@ def getallfiles(directory, extension):
 def update_mega_chain(build, version, col):
     cursor = col.find({'Title' : 'Main Chain'})
     beta_chain = cursor[0]['beta']
-    #print(beta_chain)
     release_chain = cursor[0]['release']
-    #print(release_chain)
     if version == 'release':
         if build not in release_chain:
             print(build)
@@ -198,7 +203,6 @@ def getconfig():
     pc_full=configs_config.get('PC_FULL')
     custom=configs_config.get('CUSTOM')
     overwrite=configs_config.get('OVERWRITE')
-    #iteration=configs_config.get('ITERATION')
     cluster_pass=configs_config.get('CLUSTER_PASS')
     change_pass=configs_config.get('CHANGE_PASS')
     prv_cli=configs_config.get('PRVSNR_CLI_REPO')
@@ -228,8 +232,6 @@ def main(argv):
     OS=OS[1:-1]
 
     db = makeconnection()  # getting instance  of database
-    #col_config = db[configs_main['config_collection']]
-    #col_config='configurations_'+Version[0]
     col_config=configs_main.get('R'+Version[0])['config_collection']
     dic = getconfig()
     result = db[col_config].find_one(dic)# find entry from configurations collection
@@ -237,14 +239,10 @@ def main(argv):
     if result:
         Config_ID = result['_id']        # foreign key : it will map entry in configurations to results entry
 
-    #col = db[configs_main['db_collection']]
-    #col ='results_'+Version[0]
     col =configs_main.get('R'+Version[0])['db_collection']
-
-    for f in files:
-        insert_data(f,Build,Version,Config_ID,db,col,Branch,OS)
-    #update_mega_chain(Build,Version,col)# update mega entry
-
+    insert_data(files,Build,Version,Config_ID,db,col,Branch,OS )
 
 if __name__ == "__main__":
     main(sys.argv)
+
+# End

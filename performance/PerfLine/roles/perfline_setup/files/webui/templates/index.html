@@ -194,16 +194,19 @@ app.controller('resultsCC', function($scope, $window, $http) {
 
         let backup_button = document.getElementById("backup_button");
         let delete_button = document.getElementById("delete_button");
+        let compare_button = document.getElementById("compare_button");
 
         if (taskList.size > 0)
         {
             backup_button.hidden = false;
             delete_button.hidden = false;
+            compare_button.hidden = false;
         }
         else
         {
             backup_button.hidden = true;
             delete_button.hidden = true;
+            compare_button.hidden = true;
         }
     }
 
@@ -276,6 +279,22 @@ app.controller('resultsCC', function($scope, $window, $http) {
         taskList.clear();
         $scope.updateButtonsVisibility();
         
+    }
+
+    $scope.compareTasks = function() {
+        if(taskList.size == 0)
+        {
+            return;
+        }
+
+        get_params = "?";
+        for (let tid of taskList)
+        {
+            get_params += `task_id=${tid}&`
+        }
+
+        console.log(`compare tasks: ${get_params}`);
+        window.location.href = `/compare_runs${get_params}`;
     }
  
     $scope.reload = function() {

@@ -25,4 +25,5 @@ __all__ = ["addb_img",
            "index",
            "report_img",
            "report",
-           "template"]
+           "template",
+           "compare_runs"]

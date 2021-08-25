@@ -1,0 +1,18 @@
+---
+ - name: "Preaparing Cluster Node List"
+   set_fact: nodelist={%for host in groups['nodes']%}{{hostvars[host]['ansible_host']}}{% if not loop.last %},{% endif %}{% endfor %}
+
+ - name: "Defining numclients variable for concurrency"
+   set_fact: numclients="10"
+
+ - name: "[S3bench-small-objects]: S3benchmark running for degraded read" 
+   shell: |
+      cd /root/PerfProBenchmark/degraded_read/
+      ./degradedread_s3benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }} -f {{ s3_var }}
+   delegate_to: "clientnode-1"
+   loop:
+       - { objsize: '1Kb', numsamples: '100'}
+       - { objsize: '4Kb', numsamples: '100'}
+       - { objsize: '64Kb', numsamples: '100'}
+
+

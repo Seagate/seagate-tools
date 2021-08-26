@@ -1,0 +1,11 @@
+<tr><th colspan="{{ cluster_nodes_info|length + 1 }}">PIDs</th></tr>
+<tr>
+<th>PIDs</th>
+    {% for strings in pids_info %}
+    <th style="text-align:left">
+        {% for string in strings %}
+        {{string}}<br>
+        {% endfor %}
+    </th>
+    {% endfor %}
+</tr>

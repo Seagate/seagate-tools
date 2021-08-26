@@ -19,7 +19,7 @@ def check_IPs(hosts_file_path): # function to check IPs present for all nodes
 
     ips_map = {}
     for line in host_file_lines:
-        if not line.startswith("#"):
+        if not line.strip().startswith("#"):
            match_res = re.search(srv_node_pattern, line)
            if match_res:
                try:

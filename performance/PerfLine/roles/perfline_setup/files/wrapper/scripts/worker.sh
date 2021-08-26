@@ -527,6 +527,9 @@ function main() {
 
     restart_cluster
 
+    # collecting pids of cortx application
+    $SCRIPT_DIR/artifacts_collecting/collect_pids.sh $NODES pids.txt
+
     # @artem -- place code below
     # Start stat utilities
     echo "Start stat utilities"
@@ -578,6 +581,9 @@ function main() {
     echo "Generate plots, hists, etc"
 
     stop_measuring_test_time
+
+    $SCRIPT_DIR/artifacts_collecting/gen_run_metadata.py -a $(pwd) -o run_metadata.json
+
     generate_report
 
     # Close results dir

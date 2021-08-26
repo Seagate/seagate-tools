@@ -19,13 +19,13 @@ def check_IPs(hosts_file_path): # function to check IPs present for all nodes
 
     ips_map = {}
     for line in host_file_lines:
-        match_res = re.search(srv_node_pattern, line)
-        if match_res:
-            try:
-                ips_map['srvnode-{}'.format(match_res.group('node_id'))] = line.split()[0]
-            except Exception as e:
-                # print("IP not found for node {}, occured Exception : {}".format(node,e))
-                pass
+        if not line.startswith("#"):
+           match_res = re.search(srv_node_pattern, line)
+           if match_res:
+               try:
+                   ips_map['srvnode-{}'.format(match_res.group('node_id'))] = line.split()[0]
+               except Exception as e:
+                   pass
     return ips_map
 
 def get_disks(ips_map, ips): # returns disks from cluster config file

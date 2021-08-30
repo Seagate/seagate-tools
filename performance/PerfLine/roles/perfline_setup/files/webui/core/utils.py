@@ -67,4 +67,8 @@ def get_list_of_files(dirName):
             if fullPath.endswith(".yaml"):
                key = entry.replace(".yaml","")
                allFiles[key] = fullPath
+    # Dicts preserve insertion order in Python3.7+ and CPython3.6
+    # Creating a new dict based on the old one, but filtered, resolves
+    # the ordering problem.
+    allFiles = {k: v for k, v in sorted(allFiles.items(), key=lambda item: item[0])}
     return allFiles

@@ -44,7 +44,7 @@ def tq_queue_read(limit: int):
 
         out.append(elem)
 
-    return list(reversed(out))
+    return out
 
 
 @app.route('/api/queue', defaults={'limit': 9999999})

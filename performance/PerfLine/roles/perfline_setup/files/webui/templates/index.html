@@ -406,6 +406,13 @@ app.controller('addTaskCC', function($scope, $http, $routeParams) {
                 $scope.errorLog = null;
                 $scope.errorMsg = "Sorry! Unable to save workload config. Please use different filename";      
              }
+             else if (response.data.includes("PRIORITY")){
+                $scope.successMsg = null;
+                $scope.errorLog = null;
+                $scope.errorMsg = "Failed ! Wrong priority.";
+                $scope.errorLog = response.data;
+
+             }
              else if (response.data.includes("Success")){
                 $scope.errorMsg = null;
                 $scope.errorLog = null;
@@ -435,7 +442,16 @@ app.controller('addTaskCC', function($scope, $http, $routeParams) {
                  $scope.state = null;
                  $scope.errorMsg = "Sorry! Unable to trigger workload";
                  $scope.errorLog = response.data;
-             } else if (response.data[1].state.includes("ENQUEUED")) {
+             }
+             else if (response.data.includes("PRIORITY")){
+                $scope.successMsg = null;
+                $scope.task_id = null;
+                $scope.state = null; 
+                $scope.errorMsg = "Failed ! Wrong priority";
+                $scope.errorLog = response.data;
+             }
+ 
+             else if (response.data[1].state.includes("ENQUEUED")) {
                  $scope.errorMsg = null;
                  $scope.errorLog = null;
                  $scope.successMsg = "Successfully workload has been triggered";

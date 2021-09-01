@@ -20,11 +20,16 @@ from flask import make_response, request
 
 from app_global_data import *
 from core import pl_api
-
+import yaml
 
 @app.route('/addtask', methods = ["POST"])
 def addtask():
     config: str = request.form['config']
-    result = pl_api.add_task(config)
+    config1 = yaml.safe_load(config)
+    prio = config1['common']['priority']
+    if HIGHEST_PRIO < prio or prio < LOWEST_PRIO:
+        result = { 'PRIORITY': 'Too high priority are not allowed. Please use between 1 to 3' }
+    else:
+        result = pl_api.add_task(config)
     response = make_response(f'{result}')
     return response

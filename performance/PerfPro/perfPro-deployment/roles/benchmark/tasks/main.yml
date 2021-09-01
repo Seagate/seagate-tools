@@ -78,6 +78,9 @@
  - include: prefill.yml
 
  - include: s3bench.yml
+ 
+ - name: s3bench results upload to db
+   shell: python3 /root/PerfProBenchmark/s3bench/s3bench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/s3bench /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
 
  - include: cosbench.yml
 

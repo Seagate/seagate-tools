@@ -118,7 +118,6 @@ if [ ! -d $BENCHMARKLOG ]; then
      mkdir $BENCHMARKLOG
      s3benchmark
      sleep 20
-     python3 s3bench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG 
      cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/
 
 else
@@ -126,7 +125,6 @@ else
      mkdir $BENCHMARKLOG
      s3benchmark
      sleep 20
-     python3 s3bench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG 
      cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/     
 
 fi

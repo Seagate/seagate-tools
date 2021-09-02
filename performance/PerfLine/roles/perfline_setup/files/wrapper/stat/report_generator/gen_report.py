@@ -105,8 +105,7 @@ def get_pids(run_metadata, nodes_stat_dirs):
 
         if hostname in pids_md:
             for app_name, app_pids in pids_md[hostname].items():
-                pids_str = ', '.join(map(str, app_pids))
-                node_pids.append(f'{app_name}: {pids_str}')
+                node_pids.extend(map(lambda pid: f"{app_name}: {pid}", app_pids))
 
     return result
 

@@ -45,8 +45,8 @@ def saveFile(task: str):
        errors = vr.validate_config(config1)
        if all([v for e in errors for v in e.values()]):
            result = errors
-       elif HIGHEST_PRIO < prio or prio < LOWEST_PRIO:
-           result = { 'PRIORITY': 'Too high priority are not allowed. Please use between 1 to 3'}
+       elif HIGHEST_WEBUI_PRIO < prio or prio < LOWEST_PRIO:
+           result = { 'PRIORITY': f'Too high priority are not allowed. Please use between {LOWEST_PRIO} to {HIGHEST_WEBUI_PRIO}'}
        else:
            with open(filename, 'w') as output:
                 output.write(config)

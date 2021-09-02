@@ -27,8 +27,9 @@ def addtask():
     config: str = request.form['config']
     config1 = yaml.safe_load(config)
     prio = config1['common']['priority']
-    if HIGHEST_PRIO < prio or prio < LOWEST_PRIO:
-        result = { 'PRIORITY': 'Too high priority are not allowed. Please use between 1 to 3' }
+    
+    if HIGHEST_WEBUI_PRIO < prio or prio < LOWEST_PRIO:
+        result = { 'PRIORITY': f'Too high priority are not allowed. Please use between {LOWEST_PRIO} to {HIGHEST_WEBUI_PRIO}' }
     else:
         result = pl_api.add_task(config)
     response = make_response(f'{result}')

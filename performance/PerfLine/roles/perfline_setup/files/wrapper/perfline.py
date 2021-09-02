@@ -55,7 +55,7 @@ def task_add():
         return
     
     if HIGHEST_PRIO < prio or prio < LOWEST_PRIO:
-       print('Too high priority are not allowed. Please use between 1 to 3')
+       print(f'Too high priority are not allowed. Please use between {LOWEST_PRIO} to {HIGHEST_PRIO}')
        return 
 
     opt  = { 'enqueue_time': str(datetime.now()) }

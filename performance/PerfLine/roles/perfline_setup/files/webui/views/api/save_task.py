@@ -31,18 +31,22 @@ import validator as vr
 def saveFile(task: str):
     config: str = request.form['config']
     CUSTOM_DIR = os.path.join(WORKLOAD_DIR,'custom_workload')
+    config1 = yaml.safe_load(config)
+    prio = config1['common']['priority']
 
     files = os.listdir(f'{WORKLOAD_DIR}')
     if task+'.yaml' in files:
        result = { 'Failed': 'Sorry! you can\'t edit \"example.yaml\". Please use different filename' }
+
     else:
        if not isdir(CUSTOM_DIR):
             os.mkdir(CUSTOM_DIR)
        filename: str = join(CUSTOM_DIR, task+'.yaml')
-       config1 = yaml.safe_load(config)
        errors = vr.validate_config(config1)
        if all([v for e in errors for v in e.values()]):
            result = errors
+       elif HIGHEST_WEBUI_PRIO < prio or prio < LOWEST_PRIO:
+           result = { 'PRIORITY': f'Too high priority are not allowed. Please use between {LOWEST_PRIO} to {HIGHEST_WEBUI_PRIO}'}
        else:
            with open(filename, 'w') as output:
                 output.write(config)

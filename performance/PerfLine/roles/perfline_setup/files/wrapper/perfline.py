@@ -33,13 +33,13 @@ import signal
 from datetime import datetime
 import validator as vr
 from pprint import pprint
+exec(open("../perfline.conf").read())
 
 def print_info(tid, state, info=None):
     output = [{'task_id': tid}, {'state': state}]
     if info:
         output.append({'info': info})
     print(json.dumps(output))
-
 
 def validation_failed(errors):
     print('Validation failed with the following errors:')
@@ -48,10 +48,15 @@ def validation_failed(errors):
 def task_add():
     config = yaml.safe_load(sys.stdin.read())
     errors = vr.validate_config(config)
+    prio = config['common']['priority']
 
     if all([v for e in errors for v in e.values()]):
         validation_failed(errors)
         return
+    
+    if HIGHEST_PRIO < prio or prio < LOWEST_PRIO:
+       print(f'Too high priority are not allowed. Please use between {LOWEST_PRIO} to {HIGHEST_PRIO}')
+       return 
 
     opt  = { 'enqueue_time': str(datetime.now()) }
     task = worker_task((config, opt), priority=config['common']['priority'])

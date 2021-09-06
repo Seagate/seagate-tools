@@ -429,6 +429,9 @@ function collect_artifacts() {
         $SCRIPT_DIR/artifacts_collecting/process_glances_data.sh $srv_nodes
         popd
     fi
+
+    # generate structured form of stats
+    $SCRIPT_DIR/../stat/gen_run_metadata.py -a $(pwd) -o run_metadata.json
 }
 
 function close_results_dir() {
@@ -514,6 +517,11 @@ function do_result_backup()
     popd
 }
 
+function collect_stat_data()
+{
+    # collecting pids of cortx (m0d/s3server/hax) applications
+    $SCRIPT_DIR/../stat/collect_pids.sh $NODES pids.txt
+}
 
 function main() {
 
@@ -526,6 +534,7 @@ function main() {
     pushd_to_results_dir
 
     restart_cluster
+    collect_stat_data
 
     # @artem -- place code below
     # Start stat utilities
@@ -578,6 +587,7 @@ function main() {
     echo "Generate plots, hists, etc"
 
     stop_measuring_test_time
+
     generate_report
 
     # Close results dir

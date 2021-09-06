@@ -88,6 +88,27 @@ def parse_hardware_info(nodes_stat_dirs):
     return mems, cpu_info, commit_info
 
 
+def get_pids(run_metadata, nodes_stat_dirs):
+
+    if 'pids' not in run_metadata:
+        return None
+
+    pids_md = run_metadata['pids']
+
+    result = list()
+
+    for node_stats_path in nodes_stat_dirs:
+        hostname = node_stats_path.split('/')[-1]
+
+        node_pids = list()
+        result.append(node_pids)
+
+        if hostname in pids_md:
+            for app_name, app_pids in pids_md[hostname].items():
+                node_pids.extend(map(lambda pid: f"{app_name}: {pid}", app_pids))
+
+    return result
+
 def parse_network_info(nodes_stat_dirs):
     network_infos = []
     lnet_conf = []
@@ -487,6 +508,17 @@ def main():
     report_dir = getcwd() if sys.argv[1] == '.' else sys.argv[1]
     stat_result_dir = join(report_dir, 'stats')
     addb_stat_dir = join(stat_result_dir, 'addb')
+
+    run_metadata_path = join(report_dir, 'run_metadata.json')
+    run_metadata = None
+
+    if isfile(run_metadata_path):
+        with open(run_metadata_path) as f:
+            try:
+                run_metadata = json.loads(f.read())
+            except Exception as e:
+                print(e)
+
     if not isdir(stat_result_dir):
         print(
             f'Aborting report generation. No stats directory detected at: {report_dir}')
@@ -502,6 +534,11 @@ def main():
     task_id_path = report_dir.split('/')
     task_id = task_id_path[-2].split(
         '_')[-1] if task_id_path[-1] == '' else task_id_path[-1].split('_')[-1]
+
+    pids_info = None
+
+    if run_metadata is not None:
+        pids_info = get_pids(run_metadata, nodes_stat_dirs)
 
     # Static info
     node_names = [node_path.split('/')[-1] for node_path in nodes_stat_dirs]
@@ -597,7 +634,8 @@ def main():
             net_metrics=net_metrics,
             datavolume_metrics=datavolume_metrics,
             mdvolume_metrics=mdvolume_metrics,
-            csv_report_content=csv_report_content
+            csv_report_content=csv_report_content,
+            pids_info=pids_info
         ))
 
 

@@ -150,7 +150,6 @@ def insertOperations(files,Build,Version,col,Config_ID,Branch,OS,db): #function 
         Objsize= 1
         obj = "NA"
         sessions=1
-        print(file)
         fname=file.strip(".log")
         ind_list=fname.split("_")
         cluster_state=str(ind_list[-9])

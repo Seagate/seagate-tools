@@ -87,6 +87,10 @@
 
  - include: hsbench.yml
 
+ - name: hsbench results upload to db
+   shell: python3 /root/PerfProBenchmark/hsbench/hsbench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/s3bench /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
+   delegate_to: "clientnode-1"
+
 #Performing Degraded read benchmarking
 
  - include: degraded_read.yml

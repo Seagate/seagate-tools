@@ -120,7 +120,6 @@ if [ ! -d $BENCHMARKLOG ]; then
     mkdir $BENCHMARKLOG
     hotsause_benchmark 2>&1 | tee benchmark.log/output.log
     sleep 20 
-    python3 hsbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG 
     cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/    
     cp $BENCHMARKLOG/output.log $RESULT_DIR/$TOOL_NAME/    
       
@@ -129,7 +128,6 @@ else
     mkdir $BENCHMARKLOG
     hotsause_benchmark 2>&1 | tee benchmark.log/output.log
     sleep 20 
-    python3 hsbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG
     cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/    
     cp  $BENCHMARKLOG/output.log $RESULT_DIR/$TOOL_NAME/    
 

@@ -17,6 +17,6 @@ if [ $status -eq 0 ]; then
 else
    echo "Starting cosbench..."
 #   sh cosbench.sh start --controller $1 --drivers driver-nodes-list
-   cd ~/cos/; sh start-all.sh 
+   cd ~/cos/; sh stop-all.sh; sh start-all.sh 
 fi
 

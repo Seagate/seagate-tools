@@ -23,10 +23,10 @@ import urllib.request
 import re
 
 
-#SysConfig_path = sys.argv[1]
 Main_path = sys.argv[1]
 Config_path = sys.argv[2]
-
+Object_Size = sys.argv[3]
+Name = sys.argv[4]
 
 """
 hostname = socket.gethostname()
@@ -74,7 +74,6 @@ def makeconnection(collection):  #function for making connection with database
     db=client[configs['db_database']]  #database name=performance
     Version=get_release_info('VERSION')
     Version=Version[1:-1]
-#    col_stats=collection+'_'+Version[0]
     col_stats=configs.get('R'+Version[0])[collection]
     col=db[col_stats]  #collection name = systemresults
     return col
@@ -103,7 +102,6 @@ def getconfig():
 
 def adddata(data,device,col):
     dict1 = getconfig()
-#    conf = makeconnection('configurations')
     conf = makeconnection('config_collection')
     Config_ID = "NA"
     result = conf.find_one(dict1)
@@ -116,7 +114,7 @@ def adddata(data,device,col):
         if value[0] !="":
             if value[2]!="DEV" and value[2]!="IFACE":
                 count=2
-                dic = {"Device":device,"Timestamp":datetime.now().strftime("%Y-%m-%d %H:%M:%S"),"Time":value[0],"HOST" : socket.gethostname(),"Config_ID":Config_ID}
+                dic = {"Name": Name,"Object_Size": Object_Size,"Device":device,"Timestamp":datetime.now().strftime("%Y-%m-%d %H:%M:%S"),"Time":value[0],"HOST" : socket.gethostname(),"Config_ID":Config_ID}
                 while count<length:
                     dic.update( {attr[count] : value[count]} ) # adding respective attribute and value pair in dictionary
                     count+=1
@@ -133,7 +131,6 @@ def adddata(data,device,col):
 
 
 def addReport(): #function for getting system report accoordiing to 'cmd' argument
-#    col = makeconnection('systemresults')
     col = makeconnection('sysstat_collection')
     cmd = [['sar 5','p1',"CPU"],['sar -r 5','p2',"MEMORY"],['sar -d 5','p3',"DISK"],['sar -b 5','p4',"I/O"],['sar -n DEV 5','p5',"NETWORK"]]
     count =0

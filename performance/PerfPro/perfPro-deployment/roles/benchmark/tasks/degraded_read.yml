@@ -3,16 +3,19 @@
    include: dr_hsbench.yml
    vars:
      hsb_var: "'cx'"
+     cluster_state: "'normal-cleanup'"
 
  - name: "Running S3bench in write only mode"
    include: dr_s3bench.yml
    vars: 
      s3_var: "'-skipRead -skipCleanup'"
+     cluster_state: "'normal-write'"
 
  - name: "Running HSbench in write only mode"
    include: dr_hsbench.yml
    vars: 
      hsb_var: "'ip'"
+     cluster_state: "'normal-write'"
 
 #Collecting read stats before failure
 
@@ -20,11 +23,13 @@
    include: dr_s3bench.yml
    vars:
      s3_var: "'-skipWrite -skipCleanup'"
+     cluster_state: "'normal-read'"
 
  - name: "Running read only HSbench in normal state of cluster"
    include: dr_hsbench.yml
    vars:
      hsb_var: "'lg'"
+     cluster_state: "'normal-read'"
 
 
 #Fail the node 
@@ -37,11 +42,13 @@
    include: dr_s3bench.yml
    vars:
      s3_var: "'-skipWrite -skipCleanup'"
+     cluster_state: "'degraded-read'"
 
  - name: "Running read only HSbench in degraded state of cluster"
    include: dr_hsbench.yml
    vars:
      hsb_var: "'lg'"
+     cluster_state: "'degraded-read'"
 
 #Boot the failed node
 ## Yet to be implemented
@@ -53,15 +60,17 @@
    include: dr_s3bench.yml
    vars:
      s3_var: "'-skipWrite'"
+     cluster_state: "'recovered-read'"
 
  - name: "Running read only HSbench in recovered state of cluster"
    include: dr_hsbench.yml
    vars:
      hsb_var: "'lg'"
+     cluster_state: "'recovered-read'"
 
  - name: "Cleaning up buckets and objects of HSbench"
    include: dr_hsbench.yml
    vars:
      hsb_var: "'dcx'"
-
+     cluster_state: "'recovered-cleanup'"
 

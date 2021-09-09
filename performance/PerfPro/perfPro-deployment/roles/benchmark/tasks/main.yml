@@ -87,9 +87,21 @@
 
  - include: hsbench.yml
 
+ - name: hsbench results upload to db
+   shell: python3 /root/PerfProBenchmark/hsbench/hsbench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/hsbench /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
+   delegate_to: "clientnode-1"
+
 #Performing Degraded read benchmarking
 
  - include: degraded_read.yml
+   when: DEGRADED_READ == True
+
+ - name: Updating DB with degraded read entries
+   shell: |
+     python3 /root/PerfProBenchmark/db_scripts/hsbench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/degraded_read/hsbench/ /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
+     python3 /root/PerfProBenchmark/db_scripts/s3bench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/degraded_read/s3bench/ /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
    when: DEGRADED_READ == True
 
 #Copying ansible.log for the run to logs/ansible folder

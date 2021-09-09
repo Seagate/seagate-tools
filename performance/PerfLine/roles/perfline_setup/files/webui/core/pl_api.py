@@ -41,5 +41,10 @@ def add_task(task_config):
     result = (_tq["-a"] << task_config)()
     return result
 
+def del_task(task_id):
+    _check_tq_ep()
+    result = (_tq['-d', task_id])()
+    return result
+
 def _check_tq_ep():
     assert _tq is not None, "call init_tq_endpoint(tq_endpoint_path) before"

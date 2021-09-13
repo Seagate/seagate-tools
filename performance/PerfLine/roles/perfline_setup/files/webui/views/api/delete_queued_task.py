@@ -16,16 +16,18 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 
-__all__ = ["add_task",
-           "hostname",
-           "log",
-           "queue",
-           "results",
-           "save_task",
-           "workload_conf",
-           "rerun",
-           "delete_task",
-           "backup_task",
-           "get_perf_metrics",
-           "get_tasks_metadata",
-           "delete_queued_task"]
+from flask import make_response
+
+from app_global_data import *
+
+from core import pl_api
+
+@app.route('/api/queue/delete/<string:taskList>')
+def deleteQueue(taskList: str):
+    result = {}
+    del_list = {}
+    for taskid in list(taskList.split(",")):
+        result = pl_api.del_task(taskid)
+        del_list[taskid] = result
+    response = make_response(f'{del_list}')
+    return response

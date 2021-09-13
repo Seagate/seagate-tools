@@ -368,18 +368,22 @@ app.controller('queueCC', function($scope, $http) {
     $scope.limit = 100;
     $scope.checkboxes = true;
     var taskList = new Set();
+    var lowPriority = 1;
+    var highPriority = 3;
 
     $scope.updateButtonsVisibility = function() {
 
         let delete_button = document.getElementById("delete_button");
-
+        let priority_button = document.getElementById("priority_button");
         if (taskList.size > 0)
         {
             delete_button.hidden = false;
+            priority_button.hidden = false;
         }
         else
         {
             delete_button.hidden = true;
+            priority_button.hidden = true;
         }
     }
 
@@ -432,6 +436,28 @@ app.controller('queueCC', function($scope, $http) {
            }
         }
     }
+
+    $scope.priorityValue = function() {
+        if (taskList.size > 0) {
+           var priority = parseInt(prompt("Please enter the priority between " + lowPriority + " to " + highPriority));
+           if (isNaN(priority)) {
+                alert("Priority value should be a numerical");
+            }
+           else if ( lowPriority > priority || priority > highPriority ) {
+               alert("Oh Sorry! Priority value "+ priority + " is not allowed. Please use priority between "+ lowPriority + " to " + highPriority );
+           }
+           else {
+              $http.get("/api/priority/update/" + Array.from(taskList) + "/" + priority)
+                  .then(function (response) {
+                       console.log(response.data)
+                       $scope.reload();
+               });
+           taskList.clear();
+           $scope.updateButtonsVisibility();
+           }
+        }
+    }
+
 
     $scope.reload = function() {
 	//$('#cover-spin').show(0);

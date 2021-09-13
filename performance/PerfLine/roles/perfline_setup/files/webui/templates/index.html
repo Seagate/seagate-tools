@@ -366,6 +366,72 @@ app.controller('queueCC', function($scope, $http) {
     $scope.currentPage  = 1;
     $scope.itemsPerPage = 10;
     $scope.limit = 100;
+    $scope.checkboxes = true;
+    var taskList = new Set();
+
+    $scope.updateButtonsVisibility = function() {
+
+        let delete_button = document.getElementById("delete_button");
+
+        if (taskList.size > 0)
+        {
+            delete_button.hidden = false;
+        }
+        else
+        {
+            delete_button.hidden = true;
+        }
+    }
+
+    $scope.selectTask = function(row) {
+       console.log(row.selected)
+       if (row.selected == 1){
+            if (row.state === "QUEUED") {				
+                taskList.add(row.task_id);	
+            }
+       }
+       else{
+          taskList.delete(row.task_id);
+       }
+       $scope.updateButtonsVisibility();
+       console.log(taskList)
+    }
+
+    $scope.checkAll = function() {
+        let checkbox = document.getElementById("common_checkbox")
+
+        if(checkbox.checked) {
+            angular.forEach($scope.names, function(row) {
+                row.selected = true;
+                if (row.state === "QUEUED") {				
+                   taskList.add(row.task_id);	
+                }
+            });
+        }
+        else{
+            angular.forEach($scope.names, function(row) {
+                row.selected = false;
+            });
+            taskList.clear();
+        }
+        $scope.updateButtonsVisibility();
+        console.log(taskList)
+    }
+
+    $scope.deleteValue = function() {
+        if (taskList.size > 0) {
+           var inputdata = confirm("Warning!!! It will delete queued task except running task.");
+           if (inputdata) {
+              $http.get("/api/queue/delete/" + Array.from(taskList))
+                  .then(function (response) {
+                       console.log(response.data)
+                       $scope.reload();
+               });
+           taskList.clear();
+           $scope.updateButtonsVisibility();
+           }
+        }
+    }
 
     $scope.reload = function() {
 	//$('#cover-spin').show(0);

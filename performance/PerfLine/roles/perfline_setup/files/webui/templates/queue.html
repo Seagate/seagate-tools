@@ -1,3 +1,15 @@
+<style>
+
+	#ctrl_buttons {
+		margin-top: 2px;
+		float: right;
+		margin-right: 20px;
+	}
+	</style>
+	
+	<div id="ctrl_buttons">
+		<input type="button" id="delete_button" value="Delete" ng-click="deleteValue()" hidden="true"/>
+	</div>
 <table width=100%>
   <tr>
     <td>
@@ -18,6 +30,7 @@
 <table class="table table-striped">
   <thead>
     <tr>
+	  <th ng-if="checkboxes"><input id="common_checkbox" type="checkbox" ng-click="checkAll()" ng-model="selectAll"/></th>
       <th>tid</th>
       <th>state</th>
       <th>user</th>
@@ -27,6 +40,7 @@
     </tr>
   </thead>
   <tr ng-repeat="row in names | filter:searchText | limitTo:itemsPerPage:(currentPage-1)*itemsPerPage">
+      <td ng-if="checkboxes"><label><input type="checkbox" ng-true-value=true ng-false-value=false ng-checked="row.checked" ng-model="row.selected" ng-click="selectTask(row)"></label></td>
       <td>{{row.task_id_short}}</td>
       <td>{{row.state}}</td>
       <td>{{row.user}}</td>

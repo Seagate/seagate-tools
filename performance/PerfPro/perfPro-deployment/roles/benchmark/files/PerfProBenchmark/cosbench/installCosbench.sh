@@ -10,12 +10,13 @@ else
    echo -e "cosbench tools is already installed on $1"
 fi
 
-ps -ef | grep "driver-tomcat-server.xml" > /dev/null
+ps -ef | grep -v grep | grep "driver-tomcat-server.xml" > /dev/null
 status=$?
 if [ $status -eq 0 ]; then
    echo "cosbench is running on $1"
 else
    echo "Starting cosbench..."
-   sh cosbench.sh start --controller $1 --drivers driver-nodes-list
+#   sh cosbench.sh start --controller $1 --drivers driver-nodes-list
+   cd ~/cos/; sh stop-all.sh; sh start-all.sh 
 fi
 

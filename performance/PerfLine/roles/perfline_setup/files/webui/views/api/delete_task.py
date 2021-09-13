@@ -21,7 +21,7 @@ from flask import make_response
 from app_global_data import *
 
 from core.utils import tq_task_common_get
-from core import pl_api
+
 from shutil import rmtree
 
 @app.route('/api/results/delete/<string:taskList>')
@@ -39,12 +39,3 @@ def deleteTask(taskList: str):
     response = make_response(f'{result}')
     return response
 
-@app.route('/api/queue/delete/<string:taskList>')
-def deleteQueue(taskList: str):
-    result = {}
-    del_list = {}
-    for taskid in list(taskList.split(",")):
-        result = pl_api.del_task(taskid)
-        del_list[taskid] = result
-    response = make_response(f'{del_list}')
-    return response

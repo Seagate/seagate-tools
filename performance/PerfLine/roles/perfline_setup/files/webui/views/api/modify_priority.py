@@ -16,17 +16,17 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 
-__all__ = ["add_task",
-           "hostname",
-           "log",
-           "queue",
-           "results",
-           "save_task",
-           "workload_conf",
-           "rerun",
-           "delete_task",
-           "backup_task",
-           "get_perf_metrics",
-           "get_tasks_metadata",
-           "delete_queued_task",
-           "modify_priority"]
+from flask import make_response
+
+from app_global_data import *
+
+from core import pl_api
+
+
+@app.route('/api/priority/update/<string:taskList>/<int:prio>')
+def updatePriority(taskList: str, prio: int):
+    result = {}
+    for taskid in list(taskList.split(",")):   
+        result = pl_api.put_prio(taskid, prio)             
+    response = make_response(f'{result}')
+    return response

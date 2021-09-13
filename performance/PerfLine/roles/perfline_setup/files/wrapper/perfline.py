@@ -122,7 +122,7 @@ def task_set_prio(tid, prio):
         params = pending.args
         huey.revoke_by_id(tid)
         print_info(tid, 'REVOKED')
-        params[0][0]['priority'] = prio
+        params[0][0]['common']['priority'] = prio
         task = worker_task(params[0], priority=prio)
         print_info(task.id, 'ENQUEUED')
     else:

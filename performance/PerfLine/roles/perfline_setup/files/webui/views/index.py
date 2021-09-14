@@ -24,5 +24,5 @@ from core.utils import get_list_of_files
 
 @app.route('/')
 def index():
-    return render_template("index.html", files = get_list_of_files(WORKLOAD_DIR))
+    return render_template("index.html", files = get_list_of_files(WORKLOAD_DIR), task_low_prio=LOWEST_PRIO, task_high_prio=HIGHEST_WEBUI_PRIO)
 

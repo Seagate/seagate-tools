@@ -85,6 +85,10 @@
 
  - include: cosbench.yml
 
+ - name: cosbench results upload to db
+   shell: python3 /root/PerfProBenchmark/cosbench/cosbench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/cosbench /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
+   delegate_to: "clientnode-1"
+
  - include: hsbench.yml
 
  - name: hsbench results upload to db

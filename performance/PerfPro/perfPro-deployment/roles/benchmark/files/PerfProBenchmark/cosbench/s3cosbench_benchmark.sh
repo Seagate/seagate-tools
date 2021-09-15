@@ -132,12 +132,10 @@ validate_args
 if [ ! -d $BENCHMARKLOG ]; then
     mkdir $BENCHMARKLOG
     config_s3workloads
-    python3 cosbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG
     cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/   
 else
     rm -rf $BENCHMARKLOG
     mkdir $BENCHMARKLOG
     config_s3workloads
-    python3 cosbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG
     cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/  
 fi

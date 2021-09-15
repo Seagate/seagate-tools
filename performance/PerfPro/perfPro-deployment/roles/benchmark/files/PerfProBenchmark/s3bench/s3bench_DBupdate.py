@@ -149,9 +149,11 @@ def insertOperations(files,Build,Version,col,Config_ID,Branch,OS,db): #function 
         obj = "NA"
         sessions=1
         f = open(file)
-        lines = f.readlines()[-200:]
+        linecount=len(f.readlines())
+        f = open(file)
+        lines = f.readlines()[-linecount:]
         count=0
-        while count<200:
+        while count<linecount:
             if '''"numSamples":''' in lines[count].strip().replace(" ", ""):
                 r=lines[count].strip().replace(" ", "").split(":")
                 Objects = int(r[1].replace(",", ""))

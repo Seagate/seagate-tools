@@ -60,8 +60,8 @@ function prepare_env() {
     fi
 
     if [ ! -d "$CORTX_DIR" ]; then
-	mkdir -p $CORTX_DIR
-	pushd $CORTX_DIR
+	mkdir -p $DOCKER_DIR
+	pushd $DOCKER_DIR
 	git clone --recursive https://github.com/Seagate/cortx
 	popd
     fi

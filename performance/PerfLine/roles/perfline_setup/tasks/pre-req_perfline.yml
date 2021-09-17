@@ -6,6 +6,13 @@
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
+  - name: "Creating directory for night builds {{ NIGHT_ARTIFACTS }}"
+    file:
+      path: '{{ NIGHT_ARTIFACTS }}'
+      state: directory
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['all'] }}"
+    
   - name: "Creating perfline directory {{ PERFLINE_DIR }}"
     file:
       path: "{{ PERFLINE_DIR }}/bin"

@@ -8,7 +8,8 @@ SCRIPT_PATH="$(readlink -f $0)"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 
 PERFLINE_DIR="$SCRIPT_DIR/../.."
-CORTX_DIR="$PERFLINE_DIR/docker/cortx"
+DOCKER_DIR="$PERFLINE_DIR/docker"
+CORTX_DIR="$DOCKER_DIR/cortx"
 RPM_DIR="$PERFLINE_DIR/rpm"
 
 DOCKER_ARTIFACTS_DIR="/var/artifacts"
@@ -172,7 +173,9 @@ function build() {
     
     cd $CORTX_DIR/..
 
-    time docker run --rm -v $DOCKER_ARTIFACTS_DIR:$DOCKER_ARTIFACTS_DIR -v ${CORTX_DIR}:/cortx-workspace ghcr.io/seagate/cortx-build:centos-7.8.2003 make clean build -i
+    # time docker run --rm -v $DOCKER_ARTIFACTS_DIR:$DOCKER_ARTIFACTS_DIR -v ${CORTX_DIR}:/cortx-workspace ghcr.io/seagate/cortx-build:centos-7.8.2003 make clean build -i
+    
+    time docker run --rm -v $DOCKER_ARTIFACTS_DIR:$DOCKER_ARTIFACTS_DIR -v ${CORTX_DIR}:/cortx-workspace ghcr.io/seagate/cortx-build:centos-7.9.2009 make clean build -i
 
     pushd $BUILD_DIR
     popd

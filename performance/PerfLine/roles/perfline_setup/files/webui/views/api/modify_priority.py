@@ -15,18 +15,19 @@
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
-
+import json
 from flask import make_response
 
 from app_global_data import *
 
 from core import pl_api
 
-
 @app.route('/api/priority/update/<string:taskList>/<int:prio>')
 def updatePriority(taskList: str, prio: int):
-    result = {}
+    status = {}
+    status_of_tasklist = {}
     for taskid in list(taskList.split(",")):   
-        result = pl_api.put_prio(taskid, prio)             
-    response = make_response(f'{result}')
+        status = pl_api.put_prio(taskid, prio)  
+        status_of_tasklist[taskid] = status       
+    response = make_response(json.dumps(status_of_tasklist, indent = 4))
     return response

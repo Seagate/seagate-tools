@@ -131,7 +131,7 @@
                 [Service]
                 Type=oneshot
                 WorkingDirectory={{ PERFLINE_DIR }}/wrapper
-                ExecStart=/usr/bin/bash {{ PERFLINE_DIR }}/wrapper/perfline_daemon.sh  --url 'http://cortx-storage.colo.seagate.com/releases/cortx/github/stable/centos-7.8.2003' --workload_dir '{{ PERFLINE_DIR }}/wrapper/workload/daemon_runs/'
+                ExecStart=/usr/bin/bash {{ PERFLINE_DIR }}/wrapper/perfline_daemon.sh
 
                 [Install]
                 WantedBy=multi-user.target

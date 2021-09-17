@@ -26,4 +26,5 @@ __all__ = ["addb_img",
            "report_img",
            "report",
            "template",
-           "compare_runs"]
+           "compare_runs",
+           "dashboard"]

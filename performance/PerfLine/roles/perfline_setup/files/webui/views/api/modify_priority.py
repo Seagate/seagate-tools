@@ -15,14 +15,19 @@
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
-
-from flask import render_template
+import json
+from flask import make_response
 
 from app_global_data import *
-from core.utils import get_list_of_files
 
+from core import pl_api
 
-@app.route('/')
-def index():
-    return render_template("index.html", files = get_list_of_files(WORKLOAD_DIR), task_low_prio=LOWEST_PRIO, task_high_prio=HIGHEST_WEBUI_PRIO)
-
+@app.route('/api/priority/update/<string:taskList>/<int:prio>')
+def updatePriority(taskList: str, prio: int):
+    status = {}
+    status_of_tasklist = {}
+    for taskid in list(taskList.split(",")):   
+        status = pl_api.put_prio(taskid, prio)  
+        status_of_tasklist[taskid] = status       
+    response = make_response(json.dumps(status_of_tasklist, indent = 4))
+    return response

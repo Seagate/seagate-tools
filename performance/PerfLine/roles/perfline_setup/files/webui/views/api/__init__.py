@@ -28,4 +28,5 @@ __all__ = ["add_task",
            "backup_task",
            "get_perf_metrics",
            "get_tasks_metadata",
-           "delete_queued_task"]
+           "delete_queued_task",
+           "modify_priority"]

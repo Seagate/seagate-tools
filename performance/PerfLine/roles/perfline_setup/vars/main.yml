@@ -12,6 +12,7 @@ PURPOSE: ''
 S3BENCH_COMMIT_ID: 0126b7f
 PERFLINE_DIR: /root/perfline{{ PURPOSE }}
 ARTIFACTS_DIR: '/var/perfline{{ PURPOSE }}'
+NIGHT_ARTIFACTS: '/var/perfline{{ PURPOSE }}/night_builds'
 PERFLINE_LOGFILE: '/var/log/perfline{{ PURPOSE }}.log'
 PERFLINE_SERVICE_NAME: 'perfline{{ PURPOSE }}'
 PERFLINE_UI_SERVICE_NAME: 'perfline-ui{{ PURPOSE }}'

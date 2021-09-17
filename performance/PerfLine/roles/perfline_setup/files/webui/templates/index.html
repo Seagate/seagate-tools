@@ -4,7 +4,8 @@
 <link rel="stylesheet" href="templates/scripts/bootstrap.min.css">
 <script src="templates/scripts/jquery.min.js"></script>
 <script src="templates/scripts/bootstrap.min.js"></script>
-
+<script src="templates/scripts/dashboard.js"></script>
+  
 <style>
   #cover-spin {
     position:fixed;
@@ -552,9 +553,35 @@ app.controller('logCC', function($scope, $rootScope, $http, $interval) {
     }
 });
 app.controller('statsCC', function($scope, $http) {
-    // $http.get("/api/stats")
-	// .then(function (response) {
-	//     $scope.stats = response.data.stats;
-	// });
+    $scope.requestStats = function() {
+        let size = document.getElementById("sizes").value;
+        let sessions = document.getElementById("sessions").value;
+        let build = document.getElementById("build_type").value;
+        let plot = document.getElementById("bw_plot");
+
+        plot.src = `/dashboard/plot?build=${build}&size=${size}&sessions=${sessions}`
+
+    	// Clear old table
+        let table = document.getElementById("data_table")
+	while (table.hasChildNodes())
+        {
+	    table.removeChild(table.firstChild);
+	}
+
+        let http_req = new XMLHttpRequest();
+        http_req.open('GET', `/dashboard/table?build=${build}&size=${size}&sessions=${sessions}`, false);
+        http_req.onload = () => {
+            if (http_req.status == 200)
+            {
+                data = JSON.parse(http_req.response);
+
+                console.log(data)
+
+                let ctrl = new DashboardTableController(table, data);
+                ctrl.fill_table();
+            }
+        }
+        http_req.send();
+    }
 });
 </script>

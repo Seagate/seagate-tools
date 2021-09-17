@@ -449,7 +449,23 @@ app.controller('queueCC', function($scope, $http) {
            else {
               $http.get("/api/priority/update/" + Array.from(taskList) + "/" + priority)
                   .then(function (response) {
+                       var failed_status = {};
+                       var success_status = {};
+                       var keys = Object.keys(response.data)                      
                        console.log(response.data)
+                       keys.forEach(function(taskid){
+                            if(response.data[taskid].includes("REVOKED")) {
+                                success_status[taskid] = "Success";
+                                console.log(taskid + " : " + response.data[taskid] + " : Status : " + success_status[taskid])
+                            }
+                            else {
+                                failed_status[taskid] = "Failed";
+                                console.log(taskid + " : " + response.data[taskid] + " : Status : " + failed_status[taskid])
+                            }
+                       }); 
+                       if ( Object.keys(failed_status).length > 0 ) {
+                           alert("Success : [ " + Object.keys(success_status) + " ] \nFailed : [ "+ Object.keys(failed_status) + " ]")                  
+                       }
                        $scope.reload();
                });
            taskList.clear();

@@ -15,8 +15,8 @@ source "$SCRIPT_DIR/.latest_stable_build"
 # Stable builds link for CentOS7.9
 STABLE_BUILD_URL=""
 
-STABLE_WORKLOAD_DIR="/root/perfline/wrapper/workload/daemon_runs/stable"
-MAIN_WORKLOAD_DIR="/root/perfline/wrapper/workload/daemon_runs/main"
+STABLE_WORKLOAD_DIR="$PERFLINE_DIR/wrapper/workload/daemon_runs/stable"
+MAIN_WORKLOAD_DIR="$PERFLINE_DIR/wrapper/workload/daemon_runs/main"
 
 function stable_build() {
     BUILD_LIST=$(curl -s $STABLE_BUILD_URL/ | grep href | sed 's/.*href="//' | sed 's/".*//' | grep -o '[[:digit:]]*' | sort -n)
@@ -67,7 +67,7 @@ function main_build() {
     local pyutils_main=
     local descr_str=""
 
-    pushd /root/perfline/docker/cortx/
+    pushd $PERFLINE_DIR/docker/cortx/
 
     pushd cortx-motr
     git checkout main

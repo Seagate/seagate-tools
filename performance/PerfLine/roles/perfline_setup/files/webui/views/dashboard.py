@@ -30,9 +30,13 @@ def serve_logo_imgs():
 
 @app.route('/dashboard/plot')
 def serve_plots():
-    build = request.args.get('build')
-    size = request.args.get('size')
-    sessions = request.args.get('sessions')
+    args = request.args
+    if 'build' not in args or 'size' not in args or 'sessions' not in args:
+        return make_response("required parameter not found", 400)
+
+    build = args.get('build')
+    size = args.get('size')
+    sessions = args.get('sessions')
 
     f = 'img/not_found.png'
     name = os.path.join(build, "img", '_'.join([size, sessions]) + ".png")
@@ -47,9 +51,13 @@ def serve_plots():
 
 @app.route('/dashboard/table')
 def server_table():
-    build = request.args.get('build')
-    size = request.args.get('size')
-    sessions = request.args.get('sessions')
+    args = request.args
+    if 'build' not in args or 'size' not in args or 'sessions' not in args:
+        return make_response("required parameter not found", 400)
+
+    build = args.get('build')
+    size = args.get('size')
+    sessions = args.get('sessions')
 
     f = ''
     name = os.path.join(build, "data", '_'.join([size, sessions]) + ".json")

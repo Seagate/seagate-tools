@@ -565,8 +565,8 @@ app.controller('statsCC', function($scope, $http) {
         let table = document.getElementById("data_table")
 	while (table.hasChildNodes())
         {
-	    table.removeChild(table.firstChild);
-	}
+            table.removeChild(table.firstChild);
+        }
 
         let http_req = new XMLHttpRequest();
         http_req.open('GET', `/dashboard/table?build=${build}&size=${size}&sessions=${sessions}`, false);

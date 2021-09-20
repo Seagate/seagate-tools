@@ -27,16 +27,6 @@
    delegate_to: "{{ item }}"
    with_items: "{{ groups['all'] }}"
  
- - name: copying s3account.yml file 
-   copy:
-      src: vars/s3account.yml
-      dest: /root/PerfProBenchmark/
-      owner: root
-      group: root
-      mode: '0644' 
-   delegate_to: "{{ item }}"
-   with_items: "{{ groups['all'] }}"
-
  - name: copying main.yml file 
    copy:
      src: vars/main.yml
@@ -46,6 +36,21 @@
      mode: '0644'
    delegate_to: "{{ item }}"
    with_items: "{{ groups['all'] }}"
+
+ - name: updating s3account.yml file with mgmt_vip from config.yml
+   shell: |
+      mgmt_vip=`grep MGMT_VIP roles/perfpro_deployment/vars/config.yml | cut -d ":" -f2`
+      sed -i "s/ip : /ip : $mgmt_vip/" roles/benchmark/vars/s3account.yml
+
+ - name: copying s3account.yml file to client
+   copy:
+      src: vars/s3account.yml
+      dest: /root/PerfProBenchmark/
+      owner: root
+      group: root
+      mode: '0644'
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
 
  - name: Create S3 account
    command: python3 /root/PerfProBenchmark/S3UserCreation/main_createusers.py /root/PerfProBenchmark/s3account.yml 

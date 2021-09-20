@@ -1,12 +1,11 @@
 ---
-MGMT_VIP: 10.237.65.69
 Restcall:
-  ip : "10.237.65.69"
-  port : 28100
+  ip :  
+  port : 443 
   jsonfile : 'rest_call.json'
   csm_admin_user :
-    username: "admin"
-    password: "Seagate@1"
+    username: "cortxadmin"
+    password: "Cortxadmin@123"
   csm_user_manage:
     username: "csm_user_manage"
     password: "Testuser@123"

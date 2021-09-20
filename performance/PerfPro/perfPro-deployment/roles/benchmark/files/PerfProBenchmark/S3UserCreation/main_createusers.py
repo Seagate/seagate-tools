@@ -8,6 +8,7 @@ from subprocess import Popen, PIPE
 import yaml
 import json
 
+'''
 def makeconfig(name):  #function for connecting with configuration file
 	with open(name) as config_file:
 		configs = yaml.load(config_file, Loader=yaml.FullLoader)
@@ -30,6 +31,7 @@ def createcsmadmin():
     r = requests.post(url, data={"username": "admin", "password": "Seagate@1"}, headers=headers, verify=False)
     print(r.json())
     #data = r.json()"""
+'''
 
 def s3create():
     try:
@@ -69,8 +71,8 @@ def s3create():
 
 
 def main(argv):
-    print("**************************  CSM Admin Creation  **************************")
-    createcsmadmin()
+#    print("**************************  CSM Admin Creation  **************************")
+#    createcsmadmin()
     print("\n**************************  s3 User Creation  **************************")
     s3create()
     

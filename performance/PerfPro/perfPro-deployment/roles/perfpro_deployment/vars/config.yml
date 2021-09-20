@@ -1,6 +1,7 @@
 ---
 REIMAGE: 'No'
 # For host file update : add for more nodes/clients in environment or remove if less nodes/clients .
+MGMT_VIP: 
 NODES:  
   - 1:  # node_number_srvnode-1: hostname of node1 .
   - 2:  # node_number_srvnode-2: hostname of node2 .

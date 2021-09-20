@@ -16,16 +16,19 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 
-__all__ = ["addb_img",
-           "artifact",
-           "artifacts_list",
-           "perf_log",
-           "perf_logs_list",
-           "benchmark_log",
-           "dstat_img",
-           "glances_img",
-           "index",
-           "report_img",
-           "report",
-           "template",
-           "compare_runs"]
+import os
+from flask import send_from_directory, make_response
+
+from app_global_data import *
+
+
+@app.route('/log/<uuid:task_id>/<path:subpath>')
+def get_logs(task_id, subpath):
+    task_id = str(task_id)
+
+    if cache.has(task_id):
+        location = cache.get_location(task_id)
+        path = 'result_{0}/{1}'.format(task_id, subpath)
+        return send_from_directory(location + '/', path)
+    else:
+        return make_response('not found', 404)

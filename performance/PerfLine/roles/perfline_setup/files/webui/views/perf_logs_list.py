@@ -16,16 +16,28 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 
-__all__ = ["addb_img",
-           "artifact",
-           "artifacts_list",
-           "perf_log",
-           "perf_logs_list",
-           "benchmark_log",
-           "dstat_img",
-           "glances_img",
-           "index",
-           "report_img",
-           "report",
-           "template",
-           "compare_runs"]
+import os
+from flask import render_template
+
+from app_global_data import *
+
+
+@app.route('/log/<uuid:task_id>')
+def perflinelog_list_page(task_id):
+    task_id = str(task_id)
+    files = list()
+
+    location = cache.get_location(task_id)
+
+    for item in os.walk('{0}/result_{1}/perfline_log'.format(location, task_id)):
+        for file_name in item[2]:
+            dir_name = item[0].replace(
+                '{0}/result_{1}'.format(location, task_id), '', 1)
+            files.append('{0}/{1}'.format(dir_name, file_name))
+
+    context = dict()
+    context['task_id'] = task_id
+    context['files'] = files
+    context['perfline_nr'] = len(files)
+
+    return render_template("perf_log.html", **context)

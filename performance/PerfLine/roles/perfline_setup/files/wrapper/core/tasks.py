@@ -377,7 +377,7 @@ def worker_task(conf_opt, task):
         'start_time': str(datetime.now()),
         'path': f"{config.artifacts_dir}",
         'artifacts_dir': f"{config.artifacts_dir}/result_{task.id}",
-        'log_dir' : "perfline_log"
+        'log_dir' : "log"
     }
     result.update(opt)
 

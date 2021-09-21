@@ -19,6 +19,7 @@
 __all__ = ["addb_img",
            "artifact",
            "artifacts_list",
+           "perf_logs_list",
            "benchmark_log",
            "dstat_img",
            "glances_img",

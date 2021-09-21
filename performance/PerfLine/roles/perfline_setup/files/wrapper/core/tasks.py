@@ -127,7 +127,7 @@ def pack_artifacts(path):
     # rm[f"-rf {path}".split(" ")]()
 
 
-def update_configs(conf, log_dir):
+def update_configs(conf, result_dir, logdir):
     options = []
     result = 'SUCCESS'
 
@@ -223,15 +223,17 @@ def update_configs(conf, log_dir):
                 options.append('--ib-custom-conf')
                 options.append(ib['custom_conf'])
             
-        update_configs = plumbum.local["scripts/conf_customization/update_configs.sh"]
+        update_configs = plumbum.local["scripts/e2o.sh"]
         mv = plumbum.local['mv']
         try:
             tee = plumbum.local['tee']
+            options = ["scripts/conf_customization/update_configs.sh"]
+            options.extend(parse_options(conf, result_dir))
             (update_configs[options] | tee['/tmp/update_configs.log']) & plumbum.FG
         except plumbum.commands.processes.ProcessExecutionError:
             result = 'FAILED'
 
-        mv['/tmp/update_configs.log', log_dir] & plumbum.FG
+        mv['/tmp/update_configs.log', f"{result_dir}/{logdir}"] & plumbum.FG
 
     return result
 
@@ -249,22 +251,23 @@ def restore_original_configs():
     return result
 
 
-def run_worker(conf, result_dir):
+def run_worker(conf, result_dir, logdir):
     result = 'SUCCESS'
 
-    worker = plumbum.local["scripts/worker.sh"]
+    worker = plumbum.local["scripts/e2o.sh"]
     try:
         tee = plumbum.local['tee']
-        options = parse_options(conf, result_dir)
+        options = ['scripts/worker.sh']
+        options.extend(parse_options(conf, result_dir))
         (worker[options] | tee['/tmp/workload.log']) & plumbum.FG
     except plumbum.commands.processes.ProcessExecutionError:
         result = 'FAILED'
 
     mv = plumbum.local['mv']
-    mv['/tmp/workload.log', result_dir] & plumbum.FG
+    mv['/tmp/workload.log', f"{result_dir}/{logdir}"] & plumbum.FG
     return result
 
-def sw_update(conf, log_dir):
+def sw_update(conf, result_dir, logdir):
     options = []
     result = 'SUCCESS'
 
@@ -290,21 +293,23 @@ def sw_update(conf, log_dir):
                options.append(params['py-utils']['branch'])
 
         with plumbum.local.env():
-            update = plumbum.local["scripts/update.sh"]
+            update = plumbum.local["scripts/e2o.sh"]
             try:
                 tee = plumbum.local['tee']
+                options = ["scripts/update.sh"]
+                options.extend(parse_options(conf, result_dir))
                 (update[options] | tee['/tmp/update.log']) & plumbum.FG
             except plumbum.commands.processes.ProcessExecutionError:
                 result = 'FAILED'
                 
-        mv['/tmp/update.log', log_dir] & plumbum.FG
+        mv['/tmp/update.log', f"{result_dir}/{logdir}"] & plumbum.FG
 
     return result
 
-def run_corebenchmark(conf, log_dir):
+def run_corebenchmark(conf, result_dir, logdir):
     options = []
     options.append('-p')
-    options.append(log_dir)
+    options.append(result_dir)
     result = 'SUCCESS'
     mv = plumbum.local['mv']
     # Benchmarks
@@ -349,14 +354,16 @@ def run_corebenchmark(conf, log_dir):
       		
     
        with plumbum.local.env():
-           benchmark_update = plumbum.local["scripts/core_benchmarks.sh"]
+           benchmark_update = plumbum.local["scripts/e2o.sh"]
            try:
               tee = plumbum.local['tee']
+              options = ["scripts/core_benchmarks.sh"]
+              options.extend(parse_options(conf, result_dir))
               (benchmark_update[options] | tee['/tmp/core_benchmarks.log']) & plumbum.FG
            except plumbum.commands.processes.ProcessExecutionError:
               result = 'FAILED'
         
-       mv['/tmp/core_benchmarks.log', log_dir] & plumbum.FG
+       mv['/tmp/core_benchmarks.log', f"{result_dir}/{logdir}"] & plumbum.FG
 
     return result
 
@@ -383,6 +390,7 @@ def worker_task(conf_opt, task):
         'start_time': str(datetime.now()),
         'path': f"{config.artifacts_dir}",
         'artifacts_dir': f"{config.artifacts_dir}/result_{task.id}",
+        'log_dir' : "log"
     }
     result.update(opt)
 
@@ -398,7 +406,7 @@ def worker_task(conf_opt, task):
     with plumbum.local.env():
 
         mkdir = plumbum.local['mkdir']
-        mkdir["-p", result["artifacts_dir"]] & plumbum.FG
+        mkdir["-p", f'{result["artifacts_dir"]}/{result["log_dir"]}'] & plumbum.FG
 
         failed = False
 
@@ -411,25 +419,25 @@ def worker_task(conf_opt, task):
                 failed = True
                
         if not failed:
-            ret = sw_update(conf, result["artifacts_dir"])
+            ret = sw_update(conf, result["artifacts_dir"], result["log_dir"])
             if ret == 'FAILED':
                 result['finish_time'] = str(datetime.now())
                 failed = True
 
         if not failed:
-            ret = update_configs(conf, result["artifacts_dir"])
+            ret = update_configs(conf, result["artifacts_dir"], result["log_dir"])
             if ret == 'FAILED':
                 result['finish_time'] = str(datetime.now())
                 failed = True
 
         if not failed:
-            ret = run_corebenchmark(conf, result["artifacts_dir"])
+            ret = run_corebenchmark(conf, result["artifacts_dir"], result["log_dir"])
             if ret == 'FAILED':
                 result['finish_time'] = str(datetime.now())
                 failed = True
 
         if not failed:
-            ret = run_worker(conf, result["artifacts_dir"])
+            ret = run_worker(conf, result["artifacts_dir"], result["log_dir"])
             if ret == 'FAILED':
                 result['finish_time'] = str(datetime.now())
                 failed = True

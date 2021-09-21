@@ -5,7 +5,7 @@ SECRET_KEY=`cat /root/.aws/credentials | grep -A 3 default | grep secret_access_
 BINPATH=/root/PerfProBenchmark/s3bench
 CURRENTPATH=`pwd`
 BENCHMARKLOG=$CURRENTPATH/benchmark.log
-ENDPOINTS=https://s3.seagate.com         
+#ENDPOINTS=https://s3.seagate.com         
 BUCKETNAME="seagate"
 TIMESTAMP=`date +'%Y-%m-%d_%H:%M:%S'`
 CLIENTS=""     
@@ -15,6 +15,7 @@ MAIN="/root/PerfProBenchmark/main.yml"
 CONFIG="/root/PerfProBenchmark/config.yml"
 LOG_COLLECT="/root/PerfProBenchmark/collect_logs.py"
 BUILD=`python3 /root/PerfProBenchmark/read_build.py $CONFIG 2>&1`
+ENDPOINTS=`python3 /root/PerfProBenchmark/get_param.py $CONFIG`         
 RESULT_DIR=/root/PerfProBenchmark/perfpro_build$BUILD/results
 
 validate_args() {

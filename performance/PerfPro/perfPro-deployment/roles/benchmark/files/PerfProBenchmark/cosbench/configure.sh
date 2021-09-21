@@ -7,7 +7,7 @@ set -e
 
 #s3_setup_label="$s3_setup_label.properties"
 s3_setup_label=s3setup.properties
-s3_url_endpoint=https://s3.seagate.com
+s3_url_endpoint="$1"
 s3_access_key=`cat /root/.aws/credentials | grep -A 3 default | grep aws_access_key_id | cut -d " " -f3`
 s3_secret_key=`cat /root/.aws/credentials | grep -A 3 default | grep secret_access_key | cut -d " " -f3`
 echo "s3_endpoint:$s3_url_endpoint" > "$s3_setup_label"

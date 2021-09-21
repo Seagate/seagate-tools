@@ -12,7 +12,7 @@ MAX_ATTEMPT=1
 NO_OF_THREADS=""			
 NO_OF_OBJECTS=""			
 REGION=US				
-ENDPOINTS=https://s3.seagate.com		
+#ENDPOINTS=https://s3.seagate.com		
 COUNT=0
 SIZE_OF_OBJECTS=""
 JSON_FILENAME=				
@@ -23,6 +23,7 @@ TIMESTAMP=`date +'%Y-%m-%d_%H:%M:%S'`
 MAIN="/root/PerfProBenchmark/main.yml"
 CONFIG="/root/PerfProBenchmark/config.yml"
 BUILD=`python3 /root/PerfProBenchmark/read_build.py $CONFIG 2>&1`
+ENDPOINTS=`python3 /root/PerfProBenchmark/get_param.py $CONFIG`
 RESULT_DIR=/root/PerfProBenchmark/perfpro_build$BUILD/results/degraded_read
 validate_args() {
 

@@ -4,9 +4,10 @@ SECRET_KEY=`cat /root/.aws/credentials | grep -A 3 default | grep secret_access_
 BINPATH=/root/PerfProBenchmark/s3bench
 CURRENTPATH=/root/PerfProBenchmark
 BENCHMARKLOG=$CURRENTPATH/prefill/
-ENDPOINTS=https://s3.seagate.com         
+#ENDPOINTS=https://s3.seagate.com         
 BUCKETNAME="prefill"
 TIMESTAMP=`date +'%Y-%m-%d_%H:%M:%S'`
+ENDPOINTS=""
 CLIENTS=""     
 NUMSAMPLES=""     
 IO_SIZE=""
@@ -14,14 +15,15 @@ IO_SIZE=""
 
 validate_args() {
 
-        if [[ -z $CLIENTS ]] || [[ -z $NUMSAMPLES ]] || [[ -z $IO_SIZE ]] ; then
+        if [[ -z $ENDPOINTS ]] || [[ -z $CLIENTS ]] || [[ -z $NUMSAMPLES ]] || [[ -z $IO_SIZE ]] ; then
                 show_usage
         fi
 
 }
 
 show_usage() {
-        echo -e "\n \t  Usage : ./run_s3benchmark.sh -nc NO_OF_CLIENTS -ns NO_OF_SAMPLES -s \"iosize\"   \n"
+        echo -e "\n \t  Usage : ./run_s3benchmark.sh -ep END_POINTS -nc NO_OF_CLIENTS -ns NO_OF_SAMPLES -s \"iosize\"   \n"
+        echo -e "\t -ep\t:\t endpoints \n"
         echo -e "\t -nc\t:\t number of clients \n"
         echo -e "\t -ns\t:\t number of samples\n"
         echo -e "\t -s\t:\t size of the objects in bytes\n"       
@@ -76,6 +78,10 @@ echo 'Successfully completed'
 while [ ! -z $1 ]; do
         
         case $1 in
+        -ep)     shift
+                ENDPOINTS="$1"
+        ;;
+
         -nc)     shift
                 CLIENTS="$1"
         ;;

@@ -11,6 +11,7 @@ nodes=parse_conf.get('NODES')
 node1 = nodes[0][1]
 passwd=parse_conf.get('CLUSTER_PASS')
 PC_full=parse_conf.get('PC_FULL')
+endpoints=parse_conf.get('END_POINTS')
 
 prebench=sys.argv[2]
 
@@ -53,7 +54,7 @@ def fill_data(pre_fill):
     num_clients=200
     print('pre_fill size(MB) :' , Pre_fill_mb , '\nNumber of objects per bucket(10 buckets)(128Mb Object size)', num_obj_per_bucket )
     for i in range(num_bucket):
-        os.system('sh '+prebench+' -nc '+str(num_clients)+' -ns '+str(num_obj_per_bucket)+' -s '+str(obj_size)+'Mb')
+        os.system('sh '+prebench+' -ep '+str(endpoints)+' -nc '+str(num_clients)+' -ns '+str(num_obj_per_bucket)+' -s '+str(obj_size)+'Mb')
 
 
 def pre_fill_calc():

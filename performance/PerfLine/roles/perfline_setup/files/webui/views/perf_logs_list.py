@@ -17,7 +17,7 @@
 #
 
 import os
-from flask import render_template
+from flask import render_template, make_response
 
 from app_global_data import *
 
@@ -28,15 +28,17 @@ def perflinelog_list_page(task_id):
     files = list()
 
     location = cache.get_location(task_id)
-
-    for item in os.walk('{0}/result_{1}/perfline_log'.format(location, task_id)):
+    
+    logs_dir = '{0}/result_{1}/log'.format(location, task_id)
+    if not os.path.isdir(logs_dir):
+        return make_response('logs not found', 404)
+        
+    for item in os.walk(logs_dir):
         for file_name in item[2]:
             dir_name = item[0].replace(
                 '{0}/result_{1}'.format(location, task_id), '', 1)
             files.append('{0}/{1}'.format(dir_name, file_name))
-
     context = dict()
     context['task_id'] = task_id
     context['files'] = files
-
     return render_template("perf_log.html", **context)

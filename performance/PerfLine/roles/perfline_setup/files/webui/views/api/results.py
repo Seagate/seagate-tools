@@ -58,6 +58,9 @@ def tq_results_read(limit, locations_list=None):
             elem['perfagg'] = {
                 "report_page": "report/{0}".format(task['task_id']),
             }
+            elem['perfline_logs'] = {
+                "log": "log/{0}".format(task['task_id']),
+            }
         except Exception as e:
             print("exception: " + str(e))
 

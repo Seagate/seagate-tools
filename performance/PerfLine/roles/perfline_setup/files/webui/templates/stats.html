@@ -1,19 +1,85 @@
+<style>
+.bottom_margin {
+  margin-bottom: 20px;
+}
+
+.bw_image {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.span_space {
+  margin: 20px;
+}
+
+.tbl_header {
+  color: black;
+  text-align: center;
+  white-space: pre;
+  font-weight: bold;
+}
+
+.tbl_cell {
+  color: black;
+  text-align: center;
+  white-space: pre;
+}
+
+.data_table {
+  margin: 20px;
+}
+
+table, th, td {
+  border: 1px solid black;
+}
+
+</style>
+
 <html>
 <meta http-equiv="Cache-Conthol" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
 
 <body>
-  <!-- <table width=100%>
-    <tr>
-      <td align="center"><img  src="/aggregated_perf_img/100k"></img></td>
-      <td align="center"><img src="/aggregated_perf_img/1m"></img></td>
-    </tr>
-    <tr>
-      <td align="center"><img src="/aggregated_perf_img/16m"></img></td>
-      <td align="center"><img src="/aggregated_perf_img/128m"></img></td>
-    </tr>
-  </table> -->
- 
+  <div class="bottom_margin">
+    <label for="build_type">Build:</label>
+    <select name="build_type" id="build_type">
+      <option value="main">main</option>
+      <option value="stable">stable</option>
+    </select>
+    <span class="span_space"></span>
+    <label for="sizes">Object size:</label>
+    <select name="objectSize" id="sizes">
+      <option value="1KB">1KB</option>
+      <option value="4KB">4KB</option>
+      <option value="16KB">16KB</option>
+      <option value="64KB">64KB</option>
+      <option value="256KB">256KB</option>
+      <option value="1MB">1MB</option>
+      <option value="4MB">4MB</option>
+      <option value="16MB">16MB</option>
+      <option value="64MB">64MB</option>
+      <option value="128MB">128MB</option>
+      <option value="256MB">256MB</option>
+    </select>
+    <span class="span_space"></span>
+    <label for="sessions">Sessions:</label>
+    <select name="sessions" id="sessions">
+      <option value="150">150</option>
+      <option value="300">300</option>
+      <option value="450">450</option>
+      <option value="600">600</option>
+      <option value="900">900</option>
+    </select>
+    <span class="span_space"></span>
+    <input type="button" id="get_stats_button" ng-click="requestStats()" value="Get results">
+  </div>
+
+  <div class="bw_image">
+    <img id="bw_plot" src="/dashboard/logo" alt="Image placeholder">
+  </div>
+
+  <table width="100%" align="center" cellpadding="5" id="data_table"></table>
+
 </body>
 </html>

@@ -271,6 +271,16 @@ def get_schema_motr():
                 }]
 			}
         },
+        'post_exec_cmds': {
+            'type': 'list',
+            'required': False,
+            'schema': {
+                'type': 'dict', 
+                'schema': {
+                    'cmd': {'type': 'string', 'required': True}
+                }
+            }
+        },
         'execution_options': {
             'type': 'dict',
             'schema': {

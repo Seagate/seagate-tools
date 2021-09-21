@@ -12,6 +12,7 @@ async_worker = AsyncWorker()
 report_resource_map = dict()
 
 artifacts_dirs = [ARTIFACTS_DIR]
+night_daemon_dirs = [NIGHT_ARTIFACTS]
 
 if BACKUP_ARTIFACTS_DIR:
     backup_artifacts_dirs = [BACKUP_ARTIFACTS_DIR]

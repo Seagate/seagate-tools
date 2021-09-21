@@ -38,6 +38,5 @@ def perflinelog_list_page(task_id):
     context = dict()
     context['task_id'] = task_id
     context['files'] = files
-    context['perfline_nr'] = len(files)
 
     return render_template("perf_log.html", **context)

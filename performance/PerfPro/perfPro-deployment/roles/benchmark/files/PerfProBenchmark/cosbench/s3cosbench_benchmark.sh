@@ -20,6 +20,7 @@ CONFIG="/root/PerfProBenchmark/config.yml"
 #ITERATION=$(yq -r .ITERATION $CONFIG)
 
 BUILD=`python3 /root/PerfProBenchmark/read_build.py $CONFIG 2>&1`
+ENDPOINTS=`python3 /root/PerfProBenchmark/get_param.py $CONFIG`
 RESULT_DIR=/root/PerfProBenchmark/perfpro_build$BUILD/results
 
 validate_args() {
@@ -64,7 +65,7 @@ config_s3workloads() {
                     echo "no_of_buckets=$bucket" >> $workload_file
                     echo "workload_type=$workload_type" >> $workload_file
                     echo "run_time_in_seconds=$run_time_in_seconds" >> $workload_file                    
-                    sh configure.sh
+                    sh configure.sh "$ENDPOINTS"
                     sh run-test.sh --s3setup s3setup.properties --controller $HOSTNAME --workload $workload_file >> $TOOL_DIR/workloads 
                     check_completion `tail -n 3 $TOOL_DIR/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' '`
                     echo "Cosbench Triggered for worker: $clients sample: $sample obj_size:$io_size bucket:$bucket"

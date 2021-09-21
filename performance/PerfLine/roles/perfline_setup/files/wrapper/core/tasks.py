@@ -87,8 +87,21 @@ def parse_options(conf, result_dir):
 
 
 def run_cmds(cmds, path):
-    # TODO: Implement me!
-    return
+    for entry in cmds:
+        with plumbum.local.env():
+            try:
+                argv = entry['cmd'].split(" ")
+                cmd = argv[0]
+                params = argv[1:]
+                print("cmd: {}, params: {}".format(cmd, params))
+                run = plumbum.local[cmd]
+                run[params] & plumbum.FG
+            except plumbum.commands.processes.CommandNotFound as err:
+                print(f"Command '{entry}' not found, error {err}")
+            except plumbum.commands.processes.ProcessExecutionError as err:
+                print(f"Command '{entry}' returned non-zero, error {err}")
+            except KeyError:
+                print(f"Not properly formed command '{entry}'")
 
 
 def send_mail(to, status, tid):

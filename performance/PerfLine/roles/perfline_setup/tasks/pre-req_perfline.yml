@@ -6,6 +6,13 @@
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
+  - name: "Creating directory for night builds {{ NIGHT_ARTIFACTS }}"
+    file:
+      path: '{{ NIGHT_ARTIFACTS }}'
+      state: directory
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['all'] }}"
+    
   - name: "Creating perfline directory {{ PERFLINE_DIR }}"
     file:
       path: "{{ PERFLINE_DIR }}/bin"
@@ -61,6 +68,7 @@
        - { variable: 'VALIDATOR', value: '{{ PERFLINE_DIR }}/wrapper/core'}
        - { variable: 'LOGFILE', value: '{{ PERFLINE_LOGFILE }}'}
        - { variable: 'ARTIFACTS_DIR', value: '{{ ARTIFACTS_DIR }}'}
+       - { variable: 'NIGHT_ARTIFACTS', value: '{{ NIGHT_ARTIFACTS }}'}
 
   - name: "Updating numeric values of a variables in perfline.conf"
     lineinfile:

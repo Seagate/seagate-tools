@@ -1,0 +1,26 @@
+common:
+  batch_id: null
+  description: Daemon execution for stable 78
+  priority: 5
+  send_email: false
+  user: daemon_run@seagate.com
+  version: 1
+custom_build:
+  url: http://cortx-storage.colo.seagate.com/releases/cortx/github/stable/centos-7.9.2009//78/prod/
+execution_options:
+  backup_result: false
+  collect_addb: false
+  collect_m0trace: false
+  mkfs: true
+stats_collection:
+  blktrace: false
+  dstat: false
+  glances: false
+  iostat: false
+workloads:
+- s3bench:
+    BucketName: bkt11
+    EndPoint: http://s3.seagate.com
+    NumClients: 10
+    NumSample: 400
+    ObjSize: 256Kb

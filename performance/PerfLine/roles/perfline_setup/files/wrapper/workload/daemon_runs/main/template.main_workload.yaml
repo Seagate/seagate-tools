@@ -1,0 +1,98 @@
+common:
+  batch_id: null
+  description: 'Daemon exection for main, motr: 112f98637, s3server c41fe2f0d, hare d73c93425'
+  priority: 5
+  send_email: false
+  user: daemon_run@seagate.com
+  version: 1
+  
+custom_build:
+  hare:
+    branch: d73c93425
+    repo: https://github.com/Seagate/cortx-hare.git
+  motr:
+    branch: 112f98637
+    repo: https://github.com/Seagate/cortx-motr.git
+  s3server:
+    branch: c41fe2f0d
+    repo: https://github.com/Seagate/cortx-s3server.git
+    
+stats_collection:
+  blktrace: false
+  dstat: false
+  glances: false
+  iostat: false
+
+workloads:
+- s3bench:
+    BucketName: mybucket1
+    EndPoint: http://s3.seagate.com
+    NumClients: 100
+    NumSample: 40000
+    ObjSize: 1Kb
+- s3bench:
+    BucketName: mybucket2
+    EndPoint: http://s3.seagate.com
+    NumClients: 100
+    NumSample: 40000
+    ObjSize: 4Kb
+- s3bench:
+    BucketName: mybucket3
+    EndPoint: http://s3.seagate.com
+    NumClients: 100
+    NumSample: 40000
+    ObjSize: 16Kb
+- s3bench:
+    BucketName: mybucket4
+    EndPoint: http://s3.seagate.com
+    NumClients: 100
+    NumSample: 40000
+    ObjSize: 64Kb
+- s3bench:
+    BucketName: mybucket5
+    EndPoint: http://s3.seagate.com
+    NumClients: 100
+    NumSample: 40000
+    ObjSize: 256Kb
+- s3bench:
+    BucketName: mybucket6
+    EndPoint: http://s3.seagate.com
+    NumClients: 100
+    NumSample: 10000
+    ObjSize: 1Mb
+- s3bench:
+    BucketName: mybucket7
+    EndPoint: http://s3.seagate.com
+    NumClients: 100
+    NumSample: 10000
+    ObjSize: 4Mb
+- s3bench:
+    BucketName: mybucket8
+    EndPoint: http://s3.seagate.com
+    NumClients: 100
+    NumSample: 10000
+    ObjSize: 16Mb
+- s3bench:
+    BucketName: mybucket9
+    EndPoint: http://s3.seagate.com
+    NumClients: 100
+    NumSample: 10000
+    ObjSize: 64Mb
+- s3bench:
+    BucketName: mybucket10
+    EndPoint: http://s3.seagate.com
+    NumClients: 100
+    NumSample: 10000
+    ObjSize: 128Mb
+- s3bench:
+    BucketName: mybucket11
+    EndPoint: http://s3.seagate.com
+    NumClients: 100
+    NumSample: 10000
+    ObjSize: 256Mb
+
+execution_options:
+  mkfs: true
+  collect_addb: false
+  collect_m0trace: false
+  backup_result: false

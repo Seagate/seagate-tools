@@ -1,7 +1,7 @@
 <html>
     <body>
         <h3>Task: {{ task_id }}</h3>
-        <h3>Perfline Logs: {{ perfline_nr }}</h5>
+        <h3>Perfline Logs: {{ files|length }}</h5>
         <table>
             {% for file in files %}
             <tr>

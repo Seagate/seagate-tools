@@ -217,18 +217,20 @@ function stop_cluster() {
 }
 
 function backup_configs() {
-    pdsh -S -w $NODES "mkdir -p $PERFLINE_DIR/config_backup/latest"
-    pdsh -S -w $NODES "cp /etc/sysconfig/motr $PERFLINE_DIR/config_backup/latest/motr"
-    pdsh -S -w $NODES "cp /opt/seagate/cortx/s3/conf/s3config.yaml $PERFLINE_DIR/config_backup/latest/s3config.yaml"
-    pdsh -S -w $NODES "cp /etc/haproxy/haproxy.cfg $PERFLINE_DIR/config_backup/latest/haproxy.cfg"
-
-    pdsh -S -w $NODES "cp /opt/seagate/cortx/s3/s3startsystem.sh $PERFLINE_DIR/config_backup/latest/s3startsystem.sh"
-
-    pdsh -S -w $NODES "ls -lsah $PERFLINE_DIR/config_backup/latest"
-    time=`date +"%Y_%m_%d_%I_%M_%p"`
-    pdsh -S -w $NODES "cp -r $PERFLINE_DIR/config_backup/latest $PERFLINE_DIR/config_backup/$time"
+    local time=`date +"%Y_%m_%d_%I_%M_%p"`
+    local cfg_backup_dir="$PERFLINE_DIR/config_backup/$time"
+    pdsh -S -w $NODES "mkdir -p $cfg_backup_dir"
+    pdsh -S -w $NODES "cp /etc/sysconfig/motr $cfg_backup_dir/motr"
+    pdsh -S -w $NODES "cp /opt/seagate/cortx/s3/conf/s3config.yaml $cfg_backup_dir/s3config.yaml"
+    pdsh -S -w $NODES "cp /etc/haproxy/haproxy.cfg $cfg_backup_dir/haproxy.cfg"
+    pdsh -S -w $NODES "cp /opt/seagate/cortx/s3/s3startsystem.sh $cfg_backup_dir/s3startsystem.sh"
+    pdsh -S -w $NODES "cp /opt/seagate/cortx/s3/s3backgrounddelete/config.yaml $cfg_backup_dir/config.yaml"
+    pdsh -S -w $NODES "cp /opt/seagate/cortx/s3/s3backgrounddelete/s3_cluster.yaml $cfg_backup_dir/s3_cluster.yaml"
+    pdsh -S -w $NODES "cp /opt/seagate/cortx/auth/resources/authserver.properties $cfg_backup_dir/authserver.properties"
+    pdsh -S -w $NODES "cp /opt/seagate/cortx/auth/resources/keystore.properties $cfg_backup_dir/keystore.properties"
+ 
+    pdsh -S -w $NODES "ls -lsah $cfg_backup_dir"
 }
-
 
 function update() {
     local motr_exist=
@@ -252,42 +254,50 @@ function update() {
 	exit 1
     fi
     
-    if [ -z "${is_hare_same}" -o -z "${is_motr_same}" ]; then
-	set +e
-	pdsh -S -w $NODES "rpm -Uvh --oldpackage --nodeps --force $RPM_DIR/update/cortx_iso/cortx-motr-2* $RPM_DIR/update/cortx_iso/cortx-hare-2*"
-	status=$?
-	set -e
+    backup_configs
 
-	if [ ${status} -ne 0 ]; then
-	    echo "Cortx-motr and cortx-hare installation failed"
-	    exit 1
-	fi
+    if [ -z "${is_hare_same}" -o -z "${is_motr_same}" ]; then
+        set +e
+        pdsh -S -w $NODES "rpm -Uvh --oldpackage --nodeps --force $RPM_DIR/update/cortx_iso/cortx-motr-2* $RPM_DIR/update/cortx_iso/cortx-hare-2*"
+        status=$?
+        set -e
+
+        if [ ${status} -ne 0 ]; then
+            echo "Cortx-motr and cortx-hare installation failed"
+            exit 1
+        fi
     fi
 
     if [ -z "${is_s3_same}" ]; then
-	set +e
-	pdsh -S -w $NODES "rpm -Uvh --oldpackage --nodeps --force $RPM_DIR/update/cortx_iso/cortx-s3server-2*"
-	status=$?
-	set -e
 
-	if [ ${status} -ne 0 ]; then
-	    echo "Cortx-s3server installation failed"
-	    exit 1
-	fi
+        # 'preupgrade' step needs to be done before s3 RPM upgrade.
+        # Details can be found at
+        # https://github.com/Seagate/cortx-s3server/wiki/S3server-provisioning-on-single-node-VM-cluster:-Manual#optional-pre-upgrade-and-post-upgrade-steps
+        pdsh -S -w $NODES "/opt/seagate/cortx/s3/bin/s3_setup preupgrade"
+        set +e
+        pdsh -S -w $NODES "rpm -Uvh --oldpackage --nodeps --force $RPM_DIR/update/cortx_iso/cortx-s3server-2*"
+        status=$?
+        set -e
+        pdsh -S -w $NODES "/opt/seagate/cortx/s3/bin/s3_setup postupgrade"
+
+        if [ ${status} -ne 0 ]; then
+            echo "Cortx-s3server installation failed"
+            exit 1
+        fi
     fi
 	
     # Handle cortx-py-utils also -- if passed by URL update ALWAYS
     # For branches - deploy cortx-py-utils only if is requisted
     if [ -n "${UTILS_BRANCH}" -a -z "${is_utils_same}" ]; then
-	set +e
-	pdsh -S -w $NODES "rpm -Uvh --oldpackage --nodeps --force $RPM_DIR/update/cortx_iso/cortx-py-utils-2*"
-	status=$?
-	set -e
+        set +e
+        pdsh -S -w $NODES "rpm -Uvh --oldpackage --nodeps --force $RPM_DIR/update/cortx_iso/cortx-py-utils-2*"
+        status=$?
+        set -e
 
-	if [ ${status} -ne 0 ]; then
-	    echo "Cortx-utils installation failed"
-	    exit 1
-	fi
+        if [ ${status} -ne 0 ]; then
+            echo "Cortx-utils installation failed"
+            exit 1
+        fi
     fi
 }
 

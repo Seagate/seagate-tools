@@ -128,9 +128,9 @@ def pack_artifacts(path):
 
 
 def update_configs(conf, result_dir, logdir):
-    options = []
+    options = ["scripts/conf_customization/update_configs.sh"]
     result = 'SUCCESS'
-
+    
     if 'configuration' in conf:
 
         if 'motr' in conf['configuration']:
@@ -227,8 +227,6 @@ def update_configs(conf, result_dir, logdir):
         mv = plumbum.local['mv']
         try:
             tee = plumbum.local['tee']
-            options = ["scripts/conf_customization/update_configs.sh"]
-            options.extend(parse_options(conf, result_dir))
             (update_configs[options] | tee['/tmp/update_configs.log']) & plumbum.FG
         except plumbum.commands.processes.ProcessExecutionError:
             result = 'FAILED'
@@ -268,9 +266,8 @@ def run_worker(conf, result_dir, logdir):
     return result
 
 def sw_update(conf, result_dir, logdir):
-    options = []
+    options = ["scripts/update.sh"]
     result = 'SUCCESS'
-
     if 'custom_build' in conf:
         mv = plumbum.local['mv']
         params = conf['custom_build']
@@ -296,8 +293,6 @@ def sw_update(conf, result_dir, logdir):
             update = plumbum.local["scripts/e2o.sh"]
             try:
                 tee = plumbum.local['tee']
-                options = ["scripts/update.sh"]
-                options.extend(parse_options(conf, result_dir))
                 (update[options] | tee['/tmp/update.log']) & plumbum.FG
             except plumbum.commands.processes.ProcessExecutionError:
                 result = 'FAILED'
@@ -307,7 +302,7 @@ def sw_update(conf, result_dir, logdir):
     return result
 
 def run_corebenchmark(conf, result_dir, logdir):
-    options = []
+    options = ["scripts/core_benchmarks.sh"]
     options.append('-p')
     options.append(result_dir)
     result = 'SUCCESS'
@@ -357,8 +352,6 @@ def run_corebenchmark(conf, result_dir, logdir):
            benchmark_update = plumbum.local["scripts/e2o.sh"]
            try:
               tee = plumbum.local['tee']
-              options = ["scripts/core_benchmarks.sh"]
-              options.extend(parse_options(conf, result_dir))
               (benchmark_update[options] | tee['/tmp/core_benchmarks.log']) & plumbum.FG
            except plumbum.commands.processes.ProcessExecutionError:
               result = 'FAILED'

@@ -37,11 +37,6 @@
    delegate_to: "{{ item }}"
    with_items: "{{ groups['all'] }}"
 
- - name: updating s3account.yml file with mgmt_vip from config.yml
-   shell: |
-      mgmt_vip=`grep MGMT_VIP roles/perfpro_deployment/vars/config.yml | cut -d ":" -f2`
-      sed -i "s/ip : /ip : $mgmt_vip/" roles/benchmark/vars/s3account.yml
-
  - name: copying s3account.yml file to client
    copy:
       src: vars/s3account.yml
@@ -49,6 +44,13 @@
       owner: root
       group: root
       mode: '0644'
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
+
+ - name: updating s3account.yml file on client with MGMT_VIP from config.yml
+   shell: |
+      mgmt_vip=`grep MGMT_VIP /root/PerfProBenchmark/config.yml | cut -d ":" -f2`
+      sed -i "s/ip : /ip : $mgmt_vip/" /root/PerfProBenchmark/s3account.yml
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
 
@@ -81,6 +83,7 @@
    with_items: "{{ groups['clients'] }}"
 
  - include: prefill.yml
+   when: PC_FULL > 0
 
  - include: s3bench.yml
  
@@ -88,16 +91,16 @@
    shell: python3 /root/PerfProBenchmark/s3bench/s3bench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/s3bench /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
    delegate_to: "clientnode-1"
 
- - include: cosbench.yml
-
- - name: cosbench results upload to db
-   shell: python3 /root/PerfProBenchmark/cosbench/cosbench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/cosbench /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
-   delegate_to: "clientnode-1"
-
  - include: hsbench.yml
 
  - name: hsbench results upload to db
    shell: python3 /root/PerfProBenchmark/hsbench/hsbench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/hsbench /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
+   delegate_to: "clientnode-1"
+
+ - include: cosbench.yml
+
+ - name: cosbench results upload to db
+   shell: python3 /root/PerfProBenchmark/cosbench/cosbench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/cosbench /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
    delegate_to: "clientnode-1"
 
 #Performing Degraded read benchmarking

@@ -32,9 +32,19 @@
      cluster_state: "'normal-read'"
 
 
-#Fail the node 
-## Yet to be implemented
+#Fail the node
 
+ - name: "Loading config from another role"
+   include_vars:
+      file: "{{ role_path }}/../perfpro_deployment/vars/config.yml"
+      name: config
+
+ - name: "Stopping node to bring cluster into degraded state"
+   shell: python3 /root/PerfProBenchmark/degraded_read/node_stop.py {{ config['MGMT_VIP']  }}  {{ groups['nodes'] | length }}
+   delegate_to: "{{ groups['clients'][0] }}"
+
+ - name: "Waiting for node to stop and cluster get into degraded mode"
+   shell: sleep 30
 
 #collect read stats
 
@@ -51,7 +61,13 @@
      cluster_state: "'degraded-read'"
 
 #Boot the failed node
-## Yet to be implemented
+
+ - name: "Starting node to bring degraded cluster back  into healthy state"
+   shell: python3 /root/PerfProBenchmark/degraded_read/node_start.py {{ config['MGMT_VIP']  }}  {{ groups['nodes'] | length }}
+   delegate_to: "{{ groups['clients'][0] }}"
+
+ - name: "Waiting for node to start and join cluster"
+   shell: sleep 30
 
 
 #Collect read starts after cluster is recovered and cleanup

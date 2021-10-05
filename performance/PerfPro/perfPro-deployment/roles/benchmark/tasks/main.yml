@@ -69,6 +69,7 @@
  - name: Read build from RELEASE.INFO file
    shell: python3 /root/PerfProBenchmark/read_build.py /root/PerfProBenchmark/config.yml
    register: build
+   delegate_to: "{{ groups['clients'][0] }}"
 
  - name: Create perfpro_build<build> directory structure 
    shell: |

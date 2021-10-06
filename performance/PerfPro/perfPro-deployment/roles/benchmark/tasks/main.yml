@@ -69,7 +69,7 @@
  - name: Read build from RELEASE.INFO file
    shell: python3 /root/PerfProBenchmark/read_build.py /root/PerfProBenchmark/config.yml
    register: build
-   delegate_to: "{{ groups['clients'][0] }}"
+   delegate_to: "clientnode-1"
 
  - name: Create perfpro_build<build> directory structure 
    shell: |
@@ -90,19 +90,22 @@
  
  - name: s3bench results upload to db
    shell: python3 /root/PerfProBenchmark/s3bench/s3bench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/s3bench /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
-   delegate_to: "clientnode-1"
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
 
  - include: hsbench.yml
 
  - name: hsbench results upload to db
    shell: python3 /root/PerfProBenchmark/hsbench/hsbench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/hsbench /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
-   delegate_to: "clientnode-1"
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
 
  - include: cosbench.yml
 
  - name: cosbench results upload to db
    shell: python3 /root/PerfProBenchmark/cosbench/cosbench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/cosbench /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
-   delegate_to: "clientnode-1"
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
 
 #Performing Degraded read benchmarking
 

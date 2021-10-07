@@ -57,6 +57,27 @@
     delegate_to: "{{ item }}"
     with_items: "{{ groups['nodes'] }}"
 
+  - name: Install perfline system dependencies
+    yum:
+      name:
+        - gcc
+        - ansible
+        - sysstat
+        - pdsh
+        - dstat
+        - blktrace
+        - iowatcher
+        - zlib-devel
+        - libjpeg
+        - libjpeg-devel
+        - python3-devel
+        - ftp
+        - fio
+        - iperf
+      state: present
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['all'] }}"
+
   - name: Install perfline python dependencies
     pip:
       name:
@@ -72,25 +93,10 @@
         - iostat-tool
         - peewee
         - graphviz
+        - awscli
+        - awscli-plugin-endpoint
       executable: pip3
       extra_args: -i https://pypi.org/simple
-    delegate_to: "{{ item }}"
-    with_items: "{{ groups['all'] }}"
-
-  - name: Install perfline system dependencies
-    yum:
-      name:
-        - ansible
-        - sysstat
-        - pdsh
-        - dstat
-        - blktrace
-        - iowatcher
-        - python3-devel
-        - ftp
-        - fio
-        - iperf
-      state: present
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 

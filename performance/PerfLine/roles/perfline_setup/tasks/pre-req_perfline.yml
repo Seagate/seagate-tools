@@ -88,3 +88,11 @@
        mode: '0751'
     delegate_to: "client-1"
 
+
+
+  - name: "Installing cortx-s3iamcli"
+    yum:
+      name: cortx-s3iamcli
+      state: present
+    delegate_to: "client-1" 
+      

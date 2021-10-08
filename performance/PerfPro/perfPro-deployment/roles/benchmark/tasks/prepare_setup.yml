@@ -1,5 +1,5 @@
 ---
- - name: Check 'bak.yum.repos.d'directory exists and remove it if it exists
+ - name: Check if yum.repos.d dir backup exist and remove it if it exists
    file:
      state: absent
      path: /etc/bak.yum.repos.d
@@ -24,7 +24,7 @@
    delegate_to: "{{ item }}"
    with_items: "{{ groups['all'] }}"
 
- - name: "[pre-requisites]: Required for regression test cases"
+ - name: "[pre-requisites]: Updating required yum packages"
    yum:
      name:
        - ansible
@@ -37,17 +37,17 @@
    delegate_to: "{{ item }}"
    with_items: "{{ groups['all'] }}"
 
- - name: "[Services/daemons:start|stop|restart]: Required for regression test cases"
+ - name: "[Services/daemons:start|stop|restart]: Checking network time protocol service daemon"
    shell: systemctl stop ntpd ; /usr/sbin/ntpdate time.seagate.com ; systemctl start ntpd
    delegate_to: "{{ item }}"
    with_items: "{{ groups['all'] }}"
 
- - name: Upgrade pip version on client nodes
+ - name: Updating python pip version on client nodes
    shell: pip3 install update pip
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
 
- - name: Pre-requisites python3 library on client server
+ - name: Setting up required python3 packages on client nodes
    pip:
      name:
        - setuptools_rust
@@ -56,7 +56,7 @@
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
 
- - name: Installation of golang on client server
+ - name: Installing go on client nodes
    yum:
      name:
        - go >= 1.15
@@ -68,7 +68,7 @@
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
 
- - name: Pre-requisites python3 library
+ - name: Updating required python3 packages
    pip:
      name:
        - PyYAML==5.3.1

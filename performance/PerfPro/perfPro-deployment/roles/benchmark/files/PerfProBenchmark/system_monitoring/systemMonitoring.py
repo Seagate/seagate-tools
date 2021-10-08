@@ -159,6 +159,9 @@ def retriveAll():   #function for retriving all the data from database
         print(d)
 
 def main():
+    if not os.path.isfile("pidfile"):
+        print("systemstats already running! exiting")
+        return
     addReport()
 
 if __name__=="__main__":

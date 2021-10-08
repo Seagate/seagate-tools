@@ -165,14 +165,9 @@ If ansible script finish it's job successfully, you should be able to access web
 If you go to report page you could see detailed report for executed task, including hardware, network, block devices, statistic sctipts infos.
 
 ##### 8005 is a default port. If you want to change it, you should do it before perfline installation with these steps:
-- in ./ansible_setup/setup.yaml find task named 'Open port for webui' and change mentioned port for desired:
-    ```
-    ` - name: Open port for webui`
-    `firewalld: port='new_port'/tcp zone=public permanent=true state=enabled immediate=yes`
-    ```
-- in ./webui/config.py change `server_ep` variable for port:
-    `...`
-    `server_ep = {'host': '0.0.0.0', 'port': 'new_port'}`
+- Update 'perfline_ui_port' variable in 'inventories/perfline_hosts/hosts' as per your choice.
+
+# If you have different 'PUBLIC_DATA_INTERFACE_ID' other than 'data0|enp179s0|enp175s0f0|eth0' interface, then you have to provide 'PUBLIC_DATA_INTERFACE_ID' in 'roles/perfline_setup/vars/main.yml'. These interface id will be going to use by iperf workload only.
 
 # Daemon services
 If user has enable daemon service then It would required to specify the build number to '/root/perfline/wrapper/.latest_stable_build' on client server. It's a one time activity. It will take the list of build above it and including "BUILDNO" value.

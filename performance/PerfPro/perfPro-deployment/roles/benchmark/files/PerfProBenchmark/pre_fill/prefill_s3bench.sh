@@ -1,21 +1,22 @@
 #! /usr/bin/bash
+TOOL_NAME='s3bench'
 ACCESS_KEY=`cat /root/.aws/credentials | grep -A 3 default | grep aws_access_key_id | cut -d " " -f3`
 SECRET_KEY=`cat /root/.aws/credentials | grep -A 3 default | grep secret_access_key | cut -d " " -f3`
 BINPATH=/root/PerfProBenchmark/s3bench
 CURRENTPATH=/root/PerfProBenchmark
 BENCHMARKLOG=$CURRENTPATH/prefill/
-#ENDPOINTS=https://s3.seagate.com         
 BUCKETNAME="prefill"
-TIMESTAMP=`date +'%Y-%m-%d_%H:%M:%S'`
-ENDPOINTS=""
-CLIENTS=""     
-NUMSAMPLES=""     
+CLIENTS=""
+NUMSAMPLES=""
+NUMBUCKET=""
 IO_SIZE=""
-
+CONFIG="/root/PerfProBenchmark/config.yml"
+BUILD=`python3 /root/PerfProBenchmark/read_build.py $CONFIG 2>&1`
+RESULT_DIR=/root/PerfProBenchmark/perfpro_build$BUILD/results/prefill
 
 validate_args() {
 
-        if [[ -z $ENDPOINTS ]] || [[ -z $CLIENTS ]] || [[ -z $NUMSAMPLES ]] || [[ -z $IO_SIZE ]] ; then
+        if [[ -z $ENDPOINTS ]] || [[ -z $CLIENTS ]] || [[ -z $NUMSAMPLES ]] || [[ -z $IO_SIZE ]] || [[ -z $NUMBUCKET ]] ; then
                 show_usage
         fi
 
@@ -55,14 +56,17 @@ do
 
             echo "S3Benchmark is running for object size : $SIZE_OF_OBJECTS, Clients: $NUMCLIENTS"
 
-            TIMESTAMP=`date +'%d-%m-%Y_%H:%M:%S'`
-            MKDIR=$BENCHMARKLOG/$TIMESTAMP\_object_$SIZE_OF_OBJECTS\_numclient_$NO_OF_SAMPLES
+            echo 'y' | rm report.s3bench > /dev/null 2>&1
+            rm -rf s3bench-*.log
 
-            mkdir -p $MKDIR
+            TOOL_DIR=$BENCHMARKLOG/$TOOL_NAME/numclients_$NUMCLIENTS/buckets_1/$SIZE_OF_OBJECTS
+            mkdir -p $TOOL_DIR
 
-           echo "$BINPATH/s3bench_perfpro -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -skipRead -skipCleanup > $MKDIR/s3bench_Numclients_$NUMCLIENTS\_NS_$NO_OF_SAMPLES\_size_$SIZE_OF_OBJECTS\.log"
+            echo "$BINPATH/s3bench_perfpro -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=prefill -objectSize=$SIZE_OF_OBJECTS"
 
-           $BINPATH/s3bench_perfpro -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -skipCleanup -skipRead > $MKDIR/s3bench_Numclients_$NUMCLIENTS\_NS_$NO_OF_SAMPLES\_size_$SIZE_OF_OBJECTS\.log
+	    $BINPATH/s3bench_perfpro -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=prefill -objectSize=$SIZE_OF_OBJECTS -skipCleanup -skipRead -o $TOOL_DIR/report.s3bench -label object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_bucket_$NUMBUCKET\_sessions_$NUMCLIENTS
+
+            mv s3bench-object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_bucket_$NUMBUCKET\_sessions_$NUMCLIENTS\.log $TOOL_DIR/s3bench_object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_$NUMBUCKET\_sessions_$NUMCLIENTS\.log
 
             echo "S3Benchmark is completed for object size : $SIZE_OF_OBJECTS"
         done
@@ -93,6 +97,11 @@ while [ ! -z $1 ]; do
         -s)    shift
                 IO_SIZE="$1"       
         ;;
+
+        -nb)    shift
+                NUMBUCKET="$1"
+        ;;
+
         
         *)     
                 show_usage
@@ -102,10 +111,21 @@ while [ ! -z $1 ]; do
 done
 
 validate_args
-#
-# It will configure s3benchmark tools if it's not available
-#
-#./installS3bench.sh
-#
 
-s3benchmark
+if [ ! -d $BENCHMARKLOG ]; then
+     mkdir -p $BENCHMARKLOG
+     s3benchmark
+     sleep 20
+     mkdir -p $RESULT_DIR/
+     cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/
+
+else
+#     rm -rf $BENCHMARKLOG
+     mkdir -p $BENCHMARKLOG
+     s3benchmark
+     sleep 20
+     mkdir -p $RESULT_DIR/
+     cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/
+
+fi
+

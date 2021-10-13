@@ -3,6 +3,7 @@ import sys
 import paramiko
 import yaml
 import re
+import subprocess
 
 conf_yaml = open(sys.argv[1])
 parse_conf = yaml.load(conf_yaml , Loader=yaml.FullLoader)
@@ -54,7 +55,7 @@ def fill_data(pre_fill):
     num_clients=200
     print('pre_fill size(MB) :' , Pre_fill_mb , '\nNumber of objects per bucket(10 buckets)(128Mb Object size)', num_obj_per_bucket )
     for i in range(num_bucket):
-        os.system('sh '+prebench+' -ep '+str(endpoints)+' -nc '+str(num_clients)+' -ns '+str(num_obj_per_bucket)+' -s '+str(obj_size)+'Mb -nb '+str(i) )
+        subprocess.call([f"./{prebench} -ep {str(endpoints)} -nc {num_clients} -ns {num_obj_per_bucket} -s {str(obj_size)+'Mb'} -nb {i}"],shell=True)
 
 
 def pre_fill_calc():

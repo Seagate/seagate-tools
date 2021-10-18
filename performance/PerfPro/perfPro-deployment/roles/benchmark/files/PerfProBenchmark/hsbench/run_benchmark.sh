@@ -18,10 +18,8 @@ SIZE_OF_OBJECTS=""
 JSON_FILENAME=				
 OUTPUT_FILE=
 TIMESTAMP=`date +'%Y-%m-%d_%H:%M:%S'`
-#IFS=”,”
 MAIN="/root/PerfProBenchmark/main.yml"
 CONFIG="/root/PerfProBenchmark/config.yml"
-#ITERATION=$(yq -r .ITERATION $CONFIG)
 BUILD=`python3 /root/PerfProBenchmark/read_build.py $CONFIG 2>&1`
 ENDPOINTS=`python3 /root/PerfProBenchmark/get_param.py $CONFIG`
 RESULT_DIR=/root/PerfProBenchmark/perfpro_build$BUILD/results
@@ -68,10 +66,11 @@ hotsause_benchmark()
                  TOOL_DIR=$BENCHMARKLOG/$TOOL_NAME/numclients_$client/buckets_$bucket/$size
                  echo "$BENCHMARK_PATH/hsbench -a $ACCESS_KEY -s $SECRET_KEY -u $ENDPOINTS -z $obj_size -d $TEST_DURATION -t $client -b $bucket -n $sample -r $REGION -j $JSON_FILENAME"
 
-                 $BENCHMARK_PATH/hsbench -a $ACCESS_KEY -s $SECRET_KEY -u $ENDPOINTS -z $obj_size -d $TEST_DURATION -t $client -b $bucket -n $sample -r $REGION -j $JSON_FILENAME
+                 $BENCHMARK_PATH/hsbench -a $ACCESS_KEY -s $SECRET_KEY -u $ENDPOINTS -z $obj_size -d $TEST_DURATION -t $client -b $bucket -n $sample -r $REGION -j $JSON_FILENAME 2>&1 | tee $BENCHMARKLOG/object_$size\_numsamples_$sample\_buckets_$bucket\_sessions_$client\_output.log
 
                  mkdir -p $TOOL_DIR
                  mv $CURRENTPATH/*.json $TOOL_DIR/
+                 mv $BENCHMARKLOG/object_$size\_numsamples_$sample\_buckets_$bucket\_sessions_$client\_output.log $TOOL_DIR/
                  sleep 30
                done 
            done
@@ -119,17 +118,19 @@ validate_args
 #
 if [ ! -d $BENCHMARKLOG ]; then
     mkdir $BENCHMARKLOG
-    hotsause_benchmark 2>&1 | tee benchmark.log/output.log
-    sleep 20 
+    hotsause_benchmark #2>&1 | tee $BENCHMARKLOG/output.log
+    sleep 20
+    python3 hsbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG 
     cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/    
-    cp $BENCHMARKLOG/output.log $RESULT_DIR/$TOOL_NAME/    
+    
       
 else
     rm -rf $BENCHMARKLOG
     mkdir $BENCHMARKLOG
-    hotsause_benchmark 2>&1 | tee benchmark.log/output.log
+    hotsause_benchmark #2>&1 | tee $BENCHMARKLOG/output.log
     sleep 20 
+    python3 hsbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG
     cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/    
-    cp  $BENCHMARKLOG/output.log $RESULT_DIR/$TOOL_NAME/    
+    
 
 fi

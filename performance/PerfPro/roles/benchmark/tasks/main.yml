@@ -101,12 +101,12 @@
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
 
-# - include: cosbench.yml
+ - include: cosbench.yml
 
-# - name: cosbench results upload to db
-#   shell: python3 /root/PerfProBenchmark/cosbench/cosbench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/cosbench /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
-#   delegate_to: "{{ item }}"
-#   with_items: "{{ groups['clients'] }}"
+ - name: cosbench results upload to db
+   shell: python3 /root/PerfProBenchmark/cosbench/cosbench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/cosbench /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
 
 #Performing Degraded read benchmarking
 

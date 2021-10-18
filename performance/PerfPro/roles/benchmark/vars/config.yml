@@ -1,16 +1,16 @@
 ---
 REIMAGE: 'No'
 # For host file update : add for more nodes/clients in environment or remove if less nodes/clients .
-MGMT_VIP: 10.230.254.45 
+MGMT_VIP: 
 NODES:  
-  - 1: ssc-vm-g3-rhev4-1285.colo.seagate.com # node_number_srvnode-1: hostname of node1 .
-  - 2: ssc-vm-g3-rhev4-1286.colo.seagate.com # node_number_srvnode-2: hostname of node2 .
-  - 3: ssc-vm-g3-rhev4-1287.colo.seagate.com # node_number_srvnode-3: hostname of node3 .
+  - 1:  # node_number_srvnode-1: hostname of node1 .
+  - 2:  # node_number_srvnode-2: hostname of node2 .
+  - 3:  # node_number_srvnode-3: hostname of node3 .
 CLIENTS: 
-  - 1: ssc-vm-g3-rhev4-1288.colo.seagate.com #client_number: hostname of client  
+  - 1:  #client_number: hostname of client  
 
 # For Build and SystemUnderTest INFO
-BUILD_URL: http://cortx-storage.colo.seagate.com/releases/cortx/github/stable/centos-7.9.2009/109/prod/
+BUILD_URL: 
 CLUSTER_PASS: seagate1
 CHANGE_PASS: 'no'
 PRVSNR_CLI_REPO: https://github.com/Seagate/cortx-prvsnr@cortx-1.0#subdirectory=api/python
@@ -23,9 +23,9 @@ SERVICE_PASS:
 # For PerfPro MongoDB related Entries
 #ITERATION: 1 # <removed iteration>
 END_POINTS: https://s3.seagate.com
-PC_FULL: 1 # Select for system percentage full before test. 
+PC_FULL: 30 # Select for system percentage full before test. 
 OVERWRITE: False # select True or False to overwrite the DB entries for same Primary Key
-CUSTOM: RDVM # Default is NA. Update with single string for special config eg: CorvStd, CorvHiPerf, 5u84Std, 5u84HiPerf, SSD, DIEnabled, PODsetup etc
+CUSTOM: NA # Default is NA. Update with single string for special config eg: CorvStd, CorvHiPerf, 5u84Std, 5u84HiPerf, SSD, DIEnabled, PODsetup etc
 DEGRADED_READ: False   # Select True/False to test Degraded read feature
 
 #Enter Below details for log collection on NFS repo

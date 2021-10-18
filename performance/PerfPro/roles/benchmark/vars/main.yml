@@ -14,5 +14,5 @@ R2:
   db_collection: results_2
   sysstat_collection: systemresults_2
   config_collection: configurations_2
-db_url: mongodb://10.237.65.111:27017
+db_url: mongodb://perfpro:PerfPro@cftic1.pun.seagate.com:27017,cftic2.pun.seagate.com:27017,apollojenkins.pun.seagate.com:27017/test?authSource=performance_db&replicaSet=rs0&readPreference=primary&appname=MongoDB%20Compass%20Community&ssl=false
 

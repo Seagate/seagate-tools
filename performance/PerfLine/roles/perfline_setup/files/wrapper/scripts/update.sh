@@ -69,32 +69,22 @@ function prepare_env() {
 }
 
 function check_version() {
-
-    # NOTE: currently Motr can be built with either Lnet or Libfabric.
-    # There is no way to check if installed version of Motr was built
-    # with Lnet or Libfabric.
-    # `m0d --version` doesn't contain any mention about it.
-    # Name of Cortx-Motr RPM package doesn't have it either.
-    # Since we are not able to check if current installed version of Motr
-    # is the same what we want to have we need always to upgrade Motr.
-    # Details can be found in the ticket https://jts.seagate.com/browse/EOS-25356
-
     # If branch name is passed, find theirs commit id
     # motr_ver=`git ls-remote $MOTR_REPO $MOTR_BRANCH | cut -f1 | cut -c1-8`
     s3_ver=`git ls-remote $S3_REPO $S3_BRANCH | cut -f1 | cut -c1-8` 
-    # hare_ver=`git ls-remote $HARE_REPO $HARE_BRANCH | cut -f1 | cut -c1-8`
+    hare_ver=`git ls-remote $HARE_REPO $HARE_BRANCH | cut -f1 | cut -c1-8`
 
-    # if [ -n "${motr_ver}" ]; then
-	# is_motr_same=`yum list installed | grep cortx-motr | grep ${motr_ver}` || true
-    # fi
+    if [ -n "${motr_ver}" ]; then
+	is_motr_same=`yum list installed | grep cortx-motr | grep ${motr_ver}` || true
+    fi
 
     if [ -n "${s3_ver}" ]; then
 	is_s3_same=`yum list installed | grep cortx-s3server | grep ${s3_ver}` || true
     fi
 
-    # if [ -n "${hare_ver}" ]; then
-	# is_hare_same=`yum list installed | grep cortx-hare | grep ${hare_ver}` || true
-    # fi
+    if [ -n "${hare_ver}" ]; then
+	is_hare_same=`yum list installed | grep cortx-hare | grep ${hare_ver}` || true
+    fi
 
     if [ -n "${UTILS_REPO}" ]; then
 	utils_ver=`git ls-remote $UTILS_REPO $UTILS_BRANCH | cut -f1 | cut -c1-8`
@@ -106,38 +96,38 @@ function check_version() {
 	is_utils_same="yes"
     fi
     
-    # if [ -n "${is_motr_same}" -a -n "${is_s3_same}" -a -n "${is_hare_same}" -a -n "${is_utils_same}" ]; then
-	# echo "Requested versions already installed"
-	# exit 0
-    # fi
+    if [ -n "${is_motr_same}" -a -n "${is_s3_same}" -a -n "${is_hare_same}" -a -n "${is_utils_same}" ]; then
+	echo "Requested versions already installed"
+	exit 0
+    fi
 
     # Otherwise branches may be passed as commit_ids. 
     # In this case `git ls-remote` gives empty string.
     # motr_ver=`echo $MOTR_BRANCH | cut -c1-8`
     s3_ver=`echo $S3_BRANCH | cut -c1-8`
-    # hare_ver=`echo $HARE_BRANCH | cut -c1-8`
+    hare_ver=`echo $HARE_BRANCH | cut -c1-8`
     utils_ver=`echo $UTILS_BRANCH | cut -c1-8`
     
-    # if [ -z "${is_motr_same}" ]; then
-	# is_motr_same=`yum list installed | grep cortx-motr | grep ${motr_ver}` || true
-    # fi
+    if [ -z "${is_motr_same}" ]; then
+	is_motr_same=`yum list installed | grep cortx-motr | grep ${motr_ver}` || true
+    fi
 
     if [ -z "${is_s3_same}" ]; then
 	is_s3_same=`yum list installed | grep cortx-s3server | grep ${s3_ver}` || true
     fi
 
-    # if [ -z "${is_hare_same}" ]; then
-	# is_hare_same=`yum list installed | grep cortx-hare | grep ${hare_ver}` || true
-    # fi
+    if [ -z "${is_hare_same}" ]; then
+	is_hare_same=`yum list installed | grep cortx-hare | grep ${hare_ver}` || true
+    fi
 
     if [ -z "${is_utils_same}" ]; then
 	is_utils_same=`yum list installed | grep cortx-py | grep ${utils_ver}` || true
     fi
     
-    # if [ -n "${is_motr_same}" -a -n "${is_s3_same}" -a -n "${is_hare_same}" -a -n "${is_utils_same}" ]; then
-	# echo "Requested versions already installed"
-	# exit 0
-    # fi
+    if [ -n "${is_motr_same}" -a -n "${is_s3_same}" -a -n "${is_hare_same}" -a -n "${is_utils_same}" ]; then
+	echo "Requested versions already installed"
+	exit 0
+    fi
 }
 
 function checkout() {
@@ -413,7 +403,17 @@ function start_services() {
 function main() {
     echo $@
     prepare_env
-    check_version
+
+    # NOTE: currently Motr can be built with either Lnet or Libfabric.
+    # There is no way to check if installed version of Motr was built
+    # with Lnet or Libfabric.
+    # `m0d --version` doesn't contain any mention about it.
+    # Name of Cortx-Motr RPM package doesn't have it either.
+    # Since we are not able to check if current installed version of Motr
+    # is the same what we want to have we need always to upgrade Motr.
+    # Details can be found in the ticket https://jts.seagate.com/browse/EOS-25356
+
+#    check_version
 
     if [[ -n "$URL" ]]; then
          download

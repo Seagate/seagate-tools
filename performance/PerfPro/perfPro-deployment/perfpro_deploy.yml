@@ -3,10 +3,8 @@
    gather_facts: yes
    become: yes
    vars_files:
-     - roles/perfpro_deployment/vars/config.yml 
-     - roles/perfpro_deployment/vars/satellite_creds.yml
+     - roles/benchmark/vars/config.yml 
    roles:
       - log_collector 
-      - perfpro_deployment
       - benchmark
 #      - support_bundle

@@ -70,7 +70,7 @@ function prepare_env() {
 
 function check_version() {
     # If branch name is passed, find theirs commit id
-    # motr_ver=`git ls-remote $MOTR_REPO $MOTR_BRANCH | cut -f1 | cut -c1-8`
+    motr_ver=`git ls-remote $MOTR_REPO $MOTR_BRANCH | cut -f1 | cut -c1-8`
     s3_ver=`git ls-remote $S3_REPO $S3_BRANCH | cut -f1 | cut -c1-8` 
     hare_ver=`git ls-remote $HARE_REPO $HARE_BRANCH | cut -f1 | cut -c1-8`
 
@@ -103,7 +103,7 @@ function check_version() {
 
     # Otherwise branches may be passed as commit_ids. 
     # In this case `git ls-remote` gives empty string.
-    # motr_ver=`echo $MOTR_BRANCH | cut -c1-8`
+    motr_ver=`echo $MOTR_BRANCH | cut -c1-8`
     s3_ver=`echo $S3_BRANCH | cut -c1-8`
     hare_ver=`echo $HARE_BRANCH | cut -c1-8`
     utils_ver=`echo $UTILS_BRANCH | cut -c1-8`

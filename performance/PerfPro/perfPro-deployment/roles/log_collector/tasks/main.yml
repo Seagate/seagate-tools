@@ -1,6 +1,0 @@
----
-
-- include: collect_ansiblelogs.yml
-
-
-# tasks file for collecting ansible.log

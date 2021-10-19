@@ -18,11 +18,11 @@ PRIMARY_NODE=$(echo "$NODES" | cut -d "," -f1)
 CUSTOM_COUNT=1
 COUNT=0
 
-function public_Interface_ID() {
-    if [[ -z "$PUBLIC_DATA_INTERFACE_ID" ]]; then
+function public_interface_id() {
+    if [[ -z "$PUBLIC_DATA_INTERFACE_NAME" ]]; then
         PUBLIC_DATA_INTERFACE=$(ip addr show | egrep 'data0|enp179s0|enp175s0f0|eth0' | grep -Po 'inet \K[\d.]+')
     else
-        PUBLIC_DATA_INTERFACE=$(ip addr show | egrep "$PUBLIC_DATA_INTERFACE_ID" | grep -Po 'inet \K[\d.]+')   
+        PUBLIC_DATA_INTERFACE=$(ip addr show | egrep "$PUBLIC_DATA_INTERFACE_NAME" | grep -Po 'inet \K[\d.]+')   
     fi
 }
 
@@ -132,7 +132,7 @@ function main() {
     # go to artifacts folder
     pushd_to_results_dir
 
-    public_Interface_ID
+    public_interface_id
     for key in ${!benchmark_type[@]}; do
         case "${benchmark_type[${key}]}" in
              "custom")

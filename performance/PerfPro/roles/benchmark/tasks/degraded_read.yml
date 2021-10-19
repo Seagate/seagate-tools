@@ -1,0 +1,92 @@
+---
+ - name : "Doing cleanup before starting Degraded Read"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'cx'"
+     cluster_state: "'normal-cleanup'"
+
+ - name: "Running S3bench in write only mode"
+   include: dr_s3bench.yml
+   vars: 
+     s3_var: "'-skipRead -skipCleanup'"
+     cluster_state: "'normal-write'"
+
+ - name: "Running HSbench in write only mode"
+   include: dr_hsbench.yml
+   vars: 
+     hsb_var: "'ip'"
+     cluster_state: "'normal-write'"
+
+#Collecting read stats before failure
+
+ - name: "Running read only S3bench in normal state of cluster"
+   include: dr_s3bench.yml
+   vars:
+     s3_var: "'-skipWrite -skipCleanup'"
+     cluster_state: "'normal-read'"
+
+ - name: "Running read only HSbench in normal state of cluster"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'lg'"
+     cluster_state: "'normal-read'"
+
+
+#Fail the node
+
+ - name: "Loading config from another role"
+   include_vars:
+      file: "{{ role_path }}/../perfpro_deployment/vars/config.yml"
+      name: config
+
+ - name: "Stopping node to bring cluster into degraded state"
+   shell: python3 /root/PerfProBenchmark/degraded_read/node_stop.py {{ config['MGMT_VIP']  }}  {{ groups['nodes'] | length }}
+   delegate_to: "{{ groups['clients'][0] }}"
+
+ - name: "Waiting for node to stop and cluster get into degraded mode"
+   shell: sleep 30
+
+#collect read stats
+
+ - name: "Running read only S3bench in degraded state of cluster"
+   include: dr_s3bench.yml
+   vars:
+     s3_var: "'-skipWrite -skipCleanup'"
+     cluster_state: "'degraded-read'"
+
+ - name: "Running read only HSbench in degraded state of cluster"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'lg'"
+     cluster_state: "'degraded-read'"
+
+#Boot the failed node
+
+ - name: "Starting node to bring degraded cluster back  into healthy state"
+   shell: python3 /root/PerfProBenchmark/degraded_read/node_start.py {{ config['MGMT_VIP']  }}  {{ groups['nodes'] | length }}
+   delegate_to: "{{ groups['clients'][0] }}"
+
+ - name: "Waiting for node to start and join cluster"
+   shell: sleep 30
+
+
+#Collect read starts after cluster is recovered and cleanup
+
+ - name: "Running read only S3bench in recovered state of cluster"
+   include: dr_s3bench.yml
+   vars:
+     s3_var: "'-skipWrite'"
+     cluster_state: "'recovered-read'"
+
+ - name: "Running read only HSbench in recovered state of cluster"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'lg'"
+     cluster_state: "'recovered-read'"
+
+ - name: "Cleaning up buckets and objects of HSbench"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'dcx'"
+     cluster_state: "'recovered-cleanup'"
+

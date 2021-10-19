@@ -1,0 +1,18 @@
+---
+# vars file for benchmark
+db_server: cftic1.pun.seagate.com
+db_port: 27017 
+db_name: PerfPro
+db_user: perfpro 
+db_passwd: perfpro
+db_database: performance_db
+R1:
+  db_collection: results_1
+  sysstat_collection: systemresults_1
+  config_collection: configurations_1
+R2:
+  db_collection: results_2
+  sysstat_collection: systemresults_2
+  config_collection: configurations_2
+db_url: mongodb://perfpro:PerfPro@cftic1.pun.seagate.com:27017,cftic2.pun.seagate.com:27017,apollojenkins.pun.seagate.com:27017/test?authSource=performance_db&replicaSet=rs0&readPreference=primary&appname=MongoDB%20Compass%20Community&ssl=false
+

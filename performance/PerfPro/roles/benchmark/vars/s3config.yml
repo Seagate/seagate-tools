@@ -1,0 +1,37 @@
+---
+low_load:
+   sessions:
+      - 1
+      - 3
+   objs:
+      - { objsize: '1Kb', numsamples: '1000'}
+      - { objsize: '4Kb', numsamples: '1000'}
+      - { objsize: '64Kb', numsamples: '1000'}
+      - { objsize: '256Kb', numsamples: '1000'}
+      - { objsize: '1Mb', numsamples: '1000'}
+      - { objsize: '8Mb', numsamples: '1000'}
+      - { objsize: '16Mb', numsamples: '1000'}
+      - { objsize: '128Mb', numsamples: '1000'}
+
+high_load:
+   sessions:
+      - 300
+      - 600
+      - 900
+      - 1200
+      - 1500
+      - 1800
+   objs:
+      - { objsize: '1Kb', numsamples: '10000'}
+      - { objsize: '4Kb', numsamples: '10000'}
+      - { objsize: '64Kb', numsamples: '10000'}
+      - { objsize: '256Kb', numsamples: '10000'}
+      - { objsize: '1Mb', numsamples: '10000'}
+      - { objsize: '8Mb', numsamples: '10000'}
+      - { objsize: '16Mb', numsamples: '10000'}
+      - { objsize: '128Mb', numsamples: '10000'}
+
+buckets:
+   - 1
+   - 10
+   - 100

@@ -123,7 +123,6 @@ def getconfig():
     return (dic)
 
 ##Function to find latest iteration
-
 def get_latest_iteration(query, db, collection):
     max = 0
     cursor = db[collection].find(query)
@@ -131,6 +130,19 @@ def get_latest_iteration(query, db, collection):
         if max < record['Iteration']:
             max = record['Iteration']
     return max
+
+##Function to resolve iteration/overwrite etc in multi-client run
+def check_first_client(query, db, collection, itr):
+    query.update(Iteration=itr)
+    cursor = db[collection].distinct('HOST', query)
+    if (len(cursor) < query["Count_of_Clients"]):
+        cur_client = socket.gethostname()
+        if cur_client in cursor:
+            print(f"Multi-Client Run: Re-Upload from client {cur_client} detected. Existing data in DB from this client for current run will get overwritten")
+            query.update(HOST=cur_client)
+            db[collection].delete_many(query)
+        return False
+    return True
 
 # Function to push data to DB 
 '''
@@ -142,6 +154,7 @@ Parameters : input - (list) list containing file names with specified filter,
 '''
 def push_data(files, host, db, Build, Version, Branch , OS):
     find_iteration = True
+    first_client = True
     delete_data = True
     iteration_number = 0
     global nodes_num, clients_num, pc_full , overwrite, custom
@@ -232,8 +245,12 @@ def push_data(files, host, db, Build, Version, Branch , OS):
                             if find_iteration:
                                 iteration_number = get_latest_iteration(primary_Set, db, collection)
                                 find_iteration = False
+                                first_client=check_first_client(primary_Set, db, collection, iteration_number)
+
                             if iteration_number == 0:
                                 db_update(iteration_number+1 , db_data)
+                            elif not first_client:
+                                db_update(iteration_number, db_data)
                             elif overwrite == True :
                                 primary_Set.update(Iteration=iteration_number)
                                 if delete_data:

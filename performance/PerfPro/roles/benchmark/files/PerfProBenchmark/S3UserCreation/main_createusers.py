@@ -36,36 +36,16 @@ def createcsmadmin():
 def s3create():
     try:
         s3user=RestS3account(account_name="perfpro",account_email="perfpro@seagate.com",password="Seagate@1")
-        #s3user=RestS3account(account_name="s3user1",account_email="s3user1@seagate.com",password="S3User@123")
-        #account_name="s3usertest123",account_email="s3usertest123@seagate.com",password="S3usertest@123"
         response =s3user.create_s3_account(user_type="newuser")
-        print(response)
-        print(response.text)
-        #print(dir(response))
-        if response.status_code == 200:
-            cred = json.loads(response.text)
-            access= cred["access_key"]
-            secretkey = cred["secret_key"]
-            str1 = "[default]\naws_access_key_id = {}\naws_secret_access_key = {}".format(access,secretkey)
-            try:
-              f1 = open("/root/.aws/credentials",'w')
-              f1.write(str1)
-            except Exception as e:
-              print(e)
-            else:
-              f1.close()
-            try:
-              f1 = open("credentials",'w')
-              f1.write(str1)
-            except Exception as e:
-              print(e)
-            else:
-              f1.close()
-            #access_key  secret_key
-        
+        #print(response)
+        #print(response.text)
+        ansible_response = dict()
+        ansible_response["status"] = response.status_code
+        if response.status_code == 200 or response.status_code == 201:
+            ansible_response["access"] = response.json()["access_key"]
+            ansible_response["secret"] = response.json()["secret_key"]
+        print(json.dumps(ansible_response))
     except Exception as error:
-        # CTP Exception handling not done here as this is being called in setup for every test suit
-        # CTP Exception handling shall get complicated
         print("Error occurred during setup : ", error)    
     
 
@@ -73,7 +53,7 @@ def s3create():
 def main(argv):
 #    print("**************************  CSM Admin Creation  **************************")
 #    createcsmadmin()
-    print("\n**************************  s3 User Creation  **************************")
+#    print("\n**************************  S3 User Creation  **************************")
     s3create()
     
 

@@ -275,6 +275,9 @@ def sw_update(conf, result_dir, logdir):
             options.append('--url')
             options.append(params['url'])
         else:
+            if 'use_lnet' in params['motr']:
+                if params['motr']['use_lnet']:
+                    options.append('--use-lnet')
             options.append('-m')
             options.append(params['motr']['repo'])
             options.append(params['motr']['branch'])

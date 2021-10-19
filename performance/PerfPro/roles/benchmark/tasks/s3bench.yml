@@ -2,42 +2,25 @@
  - name: "[S3Bench] Preaparing Cluster Node List"
    set_fact: nodelist={%for host in groups['nodes']%}{{hostvars[host]['ansible_host']}}{% if not loop.last %},{% endif %}{% endfor %}
 
- - name: "[S3Bench] Defining numclients variable for concurrency: 1,3,100N till 600N"
-   set_fact: numclients="1,3,300,600,900,1200,1500,1800"
+ - name: "Importing configuration"
+   include_vars: s3config.yml
 
- - name: "[S3bench] S3benchmark running (size='1Kb,4Kb,64Kb,256Kb')"
-   shell: |
-      cd /root/PerfProBenchmark/s3bench/
-      pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml' {{ item.objsize }} 'S3bench'" &
-      ./run_s3benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }}
-      pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
-   delegate_to: "clientnode-1"
-   loop:
-       - { objsize: '1Kb', numsamples: '100000'}
-       - { objsize: '4Kb', numsamples: '100000'}
-       - { objsize: '64Kb', numsamples: '100000'}
-       - { objsize: '256Kb', numsamples: '100000'}
+ - name: "[S3Bench] Preparing Configuration for low load"
+   vars:
+      runconfig:
+         nodelist: "{{ nodelist }}"
+         numclients: "{{ item[0] }}"
+         objsize: "{{ item[1].objsize }}"
+         numsamples: "{{ item[1].numsamples }}"
+   ansible.builtin.include_tasks: execute_s3bench.yml
+   loop: "{{ low_load.sessions|product(low_load.objs)|list }}"
 
- - name: "[S3bench] S3benchmark running (size='1Mb,8Mb,16Mb,128Mb')"
-   shell: |
-      cd /root/PerfProBenchmark/s3bench/
-      pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml' {{ item.objsize }} 'S3bench'" &
-      ./run_s3benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }}
-      pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
-   delegate_to: "clientnode-1"
-   loop:
-       - { objsize: '1Mb', numsamples: '10000'}
-       - { objsize: '8Mb', numsamples: '10000'}
-       - { objsize: '16Mb', numsamples: '10000'}
-       - { objsize: '128Mb', numsamples: '10000'}
-
- - name: "[S3bench] S3benchmark running (size='1Gb')"
-   shell: |
-      cd /root/PerfProBenchmark/s3bench/
-      pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml' {{ item.objsize }} 'S3bench'" &
-      ./run_s3benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }}
-      pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
-   delegate_to: "clientnode-1"
-   loop:
-       - { objsize: '1024Mb', numsamples: '100'}
-
+ - name: "[S3Bench] Preparing Configuration for high load"
+   vars:
+      runconfig:
+         nodelist: "{{ nodelist }}"
+         numclients: "{{ item[0] }}"
+         objsize: "{{ item[1].objsize }}"
+         numsamples: "{{ item[1].numsamples }}"
+   ansible.builtin.include_tasks: execute_s3bench.yml
+   loop: "{{ high_load.sessions|product(high_load.objs)|list }}"

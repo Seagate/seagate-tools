@@ -56,9 +56,17 @@
    with_items: "{{ groups['clients'] }}"
 
  - name: Create S3 account
-   command: python3 /root/PerfProBenchmark/S3UserCreation/main_createusers.py /root/PerfProBenchmark/s3account.yml 
+   command: python3 /root/PerfProBenchmark/S3UserCreation/main_createusers.py /root/PerfProBenchmark/s3account.yml
+   register: resp
+   delegate_to: "clientnode-1"
+
+ - name: Configure S3 Credentials
+   vars:
+      cred: "{{ (resp.stdout | from_json) }}"
+   command: python3 /root/PerfProBenchmark/S3UserCreation/update_credentials.py '{{ cred.access }}' '{{ cred.secret }}'
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
+   when: (cred.status == 201) or (cred.status == 200)
 
  - include: finish_setup.yml
 

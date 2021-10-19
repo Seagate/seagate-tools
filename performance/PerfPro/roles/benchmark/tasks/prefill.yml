@@ -1,0 +1,12 @@
+- name: "Pre-requisites python3 library"
+  pip:
+     name:
+       - pyaml==20.4.0
+       - paramiko==2.7.2
+     executable: pip3
+  delegate_to: "clientnode-1"
+
+- name: "Prefill the data in Cortx-cluster"
+  command: python3 /root/PerfProBenchmark/pre_fill/pre_fill.py /root/PerfProBenchmark/config.yml /root/PerfProBenchmark/pre_fill/prefill_s3bench.sh
+  delegate_to: "clientnode-1"
+

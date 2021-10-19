@@ -62,7 +62,7 @@ def get_latest_iteration(query, db, collection):
 
 class s3bench:
 
-    def __init__(self, Log_File, Operation, IOPS, Throughput, Latency, TTFB, Object_Size,Build,Version,Branch,OS,Nodes_Num,Clients_Num,Col,Config_ID,Overwrite,Sessions,Objects,PC_Full,Custom):
+    def __init__(self, Log_File, Operation, IOPS, Throughput, Latency, TTFB, Object_Size,Build,Version,Branch,OS,Nodes_Num,Clients_Num,Col,Config_ID,Overwrite,Sessions,Objects,PC_Full,Custom,run_health):
 
         self.Log_File = Log_File
         self.Operation = Operation
@@ -85,6 +85,7 @@ class s3bench:
         self.Objects = Objects
         self.PC_Full = PC_Full
         self.Custom = str(Custom).upper()
+        self.Run_State = run_health
 
 # Set for uploading to db
         self.Primary_Set = {
@@ -113,7 +114,8 @@ class s3bench:
                 "Latency": self.Latency,
                 "Log_File" : self.Log_File,
                 "TTFB" : self.TTFB,
-                "Timestamp":self.Timestamp
+                "Timestamp":self.Timestamp,
+                "Run_State":self.Run_State
                 }
 
     def insert_update(self,Iteration):# function for inserting and updating mongodb database 
@@ -141,6 +143,8 @@ class s3bench:
 def insertOperations(files,Build,Version,col,Config_ID,Branch,OS,db): #function for retriving required data from log files
     find_iteration = True
     delete_data = True
+    Run_Health = "Successful"
+#    try: 
     for file in files:    
         _, filename = os.path.split(file)
         global nodes_num, clients_num , pc_full, iteration , overwrite, custom
@@ -153,55 +157,78 @@ def insertOperations(files,Build,Version,col,Config_ID,Branch,OS,db): #function 
         f = open(file)
         lines = f.readlines()[-linecount:]
         count=0
-        while count<linecount:
-            if '''"numSamples":''' in lines[count].strip().replace(" ", ""):
-                r=lines[count].strip().replace(" ", "").split(":")
-                Objects = int(r[1].replace(",", ""))
-            if '''"numClients":''' in lines[count].strip().replace(" ", ""):
-                r=lines[count].strip().replace(" ", "").split(":")
-                sessions = int(r[1].replace(",", ""))
-            if '''"objectSize(MB)":''' in lines[count].strip().replace(" ", ""):
-                r=lines[count].strip().replace(" ", "").split(":")
-                Objsize = float(r[1].replace(",", ""))
-                if(Objsize.is_integer()):
-                    obj=str(int(Objsize))+"MB"
-                else:
-                    obj=str(round(Objsize*1024))+"KB"
+        try:
+            Run_Health = "Successful"
+            while count<linecount:
+                if '''"numSamples":''' in lines[count].strip().replace(" ", ""):
+                    r=lines[count].strip().replace(" ", "").split(":")
+                    Objects = int(r[1].replace(",", ""))
+                if '''"numClients":''' in lines[count].strip().replace(" ", ""):
+                    r=lines[count].strip().replace(" ", "").split(":")
+                    sessions = int(r[1].replace(",", ""))
+                if '''"objectSize(MB)":''' in lines[count].strip().replace(" ", ""):
+                    r=lines[count].strip().replace(" ", "").split(":")
+                    Objsize = float(r[1].replace(",", ""))
+                    if(Objsize.is_integer()):
+                        obj=str(int(Objsize))+"MB"
+                    else:
+                        obj=str(round(Objsize*1024))+"KB"
 
-            if '''"Operation":''' in lines[count].replace(" ", ""):
-                r=lines[count].strip().replace(" ", "").split(":")
-                opname = r[1].replace(",", "").strip('"')
-                if opname in oplist:
-                    count-=1
-                    throughput="NA"
-                    iops="NA"
-                    if opname=="Write" or opname=="Read":
-                        count+=1
-                        throughput = float(lines[count+4].split(":")[1].replace(",", ""))
-                        iops=round((throughput/Objsize),6)
-                        throughput = round(throughput,6)
+                if '''"Operation":''' in lines[count].replace(" ", ""):
+                    r=lines[count].strip().replace(" ", "").split(":")
+                    opname = r[1].replace(",", "").strip('"')
+                    if opname in oplist:
+                        count-=1
+                        throughput="NA"
+                        iops="NA"
+                        if opname=="Write" or opname=="Read":
+                            count+=1
+                            throughput = float(lines[count+4].split(":")[1].replace(",", ""))
+                            iops=round((throughput/Objsize),6)
+                            throughput = round(throughput,6)
 
-                    lat={"Max":float(lines[count-4].split(":")[1][:-2]),"Avg":float(lines[count-5].split(":")[1][:-2]),"Min":float(lines[count-3].split(":")[1][:-2])}
-                    ttfb={"Max":float(lines[count+12].split(":")[1][:-2]),"Avg":float(lines[count+11].split(":")[1][:-2]),"Min":float(lines[count+13].split(":")[1][:-2])}
-                    data = s3bench(filename,opname,iops,throughput,lat,ttfb,obj,Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID,overwrite,sessions,Objects,pc_full,custom)
+                        lat={"Max":float(lines[count-4].split(":")[1][:-2]),"Avg":float(lines[count-5].split(":")[1][:-2]),"Min":float(lines[count-3].split(":")[1][:-2])}
+                        ttfb={"Max":float(lines[count+12].split(":")[1][:-2]),"Avg":float(lines[count+11].split(":")[1][:-2]),"Min":float(lines[count+13].split(":")[1][:-2])}
+                        data = s3bench(filename,opname,iops,throughput,lat,ttfb,obj,Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID,overwrite,sessions,Objects,pc_full,custom,Run_Health)
                     
-                    if find_iteration:
-                        iteration_number = get_latest_iteration(data.Primary_Set, db, col)
-                        find_iteration = False
-                    if iteration_number == 0:
-                        data.insert_update(iteration_number+1)
-                    elif overwrite == True :
-                        data.Primary_Set.update(Iteration=iteration_number)
-                        if delete_data:
-                            db[col].delete_many(data.Primary_Set)
-                            delete_data = False
-                            print("'overwrite' is True in config. Hence, old DB entry deleted")
-                        data.insert_update(iteration_number)
-                    else :
-                        data.insert_update(iteration_number+1)
+                        if find_iteration:
+                            iteration_number = get_latest_iteration(data.Primary_Set, db, col)
+                            find_iteration = False
+                        if iteration_number == 0:
+                            data.insert_update(iteration_number+1)
+                        elif overwrite == True :
+                            data.Primary_Set.update(Iteration=iteration_number)
+                            if delete_data:
+                                db[col].delete_many(data.Primary_Set)
+                                delete_data = False
+                                print("'overwrite' is True in config. Hence, old DB entry deleted")
+                            data.insert_update(iteration_number)
+                        else :
+                            data.insert_update(iteration_number+1)
                 
-                    count += 9
-            count +=1
+                        count += 9
+                count +=1
+
+        except Exception as e:
+            print(f"Encountered error in file: {filename} , and Exeption is" , e)
+            Run_Health = "Failed"           
+            '''print(filename,obj,sessions,Objects)
+            #iteration_number = get_latest_iteration(data.Primary_Set, db, col)
+            if overwrite == True: 
+                iteration=iteration_number
+            else:
+                iteration=iteration_number+1
+            query=data.Primary_Set.copy()
+            query.update(Object_Size=obj)
+            query.update(Objects=Objects)
+            query.update(Sessions=sessions)
+            query.update(Iteration=iteration)
+            print(query)
+            db[col].update_many(query , {"$set" : {"Run_State" : Run_Health}})
+            results=db[col].find(query) 
+            for result in results:
+                print(result)'''
+
 
 def getallfiles(directory,extension):#function to return all file names with perticular extension
     flist = []

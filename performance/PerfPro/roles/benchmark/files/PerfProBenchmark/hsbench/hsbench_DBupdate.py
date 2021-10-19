@@ -170,81 +170,88 @@ def push_data(files, host, db, Build, Version, Branch , OS):
         buckets = int(attr[-3])
         objects = int(attr[-5])
         sessions = int(attr[-1])
-
-        with open(filename) as json_file:
-            data = json.load(json_file)
+        try:
+            run_health='Successful'
+            with open(filename) as json_file:
+                data = json.load(json_file)
             
-            for entry in data:
-                operation = ''
+                for entry in data:
+                    operation = ''
                 
-                if (entry['Mode'] == 'PUT'):
-                    operation = 'Write'
-                elif (entry['Mode'] == 'GET'):
-                    operation = 'Read'       
+                    if (entry['Mode'] == 'PUT'):
+                        operation = 'Write'
+                    elif (entry['Mode'] == 'GET'):
+                        operation = 'Read'       
 
-                if(entry['Mode'] == 'PUT' or entry['Mode'] == 'GET') and (entry['IntervalName'] == 'TOTAL'):
-                    primary_Set = {
-                        'Name': 'Hsbench',
-                        'Build': Build,
-                        'Version': Version,
-                        'Branch': Branch,
-                        'OS': OS,
-                        'Count_of_Servers': nodes_num, 
-                        'Count_of_Clients': clients_num,
-                        'Percentage_full' : pc_full ,
-                        'Custom' : str(custom).upper()
-                        }
+                    if(entry['Mode'] == 'PUT' or entry['Mode'] == 'GET') and (entry['IntervalName'] == 'TOTAL'):
+                        primary_Set = {
+                            'Name': 'Hsbench',
+                            'Build': Build,
+                            'Version': Version,
+                            'Branch': Branch,
+                            'OS': OS,
+                            'Count_of_Servers': nodes_num, 
+                            'Count_of_Clients': clients_num,
+                            'Percentage_full' : pc_full ,
+                            'Custom' : str(custom).upper()
+                            }
 
-                    runconfig_Set = {
-                        'Operation': operation,
-                        'Object_Size' : str(obj_size.upper()),
-                        'Buckets' : buckets,
-                        'Objects' : objects,
-                        'Sessions' : sessions
-                        }
+                        runconfig_Set = {
+                            'Operation': operation,
+                            'Object_Size' : str(obj_size.upper()),
+                            'Buckets' : buckets,
+                            'Objects' : objects,
+                            'Sessions' : sessions
+                            }
                         
-                    updation_Set = {  
-                        'HOST' : host,
-                        'Config_ID':Config_ID,
-                        'IOPS': entry['Iops'],
-                        'Throughput': entry['Mbps'],
-                        'Latency' : entry['AvgLat'],
-                        'TTFB' : 'null',
-                        'Log_File': doc,
-                        'Bucket_Ops' : data_dict, 
-                        'Timestamp':datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    }
+                        updation_Set = {  
+                            'HOST' : host,
+                            'Config_ID':Config_ID,
+                            'IOPS': entry['Iops'],
+                            'Throughput': entry['Mbps'],
+                            'Latency' : entry['AvgLat'],
+                            'TTFB' : 'null',
+                            'Log_File': doc,
+                            'Bucket_Ops' : data_dict, 
+                            'Timestamp' : datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            'Run_State' : run_health
+                            }
 
-                    db_data={}
-                    db_data.update(primary_Set)
-                    db_data.update(runconfig_Set)
-                    db_data.update(updation_Set)
+                        db_data={}
+                        db_data.update(primary_Set)
+                        db_data.update(runconfig_Set)
+                        db_data.update(updation_Set)
 
 # Function to insert data into db with iterration number
-                    def db_update(itr,db_data):
-                        db_data.update(Iteration=itr)
-                        db[collection].insert_one(db_data)
-                        print('Inserted new entries \n' + str(db_data))
+                        def db_update(itr,db_data):
+                            db_data.update(Iteration=itr)
+                            db[collection].insert_one(db_data)
+                            print('Inserted new entries \n' + str(db_data))
 
-                    try:
-                        if find_iteration:
-                            iteration_number = get_latest_iteration(primary_Set, db, collection)
-                            find_iteration = False
-                        if iteration_number == 0:
-                            db_update(iteration_number+1 , db_data)
-                        elif overwrite == True :
-                            primary_Set.update(Iteration=iteration_number)
-                            if delete_data:
-                                db[collection].delete_many(primary_Set)
-                                delete_data = False
-                                print("'overwrite' is True in config. Hence, old DB entry deleted")
-                            db_update(iteration_number,db_data)
-                        else :
-                            db_update(iteration_number+1 , db_data)
+                        try:
+                            if find_iteration:
+                                iteration_number = get_latest_iteration(primary_Set, db, collection)
+                                find_iteration = False
+                            if iteration_number == 0:
+                                db_update(iteration_number+1 , db_data)
+                            elif overwrite == True :
+                                primary_Set.update(Iteration=iteration_number)
+                                if delete_data:
+                                    db[collection].delete_many(primary_Set)
+                                    delete_data = False
+                                    print("'overwrite' is True in config. Hence, old DB entry deleted")
+                                db_update(iteration_number,db_data)
+                            else :
+                                db_update(iteration_number+1 , db_data)
 
-                    except Exception as e:
-                        print("Unable to insert/update documents into database. Observed following exception:")
-                        print(e)
+                        except Exception as e:
+                            print("Unable to insert/update documents into database. Observed following exception:")
+                            print(e)
+
+        except Exception as exc:
+            print(f"Encountered error in file: {filename} , and Exeption is" , exc)
+            Run_Health = "Failed"
+
 
 
 #    update_mega_chain(Build, Version, collection)

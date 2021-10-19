@@ -1,3 +1,6 @@
 #!/usr/bin/env python3
 import os
-os.remove("pidfile")
+if os.path.isfile("pidfile"):
+    os.remove("pidfile")
+else:
+    print("No systemstats are running! Nothing to stop. Exiting")

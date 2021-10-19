@@ -1,5 +1,4 @@
 ---
-REIMAGE: 'No'
 # For host file update : add for more nodes/clients in environment or remove if less nodes/clients .
 MGMT_VIP: 
 NODES:  
@@ -8,6 +7,7 @@ NODES:
   - 3:  # node_number_srvnode-3: hostname of node3 .
 CLIENTS: 
   - 1:  #client_number: hostname of client  
+  - 2:  #client_number: hostname of client  
 
 # For Build and SystemUnderTest INFO
 BUILD_URL: 
@@ -21,7 +21,6 @@ SERVICE_USER:
 SERVICE_PASS:
 
 # For PerfPro MongoDB related Entries
-#ITERATION: 1 # <removed iteration>
 END_POINTS: https://s3.seagate.com
 PC_FULL: 30 # Select for system percentage full before test. 
 OVERWRITE: False # select True or False to overwrite the DB entries for same Primary Key

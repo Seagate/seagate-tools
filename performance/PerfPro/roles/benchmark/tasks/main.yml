@@ -2,7 +2,9 @@
 #yum and pip installation are part of prepare_setup.yml
  - include: host_entry.yaml
 
- - include: hostconfig.yml
+ - meta: refresh_inventory
+
+ - include: passwordless_ssh.yml
 
  - include: prepare_setup.yml
 

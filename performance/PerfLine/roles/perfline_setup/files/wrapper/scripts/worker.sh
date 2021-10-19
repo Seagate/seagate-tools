@@ -92,6 +92,8 @@ function cleanup_logs() {
 }
 
 function restart_hare() {
+    pdsh -S -w $NODES "systemctl restart motr-kernel"
+
     if [[ -n "$MKFS" ]]; then
         ssh $PRIMARY_NODE 'hctl bootstrap --mkfs /var/lib/hare/cluster.yaml'
     else

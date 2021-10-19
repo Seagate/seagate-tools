@@ -62,7 +62,7 @@ def get_latest_iteration(query, db, collection):
 
 class s3bench:
 
-    def __init__(self, Log_File, Operation, IOPS, Throughput, Latency, TTFB, Object_Size,Build,Version,Branch,OS,Nodes_Num,Clients_Num,Col,Config_ID,Overwrite,Sessions,Objects,PC_Full,Custom):
+    def __init__(self, Log_File, Operation, IOPS, Throughput, Latency, TTFB, Object_Size,Build,Version,Branch,OS,Nodes_Num,Clients_Num,Col,Config_ID,Overwrite,Sessions,Objects,PC_Full,Custom,run_health):
 
         self.Log_File = Log_File
         self.Operation = Operation
@@ -85,6 +85,7 @@ class s3bench:
         self.Objects = Objects
         self.PC_Full = PC_Full
         self.Custom = str(Custom).upper()
+        self.Run_State = run_health
 
 # Set for uploading to db
         self.Primary_Set = {
@@ -113,16 +114,16 @@ class s3bench:
                 "Latency": self.Latency,
                 "Log_File" : self.Log_File,
                 "TTFB" : self.TTFB,
-                "Timestamp":self.Timestamp
+                "Timestamp":self.Timestamp,
+                "Run_State":self.Run_State
                 }
 
-    def insert_update(self,Iteration , Run_Health):# function for inserting and updating mongodb database 
+    def insert_update(self,Iteration):# function for inserting and updating mongodb database 
         db = makeconnection()
         db_data={}
         db_data.update(self.Primary_Set)
         db_data.update(self.Runconfig_Set)
         db_data.update(self.Updation_Set)
-        db_data.update(Run_State=Run_Health)
         collection = self.Col
 
 # Function to insert data into db with iteration number
@@ -188,36 +189,36 @@ def insertOperations(files,Build,Version,col,Config_ID,Branch,OS,db): #function 
 
                         lat={"Max":float(lines[count-4].split(":")[1][:-2]),"Avg":float(lines[count-5].split(":")[1][:-2]),"Min":float(lines[count-3].split(":")[1][:-2])}
                         ttfb={"Max":float(lines[count+12].split(":")[1][:-2]),"Avg":float(lines[count+11].split(":")[1][:-2]),"Min":float(lines[count+13].split(":")[1][:-2])}
-                        data = s3bench(filename,opname,iops,throughput,lat,ttfb,obj,Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID,overwrite,sessions,Objects,pc_full,custom)
+                        data = s3bench(filename,opname,iops,throughput,lat,ttfb,obj,Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID,overwrite,sessions,Objects,pc_full,custom,Run_Health)
                     
                         if find_iteration:
                             iteration_number = get_latest_iteration(data.Primary_Set, db, col)
                             find_iteration = False
                         if iteration_number == 0:
-                            data.insert_update(iteration_number+1 , Run_Health )
+                            data.insert_update(iteration_number+1)
                         elif overwrite == True :
                             data.Primary_Set.update(Iteration=iteration_number)
                             if delete_data:
                                 db[col].delete_many(data.Primary_Set)
                                 delete_data = False
                                 print("'overwrite' is True in config. Hence, old DB entry deleted")
-                            data.insert_update(iteration_number , Run_Health)
+                            data.insert_update(iteration_number)
                         else :
-                            data.insert_update(iteration_number+1 , Run_Health)
+                            data.insert_update(iteration_number+1)
                 
                         count += 9
                 count +=1
 
         except Exception as e:
             print(f"Encountered error in file: {filename} , and Exeption is" , e)
+            Run_Health = "Failed"           
             '''print(filename,obj,sessions,Objects)
-            Run_Health = "Failed"
             #iteration_number = get_latest_iteration(data.Primary_Set, db, col)
             if overwrite == True: 
                 iteration=iteration_number
             else:
                 iteration=iteration_number+1
-            query=data.Primary_Set
+            query=data.Primary_Set.copy()
             query.update(Object_Size=obj)
             query.update(Objects=Objects)
             query.update(Sessions=sessions)

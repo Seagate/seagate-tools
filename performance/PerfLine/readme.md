@@ -167,7 +167,7 @@ If you go to report page you could see detailed report for executed task, includ
 ##### 8005 is a default port. If you want to change it, you should do it before perfline installation with these steps:
 - Update 'perfline_ui_port' variable in 'inventories/perfline_hosts/hosts' as per your choice.
 
-# If you have different 'PUBLIC_DATA_INTERFACE_ID' other than 'data0|enp179s0|enp175s0f0|eth0' interface, then you have to provide 'PUBLIC_DATA_INTERFACE_ID' in 'roles/perfline_setup/vars/main.yml'. These interface id will be going to use by iperf workload only.
+# If you have different 'PUBLIC_DATA_INTERFACE_NAME' other than 'data0|enp179s0|enp175s0f0|eth0' interface, then you have to provide 'PUBLIC_DATA_INTERFACE_NAME' in 'roles/perfline_setup/vars/main.yml'. These interface name will be going to use by iperf workload only.
 
 # Daemon services
 If user has enable daemon service then It would required to specify the build number to '/root/perfline/wrapper/.latest_stable_build' on client server. It's a one time activity. It will take the list of build above it and including "BUILDNO" value.

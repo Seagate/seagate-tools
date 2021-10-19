@@ -69,7 +69,7 @@
        - { variable: 'LOGFILE', value: '{{ PERFLINE_LOGFILE }}'}
        - { variable: 'ARTIFACTS_DIR', value: '{{ ARTIFACTS_DIR }}'}
        - { variable: 'NIGHT_ARTIFACTS', value: '{{ NIGHT_ARTIFACTS }}'}
-       - { variable: 'PUBLIC_DATA_INTERFACE_ID', value: '{{ PUBLIC_DATA_INTERFACE_ID }}'}
+       - { variable: 'PUBLIC_DATA_INTERFACE_NAME', value: '{{ PUBLIC_DATA_INTERFACE_NAME }}'}
 
   - name: "Updating numeric values of a variables in perfline.conf"
     lineinfile:

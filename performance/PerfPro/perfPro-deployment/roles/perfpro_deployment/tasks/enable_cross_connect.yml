@@ -1,4 +1,0 @@
----
-- name: "[cross-connect] : Enable lsiutil on Primary Node"
-  shell: cd /root/lsiutil/; sh ./lsiutil.sh enable
-  delegate_to: "srvnode-1"

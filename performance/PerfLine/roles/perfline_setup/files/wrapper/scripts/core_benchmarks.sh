@@ -10,13 +10,21 @@ SCRIPT_NAME=`echo $0 | awk -F "/" '{print $NF}'`
 SCRIPT_PATH="$(readlink -f $0)"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 PERFLINE_DIR="$SCRIPT_DIR/../.."
-PUBLIC_DATA_INTERFACE=$(ip addr show | egrep 'data0|enp179s0|enp175s0f0|eth0' | grep -Po 'inet \K[\d.]+')
+PUBLIC_DATA_INTERFACE=""
 source "$SCRIPT_DIR/../../perfline.conf"
 
 EX_SRV="pdsh -S -w $NODES"
 PRIMARY_NODE=$(echo "$NODES" | cut -d "," -f1)
 CUSTOM_COUNT=1
 COUNT=0
+
+function public_interface_name() {
+    if [[ -z "$PUBLIC_DATA_INTERFACE_NAME" ]]; then
+        PUBLIC_DATA_INTERFACE=$(ip addr show | egrep 'data0|enp179s0|enp175s0f0|eth0' | grep -Po 'inet \K[\d.]+')
+    else
+        PUBLIC_DATA_INTERFACE=$(ip addr show | egrep "$PUBLIC_DATA_INTERFACE_NAME" | grep -Po 'inet \K[\d.]+')   
+    fi
+}
 
 function validate() {
     local leave=
@@ -123,7 +131,8 @@ function main() {
 
     # go to artifacts folder
     pushd_to_results_dir
-    
+
+    public_interface_name
     for key in ${!benchmark_type[@]}; do
         case "${benchmark_type[${key}]}" in
              "custom")

@@ -69,6 +69,7 @@
        - { variable: 'LOGFILE', value: '{{ PERFLINE_LOGFILE }}'}
        - { variable: 'ARTIFACTS_DIR', value: '{{ ARTIFACTS_DIR }}'}
        - { variable: 'NIGHT_ARTIFACTS', value: '{{ NIGHT_ARTIFACTS }}'}
+       - { variable: 'PUBLIC_DATA_INTERFACE_NAME', value: '{{ PUBLIC_DATA_INTERFACE_NAME }}'}
 
   - name: "Updating numeric values of a variables in perfline.conf"
     lineinfile:
@@ -76,7 +77,7 @@
        regexp: "^{{ item.variable }}"
        line: "{{ item.variable }}={{ item.value }}"
     with_items:
-       - { variable: 'PERFLINE_UI_PORT', value: '{{ perfline_ui_port }}'}
+       - { variable: 'PERFLINE_UI_PORT', value: '{{ perfline_ui_port }}' }
 
 
   - name: "Installing golang version above 1.15 on localhost"

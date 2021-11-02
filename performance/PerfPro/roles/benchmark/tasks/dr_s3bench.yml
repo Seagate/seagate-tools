@@ -2,17 +2,18 @@
  - name: "Preaparing Cluster Node List"
    set_fact: nodelist={%for host in groups['nodes']%}{{hostvars[host]['ansible_host']}}{% if not loop.last %},{% endif %}{% endfor %}
 
- - name: "Defining numclients variable for concurrency"
-   set_fact: numclients="1,3,300,600,900,1200,1500,1800"
+ - name: "Importing configuration"
+   include_vars: degraded_read_config.yml
 
- - name: "[S3bench-small-objects]: S3benchmark running for degraded read" 
-   shell: |
-      cd /root/PerfProBenchmark/degraded_read/
-      pdsh -S -w {{nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml' {{ item.objsize }} 'S3bench'" &
-      ./degradedread_s3benchmark.sh -nc {{ numclients }} -ns {{ item.numsamples }} -s {{ item.objsize }} -f {{ s3_var }} -cs {{ cluster_state }}
-      pdsh -S -w {{nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
-   delegate_to: "clientnode-1"
-   loop:
-       - { objsize: '256Kb', numsamples: '100000'}
-       - { objsize: '16Mb', numsamples: '100000'}
+ - name: "[S3Bench] Preparing Configuration for Degraded read"
+   vars:
+      runconfig:
+         nodelist: "{{ nodelist }}"
+         numclients: "{{ item[0] }}"
+         objsize: "{{ item[1].objsize }}"
+         numsamples: "{{ item[1].numsamples }}"
+         s3_var: "{{ s3_var }}"
+         cluster_state: "{{ cluster_state }}"
+   ansible.builtin.include_tasks: execute_dr_s3bench.yml
+   loop: "{{ Degraded_read_load.sessions|product(Degraded_read_load.objs)|list }}"
 

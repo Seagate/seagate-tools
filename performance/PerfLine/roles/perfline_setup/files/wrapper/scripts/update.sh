@@ -132,12 +132,17 @@ function check_version() {
 
 function checkout() {
     if [ -n "${MOTR_BRANCH}" -a -n "${MOTR_REPO}" ]; then
-	cd $CORTX_DIR
-	rm -rf ./cortx-motr || true
-	git clone --recursive $MOTR_REPO cortx-motr
-	cd $CORTX_DIR/cortx-motr
-	git fetch --all
-	git checkout $MOTR_BRANCH
+        cd $CORTX_DIR
+        rm -rf ./cortx-motr || true
+        git clone --recursive $MOTR_REPO cortx-motr
+        cd $CORTX_DIR/cortx-motr
+        git fetch --all
+        git checkout $MOTR_BRANCH
+
+        if [ -n "$BUILD_MOTR_WITH_LNET" ]; then
+            echo "Motr will be built with Lnet"
+            sed -i '/libfabric/d' cortx-motr.spec.in
+        fi
     fi
 
     if [ -n "${S3_BRANCH}" -a -n "${S3_REPO}" ]; then
@@ -255,6 +260,16 @@ function update() {
     fi
     
     backup_configs
+
+    if [ -n "$BUILD_MOTR_WITH_LNET" ]; then
+        # Motr services can't start in case if Motr built without
+        # libfabric and libfabric.rpm is installed on the cluster nodes.
+        # details can be found at https://jts.seagate.com/browse/EOS-25356
+        echo "trying to remove libfabric RPM"
+        pdsh -S -w $NODES "yum erase -y libfabric"
+    else
+        pdsh -S -w $NODES "yum install -y libfabric"
+    fi
 
     if [ -z "${is_hare_same}" -o -z "${is_motr_same}" ]; then
         set +e
@@ -388,7 +403,17 @@ function start_services() {
 function main() {
     echo $@
     prepare_env
-    check_version
+
+    # NOTE: currently Motr can be built with either Lnet or Libfabric.
+    # There is no way to check if installed version of Motr was built
+    # with Lnet or Libfabric.
+    # `m0d --version` doesn't contain any mention about it.
+    # Name of Cortx-Motr RPM package doesn't have it either.
+    # Since we are not able to check if current installed version of Motr
+    # is the same what we want to have we need always to upgrade Motr.
+    # Details can be found in the ticket https://jts.seagate.com/browse/EOS-25356
+
+#    check_version
 
     if [[ -n "$URL" ]]; then
          download
@@ -454,6 +479,9 @@ while [[ $# -gt 0 ]]; do
             shift
             shift
             ;;
+    --use-lnet)
+        BUILD_MOTR_WITH_LNET='1'
+        ;;
 	-s|--s3_id)
 	    check_arg_count $1 $2 $3
             S3_REPO=$2

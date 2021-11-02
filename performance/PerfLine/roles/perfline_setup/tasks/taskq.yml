@@ -42,8 +42,16 @@
       dest: "{{ PERFLINE_DIR }}"
     delegate_to: "client-1"
 
-#  - name: Open port for webui
-#    firewalld: port=8005/tcp zone=public permanent=true state=enabled immediate=yes
+  - name: Open port for webui
+    firewalld: 
+      permanent: yes
+      immediate: yes
+      port: "{{ item.port }}/{{ item.proto }}"
+      state: "{{ item.state }}"
+      zone: "{{ item.zone }}"
+    delegate_to: "client-1"
+    with_items:
+       - { port: "{{ perfline_ui_port }}", proto: "tcp", state: "enabled", zone: "management-zone" }
 
 
   - name: Install perfline system dependencies

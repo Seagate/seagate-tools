@@ -139,6 +139,7 @@ def get_schema_motr():
                     'schema': {
                         'repo':   {'type': 'string', 'empty': False},
                         'branch': {'type': 'string', 'empty': False},
+                        'use_lnet': {'type': 'boolean', 'required': False, 'empty': False},
                     }
                 },
                  's3server': {

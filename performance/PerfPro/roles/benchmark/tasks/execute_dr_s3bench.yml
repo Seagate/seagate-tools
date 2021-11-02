@@ -1,0 +1,32 @@
+---
+ - name: "[S3Bench] Starting systemstats collection {{ runconfig.objsize }} - {{ runconfig.numclients }}session"
+   delegate_to: "clientnode-1"
+   shell: pdsh -S -w {{runconfig.nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml' {{ runconfig.objsize }} 'S3bench'" &
+
+ - name: "[S3Bench] Starting execution {{ runconfig.objsize }}-{{ runconfig.numclients }}session"
+   delegate_to: "{{ client }}"
+   shell: |
+      cd /root/PerfProBenchmark/degraded_read/
+      ./degradedread_s3benchmark.sh -nc {{ runconfig.numclients }} -ns {{ runconfig.numsamples }} -s {{ runconfig.objsize }} -f {{ runconfig.s3_var }} -cs {{ runconfig.cluster_state }}
+   async: 86400
+   poll: 0
+   loop: "{{ groups['clients'] }}"
+   loop_control:
+      loop_var: "client"
+   register: async_results
+
+ - name: "[S3Bench] Running {{ runconfig.objsize }} - {{ runconfig.numclients }}session"
+   async_status:
+      jid: "{{ async_result_item.ansible_job_id }}"
+   delegate_to: "{{ async_result_item.client }}"
+   loop: "{{ async_results.results }}"
+   loop_control:
+      loop_var: "async_result_item"
+   register: async_poll_results
+   until: async_poll_results.finished
+   retries: 8640
+   delay: 10
+
+ - name: "[S3Bench] Stopping systemstats collection {{ runconfig.objsize }} - {{ runconfig.numclients }}session"
+   delegate_to: "clientnode-1"
+   shell: pdsh -S -w {{runconfig.nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"

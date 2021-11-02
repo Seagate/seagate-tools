@@ -1,8 +1,0 @@
----
-
- - meta: refresh_inventory
- 
- - name: Enabled passwordless authentication
-   script: files/automatePasswordless.sh {{ hostvars[item]['ansible_user'] }} {{ hostvars[item]['ansible_host'] }} {{ CLUSTER_PASS }}
-   with_items: "{{ groups['all'] }}"
-

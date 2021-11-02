@@ -41,7 +41,7 @@ function process_data_for_node()
     local cpu_nr=$(lscpu | grep '^CPU(s):' | awk '{print $2}')
     local data_vols=$(cat $DISKS_MAPPING_FILE | grep IO | awk '{print $3}')
     local md_vols=$(cat $DISKS_MAPPING_FILE | grep MD | awk '{print $3}')
-    local net_ifaces=$(cat $NETWORK_IFACES_FILE | grep '^[0-9]:' | awk -F ': ' '{print $2}')
+    local net_ifaces=$(cat $NETWORK_IFACES_FILE | grep '^[0-9]:' | awk -F ': ' '{print $2}' | sed 's/@.*$//')
     
     $GLANCES_DIR/gen_glances_stats_schema.py -y $YAML_TEMPLATE_FILE \
             -d "$data_vols" -m "$md_vols" -n "$net_ifaces" -c "$cpu_nr"

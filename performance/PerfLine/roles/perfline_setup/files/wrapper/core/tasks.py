@@ -406,7 +406,7 @@ def worker_task(conf_opt, task):
 
         failed = False
 
-        # ret = save_workloadconfig(conf, result["artifacts_dir"])
+        ret = save_workloadconfig(conf, result["artifacts_dir"])
 
         # if not failed:
         #     ret = restore_original_configs()

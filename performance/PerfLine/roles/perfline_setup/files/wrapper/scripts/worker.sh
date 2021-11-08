@@ -89,20 +89,21 @@ function s3bench_workloads()
 
 function m0crate_workload()
 {
+    mkdir -p $M0CRATE_ARTIFACTS_DIR
+    pushd $M0CRATE_ARTIFACTS_DIR
     START_TIME=`date +%s000000000`
-
     local m0crate_work_dir="/tmp/m0crate_tmp" #TODO: make it random
 
-    $EX_SRV "if [[ -d "$m0crate_work_dir" ]]; then rm -rf $m0crate_work_dir; fi;"
-
-    $EX_SRV "mkdir -p $m0crate_work_dir \
+    ssh $PRIMARY_NODE "if [[ -d "$m0crate_work_dir" ]]; then rm -rf $m0crate_work_dir; fi;"   
+    ssh $PRIMARY_NODE "mkdir -p $m0crate_work_dir \
              && cd $m0crate_work_dir \
-             && $SCRIPT_DIR/run_m0crate $M0CRATE_PARAMS"
-
+             && $SCRIPT_DIR/lc_run_m0crate $M0CRATE_PARAMS"
+    
     STATUS=$?
-
+    ssh $PRIMARY_NODE "scp -r $m0crate_work_dir/* $(hostname):$(pwd)/"
     STOP_TIME=`date +%s000000000`
     sleep 120
+    popd
 }
 
 function pushd_to_results_dir() {
@@ -114,20 +115,20 @@ function save_m0crate_artifacts()
 {
     local m0crate_workdir="/tmp/m0crate_tmp"
 
-    $EX_SRV "scp -r $m0crate_workdir/m0crate.*.log $(hostname):$(pwd)"
-    $EX_SRV "scp -r $m0crate_workdir/test_io.*.yaml $(hostname):$(pwd)"
+    ssh $PRIMARY_NODE "scp -r $m0crate_workdir/m0crate.*.log $(hostname):$(pwd)"
+    ssh $PRIMARY_NODE "scp -r $m0crate_workdir/test_io.*.yaml $(hostname):$(pwd)"
 
     if [[ -n $ADDB_DUMPS ]]; then
-        $EX_SRV $SCRIPT_DIR/process_addb --host $(hostname) --dir $(pwd) \
+        ssh $PRIMARY_NODE $SCRIPT_DIR/process_addb --host $(hostname) --dir $(pwd) \
             --app "m0crate" --m0crate-workdir $m0crate_workdir \
             --start $START_TIME --stop $STOP_TIME
     fi
 
     if [[ -n $M0TRACE_FILES ]]; then
-        $EX_SRV $SCRIPT_DIR/save_m0traces $(hostname) $(pwd) "m0crate" "$m0crate_workdir"
+        ssh $PRIMARY_NODE $SCRIPT_DIR/save_m0traces $(hostname) $(pwd) "m0crate" "$m0crate_workdir"
     fi
 
-    $EX_SRV "rm -rf $m0crate_workdir"
+    ssh $PRIMARY_NODE "rm -rf $m0crate_workdir"
 }
 
 function save_stats() {
@@ -168,11 +169,9 @@ function save_perf_results() {
     if [[ -n "$RUN_M0CRATE" ]]; then
         for m0crate_log in $M0CRATE_ARTIFACTS_DIR/m0crate.*.log; do
             local fname=$(echo $m0crate_log | awk -F "/" '{print $NF}')
-            local motr_port=$(echo $fname | awk -F '.' '{print $2}')
             local hostname=$(echo $fname | sed "s/m0crate.$motr_port.//" | sed "s/.log//")
             echo "Benchmark: m0crate" >> $PERF_RESULTS_FILE
             echo "Host: $hostname" >> $PERF_RESULTS_FILE
-            echo "Motr port: $motr_port" >> $PERF_RESULTS_FILE
             $SCRIPT_DIR/../stat/report_generator/m0crate_log_parser.py \
                     $m0crate_log >> $PERF_RESULTS_FILE
             echo "" >> $PERF_RESULTS_FILE
@@ -291,11 +290,11 @@ function perform_workloads()
                 echo "Start s3bench workload"
                 s3bench_workloads ${workloads[${key}]}
                 ;;
-            #  "m0crate")
-            #     echo "Start m0crate workload"
-            #     M0CRATE_PARAMS=${workloads[${key}]}
-            #     m0crate_workload
-            #     ;;
+              "m0crate")
+                 echo "Start m0crate workload"
+                 M0CRATE_PARAMS=${workloads[${key}]}
+                 m0crate_workload
+                 ;;
              *)
                 echo "Default condition to be executed"
                 ;;
@@ -332,6 +331,8 @@ function main() {
     # Stop stat utilities
     echo "Stop stat utilities"
     stop_stat_utils
+
+    save_perf_results
 
     save_cluster_status
     stop_cluster

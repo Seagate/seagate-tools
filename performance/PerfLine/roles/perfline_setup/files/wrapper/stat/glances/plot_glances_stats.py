@@ -181,7 +181,7 @@ def parse_args():
 
 
 def prepare_df(csv_file):
-    df = pd.read_csv(csv_file)
+    df = pd.read_csv(csv_file, error_bad_lines=False)
     df = df.set_index('timestamp')
     return df
 

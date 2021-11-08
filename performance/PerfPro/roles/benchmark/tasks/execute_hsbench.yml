@@ -1,0 +1,32 @@
+---
+ - name: "[HSBench] Starting systemstats collection {{ runconfig.objsize }} - {{ runconfig.numclients }}session"
+   delegate_to: "clientnode-1"
+   shell: pdsh -S -w {{runconfig.nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml' {{ runconfig.objsize }} 'Hsbench'" &
+
+ - name: "[HSBench] Starting execution {{ runconfig.objsize }} - {{ runconfig.numclients }}session"
+   delegate_to: "{{ client }}"
+   shell: |
+      cd /root/PerfProBenchmark/hsbench/
+      ./run_benchmark.sh -t {{ runconfig.numclients }} -o {{ runconfig.numsamples }} -s {{ runconfig.objsize }} -b {{ runconfig.buckets }}
+   async: 86400
+   poll: 0
+   loop: "{{ groups['clients'] }}"
+   loop_control:
+      loop_var: "client"
+   register: async_results
+
+ - name: "[HSBench] Running {{ runconfig.objsize }} - {{ runconfig.numclients }}session"
+   async_status:
+      jid: "{{ async_result_item.ansible_job_id }}"
+   delegate_to: "{{ async_result_item.client }}"
+   loop: "{{ async_results.results }}"
+   loop_control:
+      loop_var: "async_result_item"
+   register: async_poll_results
+   until: async_poll_results.finished
+   retries: 8640
+   delay: 10
+
+ - name: "[HSBench] Stopping systemstats collection {{ runconfig.objsize }} - {{ runconfig.numclients }}session"
+   delegate_to: "clientnode-1"
+   shell: pdsh -S -w {{runconfig.nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"

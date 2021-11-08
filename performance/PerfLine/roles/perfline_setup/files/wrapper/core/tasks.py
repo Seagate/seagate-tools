@@ -275,6 +275,9 @@ def sw_update(conf, result_dir, logdir):
             options.append('--url')
             options.append(params['url'])
         else:
+            if 'use_lnet' in params['motr']:
+                if params['motr']['use_lnet']:
+                    options.append('--use-lnet')
             options.append('-m')
             options.append(params['motr']['repo'])
             options.append(params['motr']['branch'])
@@ -403,31 +406,31 @@ def worker_task(conf_opt, task):
 
         failed = False
 
-        ret = save_workloadconfig(conf, result["artifacts_dir"])
+        # ret = save_workloadconfig(conf, result["artifacts_dir"])
 
-        if not failed:
-            ret = restore_original_configs()
-            if ret == 'FAILED':
-                result['finish_time'] = str(datetime.now())
-                failed = True
+        # if not failed:
+        #     ret = restore_original_configs()
+        #     if ret == 'FAILED':
+        #         result['finish_time'] = str(datetime.now())
+        #         failed = True
                
-        if not failed:
-            ret = sw_update(conf, result["artifacts_dir"], result["log_dir"])
-            if ret == 'FAILED':
-                result['finish_time'] = str(datetime.now())
-                failed = True
+        # if not failed:
+        #     ret = sw_update(conf, result["artifacts_dir"], result["log_dir"])
+        #     if ret == 'FAILED':
+        #         result['finish_time'] = str(datetime.now())
+        #         failed = True
 
-        if not failed:
-            ret = update_configs(conf, result["artifacts_dir"], result["log_dir"])
-            if ret == 'FAILED':
-                result['finish_time'] = str(datetime.now())
-                failed = True
+        # if not failed:
+        #     ret = update_configs(conf, result["artifacts_dir"], result["log_dir"])
+        #     if ret == 'FAILED':
+        #         result['finish_time'] = str(datetime.now())
+        #         failed = True
 
-        if not failed:
-            ret = run_corebenchmark(conf, result["artifacts_dir"], result["log_dir"])
-            if ret == 'FAILED':
-                result['finish_time'] = str(datetime.now())
-                failed = True
+        # if not failed:
+        #     ret = run_corebenchmark(conf, result["artifacts_dir"], result["log_dir"])
+        #     if ret == 'FAILED':
+        #         result['finish_time'] = str(datetime.now())
+        #         failed = True
 
         if not failed:
             ret = run_worker(conf, result["artifacts_dir"], result["log_dir"])
@@ -435,10 +438,10 @@ def worker_task(conf_opt, task):
                 result['finish_time'] = str(datetime.now())
                 failed = True
 
-        ret = restore_original_configs()
-        if ret == 'FAILED':
-            result['finish_time'] = str(datetime.now())
-            failed = True
+        # ret = restore_original_configs()
+        # if ret == 'FAILED':
+        #     result['finish_time'] = str(datetime.now())
+        #     failed = True
             
 
     result['finish_time'] = str(datetime.now())

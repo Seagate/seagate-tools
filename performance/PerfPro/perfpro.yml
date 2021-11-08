@@ -1,0 +1,10 @@
+---
+ - hosts: localhost
+   gather_facts: yes
+   become: yes
+   vars_files:
+     - roles/benchmark/vars/config.yml 
+   roles:
+      - log_collector 
+      - benchmark
+#      - support_bundle

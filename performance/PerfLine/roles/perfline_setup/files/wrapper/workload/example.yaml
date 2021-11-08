@@ -33,6 +33,13 @@ custom_build:
   motr:
     repo: "https://github.com/Seagate/cortx-motr.git"
     branch: b64b1bba
+
+    # Optional parameter. Can be skipped. Default value
+    # in case if 'use_lnet' is not specified is 'false'.
+    # This option affects only Motr versions that include
+    # Libfabric by default. If 'use_lnet' is 'true' Motr
+    # will be built with Lnet instead of Libfabric
+    use_lnet: true
   s3server:
     repo: "https://github.com/Seagate/cortx-s3server.git"
     branch: c482a593

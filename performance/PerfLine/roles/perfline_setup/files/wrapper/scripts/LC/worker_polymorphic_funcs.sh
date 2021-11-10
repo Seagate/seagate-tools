@@ -2,9 +2,14 @@ K8S_SCRIPTS_DIR="$CORTX_K8S_REPO/k8_cortx_cloud"
 
 HAX_CONTAINER="cortx-motr-hax"
 LOCAL_MOUNT_POINT='/mnt/fs-local-volume/etc/gluster'
-DOCKER_IMAGE_NAME="perfline_cortx"
+CONTAINER_MOUNT_POINT='/share'
+DOCKER_CONTAINER_NAME="perfline_cortx"
 MOTR_ARTIFACTS_DIR="m0d"
 S3_ARTIFACTS_DIR="s3server"
+
+M0D_INIT_PID=1
+S3_INIT_PID=10001
+M0CRATE_INIT_PID=20001
 
 
 function run_cmd_in_container()
@@ -81,21 +86,68 @@ function wait_for_cluster_start() {
 
 function save_m0crate_artifacts()
 {
-    local m0crate_workdir="/tmp/m0crate_tmp"
-    $EX_SRV "scp -r $m0crate_workdir/m0crate.*.log $PRIMARY_NODE:$(pwd)"
-    $EX_SRV "scp -r $m0crate_workdir/test_io.*.yaml $PRIMARY_NODE:$(pwd)"
-    
-#    if [[ -n $ADDB_DUMPS ]]; then
-#        ssh $PRIMARY_NODE $SCRIPT_DIR/process_addb --host $(hostname) --dir $(pwd) \
-#            --app "m0crate" --m0crate-workdir $m0crate_workdir \
-#            --start $START_TIME --stop $STOP_TIME
-#    fi
+    start_docker_container
 
-#    if [[ -n $M0TRACE_FILES ]]; then
-#        ssh $PRIMARY_NODE $SCRIPT_DIR/save_m0traces $(hostname) $(pwd) "m0crate" "$m0crate_workdir"
-#    fi
+    local m0crate_dir="$LOCAL_MOUNT_POINT/var/log/cortx/m0crate"
+    local m0crate_dir_docker="$CONTAINER_MOUNT_POINT/var/log/cortx/m0crate"
 
-    $EX_SRV "rm -rf $m0crate_workdir"
+    # check if directory exists
+    if ssh $PRIMARY_NODE "[ ! -d $m0crate_dir ]"; then
+        echo "directory $m0crate_dir doesn't exist"
+        return 0
+    fi
+
+    local pid=$M0CRATE_INIT_PID
+
+    for iteration in $(ssh $PRIMARY_NODE "ls $m0crate_dir"); do
+        mkdir $iteration
+        pushd $iteration
+
+        local machine_ids=$(ssh $PRIMARY_NODE "ls $m0crate_dir/$iteration")
+
+        for machine_id in $machine_ids; do
+
+            local fid_dirs=$(ssh $PRIMARY_NODE "ls $m0crate_dir/$iteration/$machine_id")
+
+            for fid_dir in $fid_dirs; do
+                mkdir $fid_dir
+                pushd $fid_dir
+
+                scp $PRIMARY_NODE:/$m0crate_dir/$iteration/$machine_id/$fid_dir/*.log ./ || true
+                scp $PRIMARY_NODE:/$m0crate_dir/$iteration/$machine_id/$fid_dir/*.yaml ./ || true
+
+                if [[ -n $ADDB_DUMPS ]]; then
+                    local addb_dirs=$(ssh $PRIMARY_NODE "ls $m0crate_dir/$iteration/$machine_id/$fid_dir | grep addb_ || true")
+
+                    for addb_dir in $addb_dirs; do
+                        local addb_stob="$m0crate_dir_docker/$iteration/$machine_id/$fid_dir/$addb_dir/o/100000000000000:2"
+                        ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME m0addb2dump -f -- \"$addb_stob\"" > dumpc_${pid}.txt
+                        ((pid=pid+1))
+                    done
+                fi
+
+                if [[ -n $M0TRACE_FILES ]]; then
+                    local m0traces=$(ssh $PRIMARY_NODE "ls $m0crate_dir/$iteration/$machine_id/$fid_dir | grep m0trace. || true")
+
+                    for m0trace in $m0traces; do
+                        local m0trace_path="$m0crate_dir_docker/$iteration/$machine_id/$fid_dir/$m0trace"
+                        ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME m0trace --no-pager -i $m0trace_path" > $m0trace.txt
+                    done
+                fi
+
+                popd # $fid_dir
+            done
+        done
+        popd # $iteration
+    done
+
+    stop_docker_container
+
+    # create m0play.db if dumpc* files exist
+    if ls */*/dumpc* &> /dev/null; then
+        $TOOLS_DIR/../chronometry_v2/addb2db_multiprocess.sh --dumps ./*/*/dumpc*
+        mv m0play.db m0play.m0crate.db
+    fi
 }
 
 function save_motr_configs() {
@@ -218,21 +270,7 @@ function save_cluster_status() {
     popd 			# $S3_ARTIFACTS_DIR
 }
 
-function copy_kube_config()
-{
-    for node in ${NODES//,/ }
-    do 
-       if [ "$node" != "$PRIMARY_NODE" ];
-       then
-           ssh $node "mkdir -p /root/.kube"
-           ssh $PRIMARY_NODE "scp /root/.kube/config $node:/root/.kube/config"
-        fi
-    done
-}
-
-
 function prepare_cluster() {
-    copy_kube_config
     # update /etc/hosts
     local ip=$(ssh $PRIMARY_NODE 'kubectl get pod -o wide | grep $(hostname) | grep cortx-data' | awk '{print $6}')
 
@@ -286,11 +324,11 @@ function save_motr_traces() {
 	read h pod cont serv trace addb <<< `awk "NR==$i" ../ioservice_map`
 	
 	eval "$trace/m0d-$serv"
-	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_IMAGE_NAME find $MOTR_M0D_TRACE_DIR/../../../ -name \"*$serv*\" -exec realpath {} \;" ) | grep trace`
+	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find $MOTR_M0D_TRACE_DIR/../../../ -name \"*$serv*\" -exec realpath {} \;" ) | grep trace`
 	for d in $dirs ; do
-	    files=`( ssh $PRIMARY_NODE "docker exec $DOCKER_IMAGE_NAME ls -1 $d" ) | grep m0trace | grep -v txt`
+	    files=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME ls -1 $d" ) | grep m0trace | grep -v txt`
 	    for file in $files; do
-		ssh $PRIMARY_NODE "nohup docker exec $DOCKER_IMAGE_NAME m0trace -i $d/$file -o $d/$file.txt &" &
+		ssh $PRIMARY_NODE "nohup docker exec $DOCKER_CONTAINER_NAME m0trace -i $d/$file -o $d/$file.txt &" &
 	    done
 	done
     done
@@ -307,7 +345,7 @@ function save_motr_traces() {
 
 	mkdir -p $name
 	pushd $name
-	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_IMAGE_NAME find $MOTR_M0D_TRACE_DIR/../../../ -name \"*$serv*\" -exec realpath {} \;" ) | grep trace`
+	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find $MOTR_M0D_TRACE_DIR/../../../ -name \"*$serv*\" -exec realpath {} \;" ) | grep trace`
 	for d in $dirs ; do
 	    uid=`echo $d | awk -F'/' '{print $(NF-2)}'`
 
@@ -339,23 +377,23 @@ function save_motr_addb() {
     set +e
 
     > addb_mapping
-    pid=1
+    pid=$M0D_INIT_PID
     lines_n=`cat ../ioservice_map | wc -l`
     for i in $(seq 1 $lines_n) ; do 
 	read h pod cont serv trace addb <<< `awk "NR==$i" ../ioservice_map`
 	
 	eval "$addb/m0d-$serv"
-	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_IMAGE_NAME find $MOTR_M0D_ADDB_STOB_DIR/../../../ -name \"*$serv*\" -exec realpath {} \;" ) | grep addb`
+	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find $MOTR_M0D_ADDB_STOB_DIR/../../../ -name \"*$serv*\" -exec realpath {} \;" ) | grep addb`
 
 	for d in $dirs ; do
 	    uid=`echo $d | awk -F'/' '{print $(NF-2)}'`
 
-	    stobs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_IMAGE_NAME ls -1 $d" ) | grep "addb-stob"`
+	    stobs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME ls -1 $d" ) | grep "addb-stob"`
 	    for st in $stobs; do
 		addb_stob="$d/$st/o/100000000000000:2"
 		echo $h $pod $cont $serv $addb_stob $uid $pid >> addb_mapping
 		
-		ssh $PRIMARY_NODE "docker exec $DOCKER_IMAGE_NAME m0addb2dump -f -- \"$addb_stob\"" > dumps_${pid}.txt &
+		ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME m0addb2dump -f -- \"$addb_stob\"" > dumps_${pid}.txt &
 		
 		((pid=pid+1))
 	    done
@@ -379,14 +417,14 @@ function start_docker_container() {
     set +e
 
     image=`(ssh $PRIMARY_NODE "docker images") | grep cortx-all | awk '{print $1":"$2}' | head -n1`
-    ssh $PRIMARY_NODE "docker run -dit --name $DOCKER_IMAGE_NAME --mount type=bind,source=/mnt/fs-local-volume/etc/gluster,target=/share $image"
+    ssh $PRIMARY_NODE "docker run -dit --name $DOCKER_CONTAINER_NAME --mount type=bind,source=/mnt/fs-local-volume/etc/gluster,target=/share $image"
     set -e
 }
 
 function stop_docker_container() {
     set +e
-    ssh $PRIMARY_NODE "docker stop $DOCKER_IMAGE_NAME"
-    ssh $PRIMARY_NODE "docker rm $DOCKER_IMAGE_NAME"
+    ssh $PRIMARY_NODE "docker stop $DOCKER_CONTAINER_NAME"
+    ssh $PRIMARY_NODE "docker rm $DOCKER_CONTAINER_NAME"
     set -e
 }
 
@@ -435,7 +473,7 @@ function save_s3srv_logs() {
 	name="s3server-$serv"
 	mkdir -p $name
 	pushd $name
-	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_IMAGE_NAME find $log/../ -name \"*$serv*\" -exec realpath {} \;" )`
+	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find $log/../ -name \"*$serv*\" -exec realpath {} \;" )`
 	for d in $dirs ; do
 	    uid=`echo $d | awk -F'/' '{print $(NF-1)}'`
 	    mkdir -p $uid
@@ -491,11 +529,11 @@ function save_s3_traces() {
     for i in $(seq 1 $lines_n) ; do 
 	read h pod cont serv trace addb log <<< `awk "NR==$i" ../s3server_map`
 
-	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_IMAGE_NAME find $trace/.. -name \"*$serv*\" -exec realpath {} \;" )`
+	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find $trace/.. -name \"*$serv*\" -exec realpath {} \;" )`
 	for d in $dirs ; do
-	    files=`( ssh $PRIMARY_NODE "docker exec $DOCKER_IMAGE_NAME ls -1 $d" ) | grep m0trace | grep -v txt`
+	    files=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME ls -1 $d" ) | grep m0trace | grep -v txt`
 	    for file in $files; do
-		ssh $PRIMARY_NODE "nohup docker exec $DOCKER_IMAGE_NAME m0trace -i $d/$file -o $d/$file.txt &" &
+		ssh $PRIMARY_NODE "nohup docker exec $DOCKER_CONTAINER_NAME m0trace -i $d/$file -o $d/$file.txt &" &
 		
 	    done
 	done
@@ -512,7 +550,7 @@ function save_s3_traces() {
 
 	mkdir -p $name
 	pushd $name
-	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_IMAGE_NAME find $trace/.. -name \"*$serv*\" -exec realpath {} \;" ) `
+	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find $trace/.. -name \"*$serv*\" -exec realpath {} \;" ) `
 	for d in $dirs ; do
 	    uid=`echo $d | awk -F'/' '{print $(NF-1)}'`
 	    # Assuming `/share` at the beginning of the string 
@@ -543,20 +581,20 @@ function save_s3_addb() {
     set +e
 
     > addb_mapping
-    pid=10001
+    pid=$S3_INIT_PID
     lines_n=`cat ../s3server_map | wc -l`
     for i in $(seq 1 $lines_n) ; do 
 	read h pod cont serv trace addb log <<< `awk "NR==$i" ../s3server_map`
 
-	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_IMAGE_NAME find $addb/.. -name \"*$serv*\" -exec realpath {} \;" ) `
+	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find $addb/.. -name \"*$serv*\" -exec realpath {} \;" ) `
 	for d in $dirs ; do
 	    uid=`echo $d | awk -F'/' '{print $(NF-1)}'`
-	    stobs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_IMAGE_NAME ls -1 $d" ) | grep addb`
+	    stobs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME ls -1 $d" ) | grep addb`
 	    for st in $stobs; do
 		addb_stob="$d/$st/o/100000000000000:2"
 		echo $h $pod $cont $serv $addb_stob $uid $pid >> addb_mapping
 		
-		ssh $PRIMARY_NODE "docker exec $DOCKER_IMAGE_NAME m0addb2dump -f -p /opt/seagate/cortx/s3/addb-plugin/libs3addbplugin.so -- \"$addb_stob\"" > dumpc_${pid}.txt &
+		ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME m0addb2dump -f -p /opt/seagate/cortx/s3/addb-plugin/libs3addbplugin.so -- \"$addb_stob\"" > dumpc_${pid}.txt &
 		
 		((pid=pid+1))
 	    done
@@ -671,4 +709,30 @@ function collect_artifacts() {
     
     # # generate structured form of stats
     # $SCRIPT_DIR/../stat/gen_run_metadata.py -a $(pwd) -o run_metadata.json
+}
+
+function m0crate_workload()
+{
+    local iteration=$1
+    shift
+
+    local m0crate_params=$@
+    START_TIME=`date +%s000000000`
+
+    local pids=""
+
+    for srv in $(echo $NODES | tr ',' ' '); do
+        local hostname_short=$(echo $srv | awk -F '.' '{print $1}')
+        ssh $PRIMARY_NODE "$SCRIPT_DIR/$CLUSTER_TYPE/run_m0crate $iteration $hostname_short $m0crate_params" &
+        pids="$pids $!"
+    done
+
+    wait $pids
+    
+    # STATUS=$?
+
+    STATUS=0 #TODO: fix it
+
+    STOP_TIME=`date +%s000000000`
+    sleep 120
 }

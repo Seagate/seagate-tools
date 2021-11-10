@@ -1,4 +1,3 @@
-CORTX_K8S_REPO="/root/cortx-k8s"
 K8S_SCRIPTS_DIR="$CORTX_K8S_REPO/k8_cortx_cloud"
 
 HAX_CONTAINER="cortx-motr-hax"
@@ -36,13 +35,11 @@ function stop_cluster() {
     # let's try to wait for m0d to complete all operations
     sleep 120
 
-    ssh $PRIMARY_NODE "cd $K8S_SCRIPTS_DIR && ./destroy-cortx-cloud.sh"
+    ssh $PRIMARY_NODE "cd $K8S_SCRIPTS_DIR && ./shutdown-cortx-cloud.sh"
 }
 
 function cleanup_logs() {
     echo "Remove m0trace/addb/log files from LC cluster"
-    $EX_SRV 'rm -rf /etc/3rd-party/openldap /var/data/3rd-party/*' || true
-    $EX_SRV 'rm -rf /mnt/fs-local-volume/local-path-provisioner/*' || true
     $EX_SRV 'rm -rf /mnt/fs-local-volume/etc/gluster/var/log/cortx/*' || true
 }
 
@@ -61,7 +58,7 @@ function detect_primary_pod()
 
 function restart_cluster() {
     echo "Restart LC cluster (PODs)"
-    ssh $PRIMARY_NODE "cd $K8S_SCRIPTS_DIR && ./deploy-cortx-cloud.sh"
+    ssh $PRIMARY_NODE "cd $K8S_SCRIPTS_DIR && ./start-cortx-cloud.sh"
     detect_primary_pod
     wait_for_cluster_start
 

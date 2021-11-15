@@ -15,11 +15,6 @@ PUBLIC_DATA_INTERFACE=$(ip addr show | egrep 'data0|enp179s0|enp175s0f0|eth0|p1p
 
 source "$SCRIPT_DIR/../../perfline.conf"
 source "$SCRIPT_DIR/cluster_status.sh"
-
-# TODO: CLUSTER_TYPE variable should be moved
-# into perfline.conf or Ansible config file
-CLUSTER_TYPE="LC"
-
 source "$SCRIPT_DIR/$CLUSTER_TYPE/worker_polymorphic_funcs.sh"
 
 STAT_COLLECTION=""

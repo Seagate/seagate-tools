@@ -120,12 +120,12 @@ prepare_and_run() {
 
        local m0crate_pids=""
 
-       logfile="m0crate.$(hostname).log"
+       logfile="m0crate.$MOTR_PORTS.$(hostname).log"
        MOTR_LOCAL_ADDR_EXT=${APP_IP_EXT}
        PROCESS_FID=$(echo "$HCTL_STATUS" | grep m0_client \
                 | grep "${MOTR_LOCAL_ADDR_EXT}" | awk '{print $3}')
 
-       local m0crate_conf="$(pwd)/test_io.$(hostname).yaml"
+       local m0crate_conf="$(pwd)/test_io.$MOTR_PORTS.$(hostname).yaml"
        cp $SCRIPT_DIR/../test_io.yaml.template $m0crate_conf
        _set_m0crate_config_file_params "$m0crate_conf" > $logfile
        echo "$m0crate_conf"

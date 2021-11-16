@@ -58,11 +58,13 @@ function detect_primary_pod()
 
 function restart_cluster() {
     echo "Restart LC cluster (PODs)"
+
     ssh $PRIMARY_NODE "cd $K8S_SCRIPTS_DIR && ./start-cortx-cloud.sh"
     detect_primary_pod
     wait_for_cluster_start
 
-    ssh $PRIMARY_NODE "kubectl get pod"    
+    ssh $PRIMARY_NODE "kubectl get pod"
+    sleep 120    
 }
 
 function wait_for_cluster_start() {
@@ -75,6 +77,25 @@ function wait_for_cluster_start() {
     
     # $EX_SRV $SCRIPT_DIR/wait_s3_listeners.sh $S3SERVER
     # sleep 300
+}
+
+function save_m0crate_artifacts()
+{
+    local m0crate_workdir="/tmp/m0crate_tmp"
+    $EX_SRV "scp -r $m0crate_workdir/m0crate.*.log $PRIMARY_NODE:$(pwd)"
+    $EX_SRV "scp -r $m0crate_workdir/test_io.*.yaml $PRIMARY_NODE:$(pwd)"
+    
+#    if [[ -n $ADDB_DUMPS ]]; then
+#        ssh $PRIMARY_NODE $SCRIPT_DIR/process_addb --host $(hostname) --dir $(pwd) \
+#            --app "m0crate" --m0crate-workdir $m0crate_workdir \
+#            --start $START_TIME --stop $STOP_TIME
+#    fi
+
+#    if [[ -n $M0TRACE_FILES ]]; then
+#        ssh $PRIMARY_NODE $SCRIPT_DIR/save_m0traces $(hostname) $(pwd) "m0crate" "$m0crate_workdir"
+#    fi
+
+    $EX_SRV "rm -rf $m0crate_workdir"
 }
 
 function save_motr_configs() {
@@ -91,29 +112,29 @@ function save_motr_configs() {
     pushd $config_dir
     
     for srv in $(echo $NODES | tr ',' ' '); do
-	pod=`ssh $PRIMARY_NODE "kubectl get pod -o wide" | grep $srv | grep cortx-data-pod | awk '{print $1}'`
-	containers=`ssh $PRIMARY_NODE "kubectl get pods $pod -o jsonpath='{.spec.containers[*].name}'" | tr ' ' '\n' | grep cortx-motr-ios`
+ 	    pod=`ssh $PRIMARY_NODE "kubectl get pod -o wide" | grep $srv | grep cortx-data-pod | awk '{print $1}'`
+	    containers=`ssh $PRIMARY_NODE "kubectl get pods $pod -o jsonpath='{.spec.containers[*].name}'" | tr ' ' '\n' | grep cortx-motr-ios`
         mkdir -p $srv
-	pushd $srv
+	    pushd $srv
 
-	for cont in $containers ; do
-	    mkdir -p $cont
-	    pushd $cont
+	    for cont in $containers ; do
+	        mkdir -p $cont
+	        pushd $cont
 
-	    # Copy motr config
-	    ssh $PRIMARY_NODE "kubectl exec $pod -c $cont -- cat /etc/sysconfig/motr" > motr
-	    ssh $PRIMARY_NODE "kubectl exec $pod -c $cont -- cat /etc/cortx/cluster.conf" > cluster.conf
+	        # Copy motr config
+	        ssh $PRIMARY_NODE "kubectl exec $pod -c $cont -- cat /etc/sysconfig/motr" > motr
+	        ssh $PRIMARY_NODE "kubectl exec $pod -c $cont -- cat /etc/cortx/cluster.conf" > cluster.conf
 	    
-	    # Gather metadata
-	    service=`ssh $PRIMARY_NODE "kubectl exec $pod -c $cont -- ps auxww" | grep m0d | tr ' ' '\n' | grep -A1 -- "-f" | tail -n1 | tr -d '<' | tr -d '>'`
+	        # Gather metadata
+	        service=`ssh $PRIMARY_NODE "kubectl exec $pod -c $cont -- ps auxww" | grep m0d | tr ' ' '\n' | grep -A1 -- "-f" | tail -n1 | tr -d '<' | tr -d '>'`
 
-	    trace_dir=`cat motr | grep MOTR_M0D_TRACE | grep -v "#"`
-	    addb_dir=`cat motr | grep MOTR_M0D_ADDB | grep -v "#"`
+	        trace_dir=`cat motr | grep MOTR_M0D_TRACE | grep -v "#"`
+	        addb_dir=`cat motr | grep MOTR_M0D_ADDB | grep -v "#"`
 
-	    mapping="${srv} ${pod} ${cont} ${service} ${trace_dir} ${addb_dir}\n${mapping}"
-	    popd		# $cont
-	done
-	popd			# $srv
+	        mapping="${srv} ${pod} ${cont} ${service} ${trace_dir} ${addb_dir}\n${mapping}"
+	        popd		# $cont
+	    done
+	    popd			# $srv
     done
 
     popd			# $config_dir
@@ -197,7 +218,21 @@ function save_cluster_status() {
     popd 			# $S3_ARTIFACTS_DIR
 }
 
+function copy_kube_config()
+{
+    for node in ${NODES//,/ }
+    do 
+       if [ "$node" != "$PRIMARY_NODE" ];
+       then
+           ssh $node "mkdir -p /root/.kube"
+           ssh $PRIMARY_NODE "scp /root/.kube/config $node:/root/.kube/config"
+        fi
+    done
+}
+
+
 function prepare_cluster() {
+    copy_kube_config
     # update /etc/hosts
     local ip=$(ssh $PRIMARY_NODE 'kubectl get pod -o wide | grep $(hostname) | grep cortx-data' | awk '{print $6}')
 
@@ -593,15 +628,15 @@ function collect_artifacts() {
 
     # Temporary disabled
     
-    # if [[ -n "$RUN_M0CRATE" ]]; then
-    #     mkdir -p $M0CRATE_ARTIFACTS_DIR
-    #     pushd $M0CRATE_ARTIFACTS_DIR
-    #     save_m0crate_artifacts
-    #     popd
-    # fi
-
-    save_perf_results    
+    if [[ -n "$RUN_M0CRATE" ]]; then
+         mkdir -p $M0CRATE_ARTIFACTS_DIR
+         pushd $M0CRATE_ARTIFACTS_DIR
+         save_m0crate_artifacts
+         popd
+    fi
     
+    save_perf_results
+
     if [[ -n $ADDB_DUMPS ]]; then
         local m0playdb_parts="$m0d/dumps/m0play* $s3srv/dumps/m0play*"
 

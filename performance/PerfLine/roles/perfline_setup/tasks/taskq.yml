@@ -45,7 +45,8 @@
     copy:
       src: files/perfline.conf
       dest: "{{ PERFLINE_DIR }}"
-    delegate_to: "client-1"
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['all'] }}"
 
   - name: Open port for webui
     firewalld: 
@@ -57,6 +58,7 @@
     delegate_to: "client-1"
     with_items:
        - { port: "{{ perfline_ui_port }}", proto: "tcp", state: "enabled", zone: "management-zone" }
+    ignore_errors: yes
     
 
   - name: Copying local.repo in "/etc/yum.repo.d/" location

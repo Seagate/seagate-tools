@@ -94,15 +94,15 @@ function m0crate_workload()
     START_TIME=`date +%s000000000`
     local m0crate_work_dir="/tmp/m0crate_tmp" #TODO: make it random
 
-    ssh $PRIMARY_NODE "if [[ -d "$m0crate_work_dir" ]]; then rm -rf $m0crate_work_dir; fi;"   
-    ssh $PRIMARY_NODE "mkdir -p $m0crate_work_dir \
+    $EX_SRV "if [[ -d "$m0crate_work_dir" ]]; then rm -rf $m0crate_work_dir; fi;"   
+    $EX_SRV "mkdir -p $m0crate_work_dir \
              && cd $m0crate_work_dir \
-             && $SCRIPT_DIR/lc_run_m0crate $M0CRATE_PARAMS"
+             && $SCRIPT_DIR/$CLUSTER_TYPE/run_m0crate $M0CRATE_PARAMS"
     
     STATUS=$?
-    ssh $PRIMARY_NODE "scp -r $m0crate_work_dir/* $(hostname):$(pwd)/"
     STOP_TIME=`date +%s000000000`
     sleep 120
+    
     popd
 }
 
@@ -114,9 +114,8 @@ function pushd_to_results_dir() {
 function save_m0crate_artifacts()
 {
     local m0crate_workdir="/tmp/m0crate_tmp"
-
-    ssh $PRIMARY_NODE "scp -r $m0crate_workdir/m0crate.*.log $(hostname):$(pwd)"
-    ssh $PRIMARY_NODE "scp -r $m0crate_workdir/test_io.*.yaml $(hostname):$(pwd)"
+    
+    $EX_SRV "scp -r $m0crate_work_dir/* $(hostname):$(pwd)/"    
 
     if [[ -n $ADDB_DUMPS ]]; then
         ssh $PRIMARY_NODE $SCRIPT_DIR/process_addb --host $(hostname) --dir $(pwd) \
@@ -128,7 +127,7 @@ function save_m0crate_artifacts()
         ssh $PRIMARY_NODE $SCRIPT_DIR/save_m0traces $(hostname) $(pwd) "m0crate" "$m0crate_workdir"
     fi
 
-    ssh $PRIMARY_NODE "rm -rf $m0crate_workdir"
+    $EX_SRV "rm -rf $m0crate_workdir"
 }
 
 function save_stats() {
@@ -290,12 +289,12 @@ function perform_workloads()
                 echo "Start s3bench workload"
                 s3bench_workloads ${workloads[${key}]}
                 ;;
-              "m0crate")
-                 echo "Start m0crate workload"
-                 M0CRATE_PARAMS=${workloads[${key}]}
-                 m0crate_workload
-                 ;;
-             *)
+             "m0crate")
+                echo "Start m0crate workload"
+                M0CRATE_PARAMS=${workloads[${key}]}
+                m0crate_workload
+                ;;
+            *)
                 echo "Default condition to be executed"
                 ;;
         esac
@@ -332,13 +331,12 @@ function main() {
     echo "Stop stat utilities"
     stop_stat_utils
 
-    save_perf_results
-
     save_cluster_status
-    stop_cluster
+#    stop_cluster
 
+    
     # Collect ADDBs/m0traces/m0play.db
-   collect_artifacts
+    collect_artifacts
 
     # Generate plots, hists, etc
     echo "Generate plots, hists, etc"

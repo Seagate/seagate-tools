@@ -109,8 +109,8 @@ function pushd_to_results_dir() {
 function save_m0crate_artifacts()
 {
     local m0crate_workdir="/tmp/m0crate_tmp"
-    
-    $EX_SRV "scp -r $m0crate_work_dir/* $(hostname):$(pwd)/"    
+    $EX_SRV "scp -r $m0crate_workdir/m0crate.*.log $(hostname):$(pwd)"
+    $EX_SRV "scp -r $m0crate_workdir/test_io.*.yaml $(hostname):$(pwd)"    
 
     if [[ -n $ADDB_DUMPS ]]; then
         ssh $PRIMARY_NODE $SCRIPT_DIR/process_addb --host $(hostname) --dir $(pwd) \
@@ -327,7 +327,7 @@ function main() {
     stop_stat_utils
 
     save_cluster_status
-#    stop_cluster
+    stop_cluster
 
     
     # Collect ADDBs/m0traces/m0play.db

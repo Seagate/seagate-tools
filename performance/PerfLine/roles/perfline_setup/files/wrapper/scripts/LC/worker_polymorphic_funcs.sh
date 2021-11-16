@@ -85,15 +85,15 @@ function save_m0crate_artifacts()
     $EX_SRV "scp -r $m0crate_workdir/m0crate.*.log $PRIMARY_NODE:$(pwd)"
     $EX_SRV "scp -r $m0crate_workdir/test_io.*.yaml $PRIMARY_NODE:$(pwd)"
     
-    if [[ -n $ADDB_DUMPS ]]; then
-        ssh $PRIMARY_NODE $SCRIPT_DIR/process_addb --host $(hostname) --dir $(pwd) \
-            --app "m0crate" --m0crate-workdir $m0crate_workdir \
-            --start $START_TIME --stop $STOP_TIME
-    fi
+#    if [[ -n $ADDB_DUMPS ]]; then
+#        ssh $PRIMARY_NODE $SCRIPT_DIR/process_addb --host $(hostname) --dir $(pwd) \
+#            --app "m0crate" --m0crate-workdir $m0crate_workdir \
+#            --start $START_TIME --stop $STOP_TIME
+#    fi
 
-    if [[ -n $M0TRACE_FILES ]]; then
-        ssh $PRIMARY_NODE $SCRIPT_DIR/save_m0traces $(hostname) $(pwd) "m0crate" "$m0crate_workdir"
-    fi
+#    if [[ -n $M0TRACE_FILES ]]; then
+#        ssh $PRIMARY_NODE $SCRIPT_DIR/save_m0traces $(hostname) $(pwd) "m0crate" "$m0crate_workdir"
+#    fi
 
     $EX_SRV "rm -rf $m0crate_workdir"
 }

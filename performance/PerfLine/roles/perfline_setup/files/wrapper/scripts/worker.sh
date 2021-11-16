@@ -84,8 +84,6 @@ function s3bench_workloads()
 
 function m0crate_workload()
 {
-    mkdir -p $M0CRATE_ARTIFACTS_DIR
-    pushd $M0CRATE_ARTIFACTS_DIR
     START_TIME=`date +%s000000000`
     local m0crate_work_dir="/tmp/m0crate_tmp" #TODO: make it random
 
@@ -97,32 +95,12 @@ function m0crate_workload()
     STATUS=$?
     STOP_TIME=`date +%s000000000`
     sleep 120
-    
-    popd
+
 }
 
 function pushd_to_results_dir() {
     echo "go to results folder"
     pushd $RESULTS_DIR
-}
-
-function save_m0crate_artifacts()
-{
-    local m0crate_workdir="/tmp/m0crate_tmp"
-    $EX_SRV "scp -r $m0crate_workdir/m0crate.*.log $(hostname):$(pwd)"
-    $EX_SRV "scp -r $m0crate_workdir/test_io.*.yaml $(hostname):$(pwd)"    
-
-    if [[ -n $ADDB_DUMPS ]]; then
-        ssh $PRIMARY_NODE $SCRIPT_DIR/process_addb --host $(hostname) --dir $(pwd) \
-            --app "m0crate" --m0crate-workdir $m0crate_workdir \
-            --start $START_TIME --stop $STOP_TIME
-    fi
-
-    if [[ -n $M0TRACE_FILES ]]; then
-        ssh $PRIMARY_NODE $SCRIPT_DIR/save_m0traces $(hostname) $(pwd) "m0crate" "$m0crate_workdir"
-    fi
-
-    $EX_SRV "rm -rf $m0crate_workdir"
 }
 
 function save_stats() {

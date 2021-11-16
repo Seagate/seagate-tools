@@ -23,10 +23,10 @@ set -e
 
 SCRIPT_PATH="$(readlink -f $0)"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
-source "$SCRIPT_DIR/../../perfline.conf"
+source "$SCRIPT_DIR/../../../perfline.conf"
 
 _get_cluster_params() {
-    hostname=$1
+    hostname=$(hostname -s)
     POD=$(kubectl get pod -o wide | grep $hostname | grep cortx-data-pod | awk '{print $1}')
     CONTAINER=$(kubectl get pods $POD -o jsonpath='{.spec.containers[*].name}' | tr ' ' '\n' | grep cortx-motr-hax)
     HCTL_STATUS=$(kubectl exec -it $POD -c $CONTAINER -- hctl status)
@@ -60,7 +60,7 @@ _get_cluster_params() {
 }
 
 _iter_m0crate_params() {
-    local all_params=$(cat ${SCRIPT_DIR}/test_io.yaml.template \
+    local all_params=$(cat ${SCRIPT_DIR}/../test_io.yaml.template \
        | grep -P -o "###__.+=.+__###"                \
        | sed -E "s/###__(.*=.*)__###/\1/g")
 
@@ -92,7 +92,7 @@ _parse_m0crate_params() {
 _set_m0crate_config_file_params() {
     local config_file=$1
 
-    local all_params=$(cat ${SCRIPT_DIR}/test_io.yaml.template        \
+    local all_params=$(cat ${SCRIPT_DIR}/../test_io.yaml.template        \
                | grep -P -o "###__.+__###"                          \
                | sed -E "s/###__([^=]*?)={0,1}(.*?){0,1}__###/\1/")
 
@@ -111,11 +111,8 @@ _set_m0crate_config_file_params() {
 
 prepare_and_run() {
 
-    random_file="/tmp/128M"
-    for node in ${NODES//,/ }
-    do 
-       host=$(echo $node | sed -e 's/.colo.seagate.com//')
-       _get_cluster_params $host
+       random_file="/tmp/128M"
+       _get_cluster_params 
        kubectl exec -it $POD -- rm -f $random_file
        kubectl exec -it $POD -- dd if=/dev/urandom of="/tmp/128M" bs=1M count=128 &> /dev/null
        _set_default_m0crate_params
@@ -123,21 +120,20 @@ prepare_and_run() {
 
        local m0crate_pids=""
 
-       logfile="m0crate.${host}.log"
+       logfile="m0crate.$(hostname).log"
        MOTR_LOCAL_ADDR_EXT=${APP_IP_EXT}
        PROCESS_FID=$(echo "$HCTL_STATUS" | grep m0_client \
                 | grep "${MOTR_LOCAL_ADDR_EXT}" | awk '{print $3}')
 
-       local m0crate_conf="$(pwd)/test_io.${host}.yaml"
-       cp $SCRIPT_DIR/test_io.yaml.template $m0crate_conf
+       local m0crate_conf="$(pwd)/test_io.$(hostname).yaml"
+       cp $SCRIPT_DIR/../test_io.yaml.template $m0crate_conf
        _set_m0crate_config_file_params "$m0crate_conf" > $logfile
        echo "$m0crate_conf"
-       kubectl cp $m0crate_conf $POD:test_io.${host}.yaml
-       kubectl exec -it $POD -- m0crate -S test_io.${host}.yaml &>> $logfile
+       kubectl cp $m0crate_conf $POD:test_io.$(hostname).yaml
+       kubectl exec -it $POD -- m0crate -S test_io.$(hostname).yaml &>> $logfile 
        m0crate_pids="$m0crate_pids $!"
        wait $m0crate_pids
-       kubectl exec -it $POD -- rm -f $random_file
-    done    
+       kubectl exec -it $POD -- rm -f $random_file 
        
 }
 

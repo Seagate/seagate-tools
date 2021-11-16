@@ -141,9 +141,12 @@ function save_perf_results() {
     if [[ -n "$RUN_M0CRATE" ]]; then
         for m0crate_log in $M0CRATE_ARTIFACTS_DIR/m0crate.*.log; do
             local fname=$(echo $m0crate_log | awk -F "/" '{print $NF}')
+            local motr_port=$(echo $fname | awk -F '.' '{print $2}')
             local hostname=$(echo $fname | sed "s/m0crate.$motr_port.//" | sed "s/.log//")
+            
             echo "Benchmark: m0crate" >> $PERF_RESULTS_FILE
             echo "Host: $hostname" >> $PERF_RESULTS_FILE
+            echo "Motr port: $motr_port" >> $PERF_RESULTS_FILE
             $SCRIPT_DIR/../stat/report_generator/m0crate_log_parser.py \
                     $m0crate_log >> $PERF_RESULTS_FILE
             echo "" >> $PERF_RESULTS_FILE

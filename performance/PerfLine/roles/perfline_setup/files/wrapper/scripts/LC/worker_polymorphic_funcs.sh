@@ -33,7 +33,7 @@ function stop_cluster() {
     echo "Stop LC cluster"
 
     # let's try to wait for m0d to complete all operations
-    #sleep 120
+    sleep 120
 
     ssh $PRIMARY_NODE "cd $K8S_SCRIPTS_DIR && ./shutdown-cortx-cloud.sh"
 }

@@ -33,7 +33,7 @@ function stop_cluster() {
     echo "Stop LC cluster"
 
     # let's try to wait for m0d to complete all operations
-    sleep 120
+    #sleep 120
 
     ssh $PRIMARY_NODE "cd $K8S_SCRIPTS_DIR && ./shutdown-cortx-cloud.sh"
 }
@@ -63,7 +63,8 @@ function restart_cluster() {
     detect_primary_pod
     wait_for_cluster_start
 
-    ssh $PRIMARY_NODE "kubectl get pod"    
+    ssh $PRIMARY_NODE "kubectl get pod"
+    sleep 120    
 }
 
 function wait_for_cluster_start() {
@@ -76,6 +77,25 @@ function wait_for_cluster_start() {
     
     # $EX_SRV $SCRIPT_DIR/wait_s3_listeners.sh $S3SERVER
     # sleep 300
+}
+
+function save_m0crate_artifacts()
+{
+    local m0crate_workdir="/tmp/m0crate_tmp"
+    $EX_SRV "scp -r $m0crate_workdir/m0crate.*.log $PRIMARY_NODE:$(pwd)"
+    $EX_SRV "scp -r $m0crate_workdir/test_io.*.yaml $PRIMARY_NODE:$(pwd)"
+    
+    if [[ -n $ADDB_DUMPS ]]; then
+        ssh $PRIMARY_NODE $SCRIPT_DIR/process_addb --host $(hostname) --dir $(pwd) \
+            --app "m0crate" --m0crate-workdir $m0crate_workdir \
+            --start $START_TIME --stop $STOP_TIME
+    fi
+
+    if [[ -n $M0TRACE_FILES ]]; then
+        ssh $PRIMARY_NODE $SCRIPT_DIR/save_m0traces $(hostname) $(pwd) "m0crate" "$m0crate_workdir"
+    fi
+
+    $EX_SRV "rm -rf $m0crate_workdir"
 }
 
 function save_motr_configs() {

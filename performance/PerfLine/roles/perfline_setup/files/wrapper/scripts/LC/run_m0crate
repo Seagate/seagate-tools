@@ -133,8 +133,10 @@ prepare_and_run() {
        kubectl exec -it $POD -- m0crate -S test_io.$(hostname).yaml &>> $logfile 
        m0crate_pids="$m0crate_pids $!"
        wait $m0crate_pids
-       kubectl exec -it $POD -- rm -f $random_file 
-       
+       m0trace_data=$(kubectl exec -it $POD -- ls | grep "m0trace" | awk '{ print $1}')
+       kubectl cp $POD:$m0trace_data /tmp/m0crate_tmp/$m0trace_data
+       kubectl exec -it $POD -- rm -f $m0trace_data
+ 
 }
 
 prepare_and_run $@

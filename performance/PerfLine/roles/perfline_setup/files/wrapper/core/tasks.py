@@ -25,6 +25,8 @@ import plumbum
 import json
 import yaml
 
+
+
 def get_overrides(overrides):
     return " ".join([f"{x}={y}" for (x, y) in overrides.items()])
 
@@ -266,7 +268,7 @@ def run_worker(conf, result_dir, logdir):
     return result
 
 def sw_update(conf, result_dir, logdir):
-    options = ["scripts/update.sh"]
+    options = ["scripts/sw_update.sh"]
     result = 'SUCCESS'
     if 'custom_build' in conf:
         mv = plumbum.local['mv']
@@ -414,11 +416,11 @@ def worker_task(conf_opt, task):
         #         result['finish_time'] = str(datetime.now())
         #         failed = True
                
-        # if not failed:
-        #     ret = sw_update(conf, result["artifacts_dir"], result["log_dir"])
-        #     if ret == 'FAILED':
-        #         result['finish_time'] = str(datetime.now())
-        #         failed = True
+        if not failed:
+             ret = sw_update(conf, result["artifacts_dir"], result["log_dir"])
+             if ret == 'FAILED':
+                 result['finish_time'] = str(datetime.now())
+                 failed = True
 
         # if not failed:
         #     ret = update_configs(conf, result["artifacts_dir"], result["log_dir"])

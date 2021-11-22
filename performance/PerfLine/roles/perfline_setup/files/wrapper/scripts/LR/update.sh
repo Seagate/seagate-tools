@@ -7,7 +7,7 @@ SCRIPT_NAME=`echo $0 | awk -F "/" '{print $NF}'`
 SCRIPT_PATH="$(readlink -f $0)"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 
-PERFLINE_DIR="$SCRIPT_DIR/../.."
+PERFLINE_DIR="$SCRIPT_DIR/../../.."
 DOCKER_DIR="$PERFLINE_DIR/docker"
 CORTX_DIR="$DOCKER_DIR/cortx"
 RPM_DIR="$PERFLINE_DIR/rpm"
@@ -15,8 +15,8 @@ RPM_DIR="$PERFLINE_DIR/rpm"
 DOCKER_ARTIFACTS_DIR="/var/artifacts"
 BUILD_DIR="$DOCKER_ARTIFACTS_DIR/0"
 
-source "$SCRIPT_DIR/../../perfline.conf"
-source "$SCRIPT_DIR/cluster_status.sh"
+source "$SCRIPT_DIR/../../../perfline.conf"
+source "$SCRIPT_DIR/../cluster_status.sh"
 
 EX_SRV="pdsh -S -w $NODES"
 PRIMARY_NODE=$(echo "$NODES" | cut -d "," -f1)

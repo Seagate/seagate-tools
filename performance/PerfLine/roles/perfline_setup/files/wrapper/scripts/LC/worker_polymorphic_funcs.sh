@@ -59,7 +59,13 @@ function detect_primary_pod()
 function restart_cluster() {
     echo "Restart LC cluster (PODs)"
 
-    ssh $PRIMARY_NODE "cd $K8S_SCRIPTS_DIR && ./start-cortx-cloud.sh"
+    if [[ -n "$MKFS" ]]; then
+        ssh $PRIMARY_NODE "cd $K8S_SCRIPTS_DIR && ./destroy-cortx-cloud.sh"
+        ssh $PRIMARY_NODE "cd $K8S_SCRIPTS_DIR && ./deploy-cortx-cloud.sh"
+    else
+        ssh $PRIMARY_NODE "cd $K8S_SCRIPTS_DIR && ./start-cortx-cloud.sh"
+    fi
+
     detect_primary_pod
     wait_for_cluster_start
 

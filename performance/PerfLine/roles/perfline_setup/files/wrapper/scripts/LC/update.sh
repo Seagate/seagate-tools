@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#set -e
+set -e
 set -x
 
 SCRIPT_NAME=`echo $0 | awk -F "/" '{print $NF}'`
@@ -46,14 +46,15 @@ function docker_image_cleanups() {
     pdsh -S -w $NODES "rm -rf /mnt/fs-local-volume/*"
   
 }
+
 function update_solution_file() {
     output=`python3  <<END
 import yaml
 import sys
-fname = "$K8S_SCRIPTS_DIR/solution.yaml.bak"
+fname = "$K8S_SCRIPTS_DIR/solution.yaml"
 
-stream = open(fname, 'r')
-data = yaml.safe_load(stream)
+with open(fname, 'r') as f:
+    data = yaml.safe_load(f)
 data['solution']['images']['cortxcontrolprov'] = "$URL"
 data['solution']['images']['cortxcontrol'] = "$URL"
 data['solution']['images']['cortxdataprov'] = "$URL"
@@ -68,8 +69,6 @@ END`
 echo $output
 
 }
-
-
 
 function main() {
     echo $@
@@ -88,31 +87,6 @@ function main() {
 
 }
 
-function validate() {
-    local leave=
-
-    if [[ -z "$URL" ]]; then
-       if [[ -z "$MOTR_BRANCH" ]]; then
-           echo "Motr branch is not specified"
-           leave="1"
-       fi
-   
-       if [[ -z "$S3_BRANCH" ]]; then
-           echo "S3 server branch is not specified"
-           leave="1"
-       fi
-   
-       if [[ -z "$HARE_BRANCH" ]]; then
-           echo "Hare branch is not specified"
-           leave="1"
-       fi
-    fi
-
-    if [[ -n $leave ]]; then
-        exit 1
-    fi
-}
-
 function check_arg_count() {
     [[ $# -gt 2 ]] || {
         echo -e "Incorrect use of the option $1\nUse --help option"
@@ -124,37 +98,6 @@ echo "parameters: $@"
 
 while [[ $# -gt 0 ]]; do
     case $1 in
-        -m|--motr_id)
-	    check_arg_count $1 $2 $3
-	    MOTR_REPO=$2
-            MOTR_BRANCH=$3
-            shift
-            shift
-            ;;
-        -h|--hare_id)
-	    check_arg_count $1 $2 $3
-	    HARE_REPO=$2
-            HARE_BRANCH=$3
-            shift
-            shift
-            ;;
-    --use-lnet)
-        BUILD_MOTR_WITH_LNET='1'
-        ;;
-	-s|--s3_id)
-	    check_arg_count $1 $2 $3
-            S3_REPO=$2
-            S3_BRANCH=$3
-            shift
-	    shift
-            ;;
-	-u|--utils_id)
-	    check_arg_count $1 $2 $3
-            UTILS_REPO=$2
-            UTILS_BRANCH=$3
-            shift
-	    shift
-            ;;
 	--nodes)
             NODES=$2
             EX_SRV="pdsh -S -w $NODES"
@@ -164,10 +107,7 @@ while [[ $# -gt 0 ]]; do
             URL=$2
             shift
             ;;
-	--help)
-	    echo -e "Usage: bash update.sh --motr_id a1b2d3e --s3_id bbccdde --hare_id abcdef1\n" 
-	    exit 0
-	    ;;
+
         *)
             echo -e "Invalid option: $1\nUse --help option"
             exit 1
@@ -176,6 +116,5 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-validate
 main
 

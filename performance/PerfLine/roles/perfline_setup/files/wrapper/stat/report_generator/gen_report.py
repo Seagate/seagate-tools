@@ -1,4 +1,4 @@
-from os import listdir, getcwd
+from os import listdir, getcwd, walk
 from os.path import isdir, join, isfile, isdir
 
 import fnmatch
@@ -284,14 +284,13 @@ def parse_report_info(report_dir):
     m0crate_dir = join(report_dir, 'm0crate')
     m0crate_rw_stats = {}
     if isdir(m0crate_dir):
-        m0crate_logs = [f for f in listdir(
-            m0crate_dir) if isfile(join(m0crate_dir, f)) and f.endswith('.log')]
+        for dir_path, dirs, files in walk(m0crate_dir):
+            m0crate_logs = list(filter(lambda f_name: f_name.endswith('.log'), files))
+            workload_filenames.extend(m0crate_logs)
 
-        workload_filenames.extend(m0crate_logs)
-
-        for m0crate_log in m0crate_logs:
-            m0crate_log_path = join(m0crate_dir, m0crate_log)
-            m0crate_rw_stats[m0crate_log] = m0crate_log_parser.parse_m0crate_log(m0crate_log_path)
+            for f in m0crate_logs:
+                m0crate_log_path = join(dir_path, f)
+                m0crate_rw_stats[f] = m0crate_log_parser.parse_m0crate_log(m0crate_log_path)
 
     return m0crate_rw_stats, workload_filenames, iperf_rw_stat, csv_report_content
 

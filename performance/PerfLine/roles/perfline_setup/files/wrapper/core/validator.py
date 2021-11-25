@@ -128,7 +128,7 @@ def get_schema_motr():
             'oneof': [
                 {
                     'schema': {
-                        'url': {'type': 'string', 'empty': False},
+                        'update_resource': {'type': 'string', 'empty': False},
                     }
                 },
                 {

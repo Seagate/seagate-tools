@@ -116,35 +116,33 @@ prepare_and_run() {
     local hostname="$1"
     shift
 
-       local src_data_file="/tmp/128M"
-       _get_cluster_params $hostname
-       kubectl exec -it $POD -- rm -f $src_data_file
-       kubectl exec -it $POD -- dd if=/dev/urandom of="$src_data_file" bs=1M count=128 &> /dev/null
-       _set_default_m0crate_params
-       _parse_m0crate_params $@
+    local src_data_file="/tmp/128M"
+    _get_cluster_params $hostname
+    kubectl exec -it $POD -- rm -f $src_data_file
+    kubectl exec -it $POD -- dd if=/dev/urandom of="$src_data_file" bs=1M count=128 &> /dev/null
+    _set_default_m0crate_params
+    _parse_m0crate_params $@
 
-       local m0crate_pids=""
+    local m0crate_pids=""
 
-       logfile="m0crate.$iteration.$MOTR_PORTS.$hostname.log"
-       MOTR_LOCAL_ADDR_EXT=${APP_IP_EXT}
-       PROCESS_FID=$(echo "$HCTL_STATUS" | grep m0_client \
-                | grep "${MOTR_LOCAL_ADDR_EXT}" | awk '{print $3}')
+    logfile="m0crate.$iteration.$MOTR_PORTS.$hostname.log"
+    MOTR_LOCAL_ADDR_EXT=${APP_IP_EXT}
+    PROCESS_FID=$(echo "$HCTL_STATUS" | grep m0_client \
+            | grep "${MOTR_LOCAL_ADDR_EXT}" | awk '{print $3}')
 
-       local m0crate_conf="$(pwd)/test_io.$iteration.$MOTR_PORTS.$hostname.yaml"
-       cp $SCRIPT_DIR/../test_io.yaml.template $m0crate_conf
-       _set_m0crate_config_file_params "$m0crate_conf" > $logfile
-       echo "$m0crate_conf"
+    local m0crate_conf="$(pwd)/test_io.$iteration.$MOTR_PORTS.$hostname.yaml"
+    cp $SCRIPT_DIR/../test_io.yaml.template $m0crate_conf
+    _set_m0crate_config_file_params "$m0crate_conf" > $logfile
+    echo "$m0crate_conf"
 
+    # create directory for m0crate
+    # TODO check if /share/var/log/cortx exists
+    local machine_id=$(kubectl exec $POD -- bash -c 'cat /etc/machine-id')
+    local m0crate_dir="/share/var/log/cortx/m0crate/$iteration/$machine_id/m0crate-$PROCESS_FID"
+    kubectl exec $POD -- bash -c "mkdir -p $m0crate_dir"
 
-        # create directory for m0crate
-        # TODO check if /share/var/log/cortx exists
-        local machine_id=$(kubectl exec $POD -- bash -c 'cat /etc/machine-id')
-        local m0crate_dir="/share/var/log/cortx/m0crate/$iteration/$machine_id/m0crate-$PROCESS_FID"
-        kubectl exec $POD -- bash -c "mkdir -p $m0crate_dir"
-
-
-       kubectl cp $m0crate_conf $POD:$m0crate_dir/test_io.$iteration.$MOTR_PORTS.$hostname.yaml
-       kubectl exec $POD -- bash -c "cd $m0crate_dir && m0crate -S test_io.$iteration.$MOTR_PORTS.$hostname.yaml &>> $logfile"  
+    kubectl cp $m0crate_conf $POD:$m0crate_dir/test_io.$iteration.$MOTR_PORTS.$hostname.yaml
+    kubectl exec $POD -- bash -c "cd $m0crate_dir && m0crate -S test_io.$iteration.$MOTR_PORTS.$hostname.yaml &>> $logfile"  
 }
 
 prepare_and_run $@

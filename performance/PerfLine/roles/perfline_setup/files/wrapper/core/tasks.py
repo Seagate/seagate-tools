@@ -273,9 +273,9 @@ def sw_update(conf, result_dir, logdir):
     if 'custom_build' in conf:
         mv = plumbum.local['mv']
         params = conf['custom_build']
-        if 'url' in params:
-            options.append('--url')
-            options.append(params['url'])
+        if 'update_resource' in params:
+            options.append('--update-resource')
+            options.append(params['update_resource'])
         else:
             if 'use_lnet' in params['motr']:
                 if params['motr']['use_lnet']:

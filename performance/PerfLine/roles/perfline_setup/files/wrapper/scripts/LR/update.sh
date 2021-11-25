@@ -501,7 +501,7 @@ while [[ $# -gt 0 ]]; do
             EX_SRV="pdsh -S -w $NODES"
             shift
             ;;
-	--url)
+	--update-resource)
             URL=$2
             shift
             ;;

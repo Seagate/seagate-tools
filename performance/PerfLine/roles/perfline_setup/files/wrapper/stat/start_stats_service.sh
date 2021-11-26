@@ -2,12 +2,16 @@
 
 set -x
 
-CLUSTER_CONFIG_FILE="/var/lib/hare/cluster.yaml"
-ASSIGNED_IPS=$(ifconfig | grep inet | awk '{print $2}')
-SCRIPT_PATH="$(readlink -f $0)"
-SCRIPT_DIR="${SCRIPT_PATH%/*}"
-RESULT=$(python3 $SCRIPT_DIR/extract_disks.py $CLUSTER_CONFIG_FILE $ASSIGNED_IPS)
-DISKS=`echo "$RESULT" | grep 'IO:' | sed 's/IO://'`
+# # LR CODE
+# CLUSTER_CONFIG_FILE="/var/lib/hare/cluster.yaml"
+# ASSIGNED_IPS=$(ifconfig | grep inet | awk '{print $2}')
+# SCRIPT_PATH="$(readlink -f $0)"
+# SCRIPT_DIR="${SCRIPT_PATH%/*}"
+# RESULT=$(python3 $SCRIPT_DIR/extract_disks.py $CLUSTER_CONFIG_FILE $ASSIGNED_IPS)
+# DISKS=`echo "$RESULT" | grep 'IO:' | sed 's/IO://'`
+
+# LC CODE
+DISKS=`cat /tmp/cortx_disks_map | grep 'IO:' | sed 's/IO://'`
 
 function removing_dir()
 {

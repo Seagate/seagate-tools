@@ -1,4 +1,4 @@
-from os import listdir, getcwd
+from os import listdir, getcwd, walk
 from os.path import isdir, join, isfile, isdir
 
 import fnmatch
@@ -284,14 +284,13 @@ def parse_report_info(report_dir):
     m0crate_dir = join(report_dir, 'm0crate')
     m0crate_rw_stats = {}
     if isdir(m0crate_dir):
-        m0crate_logs = [f for f in listdir(
-            m0crate_dir) if isfile(join(m0crate_dir, f)) and f.endswith('.log')]
+        for dir_path, dirs, files in walk(m0crate_dir):
+            m0crate_logs = list(filter(lambda f_name: f_name.endswith('.log'), files))
+            workload_filenames.extend(m0crate_logs)
 
-        workload_filenames.extend(m0crate_logs)
-
-        for m0crate_log in m0crate_logs:
-            m0crate_log_path = join(m0crate_dir, m0crate_log)
-            m0crate_rw_stats[m0crate_log] = m0crate_log_parser.parse_m0crate_log(m0crate_log_path)
+            for f in m0crate_logs:
+                m0crate_log_path = join(dir_path, f)
+                m0crate_rw_stats[f] = m0crate_log_parser.parse_m0crate_log(m0crate_log_path)
 
     return m0crate_rw_stats, workload_filenames, iperf_rw_stat, csv_report_content
 
@@ -562,10 +561,10 @@ def main():
         nodes_stat_dirs)
 
     # Configs
-    motr_config, cluster_nodes_info = parse_config_info(report_dir, node_names)
+#    motr_config, cluster_nodes_info = parse_config_info(report_dir, node_names)
 
     # S3
-    s3_config_info, hosts_info, haproxy_info = parse_s3_info(report_dir)
+#    s3_config_info, hosts_info, haproxy_info = parse_s3_info(report_dir)
 
     # Read report output
     m0crate_rw_stats, workload_filenames, iperf_rw_stat, csv_report_content = parse_report_info(report_dir)
@@ -603,15 +602,15 @@ def main():
             lnet_info=lnet_info,
             multipath_conf=multipath_conf,
             multipath_info=multipath_info,
-            m0crate_rw_stats=m0crate_rw_stats,
+#            m0crate_rw_stats=m0crate_rw_stats,
             workload_filenames=workload_filenames,
-            iperf_rw_stat=iperf_rw_stat,
+#            iperf_rw_stat=iperf_rw_stat,
             mems=mems,
-            s3_config_info=s3_config_info,
-            hosts_info=hosts_info,
-            haproxy_info=haproxy_info,
-            motr_config=motr_config,
-            cluster_nodes_info=cluster_nodes_info,
+#            s3_config_info=s3_config_info,
+#            hosts_info=hosts_info,
+#            haproxy_info=haproxy_info,
+#            motr_config=motr_config,
+#            cluster_nodes_info=cluster_nodes_info,
             network_infos=network_infos,
             node_names=node_names,
             workload_start_time=workload_start_time,
@@ -635,7 +634,7 @@ def main():
             datavolume_metrics=datavolume_metrics,
             mdvolume_metrics=mdvolume_metrics,
             csv_report_content=csv_report_content,
-            pids_info=pids_info
+#            pids_info=pids_info
         ))
 
 

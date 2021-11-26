@@ -1,0 +1,28 @@
+---
+ - name: "[COSBench] Preaparing Cluster Node List"
+   set_fact: nodelist={%for host in groups['nodes']%}{{hostvars[host]['ansible_host']}}{% if not loop.last %},{% endif %}{% endfor %}
+
+ - name: "Importing configuration"
+   include_vars: s3config.yml
+
+ - name: "[COSBench] Preparing Configuration for low load"
+   vars:
+      runconfig:
+         nodelist: "{{ nodelist }}"
+         numclients: "{{ item[0] }}"
+         objsize: "{{ item[1].objsize }}"
+         numsamples: "{{ item[1].numsamples }}"
+         buckets: "{{ buckets[0] }}"
+   ansible.builtin.include_tasks: execute_cosbench.yml
+   loop: "{{ low_load.sessions|product(low_load.objs)|list }}"
+
+ - name: "[COSBench] Preparing Configuration for high load"
+   vars:
+      runconfig:
+         nodelist: "{{ nodelist }}"
+         numclients: "{{ item[0] }}"
+         objsize: "{{ item[1].objsize }}"
+         numsamples: "{{ item[1].numsamples }}"
+         buckets: "{{ buckets[0] }}"
+   ansible.builtin.include_tasks: execute_cosbench.yml
+   loop: "{{ high_load.sessions|product(high_load.objs)|list }}"

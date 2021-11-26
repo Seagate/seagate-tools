@@ -1,64 +1,19 @@
 ---
- - name: Check if yum.repos.d dir backup exist and remove it if it exists
-   file:
-     state: absent
-     path: /etc/bak.yum.repos.d
-   delegate_to: "{{ item }}"
-   with_items: "{{ groups['all'] }}"
-
- - name: Backing up 'yum.repos.d' as 'bak.yum.repos.d'
-   shell: mv /etc/yum.repos.d /etc/bak.yum.repos.d; sleep 1
-   delegate_to: "{{ item }}"
-   with_items: "{{ groups['all'] }}"
-
- 
- - name: Backing up 'pip.conf' as 'bak.pip.conf'
-   shell: mv /etc/pip.conf /etc/bak.pip.conf; sleep 1
-   delegate_to: "{{ item }}"
-   with_items: "{{ groups['all'] }}"
-
- - name: Setting up perfpro yum dir
-   unarchive:
-     src: files/yum.repos.d.tar.gz
-     dest: /etc/
-   delegate_to: "{{ item }}"
-   with_items: "{{ groups['all'] }}"
-
- - name: "[pre-requisites]: Updating required yum packages"
+ - name: "[pre-requisites]: Installing required yum packages on all hosts"
    yum:
      name:
-       - ansible
        - ntp
        - sysstat
        - python3
        - python3-pip
-       - pdsh
      state: present
    delegate_to: "{{ item }}"
    with_items: "{{ groups['all'] }}"
 
- - name: "[Services/daemons:start|stop|restart]: Checking network time protocol service daemon"
-   shell: systemctl stop ntpd ; /usr/sbin/ntpdate time.seagate.com ; systemctl start ntpd
-   delegate_to: "{{ item }}"
-   with_items: "{{ groups['all'] }}"
-
- - name: Updating python pip version on client nodes
-   shell: pip3 install update pip
-   delegate_to: "{{ item }}"
-   with_items: "{{ groups['clients'] }}"
-
- - name: Setting up required python3 packages on client nodes
-   pip:
-     name:
-       - setuptools_rust
-       - wheel
-     executable: pip3
-   delegate_to: "{{ item }}"
-   with_items: "{{ groups['clients'] }}"
-
- - name: Installing go on client nodes
+ - name: "Installing required yum packages on clients"
    yum:
      name:
+       - pdsh
        - go >= 1.15
        - java
        - curl
@@ -68,7 +23,21 @@
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
 
- - name: Updating required python3 packages
+ - name: "Updating python3 pip version on clients"
+   shell: pip3 install update pip
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
+
+ - name: "Updating required python3 packages on clients"
+   pip:
+     name:
+       - setuptools_rust
+       - wheel
+     executable: pip3
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['all'] }}"
+
+ - name: "Updating required python3 packages on all"
    pip:
      name:
        - PyYAML==5.3.1
@@ -81,3 +50,9 @@
      executable: pip3
    delegate_to: "{{ item }}"
    with_items: "{{ groups['all'] }}"
+
+ - name: "[Services/daemons:start|stop|restart]: Checking network time protocol service daemon"
+   shell: systemctl stop ntpd ; /usr/sbin/ntpdate time.seagate.com ; systemctl start ntpd
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['all'] }}"
+

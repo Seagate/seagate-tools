@@ -70,8 +70,6 @@
    with_items: "{{ groups['clients'] }}"
    when: (cred.status == 201) or (cred.status == 200)
 
- - include: finish_setup.yml
-
  - name: Make an entry for config.yml on a database
    command: python3 /root/PerfProBenchmark/addconfiguration.py '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'
    delegate_to: "{{ item }}"

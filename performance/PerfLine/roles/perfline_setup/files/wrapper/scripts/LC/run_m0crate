@@ -54,7 +54,7 @@ _get_cluster_params() {
     IOS_FID=$(echo "$HCTL_STATUS" \
          | grep "\[.*\].*ioservice" | grep $hostname | awk '{print $3}' | tr -d '\r')
 
-    MOTR_PORTS=$(echo "$HCTL_STATUS" | grep $hostname | grep m0_client | grep unknown \
+    MOTR_PORTS=$(echo "$HCTL_STATUS" | grep $hostname | grep m0_client | grep -E 'unknown|offline' \
         | awk '{print $4}' | awk -F@ '{print $NF}' | head -1 | tr -d '\r')
 }
 

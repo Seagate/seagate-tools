@@ -1,6 +1,6 @@
 #!/bin/expect -f
 # ./passwordless_ssh.sh node username pass
-spawn ssh-copy-id -o "StrictHostKeyChecking=no" -o "CheckHostIP=no" [lindex $argv 0]@[lindex $argv 1]
+spawn ssh-copy-id -o "StrictHostKeyChecking=no" -o "CheckHostIP=no" -i /root/.ssh/id_rsa [lindex $argv 0]@[lindex $argv 1]
 set timeout 10
 expect {
     timeout {

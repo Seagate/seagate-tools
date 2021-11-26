@@ -45,7 +45,8 @@
     copy:
       src: files/perfline.conf
       dest: "{{ PERFLINE_DIR }}"
-    delegate_to: "client-1"
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['all'] }}"
 
   - name: Open port for webui
     firewalld: 
@@ -57,6 +58,7 @@
     delegate_to: "client-1"
     with_items:
        - { port: "{{ perfline_ui_port }}", proto: "tcp", state: "enabled", zone: "management-zone" }
+    ignore_errors: yes
     
 
   - name: Copying local.repo in "/etc/yum.repo.d/" location
@@ -65,6 +67,27 @@
       dest: /etc/yum.repos.d/
     delegate_to: "{{ item }}"
     with_items: "{{ groups['nodes'] }}"
+
+  - name: Install perfline system dependencies
+    yum:
+      name:
+        - gcc
+        - ansible
+        - sysstat
+        - pdsh
+        - dstat
+        - blktrace
+        - iowatcher
+        - zlib-devel
+        - libjpeg
+        - libjpeg-devel
+        - python3-devel
+        - ftp
+        - fio
+        - iperf
+      state: present
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['all'] }}"
 
   - name: Install perfline python dependencies
     pip:
@@ -81,25 +104,10 @@
         - iostat-tool
         - peewee
         - graphviz
+        - awscli
+        - awscli-plugin-endpoint
       executable: pip3
       extra_args: -i https://pypi.org/simple
-    delegate_to: "{{ item }}"
-    with_items: "{{ groups['all'] }}"
-
-  - name: Install perfline system dependencies
-    yum:
-      name:
-        - ansible
-        - sysstat
-        - pdsh
-        - dstat
-        - blktrace
-        - iowatcher
-        - python3-devel
-        - ftp
-        - fio
-        - iperf
-      state: present
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 

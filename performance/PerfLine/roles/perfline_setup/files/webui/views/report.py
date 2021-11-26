@@ -38,11 +38,11 @@ def define_path_for_report_imgs(tid, location):
             path_to_workload) if isfile(join(path_to_workload, f))})
 
     if isdir(path_to_m0crate_logs):
-        for f in os.listdir(path_to_m0crate_logs):
-            f_path = join(path_to_m0crate_logs, f)
+        for dir_path, dirs, files in os.walk(path_to_m0crate_logs):
+            m0crate_logs_filtered = filter(lambda f_name: f_name.endswith('.log'), files)
 
-            if isfile(f_path) and f.endswith('.log'):
-                workload_files[f] = f_path
+            for f in m0crate_logs_filtered:
+                workload_files[f] = join(dir_path, f)
 
     iostat_aggegated_imgs = [
         f'{path}/iostat/iostat.aggregated.png' for path in nodes_stat_dirs]

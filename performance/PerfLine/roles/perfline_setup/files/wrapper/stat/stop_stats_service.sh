@@ -2,15 +2,22 @@
 
 set -x
 
-CLUSTER_CONFIG_FILE="/var/lib/hare/cluster.yaml"
-ASSIGNED_IPS=$(ifconfig | grep inet | awk '{print $2}')
-SCRIPT_PATH="$(readlink -f $0)"
-SCRIPT_DIR="${SCRIPT_PATH%/*}"
-RESULT=$(python3 $SCRIPT_DIR/extract_disks.py $CLUSTER_CONFIG_FILE $ASSIGNED_IPS)
-NODE=`echo $RESULT | cut -d' ' -f 1`
-CURRENT_NODE="srvnode-${NODE}"
-DISKS=`echo "$RESULT" | grep 'IO:' | sed 's/IO://'`
-MD_DISKS=`echo "$RESULT" | grep 'MD:' | sed 's/MD://'`
+# # LR CODE
+# CLUSTER_CONFIG_FILE="/var/lib/hare/cluster.yaml"
+# ASSIGNED_IPS=$(ifconfig | grep inet | awk '{print $2}')
+# SCRIPT_PATH="$(readlink -f $0)"
+# SCRIPT_DIR="${SCRIPT_PATH%/*}"
+# RESULT=$(python3 $SCRIPT_DIR/extract_disks.py $CLUSTER_CONFIG_FILE $ASSIGNED_IPS)
+# NODE=`echo $RESULT | cut -d' ' -f 1`
+# CURRENT_NODE="srvnode-${NODE}"
+# DISKS=`echo "$RESULT" | grep 'IO:' | sed 's/IO://'`
+# MD_DISKS=`echo "$RESULT" | grep 'MD:' | sed 's/MD://'`
+
+
+# LC CODE
+DISKS=`cat /tmp/cortx_disks_map | grep 'IO:' | sed 's/IO://'`
+MD_DISKS=`cat /tmp/cortx_disks_map | grep 'MD:' | sed 's/MD://'`
+
 
 function iostat_service_stop()
 {

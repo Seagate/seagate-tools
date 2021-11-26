@@ -100,12 +100,20 @@ function main() {
 }
 
 function validate() {
+    local leave=
 
     if [[ -z "$IMAGE" ]]; then
        echo "Docker Images are not specified"
+       leave="1"
     fi
+
     if [[ -z "$NODES" ]]; then
        echo "Docker Images are not specified"
+       leave="1"
+    fi
+
+    if [[ -n $leave ]]; then
+        exit 1
     fi
     
 }

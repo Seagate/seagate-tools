@@ -132,6 +132,11 @@ def get_schema_motr():
                     }
                 },
                 {
+                    'schema': {
+                        'update_resource': {'type': 'string', 'empty': False},
+                    }
+                },
+                {
                 'schema': {
                  'motr': {
                     'type': 'dict', 

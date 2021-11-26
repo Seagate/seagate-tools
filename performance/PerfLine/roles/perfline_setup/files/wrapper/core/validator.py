@@ -128,6 +128,11 @@ def get_schema_motr():
             'oneof': [
                 {
                     'schema': {
+                        'url': {'type': 'string', 'empty': False},
+                    }
+                },
+                {
+                    'schema': {
                         'update_resource': {'type': 'string', 'empty': False},
                     }
                 },

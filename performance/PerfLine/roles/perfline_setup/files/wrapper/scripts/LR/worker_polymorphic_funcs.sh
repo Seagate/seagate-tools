@@ -1,11 +1,14 @@
 
-
-function print_hello()
-{
-    echo "Hello from LR cluster!!!"
+function is_cluster_online() {
+    local all_services=$(ssh $1 'hctl status | grep "\s*\[.*\]"')
+    local srvc_states=$(echo "$all_services" | grep -E 's3server|ioservice|confd|hax' | awk '{print $1}')
+    for state in $srvc_states; do
+        if [[ "$state" != "[started]" ]]; then
+            return 1
+        fi
+    done
+    return 0
 }
-
-
 
 function stop_hare() {
     ssh $PRIMARY_NODE 'hctl shutdown || true'    
@@ -284,4 +287,23 @@ function collect_artifacts() {
 
     # generate structured form of stats
     $SCRIPT_DIR/../stat/gen_run_metadata.py -a $(pwd) -o run_metadata.json
+}
+
+function m0crate_workload()
+{
+    local iteration=$1 # TODO: use it in order to support multiple m0crate runs
+    shift
+
+    local m0crate_params=$@
+    START_TIME=`date +%s000000000`
+    local m0crate_work_dir="/tmp/m0crate_tmp" #TODO: make it random
+
+    $EX_SRV "if [[ -d "$m0crate_work_dir" ]]; then rm -rf $m0crate_work_dir; fi;"   
+    $EX_SRV "mkdir -p $m0crate_work_dir \
+             && cd $m0crate_work_dir \
+             && $SCRIPT_DIR/$CLUSTER_TYPE/run_m0crate $m0crate_params"
+    
+    STATUS=$?
+    STOP_TIME=`date +%s000000000`
+    sleep 120
 }

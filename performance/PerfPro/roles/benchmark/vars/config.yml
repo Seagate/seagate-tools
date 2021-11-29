@@ -1,6 +1,5 @@
 ---
 # For host file update : add for more nodes/clients in environment or remove if less nodes/clients .
-MGMT_VIP: 
 NODES:  
   - 1:  # node_number_srvnode-1: hostname of node1 .
   - 2:  # node_number_srvnode-2: hostname of node2 .
@@ -12,13 +11,6 @@ CLIENTS:
 # For Build and SystemUnderTest INFO
 BUILD_URL: 
 CLUSTER_PASS: seagate1
-CHANGE_PASS: 'no'
-PRVSNR_CLI_REPO: https://github.com/Seagate/cortx-prvsnr@cortx-1.0#subdirectory=api/python
-PREREQ_URL: https://raw.githubusercontent.com/Seagate/cortx-prvsnr/cortx-1.0/cli/src/cortx-prereqs.sh
-
-# If you want to change server password then enter below details
-SERVICE_USER:
-SERVICE_PASS:
 
 # For PerfPro MongoDB related Entries
 END_POINTS: https://s3.seagate.com
@@ -32,7 +24,6 @@ NFS_SERVER:
 NFS_EXPORT: 
 NFS_MOUNT_POINT: 
 NFS_FOLDER: 
-#End of NFS config
 
 #END
 required_vars:
@@ -40,9 +31,7 @@ required_vars:
   - CLIENTS
   - BUILD_URL
   - CLUSTER_PASS
-  - SATELLITE_UN
-  - SATELLITE_PW
-  - CHANGE_PASS
+  - END_POINTS
   - PC_FULL
   - OVERWRITE
   - CUSTOM
@@ -51,4 +40,3 @@ required_vars:
   - NFS_EXPORT
   - NFS_MOUNT_POINT
   - NFS_FOLDER
-

@@ -5,7 +5,7 @@
  - name: "Importing configuration"
    include_vars: s3config.yml
 
- - name: "[HSBench] Preparing Configuration for low load"
+ - name: "[HSBench] Preparing Configuration for low load with {{ buckets[0] }} bucket"
    vars:
       runconfig:
          nodelist: "{{ nodelist }}"
@@ -15,8 +15,9 @@
          buckets: "{{ buckets[0] }}"
    ansible.builtin.include_tasks: execute_hsbench.yml
    loop: "{{ low_load.sessions|product(low_load.objs)|list }}"
+   when: buckets[0] is defined
 
- - name: "[HSBench] Preparing Configuration for high load"
+ - name: "[HSBench] Preparing Configuration for high load with {{ buckets[0] }} bucket"
    vars:
       runconfig:
          nodelist: "{{ nodelist }}"
@@ -26,6 +27,7 @@
          buckets: "{{ buckets[0] }}"
    ansible.builtin.include_tasks: execute_hsbench.yml
    loop: "{{ high_load.sessions|product(high_load.objs)|list }}"
+   when: buckets[0] is defined
 
  - name: "[HSBench] Preparing Configuration for low load with {{ buckets[1] }} buckets"
    vars:
@@ -37,6 +39,7 @@
          buckets: "{{ buckets[1] }}"
    ansible.builtin.include_tasks: execute_hsbench.yml
    loop: "{{ low_load.sessions|product(low_load.objs)|list }}"
+   when: buckets[1] is defined
 
  - name: "[HSBench] Preparing Configuration for high load with {{ buckets[1] }} buckets"
    vars:
@@ -48,6 +51,7 @@
          buckets: "{{ buckets[1] }}"
    ansible.builtin.include_tasks: execute_hsbench.yml
    loop: "{{ high_load.sessions|product(high_load.objs)|list }}"
+   when: buckets[1] is defined
 
  - name: "[HSBench] Preparing Configuration for low load with {{ buckets[2] }} buckets"
    vars:
@@ -59,6 +63,7 @@
          buckets: "{{ buckets[2] }}"
    ansible.builtin.include_tasks: execute_hsbench.yml
    loop: "{{ low_load.sessions|product(low_load.objs)|list }}"
+   when: buckets[2] is defined
 
  - name: "[HSBench] Preparing Configuration for high load with {{ buckets[2] }} buckets"
    vars:
@@ -70,3 +75,4 @@
          buckets: "{{ buckets[2] }}"
    ansible.builtin.include_tasks: execute_hsbench.yml
    loop: "{{ high_load.sessions|product(high_load.objs)|list }}"
+   when: buckets[2] is defined

@@ -144,18 +144,21 @@
    shell: "date +%F-%H-%M-%S"
    register: tstamp
 
-
- - name: Rename perfpro_build<build> directory
-   shell: mv /root/PerfProBenchmark/perfpro_build{{ build.stdout }} /root/PerfProBenchmark/perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}
+ - name: Rearranging perfpro_build<build> directory data on clients
+   shell: |
+      mkdir /root/PerfProBenchmark/perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}
+      mv /root/PerfProBenchmark/perfpro_build{{ build.stdout }} /root/PerfProBenchmark/perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}/{{ item }}
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
 
+ - name: Collecting Results from all clients
+   command: scp -r {{ hostvars[item]['ansible_host'] }}:/root/PerfProBenchmark/perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}/{{ item }} /root/PerfProBenchmark/perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}/
+   delegate_to: "clientnode-1"
+   loop: "{{ groups['clients'] }}"
+   when: item != "clientnode-1"
 
  - name: Archiving artifacts to NFS server
    shell: |
      cd /root/PerfProBenchmark/ 
      python3 /root/PerfProBenchmark/archive_artifacts.py /root/PerfProBenchmark/config.yml perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}
-   delegate_to: "{{ item }}"
-   with_items: "{{ groups['clients'] }}"
-
-
+   delegate_to: "clientnode-1"

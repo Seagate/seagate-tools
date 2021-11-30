@@ -202,7 +202,7 @@ def insertOperations(files,Build,Version,col,Config_ID,Branch,OS,db): #function 
                             throughput = round(throughput,6)
 
                         lat={"Max":float(lines[count-4].split(":")[1][:-2]),"Avg":float(lines[count-5].split(":")[1][:-2]),"Min":float(lines[count-3].split(":")[1][:-2])}
-                        ttfb={"Max":float(lines[count+12].split(":")[1][:-2]),"Avg":float(lines[count+11].split(":")[1][:-2]),"Min":float(lines[count+13].split(":")[1][:-2])}
+                        ttfb={"Max":float(lines[count+12].split(":")[1][:-2]),"Avg":float(lines[count+11].split(":")[1][:-2]),"Min":float(lines[count+13].split(":")[1][:-2]),"99p":float(lines[count+10].split(":")[1][:-2])}
                         data = s3bench(filename,opname,iops,throughput,lat,ttfb,obj,Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID,overwrite,sessions,Objects,pc_full,custom,Run_Health)
                     
                         if find_iteration:
@@ -336,5 +336,3 @@ def main(argv):
 
 if __name__=="__main__":
     main(sys.argv) 
-
-#!/usr/bin/env python3

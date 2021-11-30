@@ -15,6 +15,7 @@
          buckets: "{{ buckets[0] }}"
    ansible.builtin.include_tasks: execute_cosbench.yml
    loop: "{{ low_load.sessions|product(low_load.objs)|list }}"
+   when: buckets[0] is defined
 
  - name: "[COSBench] Preparing Configuration for high load"
    vars:
@@ -26,3 +27,4 @@
          buckets: "{{ buckets[0] }}"
    ansible.builtin.include_tasks: execute_cosbench.yml
    loop: "{{ high_load.sessions|product(high_load.objs)|list }}"
+   when: buckets[0] is defined

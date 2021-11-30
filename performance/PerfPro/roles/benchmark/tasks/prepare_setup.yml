@@ -35,9 +35,9 @@
        - wheel
      executable: pip3
    delegate_to: "{{ item }}"
-   with_items: "{{ groups['all'] }}"
+   with_items: "{{ groups['clients'] }}"
 
- - name: "Updating required python3 packages on all"
+ - name: "Updating required python3 packages on all hosts"
    pip:
      name:
        - PyYAML==5.3.1

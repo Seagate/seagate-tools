@@ -40,35 +40,18 @@
    delegate_to: "{{ item }}"
    with_items: "{{ groups['all'] }}"
 
- - name: copying s3account.yml file to client
-   copy:
-      src: vars/s3account.yml
-      dest: /root/PerfProBenchmark/
-      owner: root
-      group: root
-      mode: '0644'
-   delegate_to: "{{ item }}"
-   with_items: "{{ groups['clients'] }}"
-
- - name: updating s3account.yml file on client with MGMT_VIP from config.yml
-   shell: |
-      mgmt_vip=`grep MGMT_VIP /root/PerfProBenchmark/config.yml | cut -d ":" -f2`
-      sed -i "s/ip : /ip : $mgmt_vip/" /root/PerfProBenchmark/s3account.yml
-   delegate_to: "{{ item }}"
-   with_items: "{{ groups['clients'] }}"
-
- - name: Create S3 account
-   command: python3 /root/PerfProBenchmark/S3UserCreation/main_createusers.py /root/PerfProBenchmark/s3account.yml
+ - name: Create S3 Account
+   command: python3 /root/PerfProBenchmark/s3account/create_s3user.py "{{ hostvars['srvnode-1']['ansible_host'] }}"
    register: resp
    delegate_to: "clientnode-1"
 
  - name: Configure S3 Credentials
    vars:
       cred: "{{ (resp.stdout | from_json) }}"
-   command: python3 /root/PerfProBenchmark/S3UserCreation/update_credentials.py '{{ cred.access }}' '{{ cred.secret }}'
+   command: python3 /root/PerfProBenchmark/s3account/update_credentials.py '{{ cred.access }}' '{{ cred.secret }}'
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
-   when: (cred.status == 201) or (cred.status == 200)
+   when: cred.status == 201
 
  - name: Make an entry for config.yml on a database
    command: python3 /root/PerfProBenchmark/addconfiguration.py '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'

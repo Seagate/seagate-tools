@@ -1,0 +1,26 @@
+---
+ - name: "[S3Bench] Preaparing Cluster Node List"
+   set_fact: nodelist={%for host in groups['nodes']%}{{hostvars[host]['ansible_host']}}{% if not loop.last %},{% endif %}{% endfor %}
+
+ - name: "Importing configuration"
+   include_vars: copyobject_config.yml
+
+ - name: "[S3Bench] Preparing Configuration for low load"
+   vars:
+      runconfig:
+         nodelist: "{{ nodelist }}"
+         numclients: "{{ item[0] }}"
+         objsize: "{{ item[1].objsize }}"
+         numsamples: "{{ item[1].numsamples }}"
+   ansible.builtin.include_tasks: execute_co_s3bench.yml
+   loop: "{{ low_load.sessions|product(low_load.objs)|list }}"
+
+ - name: "[S3Bench] Preparing Configuration for high load"
+   vars:
+      runconfig:
+         nodelist: "{{ nodelist }}"
+         numclients: "{{ item[0] }}"
+         objsize: "{{ item[1].objsize }}"
+         numsamples: "{{ item[1].numsamples }}"
+   ansible.builtin.include_tasks: execute__co_s3bench.yml
+   loop: "{{ high_load.sessions|product(high_load.objs)|list }}"

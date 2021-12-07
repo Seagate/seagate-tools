@@ -112,6 +112,18 @@
    with_items: "{{ groups['clients'] }}"
    when: DEGRADED_READ == True
 
+#Performing Copy object benchmarking
+
+ - include: copy_object.yml
+   when: COPY_OBJECT == True
+
+ - name: Updating DB with copy object entries
+   shell: |
+     python3 /root/PerfProBenchmark/copy_object/s3bench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/copyobject/s3bench/ /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
+   when: COPY_OBJECT == True
+
 #Copying ansible.log for the run to logs/ansible folder
 
  - name: Copying ansible log to ansible log folder

@@ -102,24 +102,21 @@ def extract_json(file):
 
 
 def getconfig():
-    build_url=configs_config.get('BUILD_URL')
     nodes_list=configs_config.get('NODES')
     clients_list=configs_config.get('CLIENTS')
+    build_url=configs_config.get('BUILD_URL')
+    cluster_pass=configs_config.get('CLUSTER_PASS')
+    solution=configs_config.get('SOLUTION')
+    end_points=configs_config.get('END_POINTS')
     pc_full=configs_config.get('PC_FULL')
     overwrite=configs_config.get('OVERWRITE')
     custom=configs_config.get('CUSTOM')
-    cluster_pass=configs_config.get('CLUSTER_PASS')
-    change_pass=configs_config.get('CHANGE_PASS')
-    prv_cli=configs_config.get('PRVSNR_CLI_REPO')
-    prereq_url=configs_config.get('PREREQ_URL')
-    srv_usr=configs_config.get('SERVICE_USER')
-    srv_pass=configs_config.get('SERVICE_PASS')
     nfs_serv=configs_config.get('NFS_SERVER')
     nfs_exp=configs_config.get('NFS_EXPORT')
     nfs_mp=configs_config.get('NFS_MOUNT_POINT')
     nfs_fol=configs_config.get('NFS_FOLDER')
 
-    dic={'NODES' :str(nodes_list) , 'CLIENTS' : str(clients_list) ,'BUILD_URL': build_url ,'CLUSTER_PASS': cluster_pass ,'CHANGE_PASS': change_pass ,'PRVSNR_CLI_REPO': prv_cli ,'PREREQ_URL': prereq_url ,'SERVICE_USER': srv_usr ,'SERVICE_PASS': srv_pass , 'PC_FULL': pc_full , 'CUSTOM': custom , 'OVERWRITE':overwrite , 'NFS_SERVER': nfs_serv ,'NFS_EXPORT' : nfs_exp ,'NFS_MOUNT_POINT' : nfs_mp , 'NFS_FOLDER' : nfs_fol }
+    dic={'NODES' :str(nodes_list) , 'CLIENTS' : str(clients_list) ,'BUILD_URL': build_url ,'CLUSTER_PASS': cluster_pass ,'SOLUTION': solution ,'END_POINTS': end_points , 'PC_FULL': pc_full , 'CUSTOM': custom , 'OVERWRITE':overwrite , 'NFS_SERVER': nfs_serv ,'NFS_EXPORT' : nfs_exp ,'NFS_MOUNT_POINT' : nfs_mp , 'NFS_FOLDER' : nfs_fol }
     return (dic)
 
 ##Function to find latest iteration
@@ -159,14 +156,23 @@ def push_data(files, host, db, Build, Version, Branch , OS):
     iteration_number = 0
     global nodes_num, clients_num, pc_full , overwrite, custom
     print("logged in from ", host)
-    collection=configs_main.get('R'+Version[0])['db_collection']
-    col_config =configs_main.get('R'+Version[0])['config_collection']
     dic = getconfig()
-    result = db[col_config].find_one(dic)  # find entry from configurations collection
+    if dic['SOLUTION'].upper() == 'LC':
+       valid_col=configs_main.get('LC')
+    elif dic['SOLUTION'].upper() == 'LR':
+       valid_col=configs_main.get('LR')
+    elif dic['SOLUTION'].upper() == 'LEGACY':
+       valid_col=configs_main.get(f"R{Version.split('.')[0]}")
+    else:
+        print("Error! Can not find suitable collection to upload data")
+
+    result = db[valid_col['config_collection']].find_one(dic)  # find entry from configurations collection
     Config_ID = "NA"
     if result:
         Config_ID = result['_id'] # foreign key : it will map entry in configurations to results entry
     
+    collection=valid_col['db_collection']
+
     for doc in files:
         data_dict = None
         try:

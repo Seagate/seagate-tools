@@ -82,6 +82,7 @@ do
             fi
             aws s3 rb s3://$bucket
             echo "S3Benchmark is completed for object size : $SIZE_OF_OBJECTS"
+	    sleep 1
         done
         echo "S3Benchmark is completed for number of clients : $NUMCLIENTS"
     done
@@ -118,14 +119,12 @@ validate_args
 if [ ! -d $BENCHMARKLOG ]; then
      mkdir $BENCHMARKLOG
      s3benchmark
-     sleep 20
      cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/
 
 else
      rm -rf $BENCHMARKLOG
      mkdir $BENCHMARKLOG
      s3benchmark
-     sleep 20
      cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/     
 
 fi

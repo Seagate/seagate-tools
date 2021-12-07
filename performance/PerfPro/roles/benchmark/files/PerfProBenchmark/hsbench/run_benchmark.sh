@@ -71,7 +71,7 @@ hotsause_benchmark()
                  mkdir -p $TOOL_DIR
                  mv $CURRENTPATH/*.json $TOOL_DIR/
                  mv $BENCHMARKLOG/object_$size\_numsamples_$sample\_buckets_$bucket\_sessions_$client\_output.log $TOOL_DIR/
-                 sleep 30
+                 sleep 1
                done 
            done
         done
@@ -119,8 +119,6 @@ validate_args
 if [ ! -d $BENCHMARKLOG ]; then
     mkdir $BENCHMARKLOG
     hotsause_benchmark #2>&1 | tee $BENCHMARKLOG/output.log
-    sleep 20
-    #python3 hsbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG 
     cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/    
     
       
@@ -128,8 +126,6 @@ else
     rm -rf $BENCHMARKLOG
     mkdir $BENCHMARKLOG
     hotsause_benchmark #2>&1 | tee $BENCHMARKLOG/output.log
-    sleep 20 
-    #python3 hsbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG
     cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/    
     
 

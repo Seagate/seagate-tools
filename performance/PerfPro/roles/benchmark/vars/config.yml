@@ -11,10 +11,11 @@ CLIENTS:
 # For Build and SystemUnderTest INFO
 BUILD_URL: 
 CLUSTER_PASS: seagate1
+SOLUTION: lc    #legacy, lc or lr
 
 # For PerfPro MongoDB related Entries
 END_POINTS: https://s3.seagate.com
-PC_FULL: 30 # Select for system percentage full before test. 
+PC_FULL: 0 # Select for system percentage full before test. 
 OVERWRITE: False # select True or False to overwrite the DB entries for same Primary Key
 CUSTOM: NA # Default is NA. Update with single string for special config eg: CorvStd, CorvHiPerf, 5u84Std, 5u84HiPerf, SSD, DIEnabled, PODsetup etc
 DEGRADED_READ: False   # Select True/False to test Degraded read feature

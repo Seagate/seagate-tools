@@ -13,24 +13,43 @@
      path: "{{ role_path }}/files/PerfProBenchmark"
      dest: "{{ role_path }}/files/PerfProBenchmark.tar.gz"
 
- - name: Copying and Unarchieving PerfProBenchmark tar file
+ - name: Copying and Unarchieving PerfProBenchmark tar file to Clients
    unarchive:
      src: files/PerfProBenchmark.tar.gz
      dest: /root/
    delegate_to: "{{ item }}"
-   with_items: "{{ groups['all'] }}"
+   with_items: "{{ groups['clients'] }}"
 
- - name: copying config.yml file 
+ - name: Copying and Unarchieving PerfProBenchmark tar file to Nodes
+   unarchive:
+     src: files/PerfProBenchmark.tar.gz
+     dest: /root/
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['nodes'] }}"
+   when: SYSTEM_STATS
+
+ - name: copying config.yml file to Clients
    copy:
      src: roles/benchmark/vars/config.yml
      dest: /root/PerfProBenchmark/
      owner: root
      group: root
-     mode: '0644' 
+     mode: '0644'
    delegate_to: "{{ item }}"
-   with_items: "{{ groups['all'] }}"
- 
- - name: copying main.yml file 
+   with_items: "{{ groups['clients'] }}"
+
+ - name: copying config.yml file to Nodes
+   copy:
+     src: roles/benchmark/vars/config.yml
+     dest: /root/PerfProBenchmark/
+     owner: root
+     group: root
+     mode: '0644'
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['nodes'] }}"
+   when: SYSTEM_STATS
+
+ - name: copying main.yml file to Clients
    copy:
      src: vars/main.yml
      dest: /root/PerfProBenchmark/
@@ -38,7 +57,18 @@
      group: root
      mode: '0644'
    delegate_to: "{{ item }}"
-   with_items: "{{ groups['all'] }}"
+   with_items: "{{ groups['clients'] }}"
+
+ - name: copying main.yml file to Nodes
+   copy:
+     src: vars/main.yml
+     dest: /root/PerfProBenchmark/
+     owner: root
+     group: root
+     mode: '0644'
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['nodes'] }}"
+   when: SYSTEM_STATS
 
  - name: Create S3 Account
    command: python3 /root/PerfProBenchmark/s3account/create_s3user.py "{{ hostvars['srvnode-1']['ansible_host'] }}"

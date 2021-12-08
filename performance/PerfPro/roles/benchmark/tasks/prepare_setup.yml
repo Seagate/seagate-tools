@@ -1,18 +1,10 @@
 ---
- - name: "[pre-requisites]: Installing required yum packages on all hosts"
-   yum:
-     name:
-       - ntp
-       - sysstat
-       - python3
-       - python3-pip
-     state: present
-   delegate_to: "{{ item }}"
-   with_items: "{{ groups['all'] }}"
-
  - name: "Installing required yum packages on clients"
    yum:
      name:
+       - ntp
+       - python3
+       - python3-pip
        - pdsh
        - go >= 1.15
        - java
@@ -22,6 +14,18 @@
      state: present
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
+
+ - name: "Installing required yum packages on nodes"
+   yum:
+     name:
+       - ntp
+       - sysstat
+       - python3
+       - python3-pip
+     state: present
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['nodes'] }}"
+   when: SYSTEM_STATS
 
  - name: "Updating python3 pip version on clients"
    shell: pip3 install update pip
@@ -33,11 +37,18 @@
      name:
        - setuptools_rust
        - wheel
+       - PyYAML==5.3.1
+       - requests==2.24.0
+       - jsonschema==3.2.0
+       - pymongo==3.11.0
+       - pandas==1.0.5
+       - datetime==4.3
+       - yq
      executable: pip3
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
 
- - name: "Updating required python3 packages on all hosts"
+ - name: "Updating required python3 packages on nodes"
    pip:
      name:
        - PyYAML==5.3.1
@@ -49,10 +60,17 @@
        - yq
      executable: pip3
    delegate_to: "{{ item }}"
-   with_items: "{{ groups['all'] }}"
+   with_items: "{{ groups['nodes'] }}"
+   when: SYSTEM_STATS
 
- - name: "[Services/daemons:start|stop|restart]: Checking network time protocol service daemon"
+ - name: "[Services/daemons:start|stop|restart]: Checking network time protocol service daemon on clients"
    shell: systemctl stop ntpd ; /usr/sbin/ntpdate time.seagate.com ; systemctl start ntpd
    delegate_to: "{{ item }}"
-   with_items: "{{ groups['all'] }}"
+   with_items: "{{ groups['clients'] }}"
+
+ - name: "[Services/daemons:start|stop|restart]: Checking network time protocol service daemon on nodes"
+   shell: systemctl stop ntpd ; /usr/sbin/ntpdate time.seagate.com ; systemctl start ntpd
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['nodes'] }}"
+   when: SYSTEM_STATS
 

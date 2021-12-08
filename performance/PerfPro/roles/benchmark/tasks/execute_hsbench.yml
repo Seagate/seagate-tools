@@ -2,6 +2,7 @@
  - name: "[HSBench] Starting systemstats collection {{ runconfig.objsize }} - {{ runconfig.numclients }}session"
    delegate_to: "clientnode-1"
    shell: pdsh -S -w {{runconfig.nodelist}} "python3 '/root/PerfProBenchmark/system_monitoring/systemMonitoring.py' '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml' {{ runconfig.objsize }} 'Hsbench'" &
+   when: SYSTEM_STATS
 
  - name: "[HSBench] Starting execution {{ runconfig.objsize }} - {{ runconfig.numclients }}session"
    delegate_to: "{{ client }}"
@@ -30,3 +31,4 @@
  - name: "[HSBench] Stopping systemstats collection {{ runconfig.objsize }} - {{ runconfig.numclients }}session"
    delegate_to: "clientnode-1"
    shell: pdsh -S -w {{runconfig.nodelist}} "python3 /root/PerfProBenchmark/system_monitoring/stopSystemMonitoring.py"
+   when: SYSTEM_STATS

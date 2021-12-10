@@ -100,6 +100,21 @@
     with_items: "{{ groups['all'] }}"
 
 
+  - name: Installing docker packages 
+    yum:
+      name:
+        - docker-ce 
+        - docker-ce-cli 
+        - containerd.io
+        - docker
+      state: present
+      skip_broken: yes
+    delegate_to: "client-1"
+
+  - name: Installing docker-compose service
+    shell: curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose; chmod +x /usr/local/bin/docker-compose;
+    delegate_to: "client-1"
+
   - name: "Coping a block of statement in perfline-ui.service file"
     blockinfile:
       path: /etc/systemd/system/{{ PERFLINE_UI_SERVICE_NAME }}.service

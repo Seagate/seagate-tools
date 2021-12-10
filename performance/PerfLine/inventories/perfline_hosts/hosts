@@ -20,3 +20,7 @@ enable_daemon_service='no'
 # Don't forget to use different ports for the PerfLine UI service
 # if you are installing two (or more) versions of PerfLine.
 perfline_ui_port=8005
+
+
+# Disk input would be required for LC setup
+disk=""

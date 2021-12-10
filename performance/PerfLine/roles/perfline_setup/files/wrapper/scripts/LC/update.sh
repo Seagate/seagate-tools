@@ -29,20 +29,7 @@ IMAGE=
 BRANCH="kubernetes"
 
 function prepare_env() {
-    local docker_installed=
     local status=
-    
-    set +e
-    yum list installed | grep docker
-    docker_installed=$?
-    set -e
-
-    if [ $docker_installed -ne 0 ]; then
-	yum install -y docker
-    fi
-
-    curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    chmod +x /usr/local/bin/docker-compose
 
     set +e
     systemctl status docker
@@ -50,8 +37,8 @@ function prepare_env() {
     set -e
 
     if [ $status -ne 0 ]; then
-	systemctl restart docker
-	systemctl enable docker
+        systemctl restart docker
+        systemctl enable docker
     fi
 
     set +e
@@ -60,101 +47,95 @@ function prepare_env() {
     set -e
 
     if [ $status -ne 0 ]; then
-	echo "Docker failure, exit"
-	exit 1
+        echo "Docker failure, exit"
+        exit 1
     fi
 
     if [ ! -d "$CORTX_DIR" ]; then
-	mkdir -p $DOCKER_DIR
-	pushd $DOCKER_DIR
-	git clone https://github.com/Seagate/cortx --recursive --depth=1
-    docker run --rm -v ${CORTX_DIR}:/cortx-workspace ghcr.io/seagate/cortx-build:centos-7.9.2009 make checkout BRANCH=${BRANCH}
-	popd
+        mkdir -p $DOCKER_DIR
+        pushd $DOCKER_DIR
+        git clone https://github.com/Seagate/cortx --recursive --depth=1
+        docker run --rm -v ${CORTX_DIR}:/cortx-workspace ghcr.io/seagate/cortx-build:centos-7.9.2009 make checkout BRANCH=${BRANCH}
+        popd
     fi
 }
 
 
 function checkout() {
     if [ -n "${MOTR_BRANCH}" -a -n "${MOTR_REPO}" ]; then
-        cd $CORTX_DIR
-        rm -rf ./cortx-motr || true
-        git clone -b $BRANCH --recursive $MOTR_REPO cortx-motr
-        cd $CORTX_DIR/cortx-motr
-        git fetch --all
-        git checkout $MOTR_BRANCH
-
-#        if [ -n "$BUILD_MOTR_WITH_LNET" ]; then
-#            echo "Motr will be built with Lnet"
-#            sed -i '/libfabric/d' cortx-motr.spec.in
-#        fi
+       cd $CORTX_DIR
+       rm -rf ./cortx-motr || true
+       git clone --recursive $MOTR_REPO cortx-motr
+       cd $CORTX_DIR/cortx-motr
+       git fetch --all
+       git checkout $MOTR_BRANCH
     fi
 
     if [ -n "${S3_BRANCH}" -a -n "${S3_REPO}" ]; then
-	cd $CORTX_DIR
-	rm -rf ./cortx-s3server || true
-	git clone -b $BRANCH --recursive $S3_REPO cortx-s3server
-	cd $CORTX_DIR/cortx-s3server
-	git fetch --all
-	git checkout $S3_BRANCH
+       cd $CORTX_DIR
+       rm -rf ./cortx-s3server || true
+       git clone --recursive $S3_REPO cortx-s3server
+       cd $CORTX_DIR/cortx-s3server
+       git fetch --all
+       git checkout $S3_BRANCH
     fi
 
     if [ -n "${HARE_BRANCH}" -a -n "${HARE_REPO}" ]; then
-	cd $CORTX_DIR
-	rm -rf ./cortx-hare || true
-	git clone -b $BRANCH --recursive $HARE_REPO cortx-hare
-	cd $CORTX_DIR/cortx-hare
-	git fetch --all
-	git checkout $HARE_BRANCH
+       cd $CORTX_DIR
+       rm -rf ./cortx-hare || true
+       git clone --recursive $HARE_REPO cortx-hare
+       cd $CORTX_DIR/cortx-hare
+       git fetch --all
+       git checkout $HARE_BRANCH
     fi
 
     if [ -n "${UTILS_BRANCH}" -a -n "${UTILS_REPO}" ]; then
-	cd $CORTX_DIR
-	rm -rf ./cortx-utils || true
-	git clone -b $BRANCH --recursive $UTILS_REPO cortx-utils
-	cd $CORTX_DIR/cortx-utils
-	git fetch --all
-	git checkout $UTILS_BRANCH
+       cd $CORTX_DIR
+       rm -rf ./cortx-utils || true
+       git clone --recursive $UTILS_REPO cortx-utils
+       cd $CORTX_DIR/cortx-utils
+       git fetch --all
+       git checkout $UTILS_BRANCH
     fi
 }
 
 function build_rpms() {
     mkdir -p $BUILD_DIR/
-    
-    cd $CORTX_DIR/..
-
     docker run --rm -v $DOCKER_ARTIFACTS_DIR:$DOCKER_ARTIFACTS_DIR -v ${CORTX_DIR}:/cortx-workspace ghcr.io/seagate/cortx-build:centos-7.9.2009 make clean cortx-all-image
-
-    pushd $BUILD_DIR
-    popd
 }
 
 function build_image() {
-  
+
     CONTAINER_ID=$(docker ps | grep "release-packages-server" | awk '{ print $1 }')
     if [[ -n $CONTAINER_ID ]];
     then
         docker rm -f $CONTAINER_ID
     fi
-    docker run --name release-packages-server -v $BUILD_DIR/:/usr/share/nginx/html:ro -d -p 80:80 nginx
+    docker run --rm --name release-packages-server -v $BUILD_DIR/:/usr/share/nginx/html:ro -d -p 80:80 nginx
     pushd $BUILD_SCRIPT_DIR
     ./build.sh -b http://$(hostname)
     popd
+    docker stop release-packages-server
 }
 
 function export_docker_image() {
     IMAGE=$(docker images --format='{{.Repository}}:{{.Tag}} {{.CreatedAt}}' cortx-all | awk '{ print $1 }')
     docker save --output cortx-all.tar $IMAGE
     for srv in $(echo $NODES | tr ',' ' '); do
-	    scp cortx-all.tar $srv:/tmp/ &
+            scp cortx-all.tar $srv:/tmp/ &
     done
     wait
 }
 
 function load_new_docker_image() {
     echo "Load cotrx-all docker image on all nodes"
-	pdsh -S -w $NODES 'docker load -i /tmp/cortx-all.tar'
+    pdsh -S -w $NODES 'docker load -i /tmp/cortx-all.tar'
 }
 
+function remove_local_tar_docker_image() {
+    echo "Remove cotrx-all.tar docker image from all nodes"
+    pdsh -S -w $NODES 'rm -f /tmp/cortx-all.tar'
+}
 
 function destroy_cluster() {
     echo "Destroy LC cluster"
@@ -171,6 +152,12 @@ function log_docker_image_version() {
     set +e
     pdsh -S -w $NODES 'docker images | grep "cortx-all"'
     set -e
+}
+
+function pre_req_deployment() {
+    echo "Run pre-requisite for docker image deployment"
+    pdsh -S -w $NODES "cd $K8S_SCRIPTS_DIR && ./prereq-deploy-cortx-cloud.sh $DISK"
+
 }
 
 function install_custom_docker_image() {
@@ -193,7 +180,7 @@ function docker_image_cleanups() {
         fi
     done
     pdsh -S -w $NODES "rm -rf /mnt/fs-local-volume/*"
-  
+
 }
 
 function update_solution_file() {
@@ -240,8 +227,9 @@ function main() {
     fi
 
     log_docker_image_version
+    pre_req_deployment
     deploy_cluster
-
+    remove_local_tar_docker_image
 }
 
 function validate() {
@@ -252,12 +240,12 @@ function validate() {
            echo "Motr branch is not specified"
            leave="1"
        fi
-   
+
        if [[ -z "$S3_BRANCH" ]]; then
            echo "S3 server branch is not specified"
            leave="1"
        fi
-   
+
        if [[ -z "$HARE_BRANCH" ]]; then
            echo "Hare branch is not specified"
            leave="1"
@@ -272,7 +260,7 @@ function validate() {
     if [[ -n $leave ]]; then
         exit 1
     fi
-    
+
 }
 
 function check_arg_count() {
@@ -287,49 +275,46 @@ echo "parameters: $@"
 while [[ $# -gt 0 ]]; do
     case $1 in
         -m|--motr_id)
-	    check_arg_count $1 $2 $3
-	    MOTR_REPO=$2
+            check_arg_count $1 $2 $3
+            MOTR_REPO=$2
             MOTR_BRANCH=$3
             shift
             shift
             ;;
         -h|--hare_id)
-	    check_arg_count $1 $2 $3
-	    HARE_REPO=$2
+            check_arg_count $1 $2 $3
+            HARE_REPO=$2
             HARE_BRANCH=$3
             shift
             shift
             ;;
-        --use-lnet)
-            BUILD_MOTR_WITH_LNET='1'
-            ;;
-	    -s|--s3_id)
-	    check_arg_count $1 $2 $3
+            -s|--s3_id)
+            check_arg_count $1 $2 $3
             S3_REPO=$2
             S3_BRANCH=$3
             shift
-	        shift
+            shift
             ;;
-	    -u|--utils_id)
-	        check_arg_count $1 $2 $3
+            -u|--utils_id)
+            check_arg_count $1 $2 $3
             UTILS_REPO=$2
             UTILS_BRANCH=$3
             shift
-	        shift
+            shift
             ;;
-	    --nodes)
+            --nodes)
             NODES=$2
             EX_SRV="pdsh -S -w $NODES"
             shift
             ;;
-	    --update-resource)
+            --update-resource)
             IMAGE=$2
             shift
             ;;
-	    --help)
-	        echo -e "Usage: bash update.sh --motr_id a1b2d3e --s3_id bbccdde --hare_id abcdef1\n" 
-	        exit 0
-	        ;;
+            --help)
+                echo -e "Usage: bash update.sh --motr_id a1b2d3e --s3_id bbccdde --hare_id abcdef1\n"
+                exit 0
+                ;;
         *)
             echo -e "Invalid option: $1\nUse --help option"
             exit 1
@@ -340,4 +325,3 @@ done
 
 validate
 main
-

@@ -1,0 +1,52 @@
+commit 050dfecb15321f524e5bd7108de4613d00a49d49
+Author: Alexander Sukhachev <alexander.sukhachev@seagate.com>
+Date:   Mon Dec 13 07:57:18 2021 -0700
+
+    patch for exporting AMPS into csv
+
+diff --git a/glances/exports/glances_csv.py b/glances/exports/glances_csv.py
+index a3f39ac..d103845 100644
+--- a/glances/exports/glances_csv.py
++++ b/glances/exports/glances_csv.py
+@@ -92,6 +92,29 @@ class Export(GlancesExport):
+         for plugin in self.plugins_to_export():
+             if isinstance(all_stats[plugin], list):
+                 for stat in all_stats[plugin]:
++
++                    # Quick fix implemented by Alex:
++                    # special case for AMPS plugin to make Glances ready
++                    # to export cpu/mem usage statistic to CSV file
++                    if plugin == 'amps':
++                        cpu_percent_sum = '0.0'
++                        mem_percent_sum = '0.0'
++
++                        if stat['count'] > 0:
++                            # current format is 'CPU: {:.1f}% | MEM: {:.1f}%'
++                            cpu_mem = stat['result'].split('|')
++                            cpu_percent_sum = cpu_mem[0].replace('CPU:', '').replace('%', '').strip()
++                            mem_percent_sum = cpu_mem[1].replace('MEM:', '').replace('%', '').strip()
++
++                        stat = {
++                            'key': stat['key'],
++                            'name': stat['name'],
++                            'count': stat['count'],
++                            'cpupercentsum': cpu_percent_sum,
++                            'mempercentsum': mem_percent_sum,
++                            }
++
++
+                     # First line: header
+                     if self.first_line:
+                         csv_header += ('{}_{}_{}'.format(plugin, self.get_item_key(stat), item) for item in stat)
+diff --git a/glances/exports/glances_export.py b/glances/exports/glances_export.py
+index fed5929..8d13819 100644
+--- a/glances/exports/glances_export.py
++++ b/glances/exports/glances_export.py
+@@ -52,6 +52,7 @@ class GlancesExport(object):
+         'sensors',
+         'docker',
+         'gpu',
++        'amps',
+     ]
+ 
+     def __init__(self, config=None, args=None):

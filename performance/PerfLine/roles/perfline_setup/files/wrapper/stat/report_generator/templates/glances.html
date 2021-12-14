@@ -2,6 +2,41 @@
 <h2 align=center>System stats [Glances]</h2>
 
     <table border="1">
+
+
+        <!-- m0d/s3server/hax CPU usage section -->
+        <tr>
+            <td colspan="2" align="center"><h3>m0d/s3server/hax CPU usage</h3></td>
+        </tr>
+        <tr>
+            {% for hn in hostnames %}
+            <td align="center"><h4>{{hn}}</h4></td>
+            {% endfor %}
+        </tr>
+        <tr>
+            {% for hn in hostnames %}
+            <td><img src="/report/{{task_id}}/glances_imgs/{{glances_imgs['cortx_cpu_usage'][hn]}}" alt="m0d/s3server/hax CPU usage"></td>
+            {% endfor %}
+        </tr>
+        <!-- end of m0d/s3server/hax CPU usage section -->
+
+        <!-- m0d/s3server/hax memory usage section -->
+        <tr>
+            <td colspan="2" align="center"><h3>m0d/s3server/hax memory usage</h3></td>
+        </tr>
+        <tr>
+            {% for hn in hostnames %}
+            <td align="center"><h4>{{hn}}</h4></td>
+            {% endfor %}
+        </tr>
+        <tr>
+            {% for hn in hostnames %}
+            <td><img src="/report/{{task_id}}/glances_imgs/{{glances_imgs['cortx_mem_usage'][hn]}}" alt="m0d/s3server/hax memory usage"></td>
+            {% endfor %}
+        </tr>
+        <!-- end of m0d/s3server/hax memory usage section -->
+
+
         <tr>
             <td colspan="2" align="center"><h3>CPU + Memory usage</h3></td>
         </tr>

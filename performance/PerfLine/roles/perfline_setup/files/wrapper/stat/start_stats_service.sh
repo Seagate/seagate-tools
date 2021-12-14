@@ -5,13 +5,15 @@ set -x
 # # LR CODE
 # CLUSTER_CONFIG_FILE="/var/lib/hare/cluster.yaml"
 # ASSIGNED_IPS=$(ifconfig | grep inet | awk '{print $2}')
-# SCRIPT_PATH="$(readlink -f $0)"
-# SCRIPT_DIR="${SCRIPT_PATH%/*}"
+SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_DIR="${SCRIPT_PATH%/*}"
 # RESULT=$(python3 $SCRIPT_DIR/extract_disks.py $CLUSTER_CONFIG_FILE $ASSIGNED_IPS)
 # DISKS=`echo "$RESULT" | grep 'IO:' | sed 's/IO://'`
 
 # LC CODE
 DISKS=`cat /tmp/cortx_disks_map | grep 'IO:' | sed 's/IO://'`
+
+GLANCES_CONF_FILE="$SCRIPT_DIR/glances/glances.conf"
 
 function removing_dir()
 {
@@ -49,7 +51,7 @@ sleep 5
 if [[ "$1" == *"GLANCES"* ]]
 then
     csv_file="/var/perfline/glances.$(hostname -s)/glances.csv"
-    glances --quiet --export csv --export-csv-file $csv_file &
+    glances --config "$GLANCES_CONF_FILE" --quiet --export csv --export-csv-file $csv_file &
     echo "Glances collection started"
 fi
 sleep 5

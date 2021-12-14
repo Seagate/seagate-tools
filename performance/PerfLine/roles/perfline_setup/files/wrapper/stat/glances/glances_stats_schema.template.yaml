@@ -1,5 +1,33 @@
 figures:
 
+# Cortx memory usage
+- figure:
+    fname: "[HOSTNAME]__cortx_mem_usage.png"
+    name: "[HOSTNAME] Cortx memory usage"
+    columns:
+    - column:
+      - graph:
+          title: memory usage
+          display_as: percent
+          y_label: 'Memory [%]'
+          metrics:
+          - amps_M0d_mempercentsum
+          - amps_S3server_mempercentsum
+          - amps_Hax_mempercentsum
+# Cortx CPU usage
+- figure:
+    fname: "[HOSTNAME]__cortx_cpu_usage.png"
+    name: "[HOSTNAME] Cortx CPU usage"
+    columns:
+    - column:
+      - graph:
+          title: CPU usage
+          display_as: percent
+          y_label: 'CPU [%]'
+          metrics:
+          - amps_M0d_cpupercentsum
+          - amps_S3server_cpupercentsum
+          - amps_Hax_cpupercentsum
 # CPU
 - figure:
     fname: "[HOSTNAME]__cpu.png"

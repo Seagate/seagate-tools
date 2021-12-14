@@ -35,7 +35,7 @@
 
   - name: "Copy glances repo to all node"
     unarchive:
-      src: "{{ role_path }}/files/glances.tar.gz"
+      src: "{{ role_path }}/files/glances_distr/glances.tar.gz"
       dest: "{{ PERFLINE_DIR }}"
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"

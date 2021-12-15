@@ -28,6 +28,7 @@ Config_path = sys.argv[2]
 Object_Size = sys.argv[3]
 Name = sys.argv[4]
 
+
 """
 hostname = socket.gethostname()
 backupfile = hostname+"_sar.json"
@@ -57,6 +58,8 @@ def makeconfig(name):  #function for connecting with configuration file
 configs_config = makeconfig(Config_path)  # getting instance  of config file
 
 build_url=configs_config.get('BUILD_URL')
+overwrite=configs_config.get('OVERWRITE')
+custom=configs_config.get('CUSTOM')
 
 def get_release_info(variable):
     release_info= urllib.request.urlopen(build_url+'RELEASE.INFO')
@@ -66,6 +69,20 @@ def get_release_info(variable):
             strip_strinfo=re.split(': ',strinfo)
             return(strip_strinfo[1])
 
+Build=get_release_info('BUILD')
+Build=Build[1:-1]
+
+##Function to find latest iteration
+def get_latest_iteration(query, col):
+    max = 0
+    print(query)
+    cursor = col.find(query)
+    print(cursor)
+    for record in cursor:
+        print(record)
+        if max < record['Iteration']:
+            max = record['Iteration']
+    return max
 
 
 def makeconnection(collection):  #function for making connection with database
@@ -101,6 +118,9 @@ def getconfig():
     return (dict1)
 
 def adddata(data,device,col):
+    find_iteration = True
+    delete_data = True
+
     dict1 = getconfig()
     conf = makeconnection('config_collection')
     Config_ID = "NA"
@@ -114,18 +134,53 @@ def adddata(data,device,col):
         if value[0] !="":
             if value[2]!="DEV" and value[2]!="IFACE":
                 count=2
-                dic = {"Name": Name,"Object_Size": Object_Size,"Device":device,"Timestamp":datetime.now().strftime("%Y-%m-%d %H:%M:%S"),"Time":value[0],"HOST" : socket.gethostname(),"Config_ID":Config_ID}
+                primary_set = {
+                      "Name": Name , 
+                      "Build": Build, 
+                      "Custom": custom 
+                      }
+                dic = {
+                      "Object_Size": Object_Size,
+                      "Device":device,
+                      "Timestamp":datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                      "Time":value[0],
+                      "HOST" : socket.gethostname(),
+                      "Config_ID":Config_ID
+                      }
                 while count<length:
                     dic.update( {attr[count] : value[count]} ) # adding respective attribute and value pair in dictionary
                     count+=1
-                print(dic)
+                sysstats={}
+                sysstats.update(primary_set)
+                sysstats.update(dic)
                 try:
-                    col.insert_one(dic)  #inserting dictionary values in mongodb
+                    if find_iteration:
+                        iteration_number = 0
+                        cursor = col.find(primary_set)
+                        for record in cursor:
+                            if iteration_number < record['Iteration']:
+                                iteration_number = record['Iteration']
+                        find_iteration = False
+                    if iteration_number == 0:
+                        sysstats.update(Iteration=iteration_number+1)
+                    elif overwrite == True :
+                        primary_set.update(Iteration=iteration_number)
+                        if delete_data and device == "CPU":
+                            col.delete_many(primary_set)
+                            delete_data = False
+                            print("'overwrite' is True in config. Hence, old DB entry deleted")
+                        sysstats.update(Iteration=iteration_number)
+                    elif device == "CPU":
+                        sysstats.update(Iteration=iteration_number+1)
+                    else :
+                        sysstats.update(Iteration=iteration_number)
+                    print(sysstats)
+                    col.insert_one(sysstats)  #inserting dictionary values in mongodb
                 except Exception as e:
                     print("Unable to insert/update documents into database. Observed following exception:")
                     print(e)
-                else:
-                    print(dic)
+                #else:
+                #    print(dic)
 
 
 

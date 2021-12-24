@@ -1,6 +1,8 @@
 K8S_SCRIPTS_DIR="$CORTX_K8S_REPO/k8_cortx_cloud"
 
 HAX_CONTAINER="cortx-motr-hax"
+LOCAL_PODS_FS='/mnt/fs-local-volume/local-path-provisioner'
+DATA_POD_FS_TEMPLATE="cortx-data-fs"
 LOCAL_MOUNT_POINT='/mnt/fs-local-volume/etc/gluster'
 CONTAINER_MOUNT_POINT='/share'
 DOCKER_CONTAINER_NAME="perfline_cortx"
@@ -61,11 +63,19 @@ function detect_primary_pod()
     fi
 }
 
+function cleanup_k8s() {
+    $EX_SRV 'rm -rf /etc/3rd-party/openldap'
+    $EX_SRV 'rm -rf /var/data/3rd-party/*'
+    $EX_SRV 'rm -rf /mnt/fs-local-volume/local-path-provisioner/*'
+    $EX_SRV 'rm -rf /mnt/fs-local-volume/etc/gluster/var/log/cortx/*'
+}
+
 function restart_cluster() {
     echo "Restart LC cluster (PODs)"
 
     if [[ -n "$MKFS" ]]; then
         ssh $PRIMARY_NODE "cd $K8S_SCRIPTS_DIR && ./destroy-cortx-cloud.sh"
+        cleanup_k8s
         ssh $PRIMARY_NODE "cd $K8S_SCRIPTS_DIR && ./deploy-cortx-cloud.sh"
     else
         ssh $PRIMARY_NODE "cd $K8S_SCRIPTS_DIR && ./start-cortx-cloud.sh"
@@ -330,7 +340,7 @@ function save_motr_traces() {
 	read h pod cont serv trace addb <<< `awk "NR==$i" ../ioservice_map`
 	
 	eval "$trace/m0d-$serv"
-	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find $MOTR_M0D_TRACE_DIR/../../../ -name \"*$serv*\" -exec realpath {} \;" ) | grep trace`
+	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find /share/var/log/motr -name \"*$serv*\" -exec realpath {} \;" ) | grep trace`
 	for d in $dirs ; do
 	    files=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME ls -1 $d" ) | grep m0trace | grep -v txt`
 	    for file in $files; do
@@ -351,7 +361,7 @@ function save_motr_traces() {
 
 	mkdir -p $name
 	pushd $name
-	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find $MOTR_M0D_TRACE_DIR/../../../ -name \"*$serv*\" -exec realpath {} \;" ) | grep trace`
+	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find /share/var/log/motr -name \"*$serv*\" -exec realpath {} \;" ) | grep trace`
 	for d in $dirs ; do
 	    uid=`echo $d | awk -F'/' '{print $(NF-2)}'`
 
@@ -389,7 +399,7 @@ function save_motr_addb() {
 	read h pod cont serv trace addb <<< `awk "NR==$i" ../ioservice_map`
 	
 	eval "$addb/m0d-$serv"
-	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find $MOTR_M0D_ADDB_STOB_DIR/../../../ -name \"*$serv*\" -exec realpath {} \;" ) | grep addb`
+	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find /share/var/log/motr -name \"*$serv*\" -exec realpath {} \;" ) | grep addb`
 
 	for d in $dirs ; do
 	    uid=`echo $d | awk -F'/' '{print $(NF-2)}'`
@@ -423,7 +433,7 @@ function start_docker_container() {
     set +e
 
     image=`(ssh $PRIMARY_NODE "docker images") | grep cortx-all | awk '{print $1":"$2}' | head -n1`
-    ssh $PRIMARY_NODE "docker run -dit --name $DOCKER_CONTAINER_NAME --mount type=bind,source=/mnt/fs-local-volume/etc/gluster,target=/share $image"
+    ssh $PRIMARY_NODE "docker run -dit --name $DOCKER_CONTAINER_NAME --mount type=bind,source=$LOCAL_MOUNT_POINT,target=/share $image"
     set -e
 }
 
@@ -479,14 +489,13 @@ function save_s3srv_logs() {
 	name="s3server-$serv"
 	mkdir -p $name
 	pushd $name
-	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find $log/../ -name \"*$serv*\" -exec realpath {} \;" )`
+	dirs=`find $LOCAL_MOUNT_POINT/var/log/s3/ -name "*$serv*" -exec realpath {} \;`
 	for d in $dirs ; do
 	    uid=`echo $d | awk -F'/' '{print $(NF-1)}'`
 	    mkdir -p $uid
 	    pushd $uid
 
-	    rel_path="${d:6}"
-	    scp -r $PRIMARY_NODE:$LOCAL_MOUNT_POINT/$rel_path/* ./
+	    cp -r $d ./
 	    
 	    popd 		# $uid
 	done
@@ -496,13 +505,13 @@ function save_s3srv_logs() {
     # Copy haproxy
     mkdir -p haproxy
     pushd haproxy
-    files=`ssh $PRIMARY_NODE find $LOCAL_MOUNT_POINT -name "haproxy.log"`
+    files=`find $LOCAL_MOUNT_POINT/var/log -name "haproxy.log"`
     for f in $files; do
 	uid=`echo $f | awk -F'/' '{print $(NF-2)}'`
 	mkdir -p $uid
 	pushd $uid
 
-	scp -r $PRIMARY_NODE:$f ./
+	cp -r $f ./
 	
 	popd 		# $uid
     done
@@ -512,7 +521,7 @@ function save_s3srv_logs() {
     local auth_logs="/var/log/cortx/auth"
     mkdir -p auth
     pushd auth
-    scp -r $PRIMARY_NODE:$LOCAL_MOUNT_POINT/$auth_logs/* ./
+    cp -r $LOCAL_MOUNT_POINT/var/log/auth ./
     popd 			# auth
 }
 
@@ -528,19 +537,17 @@ function save_s3_traces() {
     local dirs
     local uid
     local name
-    
-    set +e
 
+    set +e
     lines_n=`cat ../s3server_map | wc -l`
     for i in $(seq 1 $lines_n) ; do 
 	read h pod cont serv trace addb log <<< `awk "NR==$i" ../s3server_map`
 
-	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find $trace/.. -name \"*$serv*\" -exec realpath {} \;" )`
+	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find /share/var/log/motr -name \"*$serv*\" -exec realpath {} \;" )`
 	for d in $dirs ; do
 	    files=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME ls -1 $d" ) | grep m0trace | grep -v txt`
 	    for file in $files; do
 		ssh $PRIMARY_NODE "nohup docker exec $DOCKER_CONTAINER_NAME m0trace -i $d/$file -o $d/$file.txt &" &
-		
 	    done
 	done
     done
@@ -556,7 +563,7 @@ function save_s3_traces() {
 
 	mkdir -p $name
 	pushd $name
-	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find $trace/.. -name \"*$serv*\" -exec realpath {} \;" ) `
+	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find /share/var/log/motr -name \"*$serv*\" -exec realpath {} \;" )`
 	for d in $dirs ; do
 	    uid=`echo $d | awk -F'/' '{print $(NF-1)}'`
 	    # Assuming `/share` at the beginning of the string 
@@ -592,7 +599,7 @@ function save_s3_addb() {
     for i in $(seq 1 $lines_n) ; do 
 	read h pod cont serv trace addb log <<< `awk "NR==$i" ../s3server_map`
 
-	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find $addb/.. -name \"*$serv*\" -exec realpath {} \;" ) `
+	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find /share/var/log/motr -name \"*$serv*\" -exec realpath {} \;" ) `
 	for d in $dirs ; do
 	    uid=`echo $d | awk -F'/' '{print $(NF-1)}'`
 	    stobs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME ls -1 $d" ) | grep addb`
@@ -648,13 +655,36 @@ function save_s3srv_artifacts() {
     stop_docker_container
 }
 
+function copy_pods_artifacts() {
+    local path
+    local var_dir="var"
+
+    mkdir -p $var_dir
+    pushd $var_dir
+    for srv in $(echo $NODES | tr ',' ' '); do
+	path=`ssh $srv "find ${LOCAL_PODS_FS} -name \"*${DATA_POD_FS_TEMPLATE}*\""`
+	set +e
+	scp -r $srv:$path/* ./
+	set -e
+    done
+    popd			# $var_dir
+
+    LOCAL_MOUNT_POINT=`pwd`
+}
+
 function collect_artifacts() {
     local m0d="$MOTR_ARTIFACTS_DIR"
     local s3srv="$S3_ARTIFACTS_DIR"
     local stats="stats"
+    local pods="pods"
 
     echo "Collect artifacts"
 
+    mkdir -p $pods
+    pushd $pods
+    copy_pods_artifacts
+    popd
+    
     mkdir -p $stats
     pushd $stats
     save_stats
@@ -694,7 +724,7 @@ function collect_artifacts() {
 
         $SCRIPT_DIR/merge_m0playdb $m0playdb_parts
         rm -f $m0playdb_parts
-        $SCRIPT_DIR/../../chronometry_v2/fix_reqid_collisions.py --fix-db --db ./m0play.db
+        #$SCRIPT_DIR/../../chronometry_v2/fix_reqid_collisions.py --fix-db --db ./m0play.db
     fi
 
     if [[ -n $ADDB_ANALYZE ]] && [[ -f "m0play.db" ]]; then

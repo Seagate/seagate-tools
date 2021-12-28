@@ -60,6 +60,7 @@ configs_config = makeconfig(Config_path)  # getting instance  of config file
 build_url=configs_config.get('BUILD_URL')
 overwrite=configs_config.get('OVERWRITE')
 custom=configs_config.get('CUSTOM')
+solution=configs_config.get('SOLUTION')
 
 def get_release_info(variable):
     release_info= urllib.request.urlopen(build_url+'RELEASE.INFO')
@@ -72,50 +73,53 @@ def get_release_info(variable):
 Build=get_release_info('BUILD')
 Build=Build[1:-1]
 
-##Function to find latest iteration
-def get_latest_iteration(query, col):
-    max = 0
-    print(query)
-    cursor = col.find(query)
-    print(cursor)
-    for record in cursor:
-        print(record)
-        if max < record['Iteration']:
-            max = record['Iteration']
-    return max
-
 
 def makeconnection(collection):  #function for making connection with database
     configs = makeconfig(Main_path)
     client = MongoClient(configs['db_url'])  #connecting with mongodb database
     db=client[configs['db_database']]  #database name=performance
-    Version=get_release_info('VERSION')
-    Version=Version[1:-1]
-    col_stats=configs.get('R'+Version[0])[collection]
+    if solution.upper() == 'LC':
+        col_stats=configs.get(LC)[collection]
+    elif solution.upper() == 'LR':
+        col_stats=configs.get(LR)[collection]
+    elif solution.upper() == 'LEGACY':
+       Version=get_release_info('VERSION')
+       Version=Version[1:-1]
+       col_stats=configs.get('R'+Version[0])[collection]
+    else:
+        print("Error! Can not find suitable collection to upload data")
     col=db[col_stats]  #collection name = systemresults
     return col
-
 def getconfig():
-    build_url=configs_config.get('BUILD_URL')
     nodes_list=configs_config.get('NODES')
     clients_list=configs_config.get('CLIENTS')
-    pc_full=configs_config.get('PC_FULL')
-    custom=configs_config.get('CUSTOM')
-    overwrite=configs_config.get('OVERWRITE')
-    iteration=configs_config.get('ITERATION')
+    build_url=configs_config.get('BUILD_URL')
     cluster_pass=configs_config.get('CLUSTER_PASS')
-    change_pass=configs_config.get('CHANGE_PASS')
-    prv_cli=configs_config.get('PRVSNR_CLI_REPO')
-    prereq_url=configs_config.get('PREREQ_URL')
-    srv_usr=configs_config.get('SERVICE_USER')
-    srv_pass=configs_config.get('SERVICE_PASS')
+    solution=configs_config.get('SOLUTION')
+    end_points=configs_config.get('END_POINTS')
+    pc_full=configs_config.get('PC_FULL')
+    overwrite=configs_config.get('OVERWRITE')
+    custom=configs_config.get('CUSTOM')
     nfs_serv=configs_config.get('NFS_SERVER')
     nfs_exp=configs_config.get('NFS_EXPORT')
     nfs_mp=configs_config.get('NFS_MOUNT_POINT')
     nfs_fol=configs_config.get('NFS_FOLDER')
 
-    dict1={'NODES' :str(nodes_list) , 'CLIENTS' : str(clients_list) ,'BUILD_URL': build_url ,'CLUSTER_PASS': cluster_pass ,'CHANGE_PASS': change_pass ,'PRVSNR_CLI_REPO': prv_cli ,'PREREQ_URL': prereq_url ,'SERVICE_USER': srv_usr ,'SERVICE_PASS': srv_pass , 'PC_FULL': pc_full , 'CUSTOM': custom , 'OVERWRITE':overwrite , 'ITERATION': iteration,'NFS_SERVER': nfs_serv ,'NFS_EXPORT' : nfs_exp ,'NFS_MOUNT_POINT' : nfs_mp , 'NFS_FOLDER' : nfs_fol }
-    return (dict1)
+    dic1={'NODES' :str(nodes_list) , 'CLIENTS' : str(clients_list) ,'BUILD_URL': build_url ,'CLUSTER_PASS': cluster_pass ,'SOLUTION': solution ,'END_POINTS': end_points , 'PC_FULL': pc_full , 'CUSTOM': custom , 'OVERWRITE':overwrite , 'NFS_SERVER': nfs_serv ,'NFS_EXPORT' : nfs_exp ,'NFS_MOUNT_POINT' : nfs_mp , 'NFS_FOLDER' : nfs_fol }
+    return (dic1)
+
+
+##Function to find latest iteration
+def get_latest_iteration(query):
+    max = 0
+    col=makeconnection('db_collection')
+    cursor = col.find(query)
+    for record in cursor:
+        if max < record['Iteration']:
+            max = record['Iteration']
+    return max
+
+
 
 def adddata(data,device,col):
     find_iteration = True
@@ -136,8 +140,8 @@ def adddata(data,device,col):
                 count=2
                 primary_set = {
                       "Name": Name , 
-                      "Build": Build, 
-                      "Custom": custom 
+                      "Build": str(Build), 
+                      "Custom": str(custom).upper() 
                       }
                 dic = {
                       "Object_Size": Object_Size,
@@ -155,25 +159,20 @@ def adddata(data,device,col):
                 sysstats.update(dic)
                 try:
                     if find_iteration:
-                        iteration_number = 0
-                        cursor = col.find(primary_set)
-                        for record in cursor:
-                            if iteration_number < record['Iteration']:
-                                iteration_number = record['Iteration']
+                        iteration_number= get_latest_iteration(primary_set)
                         find_iteration = False
                     if iteration_number == 0:
                         sysstats.update(Iteration=iteration_number+1)
                     elif overwrite == True :
                         primary_set.update(Iteration=iteration_number)
+                        primary_set.update(Object_Size=Object_Size)
                         if delete_data and device == "CPU":
                             col.delete_many(primary_set)
                             delete_data = False
                             print("'overwrite' is True in config. Hence, old DB entry deleted")
                         sysstats.update(Iteration=iteration_number)
-                    elif device == "CPU":
-                        sysstats.update(Iteration=iteration_number+1)
                     else :
-                        sysstats.update(Iteration=iteration_number)
+                        sysstats.update(Iteration=iteration_number+1)
                     print(sysstats)
                     col.insert_one(sysstats)  #inserting dictionary values in mongodb
                 except Exception as e:

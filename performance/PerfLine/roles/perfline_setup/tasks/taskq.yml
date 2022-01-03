@@ -57,7 +57,7 @@
     delegate_to: "client-1"
     with_items:
        - { port: "{{ perfline_ui_port }}", proto: "tcp", state: "enabled", zone: "management-zone" }
-    
+    ignore_errors: yes    
 
   - name: Copying local.repo in "/etc/yum.repo.d/" location
     copy:

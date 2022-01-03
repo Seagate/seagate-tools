@@ -212,6 +212,7 @@ function stop_cluster() {
          pdsh -S -w $NODES 'systemctl status haproxy' | grep Active
          set +e
          ssh $PRIMARY_NODE 'hctl status'
+         ssh $PRIMARY_NODE 'consul kv export cortx/ > /opt/seagate/cortx/consul-cortx-kv.json'
          if [ $? -eq 0 ]; then
             ssh $PRIMARY_NODE 'cortx cluster stop --all'
          fi
@@ -344,12 +345,14 @@ function pcs_cluster_start() {
     ssh $PRIMARY_NODE '/opt/seagate/cortx/s3/bin/s3_setup init --config "json:///opt/seagate/cortx_configs/provisioner_cluster.json"'
     ssh $PRIMARY_NODE '/opt/seagate/cortx/motr/bin/motr_setup config --config "json:///opt/seagate/cortx_configs/provisioner_cluster.json"'
     ssh $PRIMARY_NODE '/opt/seagate/cortx/hare/bin/hare_setup init --config "json:///opt/seagate/cortx_configs/provisioner_cluster.json"'
+    ssh $PRIMARY_NODE 'cat /opt/seagate/cortx/consul-cortx-kv.json | consul kv import -'
     pdsh -S -w $NODES "systemctl start haproxy || true"
     ssh $PRIMARY_NODE 'cortx cluster start'
+    pdsh -S -w $NODES "pcs property set stonith-enabled=false"
   
  }
 
- function pcs_cluster_reinit() {
+function pcs_cluster_reinit() {
     NUM_PCS_BOOTSTRAP_ATTEMPTS=3
     for i in {1..$NUM_PCS_BOOTSTRAP_ATTEMPTS}; 
     do

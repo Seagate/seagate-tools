@@ -62,6 +62,7 @@ function stop_pcs() {
 #    sleep 30
     
     set +e
+    ssh $PRIMARY_NODE 'consul kv export cortx/ > /opt/seagate/cortx/consul-cortx-kv.json'
     ssh $PRIMARY_NODE 'hctl status'
     if [ $? -eq 0 ]; then
         ssh $PRIMARY_NODE 'cortx cluster stop --all'
@@ -114,7 +115,9 @@ function restart_pcs() {
 
 #    ssh $PRIMARY_NODE 'pcs resource enable motr-ios-c{1,2}'
 #    ssh $PRIMARY_NODE 'pcs resource enable s3server-c{1,2}-{1,2,3,4,5,6,7,8,9,10,11}'
+    ssh $PRIMARY_NODE 'cat /opt/seagate/cortx/consul-cortx-kv.json | consul kv import -'
     ssh $PRIMARY_NODE 'cortx cluster start'
+    $EX_SRV "pcs property set stonith-enabled=false"
     wait_for_cluster_start
 }
 

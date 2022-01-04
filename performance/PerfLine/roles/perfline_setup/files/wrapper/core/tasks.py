@@ -130,7 +130,7 @@ def pack_artifacts(path):
 
 
 def update_configs(conf, result_dir, logdir):
-    options = ["scripts/conf_customization/update_configs.sh"]
+    options = ["scripts/file_configuration.sh"]
     result = 'SUCCESS'
     
     if 'configuration' in conf:
@@ -241,7 +241,7 @@ def update_configs(conf, result_dir, logdir):
 def restore_original_configs():    
     result = 'SUCCESS'
 
-    restore_configs = plumbum.local["scripts/conf_customization/restore_orig_configs.sh"]
+    restore_configs = plumbum.local["scripts/LR/conf_customization/restore_orig_configs.sh"]
     
     try:
         (restore_configs['']) & plumbum.FG
@@ -426,11 +426,11 @@ def worker_task(conf_opt, task):
                  result['finish_time'] = str(datetime.now())
                  failed = True
 
-        # if not failed:
-        #     ret = update_configs(conf, result["artifacts_dir"], result["log_dir"])
-        #     if ret == 'FAILED':
-        #         result['finish_time'] = str(datetime.now())
-        #         failed = True
+        if not failed:
+             ret = update_configs(conf, result["artifacts_dir"], result["log_dir"])
+             if ret == 'FAILED':
+                 result['finish_time'] = str(datetime.now())
+                 failed = True
 
         # if not failed:
         #     ret = run_corebenchmark(conf, result["artifacts_dir"], result["log_dir"])

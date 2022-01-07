@@ -76,6 +76,7 @@ function restart_cluster() {
     if [[ -n "$MKFS" ]]; then
         ssh $PRIMARY_NODE "cd $K8S_SCRIPTS_DIR && ./destroy-cortx-cloud.sh"
         cleanup_k8s
+        $EX_SRV "cd $K8S_SCRIPTS_DIR && ./prereq-deploy-cortx-cloud.sh $DISK"
         ssh $PRIMARY_NODE "cd $K8S_SCRIPTS_DIR && ./deploy-cortx-cloud.sh"
     else
         ssh $PRIMARY_NODE "cd $K8S_SCRIPTS_DIR && ./start-cortx-cloud.sh"

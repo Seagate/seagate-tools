@@ -28,6 +28,11 @@
    with_items: "{{ groups['nodes'] }}"
    when: SYSTEM_STATS
 
+ - name: Setting up ulimit as 100000 on Clients
+   shell: /root/PerfProBenchmark/set_ulimit.sh
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
+
  - name: copying config.yml file to Clients
    copy:
      src: roles/benchmark/vars/config.yml

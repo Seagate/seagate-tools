@@ -1,13 +1,16 @@
 K8S_SCRIPTS_DIR="$CORTX_K8S_REPO/k8_cortx_cloud"
 
-HAX_CONTAINER="cortx-motr-hax"
+HAX_CONTAINER="cortx-hax"
 LOCAL_PODS_FS='/mnt/fs-local-volume/local-path-provisioner'
 DATA_POD_FS_TEMPLATE="cortx-data-fs"
+SERVER_POD_FS_TEMPLATE="cortx-server-fs"
 LOCAL_MOUNT_POINT='/mnt/fs-local-volume/etc/gluster'
 CONTAINER_MOUNT_POINT='/share'
 DOCKER_CONTAINER_NAME="perfline_cortx"
 MOTR_ARTIFACTS_DIR="m0d"
 S3_ARTIFACTS_DIR="s3server"
+CORTX_DATA_POD_PREFIX="cortx-data"
+CORTX_SERVER_POD_PREFIX="cortx-server"
 
 M0D_INIT_PID=1
 S3_INIT_PID=10001
@@ -53,7 +56,7 @@ function cleanup_logs() {
 function detect_primary_pod()
 {
     PRIMARY_POD=$(ssh $PRIMARY_NODE "kubectl get pod -o wide" \
-         | grep 'cortx-data-pod' \
+         | grep $CORTX_DATA_POD_PREFIX \
          | grep $PRIMARY_NODE \
          | awk '{print $1}')
 
@@ -180,8 +183,8 @@ function save_motr_configs() {
     pushd $config_dir
     
     for srv in $(echo $NODES | tr ',' ' '); do
- 	    pod=`ssh $PRIMARY_NODE "kubectl get pod -o wide" | grep $srv | grep cortx-data-pod | awk '{print $1}'`
-	    containers=`ssh $PRIMARY_NODE "kubectl get pods $pod -o jsonpath='{.spec.containers[*].name}'" | tr ' ' '\n' | grep cortx-motr-ios`
+ 	    pod=`ssh $PRIMARY_NODE "kubectl get pod -o wide" | grep $srv | grep $CORTX_DATA_POD_PREFIX | awk '{print $1}'`
+	    containers=`ssh $PRIMARY_NODE "kubectl get pods $pod -o jsonpath='{.spec.containers[*].name}'" | tr ' ' '\n' | grep cortx-motr-io`
         mkdir -p $srv
 	    pushd $srv
 
@@ -225,7 +228,7 @@ function save_s3_configs() {
     pushd $config_dir
     
     for srv in $(echo $NODES | tr ',' ' '); do
-	pod=`ssh $PRIMARY_NODE "kubectl get pod -o wide" | grep $srv | grep cortx-data-pod | awk '{print $1}'`
+	pod=`ssh $PRIMARY_NODE "kubectl get pod -o wide" | grep $srv | grep $CORTX_SERVER_POD_PREFIX | awk '{print $1}'`
 	containers=`ssh $PRIMARY_NODE "kubectl get pods $pod -o jsonpath='{.spec.containers[*].name}'" | tr ' ' '\n' | grep s3 | grep -v haproxy | grep -v auth | grep -v consumer`
         mkdir -p $srv
 	pushd $srv
@@ -288,7 +291,7 @@ function save_cluster_status() {
 
 function prepare_cluster() {
     # update /etc/hosts
-    local ip=$(ssh $PRIMARY_NODE 'kubectl get pod -o wide | grep $(hostname) | grep cortx-data' | awk '{print $6}')
+    local ip=$(ssh $PRIMARY_NODE "kubectl get pod -o wide | grep $PRIMARY_NODE | grep $CORTX_SERVER_POD_PREFIX" | awk '{print $6}')
 
     if [ -z "$ip" ]; then
         echo "s3 ip detection failed"
@@ -432,15 +435,16 @@ function start_docker_container() {
 
     set +e
 
+    # TODO: use docker image specified in the solution.yaml file
     image=`(ssh $PRIMARY_NODE "docker images") | grep cortx-all | awk '{print $1":"$2}' | head -n1`
-    ssh $PRIMARY_NODE "docker run -dit --name $DOCKER_CONTAINER_NAME --mount type=bind,source=$LOCAL_MOUNT_POINT,target=/share $image"
+    
+    ssh $PRIMARY_NODE "docker run --rm -dit --name $DOCKER_CONTAINER_NAME --mount type=bind,source=$LOCAL_MOUNT_POINT,target=/share $image sleep infinity"
     set -e
 }
 
 function stop_docker_container() {
     set +e
     ssh $PRIMARY_NODE "docker stop $DOCKER_CONTAINER_NAME"
-    ssh $PRIMARY_NODE "docker rm $DOCKER_CONTAINER_NAME"
     set -e
 }
 
@@ -657,16 +661,22 @@ function save_s3srv_artifacts() {
 
 function copy_pods_artifacts() {
     local path
+    local path_server
     local var_dir="var"
 
     mkdir -p $var_dir
     pushd $var_dir
+
     for srv in $(echo $NODES | tr ',' ' '); do
-	path=`ssh $srv "find ${LOCAL_PODS_FS} -name \"*${DATA_POD_FS_TEMPLATE}*\""`
-	set +e
-	scp -r $srv:$path/* ./
-	set -e
+        path=`ssh $srv "find ${LOCAL_PODS_FS} -name \"*${DATA_POD_FS_TEMPLATE}*\""`
+        path_server=`ssh $srv "find ${LOCAL_PODS_FS} -name \"*${SERVER_POD_FS_TEMPLATE}*\""`
+
+        set +e
+        scp -r $srv:$path/* ./
+        scp -r $srv:$path_server/* ./
+        set -e
     done
+
     popd			# $var_dir
 
     LOCAL_MOUNT_POINT=`pwd`

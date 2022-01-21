@@ -128,9 +128,12 @@ def pack_artifacts(path):
     # rm[f"-rf {path}".split(" ")]()
 
 
-def update_configs(conf, result_dir, logdir):
-    options = ["scripts/file_configuration.sh"]
+def update_configs(conf, result_dir, logdir, task_id):
+    options = ["scripts/conf_customization/update_configs.sh"]
     result = 'SUCCESS'
+
+    options.append("--task-id")
+    options.append(task_id)
     
     if 'configuration' in conf:
 
@@ -246,10 +249,22 @@ def update_configs(conf, result_dir, logdir):
 def restore_original_configs():    
     result = 'SUCCESS'
 
-    restore_configs = plumbum.local["scripts/restore_file_configuration.sh"]
+    restore_configs = plumbum.local["scripts/conf_customization/restore_orig_configs.sh"]
     
     try:
         (restore_configs['']) & plumbum.FG
+    except plumbum.commands.processes.ProcessExecutionError:
+        result = 'FAILED'
+
+    return result
+
+def cleanup(task_id):
+    result = 'SUCCESS'
+    cleanup_cmd = plumbum.local["scripts/cleanup.sh"]
+    options = ['--task-id', task_id]
+    
+    try:
+        (cleanup_cmd[options]) & plumbum.FG
     except plumbum.commands.processes.ProcessExecutionError:
         result = 'FAILED'
 
@@ -432,7 +447,7 @@ def worker_task(conf_opt, task):
                  failed = True
 
         if not failed:
-             ret = update_configs(conf, result["artifacts_dir"], result["log_dir"])
+             ret = update_configs(conf, result["artifacts_dir"], result["log_dir"], task.id)
              if ret == 'FAILED':
                  result['finish_time'] = str(datetime.now())
                  failed = True
@@ -451,7 +466,10 @@ def worker_task(conf_opt, task):
 
         ret = restore_original_configs()
         if ret == 'FAILED':
-            result['finish_time'] = str(datetime.now())
+            failed = True
+
+        ret = cleanup(task.id)
+        if ret == 'FAILED':
             failed = True
             
 

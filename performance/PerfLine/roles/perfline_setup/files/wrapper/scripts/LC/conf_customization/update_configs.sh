@@ -64,6 +64,14 @@ function parse_args()
                 HARE_CONF_DIX_SPARE_UNITS="$2"
                 shift
                 ;;
+            --task-id)
+                TASK_ID="$2"
+                shift
+                ;;
+            --motr-param)
+                MOTR_PARAMS="$MOTR_PARAMS --motr-param $2"
+                shift
+                ;;
             *)
                 echo -e "Invalid option: $1\nUse --help option"
                 exit 1
@@ -81,6 +89,22 @@ function save_original_solution_config()
 function customize_solution_config()
 {
     copy_custom_solution_file
+
+    if [[ -n "$MOTR_PARAMS" ]]; then
+        local base_docker_image=$(cat $SOLUTION_CONFIG | grep cortxdata: | awk '{print $2}')
+        local base_docker_image_name=$(echo $base_docker_image | awk -F ':' '{print $1}')
+        local base_docker_image_tag=$(echo $base_docker_image | awk -F ':' '{print $2}')
+        local new_docker_image="$base_docker_image_name:perfline_$TASK_ID"
+
+        $SCRIPT_DIR/../update_docker_image.sh \
+            --base-image $base_docker_image \
+            --image $new_docker_image \
+            --tmp-container tmp_perfline_$TASK_ID \
+            --nodes $NODES $MOTR_PARAMS
+
+        sed -i "s|$base_docker_image|$new_docker_image|" $SOLUTION_CONFIG
+    fi
+
     check_solution_config
 }
 

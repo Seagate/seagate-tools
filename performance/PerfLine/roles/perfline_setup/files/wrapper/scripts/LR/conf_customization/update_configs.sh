@@ -54,6 +54,9 @@ function parse_args()
 
     while [[ $# -gt 0 ]]; do
         case $1 in
+            --task-id)
+                shift
+                ;;
             --hare-custom-cdf)
                 HARE_CONF_CUSTOM_CDF="$2"
                 shift
@@ -233,7 +236,7 @@ function customize_hare_config()
     fi
 
     if [[ -n "$params" ]]; then
-        $EX_SRV "$SCRIPT_DIR/customize_hare_conf.py \
+        $EX_SRV "$SCRIPT_DIR/../../conf_customization/customize_hare_conf.py \
           -s $HARE_CONFIG -d $HARE_CONFIG $params"
     fi
 }
@@ -251,7 +254,7 @@ function customize_motr_config()
             params="$params --param $motr_param"
         done
 
-        $EX_SRV "$SCRIPT_DIR/customize_motr_conf.py \
+        $EX_SRV "$SCRIPT_DIR/../../conf_customization/customize_motr_conf.py \
           -s $MOTR_CONFIG -d $MOTR_CONFIG $params"
     fi
 }
@@ -269,7 +272,7 @@ function customize_haproxy_config()
     fi
 
     if [[ -n "$params" ]]; then
-        $EX_SRV "$SCRIPT_DIR/customize_haproxy_conf.py -s $HAPROXY_CONFIG \
+        $EX_SRV "$SCRIPT_DIR/../../conf_customization/customize_haproxy_conf.py -s $HAPROXY_CONFIG \
             -d $HAPROXY_CONFIG $params"
     fi
 }
@@ -281,7 +284,7 @@ function customize_s3_config()
     fi
 
     if [[ -n "$S3_PARAMS" ]]; then
-        $EX_SRV "$SCRIPT_DIR/customize_s3_conf.py -s $S3_CONFIG \
+        $EX_SRV "$SCRIPT_DIR/../../conf_customization/customize_s3_conf.py -s $S3_CONFIG \
             -d $S3_CONFIG $S3_PARAMS"
     fi
 }

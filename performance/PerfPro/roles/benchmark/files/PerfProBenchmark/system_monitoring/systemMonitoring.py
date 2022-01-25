@@ -79,16 +79,16 @@ def makeconnection(collection):  #function for making connection with database
     client = MongoClient(configs['db_url'])  #connecting with mongodb database
     db=client[configs['db_database']]  #database name=performance
     if solution.upper() == 'LC':
-        col_stats=configs.get(LC)[collection]
+        col_stats=configs.get('LC')[collection]
     elif solution.upper() == 'LR':
-        col_stats=configs.get(LR)[collection]
+        col_stats=configs.get('LR')[collection]
     elif solution.upper() == 'LEGACY':
        Version=get_release_info('VERSION')
        Version=Version[1:-1]
        col_stats=configs.get('R'+Version[0])[collection]
     else:
         print("Error! Can not find suitable collection to upload data")
-    col=db[col_stats]  #collection name = systemresults
+    col=db[col_stats]  #collection name = configurations
     return col
 def getconfig():
     nodes_list=configs_config.get('NODES')

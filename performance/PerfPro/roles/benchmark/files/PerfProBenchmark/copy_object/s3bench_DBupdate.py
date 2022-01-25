@@ -27,6 +27,7 @@ configs_main = makeconfig(Main_path)
 configs_config= makeconfig(Config_path)
 
 build_url=configs_config.get('BUILD_URL')
+
 nodes_list=configs_config.get('NODES')
 clients_list=configs_config.get('CLIENTS')
 pc_full=configs_config.get('PC_FULL')
@@ -283,6 +284,7 @@ def getconfig():
     custom=configs_config.get('CUSTOM')
     overwrite=configs_config.get('OVERWRITE')
     cluster_pass=configs_config.get('CLUSTER_PASS')
+    solution=configs_config.get('SOLUTION')
     change_pass=configs_config.get('CHANGE_PASS')
     prv_cli=configs_config.get('PRVSNR_CLI_REPO')
     prereq_url=configs_config.get('PREREQ_URL')
@@ -293,7 +295,7 @@ def getconfig():
     nfs_mp=configs_config.get('NFS_MOUNT_POINT')
     nfs_fol=configs_config.get('NFS_FOLDER')
 
-    dic={'NODES' :str(nodes_list) , 'CLIENTS' : str(clients_list) ,'BUILD_URL': build_url ,'CLUSTER_PASS': cluster_pass ,'CHANGE_PASS': change_pass ,'PRVSNR_CLI_REPO': prv_cli ,'PREREQ_URL': prereq_url ,'SERVICE_USER': srv_usr ,'SERVICE_PASS': srv_pass , 'PC_FULL': pc_full , 'CUSTOM': custom , 'OVERWRITE':overwrite ,'NFS_SERVER': nfs_serv ,'NFS_EXPORT' : nfs_exp ,'NFS_MOUNT_POINT' : nfs_mp , 'NFS_FOLDER' : nfs_fol }
+    dic={'NODES' :str(nodes_list) , 'CLIENTS' : str(clients_list) ,'BUILD_URL': build_url ,'CLUSTER_PASS': cluster_pass , 'SOLUTION': solution , 'CHANGE_PASS': change_pass ,'PRVSNR_CLI_REPO': prv_cli ,'PREREQ_URL': prereq_url ,'SERVICE_USER': srv_usr ,'SERVICE_PASS': srv_pass , 'PC_FULL': pc_full , 'CUSTOM': custom , 'OVERWRITE':overwrite ,'NFS_SERVER': nfs_serv ,'NFS_EXPORT' : nfs_exp ,'NFS_MOUNT_POINT' : nfs_mp , 'NFS_FOLDER' : nfs_fol }
     return (dic)
 
 
@@ -310,14 +312,22 @@ def main(argv):
     Branch=Branch[1:-1]
     OS=get_release_info('OS')
     OS=OS[1:-1]
-    col_config=configs_main.get('R'+Version[0])['config_collection']
     dic = getconfig()
+    if dic['SOLUTION'].upper() == 'LC':
+       col=configs_main.get('LC')
+    elif dic['SOLUTION'].upper() == 'LR':
+       col=configs_main.get('LR')
+    elif dic['SOLUTION'].upper() == 'LEGACY':
+       col=configs_main.get(f"R{Version.split('.')[0]}")
+    else:
+        print("Error! Can not find suitable collection to upload data")
+
+
     Config_ID = "NA"
-    result = db[col_config].find_one(dic)    
+    result = db[col['config_collection']].find_one(dic) # find entry from configurations collection
     if result:
         Config_ID = result['_id'] # foreign key : it will map entry in configurations to results entry
-    col=configs_main.get('R'+Version[0])['db_collection']
-    insertOperations(files,Build,Version,col,Config_ID,Branch,OS,db)
+    insertOperations(files,Build,Version,col['db_collection'],Config_ID,Branch,OS,db)
 
 if __name__=="__main__":
     main(sys.argv) 

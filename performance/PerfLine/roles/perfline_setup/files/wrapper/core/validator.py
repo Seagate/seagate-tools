@@ -109,6 +109,13 @@ def get_schema_motr():
                     'schema': {
                         'custom_conf': {'type': 'string', 'required': False, 'empty': False},
                     }
+                },
+                'solution': {
+                    'required': False,
+                    'type': 'dict',
+                    'schema': {
+                        'custom_conf': {'type': 'string', 'required': False, 'empty': False},
+                    }
                 }
             }
         },

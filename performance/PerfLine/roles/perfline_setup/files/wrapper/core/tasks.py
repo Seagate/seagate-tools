@@ -71,8 +71,7 @@ def parse_options(conf, result_dir):
             options.append(params_str)
 
     # Execution options:
-    if 'mkfs' in conf['execution_options']:
-        if conf['execution_options']['mkfs']:
+    if conf['execution_options']['mkfs'] or 'configuration' in conf:
             options.append("--mkfs")
     if conf['execution_options']['collect_m0trace']:
         options.append("--m0trace-files")
@@ -130,7 +129,7 @@ def pack_artifacts(path):
 
 
 def update_configs(conf, result_dir, logdir):
-    options = ["scripts/conf_customization/update_configs.sh"]
+    options = ["scripts/file_configuration.sh"]
     result = 'SUCCESS'
     
     if 'configuration' in conf:
@@ -224,6 +223,12 @@ def update_configs(conf, result_dir, logdir):
             if 'custom_conf' in ib:
                 options.append('--ib-custom-conf')
                 options.append(ib['custom_conf'])
+        
+        if 'solution' in conf['configuration']:
+            cfg = conf['configuration']['solution']
+            if 'custom_conf' in cfg:
+                options.append('--solution-custom-conf')
+                options.append(cfg['custom_conf'])
             
         update_configs = plumbum.local["scripts/e2o.sh"]
         mv = plumbum.local['mv']
@@ -241,7 +246,7 @@ def update_configs(conf, result_dir, logdir):
 def restore_original_configs():    
     result = 'SUCCESS'
 
-    restore_configs = plumbum.local["scripts/conf_customization/restore_orig_configs.sh"]
+    restore_configs = plumbum.local["scripts/restore_file_configuration.sh"]
     
     try:
         (restore_configs['']) & plumbum.FG
@@ -414,11 +419,11 @@ def worker_task(conf_opt, task):
 
         ret = save_workloadconfig(conf, result["artifacts_dir"])
 
-        # if not failed:
-        #     ret = restore_original_configs()
-        #     if ret == 'FAILED':
-        #         result['finish_time'] = str(datetime.now())
-        #         failed = True
+        if not failed:
+            ret = restore_original_configs()
+            if ret == 'FAILED':
+                 result['finish_time'] = str(datetime.now())
+                 failed = True
                
         if not failed:
              ret = sw_update(conf, result["artifacts_dir"], result["log_dir"])
@@ -426,11 +431,11 @@ def worker_task(conf_opt, task):
                  result['finish_time'] = str(datetime.now())
                  failed = True
 
-        # if not failed:
-        #     ret = update_configs(conf, result["artifacts_dir"], result["log_dir"])
-        #     if ret == 'FAILED':
-        #         result['finish_time'] = str(datetime.now())
-        #         failed = True
+        if not failed:
+             ret = update_configs(conf, result["artifacts_dir"], result["log_dir"])
+             if ret == 'FAILED':
+                 result['finish_time'] = str(datetime.now())
+                 failed = True
 
         # if not failed:
         #     ret = run_corebenchmark(conf, result["artifacts_dir"], result["log_dir"])
@@ -444,10 +449,10 @@ def worker_task(conf_opt, task):
                 result['finish_time'] = str(datetime.now())
                 failed = True
 
-        # ret = restore_original_configs()
-        # if ret == 'FAILED':
-        #     result['finish_time'] = str(datetime.now())
-        #     failed = True
+        ret = restore_original_configs()
+        if ret == 'FAILED':
+            result['finish_time'] = str(datetime.now())
+            failed = True
             
 
     result['finish_time'] = str(datetime.now())

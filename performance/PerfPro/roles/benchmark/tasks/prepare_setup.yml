@@ -47,6 +47,7 @@
        - datetime==4.3
        - yq
      executable: pip3
+     extra_args: --ignore-installed
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
 
@@ -61,6 +62,7 @@
        - datetime==4.3
        - yq
      executable: pip3
+     extra_args: --ignore-installed
    delegate_to: "{{ item }}"
    with_items: "{{ groups['nodes'] }}"
    when: SYSTEM_STATS

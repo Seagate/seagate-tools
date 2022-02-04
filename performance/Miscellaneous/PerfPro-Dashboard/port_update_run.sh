@@ -31,6 +31,7 @@ python3 main_app.py
 elif [ $session_name == 'dashboard-prod' ]
 then
 echo "working in 'dashboard-prod' enviornment'"
+
 cd dashboards/prod/
 git clone --recursive https://$GIT_USER:$GIT_PASS@github.com/Seagate/cortx-test.git -b dev
 

@@ -12,5 +12,10 @@ if rpm -qa | grep ansible > /dev/null
     yum install -y ansible
 fi
 
-ansible-playbook perfpro.yml -i inventories/hosts -v
+if [[ "$1" == "sanity" ]]
+  then
+    ansible-playbook perfpro.yml -i inventories/hosts -v --extra-vars '{ "EXECUTION_TYPE" : "sanity" }'
+  else
+    ansible-playbook perfpro.yml -i inventories/hosts -v
+fi
 

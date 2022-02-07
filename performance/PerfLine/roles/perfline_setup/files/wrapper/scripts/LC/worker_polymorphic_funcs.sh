@@ -410,10 +410,11 @@ function save_motr_addb() {
 
 	    stobs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME ls -1 $d" ) | grep "addb-stob"`
 	    for st in $stobs; do
-		addb_stob="$d/$st/o/100000000000000:2"
+		dir="$d/$st/o"
+		addb_stob="$dir/100000000000000:2"
 		echo $h $pod $cont $serv $addb_stob $uid $pid >> addb_mapping
-		
-		ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME m0addb2dump -f -- \"$addb_stob\"" > dumps_${pid}.txt &
+
+		ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME /bin/bash -c \"cd $dir && m0addb2dump -f -- $addb_stob\"" > dumps_${pid}.txt &
 		
 		((pid=pid+1))
 	    done
@@ -609,10 +610,11 @@ function save_s3_addb() {
 	    uid=`echo $d | awk -F'/' '{print $(NF-1)}'`
 	    stobs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME ls -1 $d" ) | grep addb`
 	    for st in $stobs; do
-		addb_stob="$d/$st/o/100000000000000:2"
+		dir="$d/$st/o"
+		addb_stob="$dir/100000000000000:2"
 		echo $h $pod $cont $serv $addb_stob $uid $pid >> addb_mapping
 		
-		ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME m0addb2dump -f -p /opt/seagate/cortx/s3/addb-plugin/libs3addbplugin.so -- \"$addb_stob\"" > dumpc_${pid}.txt &
+		ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME /bin/bash -c \"cd $dir && m0addb2dump -f -p /opt/seagate/cortx/s3/addb-plugin/libs3addbplugin.so -- $addb_stob\"" > dumpc_${pid}.txt &
 		
 		((pid=pid+1))
 	    done

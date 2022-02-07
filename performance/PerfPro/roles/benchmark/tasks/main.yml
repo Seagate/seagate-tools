@@ -114,25 +114,35 @@
    when: PC_FULL > 0
 
  - include: s3bench.yml
- 
+   when: EXECUTION_TYPE == "normal"
+
  - name: s3bench results upload to db
    shell: python3 /root/PerfProBenchmark/s3bench/s3bench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/s3bench /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
+   when: EXECUTION_TYPE == "normal"
 
  - include: hsbench.yml
+   when: EXECUTION_TYPE == "normal"
 
  - name: hsbench results upload to db
    shell: python3 /root/PerfProBenchmark/hsbench/hsbench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/hsbench /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
+   when: EXECUTION_TYPE == "normal"
 
  - include: cosbench.yml
+   when: EXECUTION_TYPE == "normal"
 
  - name: cosbench results upload to db
    shell: python3 /root/PerfProBenchmark/cosbench/cosbench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/cosbench /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
+   when: EXECUTION_TYPE == "normal"
+
+#Performing Sanity PerfPro run
+ - include: sanity.yml
+   when: EXECUTION_TYPE == "sanity"
 
 #Performing Degraded read benchmarking
 

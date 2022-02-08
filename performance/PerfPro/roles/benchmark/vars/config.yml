@@ -12,6 +12,7 @@ CLIENTS:
 BUILD_URL: 
 CLUSTER_PASS: seagate1
 SOLUTION: lc    # DB collection for uploading data legacy, lc or lr
+EXECUTION_TYPE: normal # execution type can be 'normal' or 'sanity'
 
 # For PerfPro MongoDB related Entries
 END_POINTS: https://s3.seagate.com

@@ -1,0 +1,12 @@
+# Database details
+# use the format 'key = value' to fill the template
+
+[mongo]
+mongo_version = 
+username = 
+password = 
+port = 
+db_name = 
+# time stamp of current date will be appened during execution in path
+path = 
+host = 

@@ -42,7 +42,7 @@ function is_cluster_online()
 function stop_cluster() {
     echo "Stop LC cluster"
 
-    # let's try to wait for m0d to complete all operations
+    # wait for m0d to complete all operations
     sleep 120
 
     ssh $PRIMARY_NODE "cd $K8S_SCRIPTS_DIR && ./shutdown-cortx-cloud.sh"
@@ -89,7 +89,7 @@ function restart_cluster() {
     wait_for_cluster_start
 
     ssh $PRIMARY_NODE "kubectl get pod"
-    sleep 120    
+    sleep 20    
 }
 
 function wait_for_cluster_start() {
@@ -437,9 +437,7 @@ function start_docker_container() {
 
     set +e
 
-    # TODO: use docker image specified in the solution.yaml file
-    image=`(ssh $PRIMARY_NODE "docker images") | grep cortx-all | awk '{print $1":"$2}' | head -n1`
-    
+    image=`(ssh $PRIMARY_NODE "cat $K8S_SCRIPTS_DIR/solution.yaml") | grep "cortxdata:" | awk '{print $2}'`
     ssh $PRIMARY_NODE "docker run --rm -dit --name $DOCKER_CONTAINER_NAME --mount type=bind,source=$LOCAL_MOUNT_POINT,target=/share $image sleep infinity"
     set -e
 }
@@ -675,8 +673,8 @@ function copy_pods_artifacts() {
         path_server=`ssh $srv "find ${LOCAL_PODS_FS} -name \"*${SERVER_POD_FS_TEMPLATE}*\""`
 
         set +e
-        scp -r $srv:$path/* ./
-        scp -r $srv:$path_server/* ./
+	rsync -avr --exclude "db" --exclude "db-log" $srv:$path/* ./
+	rsync -avr --exclude "db" --exclude "db-log" $srv:$path_server/* ./
         set -e
     done
 
@@ -783,5 +781,5 @@ function m0crate_workload()
     STATUS=0 #TODO: fix it
 
     STOP_TIME=`date +%s000000000`
-    sleep 120
+    sleep 20
 }

@@ -63,7 +63,6 @@ from typing import List
 from itertools import zip_longest
 from collections import defaultdict
 from tqdm import tqdm
-from plumbum.cmd import wc
 from math import ceil
 import sys
 from functools import partial
@@ -491,7 +490,7 @@ class AddbDumpIterator:
         return results
 
 def get_lines_nr(file_path):
-    return int(wc["-l", file_path]().split()[0])
+    return sum(1 for l in open(file_path))
 
 def parse_pid(file_path):
     file_name = basename(file_path)

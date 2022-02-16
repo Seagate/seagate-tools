@@ -401,6 +401,8 @@ class ADDB2PP:
             "rpc-item-id-assign": (ADDB2PP.p_1_to_2_rpc,  "rpc_to_sxid"),
             "rpc-out-state"     : (ADDB2PP.p_sm_req,      "rpc_req"),
             "rpc-in-state"      : (ADDB2PP.p_sm_req,      "rpc_req"),
+            "rpc-out-phase"     : (ADDB2PP.p_sm_req,      "rpc_req"),
+            "rpc-in-phase"      : (ADDB2PP.p_sm_req,      "rpc_req"),
             "cas-req-state"     : (ADDB2PP.p_sm_req,      "cas_req"),
             "dix-req-state"     : (ADDB2PP.p_sm_req,      "dix_req"),
             "op-state"          : (ADDB2PP.p_sm_req,      "client_req"),

@@ -1,4 +1,18 @@
 ---
+Sanity_low_load:
+   sessions:
+      - 300
+   objs:
+      - { objsize: '256Kb', numsamples: '180000'}
+      - { objsize: '16Mb', numsamples: '18000'}
+      - { objsize: '128Mb', numsamples: '2250'}
+
+Sanity_high_load:
+   sessions:
+      - 450
+   objs:
+      - { objsize: '128Mb', numsamples: '2250'}
+
 low_load:
    sessions:
       - 1

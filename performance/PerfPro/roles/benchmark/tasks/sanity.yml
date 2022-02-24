@@ -3,9 +3,9 @@
    set_fact: nodelist={%for host in groups['nodes']%}{{hostvars[host]['ansible_host']}}{% if not loop.last %},{% endif %}{% endfor %}
 
  - name: "Importing configuration"
-   include_vars: sanity_config.yml
+   include_vars: s3config.yml
 
- - name: "[S3Bench] Preparing Configuration for low load"
+ - name: "[S3Bench] Preparing Configuration for sanity low load"
    vars:
       runconfig:
          nodelist: "{{ nodelist }}"
@@ -13,5 +13,15 @@
          objsize: "{{ item[1].objsize }}"
          numsamples: "{{ item[1].numsamples }}"
    ansible.builtin.include_tasks: execute_sanity_s3bench.yml
-   loop: "{{ Sanity_load.sessions|product(Sanity_load.objs)|list }}"
+   loop: "{{ Sanity_low_load.sessions|product(Sanity_low_load.objs)|list }}"
+
+ - name: "[S3Bench] Preparing Configuration for sanity low load"
+   vars:
+      runconfig:
+         nodelist: "{{ nodelist }}"
+         numclients: "{{ item[0] }}"
+         objsize: "{{ item[1].objsize }}"
+         numsamples: "{{ item[1].numsamples }}"
+   ansible.builtin.include_tasks: execute_sanity_s3bench.yml
+   loop: "{{ Sanity_high_load.sessions|product(Sanity_high_load.objs)|list }}"
 

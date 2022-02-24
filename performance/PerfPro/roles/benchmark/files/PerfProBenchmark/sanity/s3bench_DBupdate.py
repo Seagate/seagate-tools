@@ -23,7 +23,7 @@ Repository = sys.argv[4]
 Commit_ID = sys.argv[5]
 PR_ID = sys.argv[6]
 User = sys.argv[7]
-Gid = sys.argv[8]
+GID = sys.argv[8]
 
 def makeconfig(name):  #function for connecting with configuration file
     with open(name) as config_file:

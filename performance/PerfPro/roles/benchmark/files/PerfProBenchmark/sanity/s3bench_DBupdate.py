@@ -1,0 +1,311 @@
+
+#!/usr/bin/env python3
+"""
+python3 s3bench_DBupdate.py <log file path> <main.yaml path> <config.yaml path> 
+Attributes: _id,Log_File,Name,Operation,IOPS,Throughput,Latency,TTFB,Object_Size,HOST
+"""
+
+import pymongo
+from pymongo import MongoClient
+import re
+import socket
+import sys
+import os
+from os import listdir
+import yaml
+from datetime import datetime
+import urllib.request
+Main_path = sys.argv[2]
+Config_path = sys.argv[3]
+
+#collecting runtime entries 
+Repository = sys.argv[4]
+Commit_ID = sys.argv[5]
+PR_ID = sys.argv[6]
+User = sys.argv[7]
+GID = sys.argv[8]
+
+def makeconfig(name):  #function for connecting with configuration file
+    with open(name) as config_file:
+        configs = yaml.load(config_file, Loader=yaml.FullLoader)
+    return configs
+
+configs_main = makeconfig(Main_path)
+configs_config= makeconfig(Config_path)
+
+#build_url=configs_config.get('BUILD_URL')
+nodes_list=configs_config.get('NODES')
+clients_list=configs_config.get('CLIENTS')
+pc_full=configs_config.get('PC_FULL')
+overwrite=configs_config.get('OVERWRITE')
+custom=configs_config.get('CUSTOM')
+nodes_num=len(nodes_list)
+clients_num=len(clients_list)
+
+def makeconnection(collection):  #function for making connection with database
+    client = MongoClient(configs_main['db_url'])  #connecting with mongodb database
+    db=client[configs_main['db_database']]  #database name=performance 
+#    return db
+    col=configs_main.get('SANITY')[collection]
+    sanity_col=db[col]
+    return sanity_col
+
+##Function to find latest iteration
+def get_latest_iteration(query, db_collection):
+    max = 0
+    cursor = db_collection.find(query)
+    for record in cursor:
+        if max < record['Iteration']:
+            max = record['Iteration']
+    return max
+
+##Function to resolve iteration/overwrite etc in multi-client run
+def check_first_client(query, db_collection, itr):
+    query.update(Iteration=itr)
+    cursor = db_collection.distinct('HOST', query)
+    if (len(cursor) < query["Count_of_Clients"]):
+        cur_client = socket.gethostname()
+        if cur_client in cursor:
+            print(f"Multi-Client Run: Re-Upload from client {cur_client} detected. Existing data in DB from this client for current run will get overwritten")
+            query.update(HOST=cur_client)
+            db_collection.delete_many(query)
+        return False
+    return True
+
+
+class s3bench:
+
+    def __init__(self, Log_File, Operation, IOPS, Throughput, Latency, TTFB, Object_Size,db_collection,run_ID,Config_ID,Overwrite,Sessions,Objects,run_health):
+
+        self.Log_File = Log_File
+        self.Operation = Operation
+        self.IOPS = IOPS
+        self.Throughput = Throughput
+        self.Latency = Latency
+        self.TTFB = TTFB
+        self.Object_Size = Object_Size
+        self.db_collection = db_collection
+        self.run_ID = run_ID
+        self.Config_ID = Config_ID
+        self.Timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.Overwrite = Overwrite
+        self.Sessions = Sessions
+        self.Objects = Objects
+        self.Run_State = run_health
+
+# Set for uploading to db
+        self.Primary_Set = {
+                "Name" : "S3bench" ,
+                "Config_ID":self.Config_ID,
+                "run_ID" : self.run_ID
+                }
+        self.Runconfig_Set = {
+                "Operation" : self.Operation ,
+                "Object_Size" : self.Object_Size ,
+                "Buckets": 1 ,
+                "Objects" : self.Objects ,
+                "Sessions": self.Sessions
+                }
+        self.Updation_Set= {
+                "HOST" : socket.gethostname(),
+                #"Config_ID":self.Config_ID,
+                "IOPS" : self.IOPS,
+                "Throughput" : self.Throughput,
+                "Latency": self.Latency,
+                "Log_File" : self.Log_File,
+                "TTFB" : self.TTFB,
+                "Timestamp":self.Timestamp,
+                "Run_State":self.Run_State
+                }
+
+    def insert_update(self,Iteration):# function for inserting and updating mongodb database 
+        #db = makeconnection()
+        db_data={}
+        db_data.update(self.Primary_Set)
+        db_data.update(self.Runconfig_Set)
+        db_data.update(self.Updation_Set)
+        #collection = self.Col
+        db_collection =  self.db_collection
+# Function to insert data into db with iteration number
+
+        def db_update(itr,db_data):
+            db_data.update(Iteration=itr)
+            db_collection.insert_one(db_data)
+            print('Inserted new entries \n' + str(db_data))
+
+        try:
+            db_update(Iteration,db_data)
+
+        except Exception as e:
+            print("Unable to insert/update documents into database. Observed following exception:")
+            print(e)
+
+def insertOperations(files,db_collection,run_ID,Config_ID ):  #function for retriving required data from log files
+    find_iteration = True
+    first_client = True
+    delete_data = True
+    Run_Health = "Successful"
+    for file in files:    
+        _, filename = os.path.split(file)
+        global nodes_num, clients_num , pc_full, iteration , overwrite, custom
+        oplist = ["Write" , "Read" , "GetObjTag", "HeadObj" , "PutObjTag"]
+        Objsize= 1
+        obj = "NA"
+        sessions=1
+        f = open(file)
+        linecount=len(f.readlines())
+        f = open(file)
+        lines = f.readlines()[-linecount:]
+        count=0
+        try:
+            Run_Health = "Successful"
+            while count<linecount:
+                if '''"numSamples":''' in lines[count].strip().replace(" ", ""):
+                    r=lines[count].strip().replace(" ", "").split(":")
+                    Objects = int(r[1].replace(",", ""))
+                if '''"numClients":''' in lines[count].strip().replace(" ", ""):
+                    r=lines[count].strip().replace(" ", "").split(":")
+                    sessions = int(r[1].replace(",", ""))
+                if '''"objectSize(MB)":''' in lines[count].strip().replace(" ", ""):
+                    r=lines[count].strip().replace(" ", "").split(":")
+                    Objsize = float(r[1].replace(",", ""))
+                    if(Objsize.is_integer()):
+                        obj=str(int(Objsize))+"MB"
+                    else:
+                        obj=str(round(Objsize*1024))+"KB"
+
+                if '''"Operation":''' in lines[count].replace(" ", ""):
+                    r=lines[count].strip().replace(" ", "").split(":")
+                    opname = r[1].replace(",", "").strip('"')
+                    if opname in oplist:
+                        count-=1
+                        throughput="NA"
+                        iops="NA"
+                        if opname=="Write" or opname=="Read":
+                            count+=1
+                            throughput = float(lines[count+4].split(":")[1].replace(",", ""))
+                            iops=round((throughput/Objsize),6)
+                            throughput = round(throughput,6)
+
+                        lat={"Max":float(lines[count-4].split(":")[1][:-2]),"Avg":float(lines[count-5].split(":")[1][:-2]),"Min":float(lines[count-3].split(":")[1][:-2])}
+                        ttfb={"Max":float(lines[count+12].split(":")[1][:-2]),"Avg":float(lines[count+11].split(":")[1][:-2]),"Min":float(lines[count+13].split(":")[1][:-2]),"99p":float(lines[count+10].split(":")[1][:-2])}
+                        data = s3bench(filename,opname,iops,throughput,lat,ttfb,obj,db_collection,run_ID,Config_ID,overwrite,sessions,Objects,Run_Health) 
+# Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID,overwrite,sessions,Objects,pc_full,custom,Run_Health)
+                    
+                        if find_iteration:
+                            iteration_number = get_latest_iteration(data.Primary_Set, db_collection)
+                            find_iteration = False
+                            # To prevent data of one client getting overwritten/deleted while another client upload data as primary set matches for all client in multi-client run
+                            first_client=check_first_client(data.Primary_Set, db_collection, iteration_number)
+
+                        if iteration_number == 0:
+                            data.insert_update(iteration_number+1)
+                        elif not first_client:
+                            data.insert_update(iteration_number)
+                        elif overwrite == True :
+                            data.Primary_Set.update(Iteration=iteration_number)
+                            if delete_data:
+                                db_collection.delete_many(data.Primary_Set)
+                                delete_data = False
+                                print("'overwrite' is True in config. Hence, old DB entry deleted")
+                            data.insert_update(iteration_number)
+                        else :
+                            data.insert_update(iteration_number+1)
+                
+                        count += 9
+                count +=1
+
+        except Exception as e:
+            print(f"Encountered error in file: {filename} , and Exeption is" , e)
+            Run_Health = "Failed"           
+
+
+def getallfiles(directory,extension):#function to return all file names with perticular extension
+    flist = []
+    for path, _, files in os.walk(directory):
+        for name in files:
+            if(name.lower().endswith(extension)):
+                flist.append(os.path.join(path, name))
+    return flist
+
+def insert_run_details(run_details):
+    global Repository, Commit_ID, PR_ID 
+    run_data={
+        "Repository" : Repository ,
+        "Commit_ID" : Commit_ID,
+        "PR_ID" : PR_ID
+        }
+    try:
+        count_documents= run_details.count_documents(run_data)
+        if count_documents == 0:
+            run_details.insert_one(run_data)
+            print("Sanity Run details recorded")
+            result = run_details.find_one(run_data)
+            if result:
+                run_ID = result['_id'] 
+        else:
+            print("Sanity Run details already present")
+            result = run_details.find_one(run_data)
+            if result:
+                run_ID = result['_id']
+    except Exception as e:
+        print("Unable to insert/update documents into database. Observed following exception:")
+        print(e)
+    return(run_ID)
+
+
+def insert_config_details(sanity_config , run_ID):
+    global User ,GID ,nodes_num, clients_num 
+    config_data={
+        "User" : User,
+        "GID" : GID,
+        "run_ID" : run_ID,
+        "Nodes" : str(configs_config.get('NODES')),
+        "Count_of_Servers": nodes_num ,
+        "Clients" : str(configs_config.get('CLIENTS')),
+        "Count_of_Clients" : clients_num,
+        "Percentage_full": configs_config.get('PC_FULL'),
+        "Custom" : configs_config.get('CUSTOM')
+        }
+    try:
+        count_documents= sanity_config.count_documents(config_data)
+        if count_documents == 0:
+            sanity_config.insert_one(config_data)
+            print("Config details recorded")
+            result = sanity_config.find_one(config_data)
+            if result:
+                Config_ID = result['_id']
+        else:
+            print("Config details already present")
+            result = sanity_config.find_one(config_data)
+            if result:
+                Config_ID = result['_id']
+    except Exception as e:
+        print("Unable to insert/update documents into database. Observed following exception:")
+        print(e)
+    return(Config_ID)
+
+
+def main(argv):
+    dic=argv[1]
+    files = getallfiles(dic,".log")#getting all files with log as extension from given directory
+   # db = makeconnection() #getting instance of database
+    
+    run_details = makeconnection('sanity_details_collection')
+    sanity_config = makeconnection('sanity_config_collection')
+#db['SANITY'['sanity_config_collection']]
+    db_collection = makeconnection('sanity_dbcollection')
+#db['SANITY'['sanity_dbcollection']]
+
+#insert DB entries
+    run_ID = insert_run_details(run_details)
+    Config_ID = insert_config_details(sanity_config , run_ID)
+    
+    #result = db[col['config_collection']].find_one(dic) # find entry from configurations collection 
+    #Config_ID = "NA"
+    #if result:
+    #    Config_ID = result['_id'] # foreign key : it will map entry in configurations to results entry
+    insertOperations(files,db_collection,run_ID,Config_ID)
+
+if __name__=="__main__":
+    main(sys.argv) 

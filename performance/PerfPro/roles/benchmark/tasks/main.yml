@@ -146,6 +146,7 @@
 
  - name: Inserting DB entries for Sanity run. 
    shell: python3 /root/PerfProBenchmark/sanity/s3bench_DBupdate.py /root/PerfProBenchmark/sanity_results/ /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml "{{ REPOSITORY }}" "{{ COMMIT_ID }}" "{{ PR_ID }}" "{{ USER }}" "{{ GID }}"
+   when: EXECUTION_TYPE == "sanity"
 
 #Performing Degraded read benchmarking
 

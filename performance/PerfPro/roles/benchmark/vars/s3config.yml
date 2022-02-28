@@ -1,5 +1,5 @@
 ---
-Sanity_low_load:
+sanity_low_load:
    sessions:
       - 300
    objs:
@@ -7,7 +7,7 @@ Sanity_low_load:
       - { objsize: '16Mb', numsamples: '18000'}
       - { objsize: '128Mb', numsamples: '2250'}
 
-Sanity_high_load:
+sanity_high_load:
    sessions:
       - 450
    objs:

@@ -13,5 +13,3 @@ aws configure set s3api.endpoint_url http://s3.seagate.com
 aws configure set ca_bundle '/etc/ssl/ca.crt'
 cat ~/.aws/config
 cat ~/.aws/credentials
-aws s3 mb s3://test${RANDOM:0:3}
-aws s3 ls

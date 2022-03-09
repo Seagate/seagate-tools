@@ -292,17 +292,18 @@ function save_cluster_status() {
 
 function prepare_cluster() {
     # update /etc/hosts
-    local ip=$(ssh $PRIMARY_NODE "kubectl get pod -o wide | grep $PRIMARY_NODE | grep $CORTX_SERVER_POD_PREFIX" | awk '{print $6}')
-
-    if [ -z "$ip" ]; then
-        echo "s3 ip detection failed"
-        exit 1
-    fi
-
-    ssh $PRIMARY_NODE 'sed -i "/s3.seagate.com/d" /etc/hosts'
-    ssh $PRIMARY_NODE 'sed -i "/sts.seagate.com/d" /etc/hosts'
-    ssh $PRIMARY_NODE 'sed -i "/iam.seagate.com/d" /etc/hosts'
-    ssh $PRIMARY_NODE "echo $ip s3.seagate.com sts.seagate.com iam.seagate.com >> /etc/hosts"
+    local i=0
+    ssh $PRIMARY_NODE 'sed -i "/seagate/d" /etc/hosts'
+    for node in ${NODES//,/ };
+    do
+        local ip=$(ssh $PRIMARY_NODE "kubectl get pod -o wide | grep $node | grep $CORTX_SERVER_POD_PREFIX" | awk '{print $6}')
+        ((i=i+1))
+        if [ -z "$ip" ]; then
+           echo "s3 ip detection failed"
+           exit 1
+        fi
+        ssh $PRIMARY_NODE "echo $ip s3node$i s3.seagate.com sts.seagate.com iam.seagate.com >> /etc/hosts"
+    done
 
     # create an s3 account
     ssh $PRIMARY_NODE "$SCRIPT_DIR/../../s3account/lc_create_user.sh"
@@ -410,12 +411,9 @@ function save_motr_addb() {
 
 	    stobs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME ls -1 $d" ) | grep "addb-stob"`
 	    for st in $stobs; do
-		dir="$d/$st/o"
-		addb_stob="$dir/100000000000000:2"
+		addb_stob="$d/$st/o/100000000000000:2"
 		echo $h $pod $cont $serv $addb_stob $uid $pid >> addb_mapping
-
-		ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME /bin/bash -c \"cd $dir && m0addb2dump -f -- $addb_stob\"" > dumps_${pid}.txt &
-		
+                ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME /bin/bash -c \"m0addb2dump -f -- $addb_stob\"" > dumps_${pid}.txt &
 		((pid=pid+1))
 	    done
 	done
@@ -608,12 +606,9 @@ function save_s3_addb() {
 	    uid=`echo $d | awk -F'/' '{print $(NF-1)}'`
 	    stobs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME ls -1 $d" ) | grep addb`
 	    for st in $stobs; do
-		dir="$d/$st/o"
-		addb_stob="$dir/100000000000000:2"
+		addb_stob="$d/$st/o/100000000000000:2"
 		echo $h $pod $cont $serv $addb_stob $uid $pid >> addb_mapping
-		
-		ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME /bin/bash -c \"cd $dir && m0addb2dump -f -p /opt/seagate/cortx/s3/addb-plugin/libs3addbplugin.so -- $addb_stob\"" > dumpc_${pid}.txt &
-		
+	        ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME /bin/bash -c \"m0addb2dump -f -p /opt/seagate/cortx/s3/addb-plugin/libs3addbplugin.so -- $addb_stob\"" > dumpc_${pid}.txt &
 		((pid=pid+1))
 	    done
 	done

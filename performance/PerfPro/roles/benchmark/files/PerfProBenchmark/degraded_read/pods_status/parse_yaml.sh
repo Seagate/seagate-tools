@@ -11,8 +11,8 @@ function parseYaml
     s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
     sed -ne "s|^\($s\):|\1|" \
         -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
-        -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  $1 |
-    awk -F$fs '{
+        -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  "$1" |
+    awk -F"$fs" '{
         indent = length($1)/2;
         vname[indent] = $2;
         for (i in vname) {if (i > indent) {delete vname[i]}}
@@ -34,16 +34,16 @@ then
 fi
 
 # Check if the file exists
-if [ ! -f $INPUT_YAML_FILE ]
+if [ ! -f "$INPUT_YAML_FILE" ]
 then
     echo "ERROR: $INPUT_YAML_FILE does not exist"
     exit 1
 fi
 
 # Store the parsed output in a single string
-PARSED_OUTPUT=$(parseYaml $INPUT_YAML_FILE)
+PARSED_OUTPUT=$(parseYaml "$INPUT_YAML_FILE")
 # Remove any additional indent '.' characters
-PARSED_OUTPUT=$(echo ${PARSED_OUTPUT//../.})
+PARSED_OUTPUT=$(echo "${PARSED_OUTPUT//../.}")
 
 # Star with empty output
 OUTPUT=""
@@ -59,7 +59,7 @@ else
     for VAR_VAL_ELEMENT in "${PARSED_VAR_VAL_ARRAY[@]}"
     do
         # Get the var and val from the tuple
-        VAR=$(echo $VAR_VAL_ELEMENT | cut -f1 -d'>')
+        VAR=$(echo "$VAR_VAL_ELEMENT" | cut -f1 -d'>')
         # Check is the filter matches the var
         if [[ $VAR == $YAML_PATH_FILTER ]]
         then
@@ -75,4 +75,4 @@ else
 fi
 
 # Return the parsed output
-echo $OUTPUT
+echo "$OUTPUT"

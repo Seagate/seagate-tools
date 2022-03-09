@@ -5,7 +5,7 @@ pwd
 ls
 
 # Check if the file exists
-if [ ! -f $solution_yaml ]
+if [ ! -f "$solution_yaml" ]
 then
     echo "ERROR: $solution_yaml does not exist"
     exit 1
@@ -14,11 +14,11 @@ fi
 
 function parseSolution()
 {
-    echo "$(/root/PerfProBenchmark/degraded_read/pods_status//parse_yaml.sh $solution_yaml $1)"
+    echo "$(/root/PerfProBenchmark/degraded_read/pods_status//parse_yaml.sh "$solution_yaml" "$1")"
 }
 
 namespace=$(parseSolution 'solution.namespace')
-namespace=$(echo $namespace | cut -f2 -d'>')
+namespace=$(echo "$namespace" | cut -f2 -d'>')
 
 
 # Check pods
@@ -32,7 +32,7 @@ while IFS= read -r line; do
             count=$((count+1))
         fi
     fi
-done <<< "$(kubectl get pods --namespace=$namespace | grep 'cortx-data-')"
+done <<< "$(kubectl get pods --namespace="$namespace" | grep 'cortx-data-')"
 
 if [[ $num_nodes -eq $count ]]; then
     printf "PASSED\n"

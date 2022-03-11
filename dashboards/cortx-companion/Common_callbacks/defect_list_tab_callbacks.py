@@ -32,14 +32,11 @@ from jira import JIRA
 
 
 def get_test_executions_from_test_plan(test_plan: str, username: str, password: str) -> [dict]:
-    """
-    Summary: Get test executions from test plan.
-
-    Description: Returns dictionary of test executions from test plan.
-    Args:
-        test_plan (str): Test plan number in JIRA
-        username (str): JIRA Username
-        password (str): JIRA Password
+    """Get test executions from test plan.
+    Returns dictionary of test executions from test plan.
+    :param test_plan : Test plan number in JIRA
+    :param username : JIRA Username
+    :param password : JIRA Password
     :return list of Test execution keys attached to test plan
     """
     jira_url = f'https://jts.seagate.com/rest/raven/1.0/api/testplan/{test_plan}/testexecution'
@@ -61,8 +58,7 @@ def get_test_executions_from_test_plan(test_plan: str, username: str, password: 
      Input('test_execution_input', 'value')]
 )
 def gen_table_execution_wise_defect(n_clicks, ids):
-    """
-    Callback : Returns the defect details attached to the test execution ids
+    """Callback : Returns the defect details attached to the test execution ids
     :param n_clicks: Event after submit button clicked.
     :param ids: List of test execution id's
     :return: Datatable

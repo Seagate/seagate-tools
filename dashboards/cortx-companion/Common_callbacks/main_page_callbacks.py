@@ -35,11 +35,9 @@ import mongodbAPIs as r1Api
     [Input('version_dropdown', 'value')]
 )
 def fetch_branch_for_dropdown(value):
-    """
-    Fetch branch based on the version(R1/R2)
-
-    :param value:
-    :return:
+    """Fetch branch based on the version(R1/R2)
+    :param value: version value
+    :return: Dictionary
     """
     if not value:
         raise PreventUpdate
@@ -76,11 +74,10 @@ def fetch_branch_for_dropdown(value):
     [State('version_dropdown', 'value')],
 )
 def fetch_build_for_dropdown(branch, version):
-    """
-    Fetch the build no based on the branch/version
+    """Fetch the build no based on the branch/version
     :param version: R1/R2
     :param branch : Branch name ex: Beta/Release
-    :return:
+    :return: dictionary
     """
     if not version or not branch:
         raise PreventUpdate
@@ -117,12 +114,11 @@ def fetch_build_for_dropdown(branch, version):
      Input('build_no_dropdown', 'value')]
 )
 def fetch_test_system_for_dropdown(version, branch, build_no):
-    """
-    Fetch system type for the required version(r1/r2),branch and build no
+    """Fetch system type for the required version(r1/r2),branch and build no
     :param version:R1/R2
     :param branch: Branch name ex: Release/Beta
     :param build_no:
-    :return:
+    :return: dictionary
     """
     if not (version and build_no and branch):
         raise PreventUpdate
@@ -157,13 +153,12 @@ def fetch_test_system_for_dropdown(version, branch, build_no):
      ]
 )
 def fetch_team_for_dropdown(version, branch, build_no, system_type):
-    """
-    Fetch the testing teams for version, build_no and testing system type
+    """Fetch the testing teams for version, build_no and testing system type
     :param version:Product version R1/R2
     :param branch: Branch name Release/Beta etc
     :param build_no: Build no
     :param system_type: System type : Isolated/Regular etc
-    :return:
+    :return: dictionary
     """
     if not (version and branch and build_no and system_type):
         raise PreventUpdate
@@ -199,14 +194,13 @@ def fetch_team_for_dropdown(version, branch, build_no, system_type):
      Input('test_team_dropdown', 'value')]
 )
 def fetch_test_plan_for_dropdown(version, branch, build_no, system_type, test_team):
-    """
-    Fetch the testing teams for version, build_no and testing system type
+    """Fetch the testing teams for version, build_no and testing system type
     :param test_team:
     :param version:Product version R1/R2
     :param branch: Branch name Release/Beta etc
     :param build_no: Build no
     :param system_type: System type : Isolated/Regular etc
-    :return:
+    :return: dictionary
     """
     if not (version and branch and build_no and system_type and test_team):
         raise PreventUpdate
@@ -240,10 +234,9 @@ def fetch_test_plan_for_dropdown(version, branch, build_no, system_type, test_te
     [Input('version_dropdown', 'value')]
 )
 def toggle_dropdown_visibility(version):
-    """
-    Hide system type and test team drop down for R1
+    """Hide system type and test team drop down for R1
     :param version:
-    :return:
+    :return: dictionary
     """
     if not version:
         raise PreventUpdate

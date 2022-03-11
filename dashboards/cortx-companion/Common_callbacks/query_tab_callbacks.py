@@ -35,8 +35,7 @@ from common import app
 
 
 def get_distinct_field_values(field_name):
-    """
-    Get distinct values from database for dropdowns with no filter in query.
+    """Get distinct values from database for dropdowns with no filter in query.
     Used only while retrieving initial values for dropdown
     """
     query_input = {"field": field_name, "query": {"latest": True}}

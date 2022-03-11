@@ -65,9 +65,7 @@ def gen_tab_headers(n_clicks, branch, build_no):
      ]
 )
 def gen_table_reported_bugs(n_clicks, branch, build_no):
-    """
-    Generate Priority wise and Cortx/Test issue table
-    """
+    """Generate Priority wise and Cortx/Test issue table."""
     issue_type = ["Total", "Blocker", "Critical", "Major", "Minor", "Trivial"]
     test_infra_issue_dict = {"Total": 0, "Blocker": 0, "Critical": 0, "Major": 0, "Minor": 0,
                              "Trivial": 0}
@@ -131,9 +129,7 @@ def gen_table_reported_bugs(n_clicks, branch, build_no):
      ]
 )
 def gen_table_overall_qa_report(n_clicks, branch, build_no):
-    """
-    Generate Overall test reports along with the previous build reports
-    """
+    """Generate Overall test reports along with the previous build reports."""
     if n_clicks is None or branch is None or build_no is None:
         raise PreventUpdate
     category = ["TOTAL", "PASS", "FAIL", "ABORTED", "BLOCKED", "TODO"]
@@ -199,9 +195,7 @@ def gen_table_overall_qa_report(n_clicks, branch, build_no):
      ]
 )
 def gen_table_feature_breakdown_summary(n_clicks, branch, build_no):
-    """
-    Generate feature wise breakdown of test results.
-    """
+    """Generate feature wise breakdown of test results."""
     if n_clicks is None or branch is None or build_no is None:
         raise PreventUpdate
 
@@ -271,9 +265,7 @@ def gen_table_feature_breakdown_summary(n_clicks, branch, build_no):
      ]
 )
 def gen_table_code_maturity(n_clicks, branch, build_no):
-    """
-    Code Maturity with reference to the previous builds
-    """
+    """Code Maturity with reference to the previous builds."""
     if n_clicks is None or branch is None or build_no is None:
         raise PreventUpdate
 
@@ -321,9 +313,7 @@ def gen_table_code_maturity(n_clicks, branch, build_no):
      State('build_no_dropdown', 'value')]
 )
 def gen_table_s3_bucket_perf(n_clicks, branch, build_no):
-    """
-    Single Bucket Performance Statistics using S3bench
-    """
+    """Single Bucket Performance Statistics using S3bench."""
     if n_clicks is None or branch is None or build_no is None:
         raise PreventUpdate
 

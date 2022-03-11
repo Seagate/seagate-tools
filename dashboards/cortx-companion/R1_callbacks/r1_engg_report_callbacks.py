@@ -107,8 +107,7 @@ def gen_table_comp_summary(n_clicks, branch, build_no, ):
      State('build_no_dropdown', 'value')]
 )
 def gen_table_detail_reported_bugs(n_clicks, branch, build_no):
-    """
-    Table : List all the bugs for the specified inputs.
+    """Table : List all the bugs for the specified inputs.
     :param n_clicks:Input Event
     :param branch:Build branch
     :param build_no:Build Number
@@ -360,7 +359,7 @@ def get_table_bucket_ops_data(n_clicks, bucket_op, branch, build_no):
                         print("Exception {}".format(ex))
                         temp_data.append('-')
                 final_dict[ob_size] = temp_data
-            except Exception as ex:
+            except Exception:
                 final_dict[ob_size] = '-' * 9
         df = pd.DataFrame(final_dict)
         span_txt = "{} Bucket,{} Objects,100 sessions".format(display_obj_input[keys]['Bucket'],

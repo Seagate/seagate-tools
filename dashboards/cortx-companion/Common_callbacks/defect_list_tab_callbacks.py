@@ -32,9 +32,8 @@ from jira import JIRA
 
 
 def get_test_executions_from_test_plan(test_plan: str, username: str, password: str) -> [dict]:
-    """Get test executions from test plan.
+    """Get test executions from test plan.Returns dictionary of test executions from test plan.
 
-    Returns dictionary of test executions from test plan.
     :param test_plan : Test plan number in JIRA
     :param username : JIRA Username
     :param password : JIRA Password
@@ -59,7 +58,8 @@ def get_test_executions_from_test_plan(test_plan: str, username: str, password: 
      Input('test_execution_input', 'value')]
 )
 def gen_table_execution_wise_defect(n_clicks, ids):
-    """Returns the defect details attached to the test execution ids.
+    """
+    Returns the defect details attached to the test execution ids.
 
     :param n_clicks: Event after submit button clicked.
     :param ids: List of test execution id's

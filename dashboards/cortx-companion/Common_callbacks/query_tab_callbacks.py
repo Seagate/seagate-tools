@@ -1,4 +1,4 @@
-""" Query tab callbacks."""
+"""Query tab callbacks."""
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #

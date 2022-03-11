@@ -34,6 +34,7 @@ from jira import JIRA
 def get_test_executions_from_test_plan(test_plan: str, username: str, password: str) -> [dict]:
     """
     Summary: Get test executions from test plan.
+
     Description: Returns dictionary of test executions from test plan.
     Args:
         test_plan (str): Test plan number in JIRA

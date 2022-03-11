@@ -42,9 +42,7 @@ from common import app
      ]
 )
 def gen_tab_headers(n_clicks, branch, build_no):
-    """
-    Generate Report headers with details.
-    """
+    """Generate Report headers with details."""
     if n_clicks is None or branch is None or build_no is None:
         raise PreventUpdate
 

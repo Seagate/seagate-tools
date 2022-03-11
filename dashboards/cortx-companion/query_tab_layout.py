@@ -1,4 +1,4 @@
-""" Layouts for Query tab in Query QA tab ."""
+"""Layouts for Query tab in Query QA tab ."""
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #

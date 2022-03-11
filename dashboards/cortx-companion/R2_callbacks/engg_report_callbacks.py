@@ -1,4 +1,4 @@
-""" Engineers Report Callbacks."""
+"""Engineers Report Callbacks."""
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
@@ -27,7 +27,6 @@ import pandas as pd
 import requests
 from dash.dependencies import Output, Input, State
 from dash.exceptions import PreventUpdate
-from pymongo.network import command
 
 import common
 from common import app

@@ -1,4 +1,4 @@
-""" Main file for the Dashboard server."""
+"""Main file for the Dashboard server."""
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
@@ -43,9 +43,7 @@ from Performance.perf_main import perf_stats_page, perf_graphs_page
 
 @server.route('/favicon.ico')
 def favicon():
-    """
-    Seagate logo used as icon that appears at top of browser tab
-    """
+    """Seagate logo used as icon that appears at top of browser tab."""
     return flask.send_from_directory(os.path.join(server.root_path, 'static'), 'favicon.ico')
 
 

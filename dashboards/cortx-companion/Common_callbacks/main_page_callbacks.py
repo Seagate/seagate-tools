@@ -1,4 +1,4 @@
-""" Main page callbacks."""
+"""Main page callbacks."""
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
@@ -37,6 +37,7 @@ import mongodbAPIs as r1Api
 def fetch_branch_for_dropdown(value):
     """
     Fetch branch based on the version(R1/R2)
+
     :param value:
     :return:
     """

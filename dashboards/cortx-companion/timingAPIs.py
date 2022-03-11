@@ -14,6 +14,7 @@
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
+
 """
 A MongoDb instance can have multiple databases in it.
 Each database can have multiple collections(tables) in it.
@@ -36,8 +37,7 @@ hostURI = "mongodb://{0}:{1}@{2}".format(quote_plus(db_username),
                                          hostname)
 
 def find(db_filter):
-    '''
-    Find multiple documents matching the db_filter
+    '''Find multiple documents matching the db_filter
 
         Parameters:
             db_filter (dict): A query that matches the document to delete

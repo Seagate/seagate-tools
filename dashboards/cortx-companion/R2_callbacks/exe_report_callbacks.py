@@ -45,9 +45,7 @@ from common import app
      ]
 )
 def gen_tab_headers(n_clicks, branch, build_no, test_system, test_plan, test_team):
-    """
-    Generate Report headers with details.
-    """
+    """Generate Report headers with details."""
     if n_clicks is None or branch is None or build_no is None or test_system is None:
         raise PreventUpdate
     product_heading = "Product : Lyve Rack 2"

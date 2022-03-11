@@ -42,8 +42,7 @@ from common import app
      State('build_no_dropdown', 'value')]
 )
 def gen_table_comp_summary(n_clicks, branch, build_no, ):
-    """
-    Returns the component wise results for current and previous builds.
+    """Returns the component wise results for current and previous builds.
     :param n_clicks: Input event
     :param branch: Build branch
     :param build_no: Build Number
@@ -179,7 +178,7 @@ def gen_table_timing_summary(n_clicks, branch, build_no):
             cursor = timingAPIs.find_distinct(timing, {'build': build})
             try:
                 data = sum(cursor) / len(cursor)
-            except Exception as ex:
+            except Exception:
                 # print("Exception received while calculating average{}".format(ex))
                 data = "-"
             data_list.append(data)

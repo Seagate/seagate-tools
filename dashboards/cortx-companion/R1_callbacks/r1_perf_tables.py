@@ -27,8 +27,7 @@ def keys_exists(element, *keys):
 
 
 def round_off(value, base=1):
-    """
-    Summary: Round off to nearest int
+    """Summary: Round off to nearest int
 
     Input : (number) - number
             (base) - round off to nearest base
@@ -42,7 +41,7 @@ def round_off(value, base=1):
 
 
 def get_single_bucket_perf_data(build):
-    """Get Single Bucket performance data for executive report"""
+    """Get Single Bucket performance data for executive report."""
     col_names = ["Statistics", "4 KB Object", "256 MB Object"]
     operations = ["Write", "Read"]
     stats = ["Throughput", "Latency"]
@@ -128,7 +127,7 @@ def get_metadata_latencies(build):
 
 
 def get_cosbench_data(build):
-    """Read Cosbench data from DB"""
+    """Read Cosbench data from DB."""
     data = []
     for configs in COSBENCH_CONFIG:
         for operation in OPERATIONS:
@@ -153,7 +152,7 @@ def get_cosbench_data(build):
 
 
 def get_hsbench_data(build):
-    """Read Hsbench data from DB"""
+    """Read Hsbench data from DB."""
     data = []
     for configs in HSBENCH_CONFIG:
         for operation in OPERATIONS:

@@ -81,8 +81,8 @@ dict_style_cell = {'textAlign': 'center', 'border': '1px solid black', 'fontWeig
 
 
 def get_issue_details(issue_list):
-    """
-    Query Jira and provide all the detailed info of the issue in issue_list
+    """Query Jira and provide all the detailed info of the issue in issue_list
+
     :param issue_list: List of the Jira ID
     :return: Dataframe containing Priority,Component,Name and Issue id of issues provided in input
     """

@@ -59,7 +59,7 @@ def get_test_executions_from_test_plan(test_plan: str, username: str, password: 
     [Input('test_execution_submit_button', 'n_clicks'),
      Input('test_execution_input', 'value')]
 )
-def gen_table_execution_wise_defect(n_clicks, ids):
+def create_te_defects(n_clicks, ids):
     """
     Returns the defect details attached to the test execution ids.
 
@@ -82,7 +82,7 @@ def gen_table_execution_wise_defect(n_clicks, ids):
         try:
             id_details = auth_jira.issue(input_id)
         except Exception as ex:
-            print("(gen_table_execution_wise_defect) Exception during Accessing Jira {}".format(ex))
+            print("(create_te_defects) Exception during Accessing Jira {}".format(ex))
             invalid_id.append(input_id)
         else:
             if id_details.fields.issuetype.name == 'Test Plan':
@@ -119,7 +119,7 @@ def gen_table_execution_wise_defect(n_clicks, ids):
 
     df_execution_wise_defect["issue_no"] = df_execution_wise_defect["issue_no"].apply(common.add_link)
     if common.DEBUG_PRINTS:
-        print("gen_table_execution_wise_defect : Dataframe : {}".format(df_execution_wise_defect))
+        print("create_te_defects : Dataframe : {}".format(df_execution_wise_defect))
     col = []
     for i in df_execution_wise_defect.columns:
         if i == "issue_no":

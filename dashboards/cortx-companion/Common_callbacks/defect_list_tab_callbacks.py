@@ -35,6 +35,7 @@ def get_test_executions_from_test_plan(test_plan: str, username: str, password: 
     """
     Get test executions from test plan.Returns dictionary of test executions from test plan.
 
+
     :param test_plan : Test plan number in JIRA
     :param username : JIRA Username
     :param password : JIRA Password

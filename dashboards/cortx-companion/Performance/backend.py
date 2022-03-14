@@ -57,8 +57,7 @@ def get_average_data(count, data, stat, subparam, multiplier):
 
 
 def get_data(count, data, stat, multiplier):
-    """
-    returns metric data without subparam
+    """returns metric data without subparam
 
     Args:
         count: count of documents available in database
@@ -76,8 +75,7 @@ def get_data(count, data, stat, multiplier):
 
 
 def get_data_for_stats(data):
-    """
-    function for statistics tab to get data from database
+    """function for statistics tab to get data from database
 
     Args:
         data: dictionary needed for the query
@@ -120,8 +118,7 @@ def get_data_for_stats(data):
 
 
 def get_data_for_degraded_stats(data):
-    """
-    function for degraded read tab to get data from database
+    """function for degraded read tab to get data from database
     Args:
         data: dictionary needed for the query
     Returns:
@@ -175,8 +172,7 @@ def get_data_for_degraded_stats(data):
 
 
 def get_degraded_cluster_data(data_needed_for_query):
-    """
-    function to organise and get data required for degraded cluster view
+    """function to organise and get data required for degraded cluster view
 
     Args:
         data: dictionary needed for the query
@@ -224,8 +220,7 @@ def get_degraded_cluster_data(data_needed_for_query):
 
 
 def get_data_for_graphs(data, xfilter, xfilter_tag):
-    """
-    function for graphs tab to get data from database
+    """function for graphs tab to get data from database
 
     Args:
         data: dictionary needed for the query
@@ -307,8 +302,7 @@ def get_data_for_graphs(data, xfilter, xfilter_tag):
 
 
 def get_benchmark_data(data_needed_for_query):  # pylint: disable=too-many-branches
-    """
-    Granularized function to query data from database for perf metrics
+    """Granularized function to query data from database for perf metrics
 
     Args:
         data: dictionary needed for the query
@@ -374,8 +368,7 @@ def get_benchmark_data(data_needed_for_query):  # pylint: disable=too-many-branc
 
 
 def get_dash_table_from_dataframe(dataframe, bench, column_id, states=None):
-    """
-    functional to get dash table to show stats from dataframe
+    """functional to get dash table to show stats from dataframe
 
     Args:
         dataframe: pandas dataframe containing data
@@ -444,8 +437,7 @@ def get_dash_table_from_dataframe(dataframe, bench, column_id, states=None):
 
 
 def get_workload_headings(data):
-    """
-    function to get workload headings
+    """function to get workload headings
 
     Args:
         data: data dict with dropdown values
@@ -460,8 +452,7 @@ def get_workload_headings(data):
 
 
 def get_metadata_latencies(data_needed_for_query):
-    """
-    function to get metadata latencies for stats
+    """function to get metadata latencies for stats
 
     Args:
         data: datadict with data needed for the query
@@ -517,8 +508,7 @@ def get_metadata_latencies(data_needed_for_query):
 
 
 def get_bucktops(data_needed_for_query):
-    """
-    function to get bucketops table for stats
+    """function to get bucketops table for stats
 
     Args:
         data: datadict with data needed for the query
@@ -579,8 +569,7 @@ def get_bucktops(data_needed_for_query):
 
 
 def plot_graphs_with_given_data(fig, fig_all, x_data, y_data, plot_data):
-    """
-    function to plot graphs
+    """function to plot graphs
 
     Args:
         fig: plotly figure to add trace on it
@@ -608,8 +597,7 @@ def plot_graphs_with_given_data(fig, fig_all, x_data, y_data, plot_data):
 
 
 def get_graph_layout(plot_data):
-    """
-    function to create a graph with predefined format
+    """function to create a graph with predefined format
 
     Args:
         plot_data: data dict storing info related to graph

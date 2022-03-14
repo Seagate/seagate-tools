@@ -1,4 +1,4 @@
-"""Performance schemas consumed by backend and essential for database"""
+"""Performance schemas consumed by backend and essential for database."""
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
@@ -21,8 +21,7 @@
 
 
 def get_common_schema(data):
-    """
-    function for getting common performance schema wrt database
+    """function for getting common performance schema wrt database
     and provided data
 
     Args:
@@ -46,8 +45,7 @@ def get_common_schema(data):
 
 
 def get_statistics_schema(data):
-    """
-    function for getting stats specific performance schema
+    """function for getting stats specific performance schema
     wrt database and provided data
 
     Args:
@@ -63,8 +61,7 @@ def get_statistics_schema(data):
 
 
 def get_graphs_schema(data, xfilter, xfilter_tag):
-    """
-    function for getting graphs specific performance schema
+    """function for getting graphs specific performance schema
     wrt database and provided data
 
     Args:
@@ -81,8 +78,7 @@ def get_graphs_schema(data, xfilter, xfilter_tag):
 
 
 def get_multi_concurrency_schema(data, xfilter, xfilter_tag):
-    """
-    function for getting graphs multi-concurrency specific performance schema
+    """function for getting graphs multi-concurrency specific performance schema
     wrt database and provided data
 
     Args:
@@ -101,8 +97,7 @@ def get_multi_concurrency_schema(data, xfilter, xfilter_tag):
 
 
 def get_complete_schema(data):
-    """
-    function for getting complete performance schema
+    """function for getting complete performance schema
     wrt database and provided data
 
     Args:
@@ -123,8 +118,7 @@ def get_complete_schema(data):
 
 
 def get_degraded_schema(data):
-    """
-    function for getting complete performance schema
+    """function for getting complete performance schema
     wrt database and provided data for degraded cluster
     Args:
         data: data needed for query
@@ -142,8 +136,7 @@ def get_degraded_schema(data):
 
 
 def get_copyobject_schema(data):
-    """
-    function for getting complete performance schema
+    """function for getting complete performance schema
     wrt database and provided data for copy object
 
     Args:
@@ -181,8 +174,7 @@ copyobj_headings = [
     'Copy Object Latency (ms)', 'Write Throughput (MBps)', 'Write IOPS', 'Write Latency (ms)']
 
 def get_dropdown_labels(dropdown_type):
-    """
-    function for getting label extensions wrt dropdown options
+    """function for getting label extensions wrt dropdown options
 
     Args:
         data: variable with dropdown name
@@ -205,8 +197,7 @@ def get_dropdown_labels(dropdown_type):
 
 
 def get_bucketops_modes():
-    """
-    function to get bucketops mode mapping
+    """function to get bucketops mode mapping
 
     Returns:
         dict: dict of all bucketops modes

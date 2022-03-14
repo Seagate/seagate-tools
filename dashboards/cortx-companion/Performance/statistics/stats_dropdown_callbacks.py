@@ -1,4 +1,4 @@
-"""Performance statistics callbacks for handling dropdowns"""
+"""Performance statistics callbacks for handling dropdowns."""
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
@@ -36,6 +36,7 @@ from Performance.global_functions import get_dict_from_array, get_distinct_keys,
     prevent_initial_call=True
 )
 def update_branches_dropdown(release_combined, current_value):
+    """Update branches dropdown."""
     options = None
     value = None
     disabled = False
@@ -74,6 +75,7 @@ def update_branches_dropdown(release_combined, current_value):
     prevent_initial_call=True
 )
 def update_builds_dropdown(branch, release_combined, current_value):
+    """Update builds dropdown."""
     versions = None
     value = None
     disabled = False
@@ -110,6 +112,7 @@ def update_builds_dropdown(branch, release_combined, current_value):
     prevent_initial_call=True
 )
 def update_nodes_dropdown(build, release_combined, branch, current_value):
+    """Update nodes dropdown."""
     options = None
     value = None
     disabled = False
@@ -148,6 +151,7 @@ def update_nodes_dropdown(build, release_combined, branch, current_value):
     prevent_initial_call=True
 )
 def update_clients_dropdown(nodes, release_combined, branch, build, current_value):
+    """Update clients dropdown."""
     options = None
     value = None
     disabled = False
@@ -187,6 +191,7 @@ def update_clients_dropdown(nodes, release_combined, branch, build, current_valu
     prevent_initial_call=True
 )
 def update_percentfill_dropdown(clients, release_combined, branch, build, nodes, current_value):
+    """Update cluster prefill dropdown."""
     options = None
     value = None
     disabled = False
@@ -226,6 +231,7 @@ def update_percentfill_dropdown(clients, release_combined, branch, build, nodes,
     prevent_initial_call=True
 )
 def update_custom_dropdown(pfull, release_combined, branch, build, nodes, clients, current_value):
+    """Update custom dropdown."""
     options = None
     value = None
     disabled = False
@@ -268,6 +274,7 @@ def update_custom_dropdown(pfull, release_combined, branch, build, nodes, client
 )
 def update_iteration_dropdown(custom, release_combined, branch, build, nodes, clients,
     pfull, current_value):
+    """Update iteration dropdown."""
     options = None
     value = None
     disabled = False
@@ -310,7 +317,8 @@ def update_iteration_dropdown(custom, release_combined, branch, build, nodes, cl
     prevent_initial_call=True
 )
 def update_sessions_dropdown(itrns, release_combined, branch, build, nodes, clients, pfull, custom,
-                                current_value):
+    current_value):
+    """Update sessions dropdown."""
     options = None
     value = None
     disabled = False
@@ -360,6 +368,7 @@ def update_sessions_dropdown(itrns, release_combined, branch, build, nodes, clie
 )
 def update_buckets_dropdown(sessions, release_combined, branch, build, nodes, clients,
                      pfull, custom, itrns, current_value):
+    """Update buckets dropdown."""
     options = None
     value = None
     disabled = False
@@ -408,6 +417,7 @@ def update_buckets_dropdown(sessions, release_combined, branch, build, nodes, cl
 )
 def update_bucketops_dropdown(buckets, release_combined, branch, build, nodes, clients,
  pfull, itrns, custom, sessions, current_value):
+    """Update bucketops dropdown."""
     options = None
     value = None
     disabled = False

@@ -1,4 +1,4 @@
-"""Performance graphs UI layouts designs"""
+"""Performance graphs UI layouts designs."""
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #

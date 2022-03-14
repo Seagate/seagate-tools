@@ -1,4 +1,4 @@
-"""Backend functions for Performance tabs"""
+"""Backend functions for Performance tabs."""
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
@@ -19,13 +19,14 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/python
 
-from __future__ import absolute_import
 import pandas as pd
 import dash_table
 import dash_html_components as html
 import plotly.graph_objs as go
 
-from Performance.schemas import *
+from Performance.schemas import get_statistics_schema, statistics_column_headings, \
+    multiple_buckets_headings, get_degraded_schema, get_multi_concurrency_schema, \
+    get_graphs_schema, get_complete_schema, get_bucketops_modes, bucketops_headings
 from Performance.global_functions import get_distinct_keys, sort_object_sizes_list, \
     sort_builds_list, get_db_details, keys_exists, round_off, check_empty_list, \
     sort_sessions
@@ -34,9 +35,7 @@ from Performance.styles import style_dashtable_header, style_table_cell
 
 
 def get_average_data(count, data, stat, subparam, multiplier):
-    """
-    Returns subparam value (avg/min/max) from passed cursor by multiplying
-    with multiplier
+    """Returns subparam value (avg/min/max) from passed cursor by multiplying with multiplier
 
     Args:
         count: count of documents available in database

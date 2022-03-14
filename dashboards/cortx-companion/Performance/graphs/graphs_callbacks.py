@@ -1,4 +1,4 @@
-"""Graph callbacks file for handling data"""
+"""Graph callbacks file for handling data."""
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
@@ -42,8 +42,7 @@ pallete = {
 
 
 def get_yaxis_heading(metric):
-    """
-    function to get y axis heading
+    """function to get y axis heading.
 
     Args:
         metric: performance metric
@@ -63,8 +62,7 @@ def get_yaxis_heading(metric):
 
 
 def get_graphs(fig, fig_all, data_frame, plot_data, x_data_combined):
-    """
-    wrapper function to get graphs plotted
+    """wrapper function to get graphs plotted.
 
     Args:
         fig: plotly fig to plot graphs on
@@ -107,7 +105,7 @@ def get_graphs(fig, fig_all, data_frame, plot_data, x_data_combined):
     prevent_initial_call=True,
 )
 def update_Ttfb_Style(n_clicks, bench, operation):
-    """hides ttfb plot for non s3bench data"""
+    """hides ttfb plot for non s3bench data."""
     style = None
     if n_clicks > 0:
         if bench != "S3bench":
@@ -180,8 +178,7 @@ def update_graphs(
     flag,
     obj_size,
 ):
-    """
-    updates graph plots for all 5 graphs based on input values
+    """updates graph plots for all 5 graphs based on input values.
 
     Args:
         n_clicks: number of clicks user does on the button

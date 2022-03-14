@@ -1,4 +1,4 @@
-"""Performance statistics UI layout designs"""
+"""Performance statistics UI layout designs."""
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
@@ -23,8 +23,8 @@ from dash_bootstrap_components import Card, CardBody, Row, Button, Tab  # , Tabs
 from dash_core_components import Dropdown, Markdown, Loading
 import dash_html_components as html
 from Performance.styles import style_sub_tab, style_table_caption,\
-    style_sub_label, style_perf_captions, style_workload_captions,\
-    dict_Style_Stats_input_options, style_filters_captions, dict_button_style
+    style_sub_label, style_perf_captions, dict_Style_Stats_input_options, \
+    style_filters_captions, dict_button_style
 
 
 release = [

@@ -1,4 +1,4 @@
-"""Degraded read tab code"""
+"""Degraded read tab code."""
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
 # This program is free software: you can redistribute it and/or modify
@@ -43,9 +43,7 @@ from Performance.backend import get_dash_table_from_dataframe, get_data_for_degr
 )  # pylint: disable=too-many-arguments
 def update_degraded_read_s3bench(release, branch, build, nodes, pfull, itrns,
                                  custom, n_clicks, sessions, buckets):
-    """
-    callback function for s3bench tables of degraded read
-    """
+    """callback function for s3bench tables of degraded read."""
     tables = [None, None, None]
     if not (all([
         release, branch, build, nodes, itrns, custom, n_clicks, sessions, buckets]
@@ -87,9 +85,7 @@ def update_degraded_read_s3bench(release, branch, build, nodes, pfull, itrns,
 )  # pylint: disable=too-many-arguments
 def update_degraded_read_hsbench(release, branch, build, nodes, pfull, itrns,
                                  custom, n_clicks, sessions, buckets):
-    """
-    callback function for hsbench data of degraded read
-    """
+    """callback function for hsbench data of degraded read."""
     tables = [None, None, None]
     if not (all([
         release, branch, build, nodes, itrns, custom, n_clicks, sessions, buckets]

@@ -25,7 +25,7 @@ from pymongo.errors import ServerSelectionTimeoutError, OperationFailure
 
 
 def pymongo_exception(func):
-    """Decorator for pymongo exceptions"""
+    """Decorator for pymongo exceptions."""
     def new_func(*args, **kwargs):
         try:
             ret = func(*args, **kwargs)
@@ -57,8 +57,7 @@ def count_documents(query: dict,
                     db_name: str,
                     collection: str
                     ) -> (bool, int):
-    """
-    Count search results for query from MongoDB database
+    """Count search results for query from MongoDB database
 
     Args:
         query: Query to be searched in MongoDB
@@ -82,8 +81,7 @@ def find_documents(query: dict,
                    db_name: str,
                    collection: str
                    ) -> (bool, str):
-    """
-    Return search results for query from MongoDB database
+    """Return search results for query from MongoDB database
 
     Args:
         query: Query to be searched in MongoDB
@@ -108,8 +106,7 @@ def find_distinct_values(key: str,
                          db_name: str,
                          collection: str
                          ) -> (bool, str):
-    """
-    Return search results for distinct values for key in MongoDB database
+    """Return search results for distinct values for key in MongoDB database
 
     Args:
         key: Key field to get distinct values for
@@ -132,8 +129,7 @@ def find_distinct_values(key: str,
 @pymongo_exception
 def get_aggregate(query: dict, group_query: dict, uri: str, db_name: str, collection: str
                   ) -> (bool, int):
-    """
-    Count search results for query from MongoDB database
+    """Count search results for query from MongoDB database
 
     Args:
         query: Query to be searched in MongoDB

@@ -1,4 +1,4 @@
-""" Copy Object related tables and function calls"""
+""" Copy Object related tables and function calls."""
 # Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,8 +31,7 @@ from Performance.mongodb_api import get_aggregate
 
 
 def get_copy_object_data(data):
-    """
-    function for statistics tab to get data from database
+    """function for statistics tab to get data from database
 
     Args:
         data: dictionary needed for the query
@@ -68,8 +67,7 @@ def get_copy_object_data(data):
 
 
 def get_copy_object_benchmark_data(data_needed_for_query):  # pylint: disable=too-many-branches
-    """
-    Granularized function to query data from database for perf metrics of copy object
+    """Granularized function to query data from database for perf metrics of copy object
 
     Args:
         data: dictionary needed for the query
@@ -151,7 +149,7 @@ def get_copy_object_benchmark_data(data_needed_for_query):  # pylint: disable=to
 ) # pylint: disable=too-many-arguments,too-many-locals
 def update_copy_obj_table(n_clicks, release_combined, branch, build, nodes, clients, pfull, itrns,
                    custom, sessions, buckets):
-    """ function to update copy object tables"""
+    """ function to update copy object tables."""
     table = None
     if not (all([
         release_combined, branch, build, nodes, clients, itrns, custom, n_clicks, sessions, buckets

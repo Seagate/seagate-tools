@@ -1,4 +1,4 @@
-"""graphs callbacks for performance for populating dropdown values"""
+"""graphs callbacks for performance for populating dropdown values."""
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
@@ -48,7 +48,7 @@ from common import app
     prevent_initial_call=True,
 )
 def update_branches_dropdown(release_combined, current_value):
-    """updates branches in default select dropdown"""
+    """updates branches in default select dropdown."""
     options = None
     value = None
     disabled = False
@@ -84,7 +84,7 @@ def update_branches_dropdown(release_combined, current_value):
     prevent_initial_call=True,
 )
 def update_placeholder(xfilter):
-    """updates placeholder for builds in default select dropdown"""
+    """updates placeholder for builds in default select dropdown."""
     placeholder = ""
     if not xfilter:  # pylint: disable=no-else-raise
         raise PreventUpdate
@@ -107,7 +107,7 @@ def update_placeholder(xfilter):
     prevent_initial_call=True,
 )
 def update_options_dropdown(branch, xfilter, release_combined, current_value):
-    """updates builds/ object sizes in default select dropdown"""
+    """updates builds/ object sizes in default select dropdown."""
     versions = None
     value = None
     disabled = False
@@ -156,7 +156,7 @@ def update_options_dropdown(branch, xfilter, release_combined, current_value):
 def update_nodes_first(
     option1, xfilter, release_combined, branch, bench, current_value
 ):
-    """updates nodes in default select dropdown"""
+    """updates nodes in default select dropdown."""
     options = None
     value = None
     disabled = False
@@ -201,7 +201,7 @@ def update_nodes_first(
 def update_clients_first(
     nodes, xfilter, release_combined, branch, option1, current_value
 ):
-    """updates clients in default select dropdown"""
+    """updates clients in default select dropdown."""
     options = None
     value = None
     disabled = False
@@ -255,7 +255,7 @@ def update_clients_first(
 def update_percentfill_dropdown(
     clients, xfilter, release_combined, branch, option1, bench, nodes, current_value
 ):
-    """updates percentage fill in cluster in default select dropdown"""
+    """updates percentage fill in cluster in default select dropdown."""
     options = None
     value = None
     disabled = False
@@ -318,7 +318,7 @@ def update_custom_dropdown(
     clients,
     current_value,
 ):
-    """updates custom field in default select dropdown"""
+    """updates custom field in default select dropdown."""
     options = None
     value = None
     disabled = False
@@ -382,7 +382,7 @@ def update_iterations_dropdown(
     pfill,
     current_value,
 ):
-    """updates iterations of run in default select dropdown"""
+    """updates iterations of run in default select dropdown."""
     options = None
     value = None
     disabled = False
@@ -453,7 +453,7 @@ def update_sessions_dropdown(
     custom,
     current_value,
 ):
-    """updates sessions in default select dropdown"""
+    """updates sessions in default select dropdown."""
     options = None
     value = None
     disabled = False
@@ -527,7 +527,7 @@ def update_buckets_dropdown(
     custom,
     current_value,
 ):
-    """updates buckets in default select dropdown"""
+    """updates buckets in default select dropdown."""
     options = None
     value = None
     disabled = False
@@ -588,7 +588,7 @@ def update_buckets_dropdown(
     Input("compare_flag", "value"),
 )
 def update_compare_dropdown_styles(flag):
-    """shows 2nd set of dropdowns of comparison only when button is toggled"""
+    """shows 2nd set of dropdowns of comparison only when button is toggled."""
     return_val = [{"display": "None"}] * 10
     if flag:
         return_val = [
@@ -617,7 +617,7 @@ def update_compare_dropdown_styles(flag):
     prevent_initial_call=True,
 )
 def update_branches_dropdown_2(release_combined, flag, current_value):
-    """updates branches in comparison select dropdown"""
+    """updates branches in comparison select dropdown."""
     options = None
     value = None
     disabled = False
@@ -659,7 +659,7 @@ def update_branches_dropdown_2(release_combined, flag, current_value):
     prevent_initial_call=True,
 )
 def update_options_dropdown_2(branch, flag, xfilter, release_combined, current_value):
-    """updates build/ object sizes in comparison select dropdown"""
+    """updates build/ object sizes in comparison select dropdown."""
     versions = None
     value = None
     disabled = False
@@ -711,7 +711,7 @@ def update_options_dropdown_2(branch, flag, xfilter, release_combined, current_v
 def update_nodes_dropdown_2(
     option1, flag, xfilter, release_combined, branch, bench, current_value
 ):
-    """updates nodes in comparison select dropdown"""
+    """updates nodes in comparison select dropdown."""
     options = None
     value = None
     disabled = False
@@ -759,7 +759,7 @@ def update_nodes_dropdown_2(
 def update_clients_dropdown(
     nodes, flag, xfilter, release_combined, branch, option1, current_value
 ):
-    """updates clientss in default select dropdown"""
+    """updates clientss in default select dropdown."""
     options = None
     value = None
     disabled = False
@@ -824,7 +824,7 @@ def update_percentfill_dropdown_2(
     nodes,
     current_value,
 ):
-    """updates percent fill in cluster in comparison select dropdown"""
+    """updates percent fill in cluster in comparison select dropdown."""
     options = None
     value = None
     disabled = False
@@ -891,7 +891,7 @@ def update_custom_dropdown_2(
     clients,
     current_value,
 ):
-    """updates custom field in comparison select dropdown"""
+    """updates custom field in comparison select dropdown."""
     options = None
     value = None
     disabled = False
@@ -961,7 +961,7 @@ def update_iterations_dropdown_2(
     pfill,
     current_value,
 ):
-    """updates iterations of run in comparison select dropdown"""
+    """updates iterations of run in comparison select dropdown."""
     options = None
     value = None
     disabled = False
@@ -1038,7 +1038,7 @@ def update_sessions_dropdown_2(
     sessions_first,
     current_value,
 ):
-    """updates sessions in comparison select dropdown"""
+    """updates sessions in comparison select dropdown."""
     options = None
     value = None
     disabled = False
@@ -1117,7 +1117,7 @@ def update_buckets_dropdown_2(
     custom,
     current_value,
 ):
-    """updates buckets in comparison select dropdown"""
+    """updates buckets in comparison select dropdown."""
     options = None
     value = None
     disabled = False
@@ -1177,7 +1177,7 @@ def update_buckets_dropdown_2(
 def update_object_size_dropdown(
     xfilter, release_combined, branch, build, bench, sessions, c_val
 ):
-    """updates a object size dropdown when sessions all is chosen"""
+    """updates a object size dropdown when sessions all is chosen."""
     dict_options = None
     value = None
     disabled = False
@@ -1226,7 +1226,7 @@ def update_object_size_dropdown(
     Input("graphs_sessions_dropdown", "value"),
 )
 def update_objsize_style(sessions):
-    """hides the dropdown of obj size if sessions is not all"""
+    """hides the dropdown of obj size if sessions is not all."""
     style = {"display": "None"}
 
     if sessions == "all":

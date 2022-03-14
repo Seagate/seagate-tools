@@ -1,4 +1,4 @@
-"""Global functions needed across Performance files"""
+"""Global functions needed across Performance files."""
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
@@ -72,8 +72,7 @@ def keys_exists(data, key):
 
 
 def round_off(value, base=1):
-    """
-    Summary: Round off to nearest int
+    """Round off to nearest int
 
     Input : (number) - number
             (base) - round off to nearest base
@@ -98,8 +97,7 @@ def get_distinct_keys(release, field_to_query, query):
 
 
 def get_dict_from_array(options, make_reverse, extension=None):
-    """
-    returns a dictionary in a format needed for populating dropdowns
+    """returns a dictionary in a format needed for populating dropdowns
 
     Args:
         options: list of options to show in the dropdown
@@ -126,8 +124,7 @@ def get_dict_from_array(options, make_reverse, extension=None):
 
 
 def sort_builds_list(builds):
-    """
-    function to sort builds chronologicaly
+    """function to sort builds chronologicaly
 
     Args:
         list: list of builds
@@ -151,8 +148,7 @@ def sort_builds_list(builds):
 
 
 def get_unique_object_sizes(input_list):
-    """
-    function to remove duplicates from the list
+    """function to remove duplicates from the list
 
     Args:
         list: input list
@@ -167,8 +163,7 @@ def get_unique_object_sizes(input_list):
 
 
 def sort_object_sizes_list(obj_sizes):
-    """
-    function to sort given list of object sizes wrt their units
+    """function to sort given list of object sizes wrt their units
     given array will have strings of object sizes with units,
     this function will sort them wrt their sizes.
 
@@ -216,8 +211,7 @@ def sort_object_sizes_list(obj_sizes):
 
 
 def sort_sessions(sessions):
-    """
-    Function to sort sessions array
+    """Function to sort sessions array
     Args:
         sessions: list of all sessions
 
@@ -233,8 +227,7 @@ def sort_sessions(sessions):
 
 
 def check_empty_list(array):
-    """
-    Function to check given array is empty or not.
+    """Function to check given array is empty or not.
     It will look for all None, all NA or an empty array.
 
     Args:

@@ -1,4 +1,4 @@
-"""Performance Statistics tab data callbacks"""
+"""Performance Statistics tab data callbacks."""
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
 # This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,8 @@
 from dash.dependencies import Output, Input, State
 from dash.exceptions import PreventUpdate
 from common import app
-from Performance.backend import *
+from Performance.backend import get_data_for_stats, get_dash_table_from_dataframe, \
+    get_metadata_latencies, get_bucktops
 
 
 # @app.callback(
@@ -76,6 +77,7 @@ from Performance.backend import *
 )
 def update_s3bench(n_clicks, release_combined, branch, build, nodes, clients, pfull, itrns,
                    custom, sessions, buckets):
+    """Function to update s3bench table."""
     table = None
     if not (all([
         release_combined, branch, build, nodes, clients, itrns, custom, n_clicks, sessions, buckets
@@ -115,6 +117,7 @@ def update_s3bench(n_clicks, release_combined, branch, build, nodes, clients, pf
 )
 def update_metadata(n_clicks, release_combined, branch, build, nodes, clients,
                     pfull, itrns, custom, sessions, buckets):
+    """function to update metadata table."""
     table = None
     if not (all([
         release_combined, branch, build, nodes, clients, itrns, custom, n_clicks, sessions, buckets
@@ -153,6 +156,7 @@ def update_metadata(n_clicks, release_combined, branch, build, nodes, clients,
 )
 def update_hsbench(n_clicks, release_combined, branch, build, nodes, clients,
                    pfull, itrns, custom, sessions, buckets):
+    """Update hsbench table."""
     table = None
     if not (all([release_combined, branch, build, nodes,
                  itrns, custom, n_clicks, sessions, buckets])) and pfull is None:
@@ -191,6 +195,7 @@ def update_hsbench(n_clicks, release_combined, branch, build, nodes, clients,
 )
 def update_bucketops(n_clicks, release_combined, branch, build, nodes, clients,
                      pfull, itrns, custom, sessions, buckets, objsize):
+    """Update bucketops table."""
     table = None
     if not (all([release_combined, branch, build, nodes, clients,
                  itrns, custom, n_clicks, sessions, buckets])) and pfull is None:
@@ -227,6 +232,7 @@ def update_bucketops(n_clicks, release_combined, branch, build, nodes, clients,
 )
 def update_cosbench(n_clicks, release_combined, branch, build, nodes, clients,
                     pfull, itrns, custom, sessions, buckets):
+    """Update cosbench table."""
     table = None
     if not (all([release_combined, branch, build, nodes, clients,
                  itrns, custom, n_clicks, sessions, buckets])) and pfull is None:

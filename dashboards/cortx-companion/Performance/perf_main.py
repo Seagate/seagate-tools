@@ -1,4 +1,4 @@
-"""Performance tabs integrated UI central file"""
+"""Performance tabs integrated UI central file.."""
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #

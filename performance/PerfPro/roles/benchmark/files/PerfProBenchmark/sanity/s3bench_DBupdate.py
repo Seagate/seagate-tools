@@ -196,8 +196,8 @@ def insertOperations(files,db_collection,run_ID,Config_ID ):  #function for retr
                             iteration_number = get_latest_iteration(data.Primary_Set, db_collection)
                             find_iteration = False
                             # To prevent data of one client getting overwritten/deleted while another client upload data as primary set matches for all client in multi-client run
-                            first_client=check_first_client(data.Primary_Set, db_collection, iteration_number)
-
+                            #first_client=check_first_client(data.Primary_Set, db_collection, iteration_number)
+                            #the query needs to be updated hence marking this commented. 
                         if iteration_number == 0:
                             data.insert_update(iteration_number+1)
                         elif not first_client:
@@ -255,14 +255,22 @@ def insert_run_details(run_details):
 
 
 def insert_config_details(sanity_config , run_ID):
-    global User ,GID ,nodes_num, clients_num 
+    global User ,GID ,nodes_num, clients_num, nodes_list, clients_list
+    nodes=[]
+    clients=[]
+    for i in range(len(nodes_list)):
+        nodes.append(nodes_list[i][i+1])
+
+    for i in range(len(clients_list)):
+        clients.append(clients_list[i][i+1])
+
     config_data={
         "User" : User,
         "GID" : GID,
         "run_ID" : run_ID,
-        "Nodes" : str(configs_config.get('NODES')),
+        "Nodes" : str(nodes),
         "Count_of_Servers": nodes_num ,
-        "Clients" : str(configs_config.get('CLIENTS')),
+        "Clients" : str(clients),
         "Count_of_Clients" : clients_num,
         "Percentage_full": configs_config.get('PC_FULL'),
         "Custom" : configs_config.get('CUSTOM')

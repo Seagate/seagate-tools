@@ -65,7 +65,7 @@ do
 
             echo "$BINPATH/s3bench_perfpro -region $REGION  -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=prefill -objectSize=$SIZE_OF_OBJECTS"
 
-	    "$BINPATH"/s3bench_perfpro -region $REGION  -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=prefill -objectSize=$SIZE_OF_OBJECTS -skipCleanup -skipRead -o $TOOL_DIR/report.s3bench -label object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_bucket_$NUMBUCKET\_sessions_$NUMCLIENTS
+	    "$BINPATH"/s3bench_perfpro -region="$REGION"  -accessKey="$ACCESS_KEY"  -accessSecret="$SECRET_KEY" -bucket="$bucket" -endpoint="$ENDPOINTS" -numClients="$NUMCLIENTS" -numSamples="$NO_OF_SAMPLES" -objectNamePrefix=prefill -objectSize="$SIZE_OF_OBJECTS" -skipCleanup -skipRead -o "$TOOL_DIR"/report.s3bench -label object_"$SIZE_OF_OBJECTS"\_numsamples_"$NO_OF_SAMPLES"\_bucket_"$NUMBUCKET"\_sessions_"$NUMCLIENTS"
 
             mv s3bench-object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_bucket_$NUMBUCKET\_sessions_$NUMCLIENTS\.log $TOOL_DIR/s3bench_object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_$NUMBUCKET\_sessions_$NUMCLIENTS\.log
 

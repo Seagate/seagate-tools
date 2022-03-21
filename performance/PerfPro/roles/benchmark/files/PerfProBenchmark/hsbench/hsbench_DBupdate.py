@@ -105,18 +105,50 @@ def getconfig():
     nodes_list=configs_config.get('NODES')
     clients_list=configs_config.get('CLIENTS')
     build_url=configs_config.get('BUILD_URL')
+    execution_type=configs_config.get('EXECUTION_TYPE')
     cluster_pass=configs_config.get('CLUSTER_PASS')
     solution=configs_config.get('SOLUTION')
     end_points=configs_config.get('END_POINTS')
+    system_stats=configs_config.get('SYSTEM_STATS')
     pc_full=configs_config.get('PC_FULL')
-    overwrite=configs_config.get('OVERWRITE')
     custom=configs_config.get('CUSTOM')
+    overwrite=configs_config.get('OVERWRITE')
+    degraded_read=configs_config.get('DEGRADED_READ')
+    copy_object=configs_config.get('COPY_OBJECT')
     nfs_serv=configs_config.get('NFS_SERVER')
     nfs_exp=configs_config.get('NFS_EXPORT')
     nfs_mp=configs_config.get('NFS_MOUNT_POINT')
     nfs_fol=configs_config.get('NFS_FOLDER')
 
-    dic={'NODES' :str(nodes_list) , 'CLIENTS' : str(clients_list) ,'BUILD_URL': build_url ,'CLUSTER_PASS': cluster_pass ,'SOLUTION': solution ,'END_POINTS': end_points , 'PC_FULL': pc_full , 'CUSTOM': custom , 'OVERWRITE':overwrite , 'NFS_SERVER': nfs_serv ,'NFS_EXPORT' : nfs_exp ,'NFS_MOUNT_POINT' : nfs_mp , 'NFS_FOLDER' : nfs_fol }
+    nodes=[]
+    clients=[]
+
+    for i in range(len(nodes_list)):
+        nodes.append(nodes_list[i][i+1])
+
+    for i in range(len(clients_list)):
+        clients.append(clients_list[i][i+1])
+
+    dic={
+        'NODES' :str(nodes) ,
+        'CLIENTS' : str(clients) ,
+        'BUILD_URL': build_url ,
+        'EXECUTION_TYPE': execution_type,
+        'CLUSTER_PASS': cluster_pass ,
+        'SOLUTION' : solution ,
+        'END_POINTS' : end_points ,
+        'SYSTEM_STATS' : system_stats ,
+        'PC_FULL' : pc_full ,
+        'CUSTOM' : custom ,
+        'OVERWRITE' : overwrite ,
+        'DEGRADED_READ' : degraded_read ,
+        'COPY_OBJECT' : copy_object ,
+        'NFS_SERVER': nfs_serv ,
+        'NFS_EXPORT' : nfs_exp ,
+        'NFS_MOUNT_POINT' : nfs_mp ,
+        'NFS_FOLDER' : nfs_fol
+        }
+
     return (dic)
 
 ##Function to find latest iteration

@@ -133,6 +133,7 @@ def getconfig():
         'NODES' :str(nodes) ,
         'CLIENTS' : str(clients) ,
         'BUILD_URL': build_url ,
+        'EXECUTION_TYPE': execution_type,
         'CLUSTER_PASS': cluster_pass ,
         'SOLUTION' : solution ,
         'END_POINTS' : end_points ,

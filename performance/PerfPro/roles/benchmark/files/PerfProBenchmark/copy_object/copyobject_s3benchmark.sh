@@ -17,6 +17,7 @@ LOG_COLLECT="/root/PerfProBenchmark/collect_logs.py"
 BUILD=`python3 /root/PerfProBenchmark/read_build.py $CONFIG 2>&1`
 ENDPOINTS=`python3 /root/PerfProBenchmark/get_param.py $CONFIG`         
 RESULT_DIR=/root/PerfProBenchmark/perfpro_build$BUILD/results
+REGION=us-east-1
 
 validate_args() {
 
@@ -66,16 +67,16 @@ do
             mkdir -p $TOOL_DIR
  
             if [ $SIZE_OF_OBJECTS = "1Kb" ]; then         
-                  echo "$BINPATH/s3bench_perfpro -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -headObj -putObjTag -getObjTag -copies=1" 
+                  echo "$BINPATH/s3bench_perfpro -region $REGION -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -headObj -putObjTag -getObjTag -copies=1" 
 
-                  $BINPATH/s3bench_perfpro -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -headObj -putObjTag -getObjTag -copies=1 -o $TOOL_DIR/report.s3bench -label object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_1\_sessions_$NUMCLIENTS
+                  $BINPATH/s3bench_perfpro -region $REGION -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -headObj -putObjTag -getObjTag -copies=1 -o $TOOL_DIR/report.s3bench -label object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_1\_sessions_$NUMCLIENTS
 
                   mv s3bench-object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_1\_sessions_$NUMCLIENTS.log $TOOL_DIR/s3bench_object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_1\_sessions_$NUMCLIENTS\.log
    
             else 
-               echo "$BINPATH/s3bench_perfpro -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -copies=1"
+               echo "$BINPATH/s3bench_perfpro -region $REGION -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -copies=1"
 
-                  $BINPATH/s3bench_perfpro -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -copies=1 -o $TOOL_DIR/report.s3bench -label object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_1\_sessions_$NUMCLIENTS
+                  $BINPATH/s3bench_perfpro -region $REGION -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint=$ENDPOINTS -numClients=$NUMCLIENTS -numSamples=$NO_OF_SAMPLES -objectNamePrefix=loadgen -objectSize=$SIZE_OF_OBJECTS -copies=1 -o $TOOL_DIR/report.s3bench -label object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_1\_sessions_$NUMCLIENTS
 
                   mv s3bench-object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_1\_sessions_$NUMCLIENTS.log $TOOL_DIR/s3bench_object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_1\_sessions_$NUMCLIENTS\.log
 

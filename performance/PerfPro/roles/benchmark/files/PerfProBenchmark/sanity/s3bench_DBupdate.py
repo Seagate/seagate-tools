@@ -75,12 +75,14 @@ def check_first_client(query, db_collection, itr):
 
 class s3bench:
 
-    def __init__(self, Log_File, Operation, IOPS, Throughput, Latency, TTFB, Object_Size,db_collection,run_ID,Config_ID,Overwrite,Sessions,Objects,run_health):
+    def __init__(self, Log_File, Operation, IOPS, Throughput, Total_Errors, Total_Ops, Latency, TTFB, Object_Size,db_collection,run_ID,Config_ID,Overwrite,Sessions,Objects,run_health):
 
         self.Log_File = Log_File
         self.Operation = Operation
         self.IOPS = IOPS
         self.Throughput = Throughput
+        self.Total_Errors = Total_Errors
+        self.Total_Ops = Total_Ops
         self.Latency = Latency
         self.TTFB = TTFB
         self.Object_Size = Object_Size
@@ -111,6 +113,8 @@ class s3bench:
                 #"Config_ID":self.Config_ID,
                 "IOPS" : self.IOPS,
                 "Throughput" : self.Throughput,
+                "Total_Errors" : self.Total_Errors, 
+                "Total_Ops" : self.Total_Ops,
                 "Latency": self.Latency,
                 "Log_File" : self.Log_File,
                 "TTFB" : self.TTFB,
@@ -187,9 +191,12 @@ def insertOperations(files,db_collection,run_ID,Config_ID ):  #function for retr
                             iops=round((throughput/Objsize),6)
                             throughput = round(throughput,6)
 
+                            error_count = int(lines[count-1].split(":")[1].replace(",", ""))
+                            ops_count= int(lines[count+3].split(":")[1].replace(",", ""))
+
                         lat={"Max":float(lines[count-4].split(":")[1][:-2]),"Avg":float(lines[count-5].split(":")[1][:-2]),"Min":float(lines[count-3].split(":")[1][:-2])}
                         ttfb={"Max":float(lines[count+12].split(":")[1][:-2]),"Avg":float(lines[count+11].split(":")[1][:-2]),"Min":float(lines[count+13].split(":")[1][:-2]),"99p":float(lines[count+10].split(":")[1][:-2])}
-                        data = s3bench(filename,opname,iops,throughput,lat,ttfb,obj,db_collection,run_ID,Config_ID,overwrite,sessions,Objects,Run_Health) 
+                        data = s3bench(filename,opname,iops,throughput,error_count,ops_count,lat,ttfb,obj,db_collection,run_ID,Config_ID,overwrite,sessions,Objects,Run_Health) 
 # Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID,overwrite,sessions,Objects,pc_full,custom,Run_Health)
                     
                         if find_iteration:
@@ -239,12 +246,12 @@ def insert_run_details(run_details):
         count_documents= run_details.count_documents(run_data)
         if count_documents == 0:
             run_details.insert_one(run_data)
-            print("Sanity Run details recorded")
+            print("Sanity Run details recorded \n" + str(run_data))
             result = run_details.find_one(run_data)
             if result:
                 run_ID = result['_id'] 
         else:
-            print("Sanity Run details already present")
+            print("Sanity Run details already present \n" + str(run_data))
             result = run_details.find_one(run_data)
             if result:
                 run_ID = result['_id']
@@ -273,18 +280,20 @@ def insert_config_details(sanity_config , run_ID):
         "Clients" : str(clients),
         "Count_of_Clients" : clients_num,
         "Percentage_full": configs_config.get('PC_FULL'),
-        "Custom" : configs_config.get('CUSTOM')
+        "Custom" : configs_config.get('CUSTOM'),
+        "Baseline" : int(-1),
+        "Comment" : "NA"
         }
     try:
         count_documents= sanity_config.count_documents(config_data)
         if count_documents == 0:
             sanity_config.insert_one(config_data)
-            print("Config details recorded")
+            print("Config details recorded \n" + str(config_data))
             result = sanity_config.find_one(config_data)
             if result:
                 Config_ID = result['_id']
         else:
-            print("Config details already present")
+            print("Config details already present \n" + str(config_data))
             result = sanity_config.find_one(config_data)
             if result:
                 Config_ID = result['_id']
@@ -297,22 +306,15 @@ def insert_config_details(sanity_config , run_ID):
 def main(argv):
     dic=argv[1]
     files = getallfiles(dic,".log")#getting all files with log as extension from given directory
-   # db = makeconnection() #getting instance of database
     
     run_details = makeconnection('sanity_details_collection')
     sanity_config = makeconnection('sanity_config_collection')
-#db['SANITY'['sanity_config_collection']]
     db_collection = makeconnection('sanity_dbcollection')
-#db['SANITY'['sanity_dbcollection']]
 
 #insert DB entries
     run_ID = insert_run_details(run_details)
     Config_ID = insert_config_details(sanity_config , run_ID)
     
-    #result = db[col['config_collection']].find_one(dic) # find entry from configurations collection 
-    #Config_ID = "NA"
-    #if result:
-    #    Config_ID = result['_id'] # foreign key : it will map entry in configurations to results entry
     insertOperations(files,db_collection,run_ID,Config_ID)
 
 if __name__=="__main__":

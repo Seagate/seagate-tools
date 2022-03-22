@@ -141,6 +141,13 @@
    when: EXECUTION_TYPE == "normal"
 
 #Performing Sanity PerfPro run
+ - name: Create sanity_results directory 
+   shell: |
+     mkdir -p /root/PerfProBenchmark/sanity_results/
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
+   when: EXECUTION_TYPE == "sanity"
+
  - include: sanity.yml
    when: EXECUTION_TYPE == "sanity"
 
@@ -206,3 +213,5 @@
      cd /root/PerfProBenchmark/ 
      python3 /root/PerfProBenchmark/archive_artifacts.py /root/PerfProBenchmark/config.yml perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}
    delegate_to: "clientnode-1"
+   when: EXECUTION_TYPE == "normal"
+

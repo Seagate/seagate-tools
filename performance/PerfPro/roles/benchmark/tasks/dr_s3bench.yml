@@ -14,11 +14,6 @@
          numsamples: "{{ item[1].numsamples }}"
          s3_var: "{{ s3_var }}"
          cluster_state: "{{ cluster_state }}"
-<<<<<<< HEAD
-   ansible.builtin.include_tasks: execute_dr_s3bench.yml
-   loop: "{{ Degraded_IO_load.sessions|product(Degraded_IO_load.objs)|list }}"
-=======
    include_tasks: execute_dr_s3bench.yml
    loop: "{{ Degraded_IO_load.sessions|product(Degraded_IO_load.objs)|list }}"
->>>>>>> 3deddef4b98b7bccfd6f311912e7090391e4dda5
 

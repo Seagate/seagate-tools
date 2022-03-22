@@ -80,6 +80,9 @@ def parse_options(conf, result_dir):
     if 'analyze_addb' in conf['execution_options']:
         if conf['execution_options']['analyze_addb']:
             options.append("--addb-analyze")
+    if 'addb_duration' in conf['execution_options']:
+        options.append("--addb-duration")
+        options.append(conf['execution_options']['addb_duration'])
     if conf['execution_options']['backup_result']:
         options.append("--backup-result")
 

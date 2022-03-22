@@ -398,8 +398,9 @@ function save_motr_artifacts() {
     mkdir -p $dumps_dir
     pushd $dumps_dir
     if [[ -n $ADDB_DUMPS ]]; then
-	save_motr_addb
-	generate_motr_m0play
+        save_motr_addb
+        fiter_addb_dumps "m0d"
+        generate_motr_m0play
     fi
     popd # $dumps_dir
 
@@ -538,4 +539,56 @@ function m0crate_workload()
 
     STOP_TIME=`date +%s000000000`
     sleep 20
+}
+
+function parse_addb_duration_in_sec()
+{
+    local duration=$(echo "$@" | grep -o -E '[0-9]+')
+    local time_unit=$(echo "$@" | tr -d ' ' | sed 's/[0-9]*//g')
+    case $time_unit in
+        'sec'|'s'|'second')
+            ADDB_DURATION_IN_SEC=$duration
+            ;;
+        'min'|'m'|'minute')
+            ADDB_DURATION_IN_SEC=$((duration * 60))
+            ;;
+        'hr'|'h'|'hour')
+            ADDB_DURATION_IN_SEC=$((duration * 3600))
+            ;;
+        'all'|'')
+            ADDB_DURATION_IN_SEC="all"
+            ;;
+        *)
+            echo -e "Invalid time unit"
+            exit 1
+            ;;
+    esac
+    
+}
+
+function fiter_addb_dumps()
+{
+    dump_file_type=$1
+    parse_addb_duration_in_sec $ADDB_DURATION
+
+    if [ $ADDB_DURATION_IN_SEC != 'all' ]; then
+        for dump_file in $(find . -name "dump*txt" -exec realpath {} \; | grep $dump_file_type); do
+            local end_time=`cat $dump_file | sort -n | tail -1 | awk '{print $2}' | cut -d "." -f1`
+            local reformat_endtime=`echo $end_time | sed 's/-/ /3'`
+            local end_time_in_s=$(date -d "$reformat_endtime" +%s)
+
+            local tmp_time=$((end_time_in_s - ADDB_DURATION_IN_SEC))
+            local start_time=`date -d @$tmp_time '+%Y-%m-%d-%H:%M:%S'`
+            `python3 - $dump_file $start_time $end_time << EOF
+import sys
+with open(sys.argv[1],'r') as f:
+    for line in f:
+        d = line.strip().split(" ")[1]
+        if d >= sys.argv[2] and d <= sys.argv[3]:
+           with open('tmp_dump', 'a') as the_file:
+                the_file.write(line)
+EOF`
+            mv -f tmp_dump $dump_file
+        done
+    fi
 }

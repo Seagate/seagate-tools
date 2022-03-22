@@ -112,6 +112,7 @@ function save_s3srv_artifacts() {
         mkdir -p $dumps_dir
         pushd $dumps_dir
         save_s3_addb
+        fiter_addb_dumps "s3server"
         generate_s3_m0play
         popd			# $dumps_dir
     fi

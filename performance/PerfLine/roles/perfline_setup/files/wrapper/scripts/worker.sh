@@ -11,14 +11,14 @@ SCRIPT_DIR="${SCRIPT_PATH%/*}"
 TOOLS_DIR="$SCRIPT_DIR/../../chronometry"
 PERFLINE_DIR="$SCRIPT_DIR/../"
 STAT_DIR="$SCRIPT_DIR/../stat"
-PUBLIC_DATA_INTERFACE=$(ip addr show | egrep 'data0|enp179s0|enp175s0f0|eth0|p1p1' | grep -Po 'inet \K[\d.]+')
+# PUBLIC_DATA_INTERFACE=$(ip addr show | egrep 'data0|enp179s0|enp175s0f0|eth0|p1p1' | grep -Po 'inet \K[\d.]+')
 
 source "$SCRIPT_DIR/../../perfline.conf"
 source "$SCRIPT_DIR/$CLUSTER_TYPE/worker_polymorphic_funcs.sh"
 
 STAT_COLLECTION=""
 MKFS=""
-EX_SRV="pdsh -S -w $NODES"
+EX_SRV="pdsh -R ssh -S -w $NODES"
 PRIMARY_NODE=$(echo "$NODES" | cut -d "," -f1)
 # S3SERVER=$(ssh $PRIMARY_NODE "cat /var/lib/hare/cluster.yaml | \
 #             grep -o 's3: [[:digit:]]*'| head -1 | cut -d ':' -f2 | tr -d ' '")

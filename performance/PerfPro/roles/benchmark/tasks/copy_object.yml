@@ -12,7 +12,7 @@
          numclients: "{{ item[0] }}"
          objsize: "{{ item[1].objsize }}"
          numsamples: "{{ item[1].numsamples }}"
-   ansible.builtin.include_tasks: execute_co_s3bench.yml
+   include_tasks: execute_co_s3bench.yml
    loop: "{{ low_load.sessions|product(low_load.objs)|list }}"
 
 # - name: "[S3Bench] Preparing Configuration for high load"

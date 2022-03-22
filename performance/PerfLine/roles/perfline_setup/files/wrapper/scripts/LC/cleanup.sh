@@ -33,7 +33,7 @@ function parse_params()
 function remove_custom_docker_image()
 {
     local docker_image_tag="${CUSTOM_DOCKER_IMAGE_TAG_PREFIX}${TASK_ID}"
-    pdsh -S -w $NODES $SCRIPT_DIR/remove_tmp_docker_image.sh $docker_image_tag
+    pdsh -R ssh -S -w $NODES $SCRIPT_DIR/remove_tmp_docker_image.sh $docker_image_tag
 }
 
 function main()

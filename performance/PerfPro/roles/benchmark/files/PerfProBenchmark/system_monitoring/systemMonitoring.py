@@ -123,7 +123,10 @@ def getconfig():
         'NODES' :str(nodes) ,
         'CLIENTS' : str(clients) ,
         'BUILD_URL': build_url ,
+<<<<<<< HEAD
         'EXECUTION_TYPE': execution_type,
+=======
+>>>>>>> 9f887c7348ecdbac86c576a423964448df1b082f
         'CLUSTER_PASS': cluster_pass ,
         'SOLUTION' : solution ,
         'END_POINTS' : end_points ,

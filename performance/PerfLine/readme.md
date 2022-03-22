@@ -11,7 +11,7 @@ PerfLine can be installed from any machine, To setup PerfLine or deploying PerfL
 0. Cortx-k8s cluster is installed following the document:
    https://seagate-systems.atlassian.net/wiki/spaces/PUB/pages/754155622/CORTX+Kubernetes+Deployment+Document+using+Services+Framework
    Stable version of `cortx-k8s` repository is cloned into `/root/cortx-k8s` directory of primary server node.
-   It's recommended to use version v.0.0.18 (commit dcee700ae3769c50fe94f1d330e1eee788a63b8e) of `cortx-k8s`.
+   It's recommended to use version v0.1.0 (commit b21b5bf01166c685b45f64ea7d7f7beb4abaa56e) of `cortx-k8s`.
 1. Choose Machine, from which installation will be performed, It can be any machine(PerfLine wont be installed here unless configured to do so)
 2. Latest version of seagatetools repo downloaded
 3. Ansible package installed (ver. 2.9+)

@@ -182,12 +182,12 @@ function stop_stat_utils()
 
 function start_measuring_workload_time()
 {
-    WORKLOAD_TIME_START_SEC=$(date +'%s')
+    WORKLOAD_TIME_START_SEC=`date +'%s'`
 }
 
 function stop_measuring_workload_time()
 {
-    WORKLOAD_TIME_STOP_SEC=$(date +'%s')
+    WORKLOAD_TIME_STOP_SEC=`date +'%s'`
     local stats="stats"
     mkdir -p $stats
     pushd $stats
@@ -283,8 +283,8 @@ function main() {
     collect_stat_data
 
     # Start stat utilities
-   echo "Start stat utilities"
-   start_stat_utils
+    echo "Start stat utilities"
+    start_stat_utils
 
     # Start workload time execution measuring
     start_measuring_workload_time
@@ -301,7 +301,6 @@ function main() {
     save_cluster_status
     stop_cluster
 
-    
     # Collect ADDBs/m0traces/m0play.db
     collect_artifacts
 
@@ -364,7 +363,7 @@ while [[ $# -gt 0 ]]; do
         -d|--addb-dumps)
             ADDB_DUMPS="1"
             ;;
-	--addb-analyze)
+	    --addb-analyze)
             ADDB_ANALYZE="1"
             ;;
         --motr-trace)
@@ -384,6 +383,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --backup-result)
             BACKUP_RESULT="1"
+            ;;
+        --addb-duration)
+            ADDB_DURATION=$2
+            shift
             ;;
         *)
             echo -e "Invalid option: $1\nUse --help option"

@@ -301,6 +301,7 @@ def get_schema_motr():
                 'collect_m0trace': {'type': 'boolean'},
                 'collect_addb': {'type': 'boolean'},
                 'analyze_addb': {'type': 'boolean', 'required': False},
+                'addb_duration': {'type': 'string', 'required': False, 'empty': False, 'regex': '(^all$)|(^\d+((m$)|(h$)|(s$)|(min$)|(sec$)|(hr$)|(hour$)|(minute$)|(second$))$)'},
                 'backup_result': {'type': 'boolean'}
             }
         }

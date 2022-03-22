@@ -6,8 +6,8 @@
  - name: "[S3Bench] Starting execution {{ runconfig.objsize }}-{{ runconfig.numclients }}session"
    delegate_to: "{{ client }}"
    shell: |
-      cd /root/PerfProBenchmark/degraded_read/
-      ./degradedread_s3benchmark.sh -nc {{ runconfig.numclients }} -ns {{ runconfig.numsamples }} -s {{ runconfig.objsize }} -f {{ runconfig.s3_var }} -cs {{ runconfig.cluster_state }}
+      cd /root/PerfProBenchmark/degraded_IO/
+      ./degradedIO_s3benchmark.sh -nc {{ runconfig.numclients }} -ns {{ runconfig.numsamples }} -s {{ runconfig.objsize }} -f {{ runconfig.s3_var }} -cs {{ runconfig.cluster_state }}
    async: 86400
    poll: 0
    loop: "{{ groups['clients'] }}"

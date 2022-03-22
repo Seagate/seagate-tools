@@ -1,0 +1,169 @@
+---
+
+# Doing cleanup 
+
+ - name : "Doing cleanup before starting Degraded Read"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'cx'"
+     cluster_state: "'normal-cleanup'"
+
+
+# Writing data in normal state
+
+ - name: "Running S3bench in write only mode"
+   include: dr_s3bench.yml
+   vars: 
+     s3_var: "'-skipRead -skipCleanup'"
+     cluster_state: "'normal-write'"
+
+ - name: "Running HSbench in write only mode"
+   include: dr_hsbench.yml
+   vars: 
+     hsb_var: "'ip'"
+     cluster_state: "'normal-write'"
+
+
+# Collecting read stats before failure
+
+ - name: "Running read only S3bench in normal state of cluster"
+   include: dr_s3bench.yml
+   vars:
+     s3_var: "'-skipWrite -skipCleanup'"
+     cluster_state: "'normal-read'"
+
+ - name: "Running read only HSbench in normal state of cluster"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'lg'"
+     cluster_state: "'normal-read'"
+
+
+# Fail the pod  using k8s
+
+ - name: "deleting the pod using K8s to degrade the cluster"
+   shell: /root/PerfProBenchmark/degraded_read/K8s_pod_handler.sh down
+   delegate_to: "srvnode-1"
+
+ - name: "Waiting for pod to stop and cluster get into degraded mode"
+   shell: sleep 30
+
+
+# Collect read stats in degraded state and cleaning up
+
+ - name: "Running read only S3bench in degraded state of cluster"
+   include: dr_s3bench.yml
+   vars:
+     s3_var: "'-skipWrite'"                                        
+     cluster_state: "'degraded-read'"
+
+ - name: "Running read only HSbench in degraded state of cluster"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'lg'"
+     cluster_state: "'degraded-read'"
+
+ - name : "Doing cleanup in degraded cluster state"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'dcx'"
+     cluster_state: "'degraded-cleanup'"
+
+
+# Writing data in degraded state
+
+ - name: "Running S3bench in write only mode in degraded state"
+   include: dr_s3bench.yml
+   vars:
+     s3_var: "'-skipRead -skipCleanup'"
+     cluster_state: "'degraded-write'"
+
+ - name: "Running HSbench in write only mode in degraded state"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'ip'"
+     cluster_state: "'degraded-write'"
+
+
+# Read data again in degraded state
+
+ - name: "Running read only S3bench in normal state of cluster"
+   include: dr_s3bench.yml
+   vars:
+     s3_var: "'-skipWrite -skipCleanup'"
+     cluster_state: "'degraded-written-data-read'"
+
+ - name: "Running read only HSbench in normal state of cluster"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'lg'"
+     cluster_state: "'degraded-written-data-read'"
+
+
+# Booting the failed node using K8s
+
+ - name: "creating the pod using K8s to degrade the cluster"
+   shell: /root/PerfProBenchmark/degraded_read/K8s_pod_handler.sh up
+   delegate_to: "srvnode-1"
+
+ - name: "Waiting for pod to start and cluster get into healthy state"
+   shell: sleep 30
+
+
+# Collect read starts after cluster is recovered and clean up
+
+ - name: "Running read only S3bench in recovered state of cluster"
+   include: dr_s3bench.yml
+   vars:
+     s3_var: "'-skipWrite'"
+     cluster_state: "'recovered-read'"
+
+ - name: "Running read only HSbench in recovered state of cluster"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'lg'"
+     cluster_state: "'recovered-read'"
+
+ - name: "Cleaning up buckets and objects of HSbench"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'dcx'"
+     cluster_state: "'recovered-cleanup'"
+
+
+# Write data when cluster is in healthy state
+
+ - name: "Running S3bench in write only mode in healthy cluster state"
+   include: dr_s3bench.yml
+   vars:
+     s3_var: "'-skipRead -skipCleanup'"
+     cluster_state: "'final-healthy-write'"
+
+ - name: "Running HSbench in write only mode in healthy cluster state"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'ip'"
+     cluster_state: "'final-healthy-write'"
+
+
+# Reading data when cluster is in healthy state and cleaning up
+
+ - name: "Running read only S3bench in final healthy state of cluster"
+   include: dr_s3bench.yml
+   vars:
+     s3_var: "'-skipWrite'"
+     cluster_state: "'final-healthy-read'"
+
+ - name: "Running read only HSbench in final healthy state of cluster"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'lg'"
+     cluster_state: "'final-healthy-read'"
+
+ - name : "Doing cleanup in healthy cluster state"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'dcx'"
+     cluster_state: "'final-cleanup'"
+
+

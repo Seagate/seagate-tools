@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 python3 s3bench_DBupdate.py <log file path> <main.yaml path> <config.yaml path> 
@@ -302,7 +301,7 @@ def getconfig():
     pc_full=configs_config.get('PC_FULL')
     custom=configs_config.get('CUSTOM')
     overwrite=configs_config.get('OVERWRITE')
-    degraded_read=configs_config.get('DEGRADED_READ')
+    degraded_IO=configs_config.get('DEGRADED_IO')
     copy_object=configs_config.get('COPY_OBJECT')
     nfs_serv=configs_config.get('NFS_SERVER')
     nfs_exp=configs_config.get('NFS_EXPORT')
@@ -330,7 +329,7 @@ def getconfig():
         'PC_FULL' : pc_full ,
         'CUSTOM' : custom ,
         'OVERWRITE' : overwrite ,
-        'DEGRADED_READ' : degraded_read ,
+        'DEGRADED_IO' : degraded_IO ,
         'COPY_OBJECT' : copy_object ,
         'NFS_SERVER': nfs_serv ,
         'NFS_EXPORT' : nfs_exp ,

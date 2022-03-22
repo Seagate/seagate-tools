@@ -12,7 +12,7 @@
          numclients: "{{ item[0] }}"
          objsize: "{{ item[1].objsize }}"
          numsamples: "{{ item[1].numsamples }}"
-   ansible.builtin.include_tasks: execute_sanity_s3bench.yml
+   include_tasks: execute_sanity_s3bench.yml
    loop: "{{ sanity_low_load.sessions|product(sanity_low_load.objs)|list }}"
 
  - name: "[S3Bench] Preparing Configuration for sanity high load"
@@ -22,6 +22,6 @@
          numclients: "{{ item[0] }}"
          objsize: "{{ item[1].objsize }}"
          numsamples: "{{ item[1].numsamples }}"
-   ansible.builtin.include_tasks: execute_sanity_s3bench.yml
-   loop: "{{ Sanity_high_load.sessions|product(sanity_high_load.objs)|list }}"
+   include_tasks: execute_sanity_s3bench.yml
+   loop: "{{ sanity_high_load.sessions|product(sanity_high_load.objs)|list }}"
 

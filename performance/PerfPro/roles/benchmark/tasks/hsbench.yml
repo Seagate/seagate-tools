@@ -13,7 +13,7 @@
          objsize: "{{ item[1].objsize }}"
          numsamples: "{{ item[1].numsamples }}"
          buckets: "{{ buckets[0] }}"
-   ansible.builtin.include_tasks: execute_hsbench.yml
+   include_tasks: execute_hsbench.yml
    loop: "{{ low_load.sessions|product(low_load.objs)|list }}"
    when: buckets[0] is defined
 
@@ -25,7 +25,7 @@
          objsize: "{{ item[1].objsize }}"
          numsamples: "{{ item[1].numsamples }}"
          buckets: "{{ buckets[0] }}"
-   ansible.builtin.include_tasks: execute_hsbench.yml
+   include_tasks: execute_hsbench.yml
    loop: "{{ high_load.sessions|product(high_load.objs)|list }}"
    when: buckets[0] is defined
 
@@ -37,7 +37,7 @@
          objsize: "{{ item[1].objsize }}"
          numsamples: "{{ item[1].numsamples }}"
          buckets: "{{ buckets[1] }}"
-   ansible.builtin.include_tasks: execute_hsbench.yml
+   include_tasks: execute_hsbench.yml
    loop: "{{ low_load.sessions|product(low_load.objs)|list }}"
    when: buckets[1] is defined
 
@@ -49,7 +49,7 @@
          objsize: "{{ item[1].objsize }}"
          numsamples: "{{ item[1].numsamples }}"
          buckets: "{{ buckets[1] }}"
-   ansible.builtin.include_tasks: execute_hsbench.yml
+   include_tasks: execute_hsbench.yml
    loop: "{{ high_load.sessions|product(high_load.objs)|list }}"
    when: buckets[1] is defined
 
@@ -61,7 +61,7 @@
          objsize: "{{ item[1].objsize }}"
          numsamples: "{{ item[1].numsamples }}"
          buckets: "{{ buckets[2] }}"
-   ansible.builtin.include_tasks: execute_hsbench.yml
+   include_tasks: execute_hsbench.yml
    loop: "{{ low_load.sessions|product(low_load.objs)|list }}"
    when: buckets[2] is defined
 
@@ -73,6 +73,6 @@
          objsize: "{{ item[1].objsize }}"
          numsamples: "{{ item[1].numsamples }}"
          buckets: "{{ buckets[2] }}"
-   ansible.builtin.include_tasks: execute_hsbench.yml
+   include_tasks: execute_hsbench.yml
    loop: "{{ high_load.sessions|product(high_load.objs)|list }}"
    when: buckets[2] is defined

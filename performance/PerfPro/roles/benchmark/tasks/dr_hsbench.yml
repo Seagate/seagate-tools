@@ -15,7 +15,7 @@
          buckets: "{{ buckets[0] }}"
          hsb_var: "{{ hsb_var }}"
          cluster_state: "{{ cluster_state }}"
-   ansible.builtin.include_tasks: execute_dr_hsbench.yml
+   include_tasks: execute_dr_hsbench.yml
    loop: "{{ Degraded_read_load.sessions|product(Degraded_read_load.objs)|list }}"
 
 

@@ -20,7 +20,7 @@ SYSTEM_STATS: True # If True, enter cluster nodes for installing pkgs, collectin
 PC_FULL: 0 # Select for system percentage full before test. 
 OVERWRITE: False # select True or False to overwrite the DB entries for same Primary Key
 CUSTOM: NA # Default is NA. Update with single string for special config eg: CorvStd, CorvHiPerf, 5u84Std, 5u84HiPerf, SSD, DIEnabled, PODsetup etc
-DEGRADED_READ: False   # Select True/False to test Degraded read feature
+DEGRADED_IO: False   # Select True/False to test Degraded read feature
 COPY_OBJECT: False   #Select True/False to test Copy object feature
 
 #Enter Below details for log collection on NFS repo

@@ -1,3 +1,4 @@
+#!/bin/bash
 for b in 1;
   do
     for s in 1Mb 5Mb 36Mb 64Mb 128Mb 256Mb;

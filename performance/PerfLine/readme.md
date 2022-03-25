@@ -12,6 +12,14 @@ PerfLine can be installed from any machine, To setup PerfLine or deploying PerfL
    https://seagate-systems.atlassian.net/wiki/spaces/PUB/pages/754155622/CORTX+Kubernetes+Deployment+Document+using+Services+Framework
    Stable version of `cortx-k8s` repository is cloned into `/root/cortx-k8s` directory of primary server node.
    It's recommended to use version v0.1.0 (commit b21b5bf01166c685b45f64ea7d7f7beb4abaa56e) of `cortx-k8s`.
+   
+   NOTE: starting from `cortx-k8s` v0.1.0 the default s3 application is RGW. In case if you need to use
+         s3server please use v0.0.22 (commit c4773d6fe7b6d1c2b76a69ea2ab0f9582fc660e0) of `corxt-k8s`
+         and update `S3_APP` value of the `perfline.conf` file using command below:
+         ```
+         sed -i 's/S3_APP="rgw"/S3_APP="s3srv"/' ./roles/perfline_setup/files/perfline.conf
+         ```
+
 1. Choose Machine, from which installation will be performed, It can be any machine(PerfLine wont be installed here unless configured to do so)
 2. Latest version of seagatetools repo downloaded
 3. Ansible package installed (ver. 2.9+)

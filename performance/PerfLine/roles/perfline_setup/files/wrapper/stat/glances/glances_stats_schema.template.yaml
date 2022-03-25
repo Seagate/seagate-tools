@@ -125,77 +125,77 @@ figures:
           - mem_percent
           - memswap_percent
 # Data volumes summary
-- figure:
-    fname: "[HOSTNAME]__datavolumesummary.png"
-    name: data volume stats
-    columns:
-    - column:
-      - graph:
-          title: diskio requests (write)
-          show_legend: false
-          y_label: "RpS"
-          metrics:
-          - diskio_[DATA_VOLUMES]_write_count
-      - graph:
-          title: diskio requests (read)
-          show_legend: false
-          y_label: "RpS"
-          metrics:
-          - diskio_[DATA_VOLUMES]_read_count
-      - graph:
-          title: diskio (write)
-          show_legend: false
-          display_as: MB
-          y_label: "MB/s"
-          metrics:
-          - diskio_[DATA_VOLUMES]_write_bytes
-      - graph:
-          title: diskio (read)
-          show_legend: false
-          display_as: MB
-          y_label: "MB/s"
-          metrics:
-          - diskio_[DATA_VOLUMES]_read_bytes
+# - figure:
+#     fname: "[HOSTNAME]__datavolumesummary.png"
+#     name: data volume stats
+#     columns:
+#     - column:
+#       - graph:
+#           title: diskio requests (write)
+#           show_legend: false
+#           y_label: "RpS"
+#           metrics:
+#           - diskio_[DATA_VOLUMES]_write_count
+#       - graph:
+#           title: diskio requests (read)
+#           show_legend: false
+#           y_label: "RpS"
+#           metrics:
+#           - diskio_[DATA_VOLUMES]_read_count
+#       - graph:
+#           title: diskio (write)
+#           show_legend: false
+#           display_as: MB
+#           y_label: "MB/s"
+#           metrics:
+#           - diskio_[DATA_VOLUMES]_write_bytes
+#       - graph:
+#           title: diskio (read)
+#           show_legend: false
+#           display_as: MB
+#           y_label: "MB/s"
+#           metrics:
+#           - diskio_[DATA_VOLUMES]_read_bytes
 # Data volumes
-- figure:
-    USE_AS_TEMPLATE_FOR: DATA_VOLUMES
-    fname: "[HOSTNAME]__datavolume__[TEMPLATE].png"
-    name: data volume [TEMPLATE] stats
-    columns:
-    - column:
-      - graph:
-          title: diskio requests [TEMPLATE]
-          y_label: "RpS"
-          metrics:
-          - diskio_[TEMPLATE]_write_count
-          - diskio_[TEMPLATE]_read_count
-      - graph:
-          title: diskio [TEMPLATE]
-          display_as: MB
-          y_label: "MB/s"
-          metrics:
-          - diskio_[TEMPLATE]_write_bytes
-          - diskio_[TEMPLATE]_read_bytes
+# - figure:
+#     USE_AS_TEMPLATE_FOR: DATA_VOLUMES
+#     fname: "[HOSTNAME]__datavolume__[TEMPLATE].png"
+#     name: data volume [TEMPLATE] stats
+#     columns:
+#     - column:
+#       - graph:
+#           title: diskio requests [TEMPLATE]
+#           y_label: "RpS"
+#           metrics:
+#           - diskio_[TEMPLATE]_write_count
+#           - diskio_[TEMPLATE]_read_count
+#       - graph:
+#           title: diskio [TEMPLATE]
+#           display_as: MB
+#           y_label: "MB/s"
+#           metrics:
+#           - diskio_[TEMPLATE]_write_bytes
+#           - diskio_[TEMPLATE]_read_bytes
 # MD volumes
-- figure:
-    USE_AS_TEMPLATE_FOR: METADATA_VOLUMES
-    fname: "[HOSTNAME]__mdvolume__[TEMPLATE].png"
-    name: metadata volume [TEMPLATE] stats
-    columns:
-    - column:
-      - graph:
-          title: diskio requests [TEMPLATE]
-          y_label: "RpS"
-          metrics:
-          - diskio_[TEMPLATE]_write_count
-          - diskio_[TEMPLATE]_read_count
-      - graph:
-          title: diskio [TEMPLATE]
-          display_as: MB
-          y_label: "MB/s"
-          metrics:
-          - diskio_[TEMPLATE]_write_bytes
-          - diskio_[TEMPLATE]_read_bytes
+# - figure:
+#     USE_AS_TEMPLATE_FOR: METADATA_VOLUMES
+#     fname: "[HOSTNAME]__mdvolume__[TEMPLATE].png"
+#     name: metadata volume [TEMPLATE] stats
+#     columns:
+#     - column:
+#       - graph:
+#           title: diskio requests [TEMPLATE]
+#           y_label: "RpS"
+#           metrics:
+#           - diskio_[TEMPLATE]_write_count
+#           - diskio_[TEMPLATE]_read_count
+#       - graph:
+#           title: diskio [TEMPLATE]
+#           display_as: MB
+#           y_label: "MB/s"
+#           metrics:
+#           - diskio_[TEMPLATE]_write_bytes
+#           - diskio_[TEMPLATE]_read_bytes
 
 # Network
 - figure:

@@ -21,11 +21,13 @@ from flask import Flask
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from rest_app import api
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app)
+CORS(app)
 
 api.init_app(app)
 
-app.run(debug=False, port="5050")
-# app.run(host="0.0.0.0", debug=False, port="5050")
+# app.run(debug=False, port="5050")
+app.run(host="0.0.0.0", debug=False, port="5050")

@@ -8,11 +8,11 @@ aws_access_key_id=`cat /root/.aws/credentials | grep -A 3 default | grep aws_acc
 aws_secret_access_key=`cat /root/.aws/credentials | grep -A 3 default | grep secret_access_key | cut -d " " -f3`
 
 cwd=`date +%F`
-mkdir -p /root/s3bench_log/$cwd
+mkdir -p /root/s3bench_log/"$cwd"
 
 now=`date +%F-%T`
 
-/root/go/bin/s3bench_meta -accessKey=$aws_access_key_id -accessSecret=$aws_secret_access_key -bucket=s3benchbucket  -endpoint=https://s3.seagate.com -numClients=$clients -numSamples=$samples -objectNamePrefix=loadgen -objectSize=$objectSize  -verbose > /root/s3bench_log/$cwd/s3bench_log_$objectSize\_$now.log;
+/root/go/bin/s3bench_meta -accessKey="$aws_access_key_id" -accessSecret="$aws_secret_access_key" -bucket=s3benchbucket  -endpoint=https://s3.seagate.com -numClients="$clients" -numSamples="$samples" -objectNamePrefix=loadgen -objectSize="$objectSize"  -verbose > /root/s3bench_log/"$cwd"/s3bench_log_"$objectSize"\_"$now".log;
 sleep 10
 done
 
@@ -36,5 +36,5 @@ sampleReads=12
 
 now=`date +%F-%T`
 
-/root/go/bin/s3bench_meta -accessKey=$aws_access_key_id -accessSecret=$aws_secret_access_key -bucket=metabucket -endpoint=https://s3.seagate.com -numClients=$clients -numSamples=$samples -objectNamePrefix=loadgen -objectSize=$objectsize  -headObj -putObjTag -getObjTag -verbose -sampleReads=$sampleReads > /root/s3bench_log/$cwd/s3bench_log_$objectsize\_$now.log
+/root/go/bin/s3bench_meta -accessKey="$aws_access_key_id" -accessSecret="$aws_secret_access_key" -bucket=metabucket -endpoint=https://s3.seagate.com -numClients="$clients" -numSamples="$samples" -objectNamePrefix=loadgen -objectSize="$objectsize"  -headObj -putObjTag -getObjTag -verbose -sampleReads="$sampleReads" > /root/s3bench_log/"$cwd"/s3bench_log_"$objectsize"\_"$now".log
 

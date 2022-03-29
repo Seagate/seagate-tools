@@ -254,7 +254,7 @@ function save_s3srv_artifacts() {
         # Fetch list of folders per server
         dirs=`ssh $srv -T "ls /var/log/seagate/motr/ | grep s3server | xargs -n1 basename"`
         echo $dirs
-        mkdir $dirs
+        mkdir "$dirs"
 
         for s3d in s3server*; do
             # Copy logs
@@ -302,7 +302,7 @@ function save_m0crate_artifacts()
     fi
 
     if [[ -n $M0TRACE_FILES ]]; then
-        $EX_SRV $SCRIPT_DIR/save_m0traces $(hostname) $(pwd) "m0crate" "$m0crate_workdir"
+        "$EX_SRV" "$SCRIPT_DIR"/save_m0traces $(hostname) $(pwd) "m0crate" "$m0crate_workdir"
     fi
 
     $EX_SRV "rm -rf $m0crate_workdir"
@@ -415,7 +415,7 @@ function collect_artifacts() {
         fi
 
         $SCRIPT_DIR/merge_m0playdb $m0playdb_parts
-        rm -f $m0playdb_parts
+        rm -f "$m0playdb_parts"
         $SCRIPT_DIR/../../chronometry_v2/fix_reqid_collisions.py --fix-db --db ./m0play.db
     fi
 

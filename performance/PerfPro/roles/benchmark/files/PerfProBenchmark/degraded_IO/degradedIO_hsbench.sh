@@ -70,10 +70,10 @@ hotsause_benchmark()
                  TOOL_DIR=$BENCHMARKLOG/$TOOL_NAME/numclients_$client/buckets_$bucket/$size
                  echo "$BENCHMARK_PATH/hsbench -a $ACCESS_KEY -s $SECRET_KEY -u $ENDPOINTS -z $obj_size -d $TEST_DURATION -t $client -b $bucket -n $sample -r $REGION -bp hsbench-dr-${obj_size,,} -m $FLAGS -j $JSON_FILENAME"
 
-                 $BENCHMARK_PATH/hsbench -a $ACCESS_KEY -s $SECRET_KEY -u $ENDPOINTS -z $obj_size -d $TEST_DURATION -t $client -b $bucket -n $sample -r $REGION -bp hsbench-dr-${obj_size,,} -m $FLAGS -j $JSON_FILENAME
+                 "$BENCHMARK_PATH"/hsbench -a "$ACCESS_KEY" -s "$SECRET_KEY" -u "$ENDPOINTS" -z "$obj_size" -d "$TEST_DURATION" -t "$client" -b "$bucket" -n "$sample" -r "$REGION" -bp hsbench-dr-${obj_size,,} -m "$FLAGS" -j "$JSON_FILENAME"
 
-                 mkdir -p $TOOL_DIR
-                 mv $CURRENTPATH/*.json $TOOL_DIR/
+                 mkdir -p "$TOOL_DIR"
+                 mv "$CURRENTPATH"/*.json "$TOOL_DIR"/
                  sleep 30
                done 
            done
@@ -83,7 +83,7 @@ hotsause_benchmark()
     done
 } 
 
-while [ ! -z $1 ]; do
+while [ ! -z "$1" ]; do
 
         case $1 in
         -b)    shift
@@ -127,18 +127,18 @@ validate_args
 #
 ./installHSbench.sh
 #
-if [ ! -d $BENCHMARKLOG ]; then
-    mkdir $BENCHMARKLOG
-    hotsause_benchmark 2>&1 | tee $BENCHMARKLOG/output.log
+if [ ! -d "$BENCHMARKLOG" ]; then
+    mkdir "$BENCHMARKLOG"
+    hotsause_benchmark 2>&1 | tee "$BENCHMARKLOG"/output.log
     sleep 20 
 #    python3 hsbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG 
-    mkdir -p $RESULT_DIR/
-    cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/    
-    cp $BENCHMARKLOG/output.log $RESULT_DIR/$TOOL_NAME/    
+    mkdir -p "$RESULT_DIR"/
+    cp -r "$BENCHMARKLOG"/"$TOOL_NAME" "$RESULT_DIR"/    
+    cp "$BENCHMARKLOG"/output.log "$RESULT_DIR"/"$TOOL_NAME"/    
       
 else
-    rm -rf $BENCHMARKLOG
-    mkdir $BENCHMARKLOG
+    rm -rf "$BENCHMARKLOG"
+    mkdir "$BENCHMARKLOG"
     hotsause_benchmark 2>&1 | tee $BENCHMARKLOG/output.log
     sleep 20 
 #    python3 hsbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG

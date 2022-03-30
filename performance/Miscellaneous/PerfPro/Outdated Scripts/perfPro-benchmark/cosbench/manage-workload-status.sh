@@ -67,6 +67,6 @@ fi
 
 if [ "$ACTION" == "--cancel" ]
 then
-  result="$(ssh "$USERNAME"@"$CONTROLLER" "cd ~/cos; sh cli.sh cancel "$WORKLOAD_ID"")"
+  result=$(ssh "$USERNAME"@"$CONTROLLER" "cd ~/cos; sh cli.sh cancel $WORKLOAD_ID")
   echo "$result"
 fi

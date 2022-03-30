@@ -73,7 +73,7 @@ install_cmds() {
 precheck_on_controller_drivers() {
   printf "\nChecking prerequiste on controller node $CONTROLLER\n"
   ssh "$USERNAME"@"$CONTROLLER" "$(typeset -f precheck); precheck"
-  for driver_host in `cat $DRIVERS_FILE`
+  for driver_host in `cat "$DRIVERS_FILE"`
   do
      printf "\nChecking prerequiste on node $driver_host...\n"
      ssh "$USERNAME"@"$driver_host" "$(typeset -f precheck); precheck"
@@ -102,7 +102,7 @@ ENDSSH
 }
 
 configure_cosbench() {
-  DRIVERS_COUNT=`cat $DRIVERS_FILE | wc -l`
+  DRIVERS_COUNT=`cat "$DRIVERS_FILE" | wc -l`
   CONTROLLER_STR="[controller]\nconcurrency = $DRIVERS_COUNT\ndrivers = $DRIVERS_COUNT\nlog_level = INFO\nlog_file = log/system.log\narchive_dir = archive\n\n"
   count=0
   for driver_host in `cat $DRIVERS_FILE`
@@ -110,7 +110,7 @@ configure_cosbench() {
     count=$((count+1))
     CONTROLLER_STR+="[driver$count]\nname = Driver$count\n"
     CONTROLLER_STR+="url = http://$driver_host:18088/driver\n\n"
-    configure_driver $driver_host $count
+    configure_driver "$driver_host" "$count"
   done
   # Create controller.conf file
 ssh "$USERNAME"@"$CONTROLLER" <<ENDSSH
@@ -241,16 +241,16 @@ while true ; do
   esac
 done
 # Print the variables
-if [ $ACTION = "install" ]
+if [ "$ACTION" = "install" ]
 then
   precheck_on_controller_drivers
   install_on_controller_drivers
   printf "\n Cosbench installation completed\n"
-elif [ $ACTION = "configure" ]
+elif [ "$ACTION" = "configure" ]
 then
   configure_cosbench
   printf "\n Cosbench configuration completed\n"
-elif [ $ACTION = "start" ]
+elif [ "$ACTION" = "start" ]
 then
   start_cosbench
   printf "\n Cosbench started\n"

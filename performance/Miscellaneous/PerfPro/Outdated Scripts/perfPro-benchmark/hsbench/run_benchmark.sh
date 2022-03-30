@@ -20,8 +20,6 @@ TIMESTAMP=`date +'%Y-%m-%d_%H:%M:%S'`
 IFS=”,”
 
 
-
-
 validate_args() {
 
         if [[ -z $NO_OF_BUCKET ]] ||  [[ -z $SIZE_OF_OBJECTS ]] || [[ -z $NO_OF_OBJECTS ]] || [[ -z $NO_OF_THREADS ]] ;
@@ -48,7 +46,7 @@ hotsause_benchmark()
     do
                
         MKDIR=runid_$TIMESTAMP
-        mkdir -p $BENCHMARKLOG/$MKDIR
+        mkdir -p "$BENCHMARKLOG"/"$MKDIR"
         SAMPLES=($NO_OF_OBJECTS)
         THREAD=($NO_OF_THREADS)
         OBJ_SIZE=($SIZE_OF_OBJECTS)
@@ -63,19 +61,19 @@ hotsause_benchmark()
                  obj_size=$(echo "${OBJ_SIZE[$size]}" | tr -d 'b')
                  echo "$BENCHMARK_PATH/hsbench -a $ACCESS_KEY -s $SECRET_KEY -u $ENDPOINTS -z $obj_size -d $TEST_DURATION -t ${THREAD[$index]} -b $NO_OF_BUCKET -n ${SAMPLES[$nc]} -r $REGION -j $JSON_FILENAME"
 
-                 $BENCHMARK_PATH/hsbench -a $ACCESS_KEY -s $SECRET_KEY -u $ENDPOINTS -z $obj_size -d $TEST_DURATION -t ${THREAD[$index]} -b $NO_OF_BUCKET -n ${SAMPLES[$nc]} -r $REGION -j $JSON_FILENAME
+                 "$BENCHMARK_PATH"/hsbench -a "$ACCESS_KEY" -s "$SECRET_KEY" -u "$ENDPOINTS" -z "$obj_size" -d "$TEST_DURATION' -t "${THREAD[$index]}" -b "$NO_OF_BUCKET" -n "${SAMPLES[$nc]}" -r "$REGION" -j "$JSON_FILENAME"
 
                done 
            done
         done
-        mv $CURRENTPATH/*.json $CURRENTPATH/benchmark.log/$MKDIR/
+        mv "$CURRENTPATH"/*.json "$CURRENTPATH"/benchmark.log/"$MKDIR"/
         COUNT=$(($COUNT + 1))
         sleep 30
 #        python3 $CURRENTPATH/hsbenchReport.py $BENCHMARKLOG/$MKDIR/    
     done
 } 
 
-while [ ! -z $1 ]; do
+while [ ! -z "$1" ]; do
 
         case $1 in
         -b)    shift
@@ -107,16 +105,16 @@ done
 
 validate_args
 
-if [ ! -d $BENCHMARKLOG ]; then
+if [ ! -d "$BENCHMARKLOG" ]; then
       if ! `pip3 list | grep pandas` > /dev/null 2>&1; then
           pip3 install pandas
       fi
-      mkdir $BENCHMARKLOG
+      mkdir "$BENCHMARKLOG"
       hotsause_benchmark 2>&1 | tee benchmark.log/output.log 
       unset IFS
 else
-      mv $BENCHMARKLOG $CURRENTPATH/benchmark.bak_$TIMESTAMP
-      mkdir $BENCHMARKLOG
+      mv "$BENCHMARKLOG" "$CURRENTPATH"/benchmark.bak_"$TIMESTAMP"
+      mkdir "$BENCHMARKLOG"
       hotsause_benchmark 2>&1 | tee benchmark.log/output.log 
       unset IFS
 fi

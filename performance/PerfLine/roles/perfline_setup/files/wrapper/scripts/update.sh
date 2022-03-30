@@ -61,7 +61,7 @@ function prepare_env() {
     fi
 
     if [ ! -d "$CORTX_DIR" ]; then
-	mkdir -p $DOCKER_DIR
+	mkdir -p "$DOCKER_DIR"
 	pushd $DOCKER_DIR
 	git clone --recursive https://github.com/Seagate/cortx
 	popd
@@ -87,7 +87,7 @@ function check_version() {
     fi
 
     if [ -n "${UTILS_REPO}" ]; then
-	utils_ver=`git ls-remote $UTILS_REPO $UTILS_BRANCH | cut -f1 | cut -c1-8`
+	utils_ver=`git ls-remote $UTILS_REPO "$UTILS_BRANCH" | cut -f1 | cut -c1-8`
 
 	if [ -n "${utils_ver}" ]; then
 	    is_utils_same=`yum list installed | grep cortx-py | grep ${utils_ver}` || true
@@ -325,7 +325,7 @@ function stop_services() {
 
 function check_cluster_status() {
     local wait_period=0
-    while ! is_cluster_online $PRIMARY_NODE
+    while ! is_cluster_online "$PRIMARY_NODE"
     do
        wait_period=$(($wait_period+10))
        if [ $wait_period -gt 600 ];then

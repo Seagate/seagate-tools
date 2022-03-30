@@ -55,7 +55,7 @@ config_s3workloads() {
                     echo "workload_type=$workload_type" >> $workload_file
                     echo "run_time_in_seconds=$run_time_in_seconds" >> $workload_file
                     sh configure.sh
-                    sh run-test.sh --s3setup s3setup.properties --controller $HOSTNAME --workload $workload_file
+                    sh run-test.sh --s3setup s3setup.properties --controller "$HOSTNAME" --workload "$workload_file"
                     echo "System monitoring started"
                     system_monitoring $io_size $workload_file
                     echo "System monitoring stopped"
@@ -77,8 +77,8 @@ system_monitoring()
              then
                 break
              else
-                ./monitor_performance.sh $1 ~/cos/log/system.log cosbench $2
-                sleep $SAMPLE
+                ./monitor_performance.sh "$1" ~/cos/log/system.log cosbench "$2"
+                sleep "$SAMPLE"
              fi
          
          elif tail -n 1 ~/cos/log/system.log | grep "dispose" > /dev/null 2>&1;
@@ -91,7 +91,7 @@ system_monitoring()
 }
 
 
-while [ ! -z $1 ]; do
+while [ ! -z "$1" ]; do
 
         case $1 in
         -nc)    shift
@@ -128,11 +128,11 @@ validate_args
 ./installCosbench.sh `hostname`
 #
 if [ ! -d $LOG ]; then
-      mkdir $LOG
+      mkdir "$LOG"
       config_s3workloads
       
 else
-      mv $LOG $CURRENT_PATH/benchmark.bak_$TIMESTAMP
+      mv :$LOG $CURRENT_PATH"/benchmark.bak_"$TIMESTAMP"
       mkdir $LOG
       config_s3workloads
       

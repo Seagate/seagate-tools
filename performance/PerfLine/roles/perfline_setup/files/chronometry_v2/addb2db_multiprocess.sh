@@ -154,8 +154,8 @@ function main()
     validate_args
     detect_cpu_nr
     create_temp_dir
-    calc_part_sizes $ADDB_DUMPS
-    start_working_processes $ADDB_DUMPS
+    calc_part_sizes "$ADDB_DUMPS"
+    start_working_processes "$ADDB_DUMPS"
     wait_for_completion
     merge_db_parts
     del_temp_dir

@@ -42,7 +42,7 @@ do
             bucket=$BUCKETNAME-$RANDOM
             aws s3 mb s3://$bucket
             value=$(echo "$SIZE_OF_OBJECTS" | sed -e 's/Kb//g' | sed -e 's/Mb//g' )
-            units=$(echo ${SIZE_OF_OBJECTS:(-2)})
+            units="$(echo ${SIZE_OF_OBJECTS:(-2)})"
             case "$units" in
                  Mb)   let 'value *= 1024 * 1024'  ;;
                  Kb)   let 'value *= 1024' ;;
@@ -58,11 +58,11 @@ do
             TIMESTAMP=`date +'%d-%m-%Y_%H:%M:%S'`
             MKDIR=$BENCHMARKLOG/$TIMESTAMP\_object_$SIZE_OF_OBJECTS\_numclient_$NO_OF_SAMPLES
 
-            mkdir $MKDIR
+            mkdir "$MKDIR"
           
             echo "$BINPATH/s3bench -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint $ENDPOINTS -numClients $NUMCLIENTS -numSamples $NO_OF_SAMPLES -objectSize $value -verbose > $MKDIR/s3bench_Numclients_$NUMCLIENTS\_NS_$NO_OF_SAMPLES\_size_$SIZE_OF_OBJECTS.log" 
 
-            $BINPATH/s3bench -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint $ENDPOINTS -numClients $NUMCLIENTS -numSamples $NO_OF_SAMPLES -objectSize $value -verbose > $MKDIR/s3bench_Numclients_$NUMCLIENTS\_NS_$NO_OF_SAMPLES\_size_$SIZE_OF_OBJECTS.log 
+            "$BINPATH"/s3bench -accessKey="$ACCESS_KEY"  -accessSecret="$SECRET_KEY" -bucket="$bucket" -endpoint "$ENDPOINTS" -numClients "$NUMCLIENTS" -numSamples "$NO_OF_SAMPLES" -objectSize "$value" -verbose > $MKDIR/s3bench_Numclients_"$NUMCLIENTS"\_NS_"$NO_OF_SAMPLES"\_size_"$SIZE_OF_OBJECTS".log 
 
             aws s3 rb s3://$bucket
             echo "S3Benchmark is completed for object size : $SIZE_OF_OBJECTS"
@@ -76,7 +76,7 @@ echo 'Successfully completed'
 }
 
 
-while [ ! -z $1 ]; do
+while [ ! -z "$1" ]; do
         
         case $1 in
         -nc)     shift
@@ -99,15 +99,15 @@ while [ ! -z $1 ]; do
 done
 
 validate_args
-if [ ! -d $BENCHMARKLOG ]; then
+if [ ! -d "$BENCHMARKLOG" ]; then
       # installing pandas libraries required to generate report  
       pip3 install pandas
-      mkdir $BENCHMARKLOG
+      mkdir "$BENCHMARKLOG"
       s3benchmark
-      python3 s3benchReport.py $BENCHMARKLOG 
+      python3 s3benchReport.py "$BENCHMARKLOG" 
 else
-      mv $BENCHMARKLOG $CURRENTPATH/benchmark.bak_$TIMESTAMP
-      mkdir $BENCHMARKLOG
+      mv "$BENCHMARKLOG" "$CURRENTPATH"/benchmark.bak_"$TIMESTAMP"
+      mkdir "$BENCHMARKLOG"
       s3benchmark
-      python3 s3benchReport.py $BENCHMARKLOG
+      python3 s3benchReport.py "$BENCHMARKLOG"
 fi

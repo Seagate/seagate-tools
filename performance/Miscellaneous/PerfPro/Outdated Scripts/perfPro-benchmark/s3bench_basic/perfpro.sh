@@ -23,7 +23,7 @@ clients=100
 
 now=`date +%F-%T`
 
-/root/go/bin/s3bench_meta -accessKey=$aws_access_key_id -accessSecret=$aws_secret_access_key -bucket=s3benchbucket  -endpoint=https://s3.seagate.com -numClients=$clients -numSamples=$samples -objectNamePrefix=loadgen -objectSize=$objectSize  -verbose > /root/s3bench_log/$cwd/s3bench_log_$objectSize\_$now.log;
+/root/go/bin/s3bench_meta -accessKey="$aws_access_key_id" -accessSecret="$aws_secret_access_key" -bucket=s3benchbucket  -endpoint=https://s3.seagate.com -numClients="$clients" -numSamples="$samples" -objectNamePrefix=loadgen -objectSize="$objectSize"  -verbose > /root/s3bench_log/"$cwd"/s3bench_log_"$objectSize"\_"$now".log;
 sleep 10
 done
 

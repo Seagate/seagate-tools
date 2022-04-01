@@ -70,7 +70,7 @@ hotsause_benchmark()
 
                  mkdir -p "$TOOL_DIR"
                  mv "$CURRENTPATH"/*.json "$TOOL_DIR"/
-                 mv "$BENCHMARKLOG"/object_$size\_numsamples_"$sample"\_buckets_"$bucket"\_sessions_"$client"\_output.log "$TOOL_DIR"/
+                 mv "$BENCHMARKLOG"/object_"$size"\_numsamples_"$sample"\_buckets_"$bucket"\_sessions_"$client"\_output.log "$TOOL_DIR"/
                  sleep 1
                done 
            done
@@ -116,7 +116,7 @@ validate_args
 #
 ./installHSbench.sh
 #
-if [ ! -d $BENCHMARKLOG ]; then
+if [ ! -d "$BENCHMARKLOG" ]; then
     mkdir "$BENCHMARKLOG"
     hotsause_benchmark #2>&1 | tee $BENCHMARKLOG/output.log
     cp -r "$BENCHMARKLOG"/"$TOOL_NAME" "$RESULT_DIR"/    
@@ -126,7 +126,7 @@ else
     rm -rf "$BENCHMARKLOG"
     mkdir "$BENCHMARKLOG"
     hotsause_benchmark #2>&1 | tee $BENCHMARKLOG/output.log
-    cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/    
+    cp -r "$BENCHMARKLOG"/"$TOOL_NAME" "$RESULT_DIR"/    
     
 
 fi

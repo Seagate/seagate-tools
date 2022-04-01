@@ -42,7 +42,7 @@ do
             bucket=$BUCKETNAME-$RANDOM
             aws s3 mb s3://$bucket
             value=$(echo "$SIZE_OF_OBJECTS" | sed -e 's/Kb//g' | sed -e 's/Mb//g' )
-            units="$(echo ${SIZE_OF_OBJECTS:(-2)})"
+            units=$(echo "${SIZE_OF_OBJECTS:(-2)}")
             case "$units" in
                  Mb)   let 'value *= 1024 * 1024'  ;;
                  Kb)   let 'value *= 1024' ;;
@@ -62,7 +62,7 @@ do
           
             echo "$BINPATH/s3bench -accessKey=$ACCESS_KEY  -accessSecret=$SECRET_KEY -bucket=$bucket -endpoint $ENDPOINTS -numClients $NUMCLIENTS -numSamples $NO_OF_SAMPLES -objectSize $value -verbose > $MKDIR/s3bench_Numclients_$NUMCLIENTS\_NS_$NO_OF_SAMPLES\_size_$SIZE_OF_OBJECTS.log" 
 
-            "$BINPATH"/s3bench -accessKey="$ACCESS_KEY"  -accessSecret="$SECRET_KEY" -bucket="$bucket" -endpoint "$ENDPOINTS" -numClients "$NUMCLIENTS" -numSamples "$NO_OF_SAMPLES" -objectSize "$value" -verbose > $MKDIR/s3bench_Numclients_"$NUMCLIENTS"\_NS_"$NO_OF_SAMPLES"\_size_"$SIZE_OF_OBJECTS".log 
+            "$BINPATH"/s3bench -accessKey="$ACCESS_KEY"  -accessSecret="$SECRET_KEY" -bucket="$bucket" -endpoint "$ENDPOINTS" -numClients "$NUMCLIENTS" -numSamples "$NO_OF_SAMPLES" -objectSize "$value" -verbose > "$MKDIR"/s3bench_Numclients_"$NUMCLIENTS"\_NS_"$NO_OF_SAMPLES"\_size_"$SIZE_OF_OBJECTS".log 
 
             aws s3 rb s3://$bucket
             echo "S3Benchmark is completed for object size : $SIZE_OF_OBJECTS"

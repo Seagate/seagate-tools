@@ -118,7 +118,7 @@ else
       config_s3workloads
       for i in `cat benchmark.log/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' '`;
       do
-          cp -r ~/cos/archive/$i* benchmark.log/;
+          cp -r ~/cos/archive/"$i"* benchmark.log/;
       done
      
 fi

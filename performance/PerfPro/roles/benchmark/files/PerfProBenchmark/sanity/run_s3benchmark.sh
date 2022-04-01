@@ -48,7 +48,7 @@ do
             bucket=$BUCKETNAME-$RANDOM
             aws s3 mb s3://$bucket
             value=$(echo "$SIZE_OF_OBJECTS" | sed -e 's/Kb//g' | sed -e 's/Mb//g' )
-            units="$(echo ${SIZE_OF_OBJECTS:(-2)})"
+            units=$(echo "${SIZE_OF_OBJECTS:(-2)}")
             case "$units" in
                  Mb)   let 'value *= 1024 * 1024'  ;;
                  Kb)   let 'value *= 1024' ;;

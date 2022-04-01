@@ -146,7 +146,7 @@ run_workload() {
   # Copy the workload file to conroller node
   scp "$workload_file_name" "$(whoami)"@"$CONTROLLER":/tmp
   # Run workload on controller
-  result="$(ssh root@$CONTROLLER "cd ~/cos; sh cli.sh submit /tmp/$workload_file_name")"
+  result=$(ssh root@"$CONTROLLER" "cd ~/cos; sh cli.sh submit /tmp/$workload_file_name")
   if [[ $result == "Accepted"* ]]; then
     printf "\n**** Successfully launched workload ****\n"
     echo "$result"

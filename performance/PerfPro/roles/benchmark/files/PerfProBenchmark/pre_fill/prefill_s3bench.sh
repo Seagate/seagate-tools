@@ -44,7 +44,7 @@ do
             bucket=$BUCKETNAME-$RANDOM
             aws s3 mb s3://$bucket
             value=$(echo "$SIZE_OF_OBJECTS" | sed -e 's/Kb//g' | sed -e 's/Mb//g' )
-            units="$(echo ${SIZE_OF_OBJECTS:(-2)})"
+            units=$(echo "${SIZE_OF_OBJECTS:(-2)}")
             case "$units" in
                  Mb)   let 'value *= 1024 * 1024'  ;;
                  Kb)   let 'value *= 1024' ;;
@@ -114,19 +114,19 @@ done
 validate_args
 
 if [ ! -d $BENCHMARKLOG ]; then
-     mkdir -p $BENCHMARKLOG
+     mkdir -p "$BENCHMARKLOG"
      s3benchmark
      sleep 20
      mkdir -p "$RESULT_DIR"/
      cp -r "$BENCHMARKLOG"/"$TOOL_NAME" "$RESULT_DIR"/
 
 else
-#     rm -rf $BENCHMARKLOG
-     mkdir -p $BENCHMARKLOG
+#     rm -rf "$BENCHMARKLOG"
+     mkdir -p "$BENCHMARKLOG"
      s3benchmark
      sleep 20
-     mkdir -p $RESULT_DIR/
-     cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/
+     mkdir -p "$RESULT_DIR"/
+     cp -r "$BENCHMARKLOG"/"$TOOL_NAME" "$RESULT_DIR"/
 
 fi
 

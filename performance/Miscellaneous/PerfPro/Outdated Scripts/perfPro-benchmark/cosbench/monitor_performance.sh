@@ -20,7 +20,7 @@ then
         Th=`expr "$Th_value * $OBJECT_SIZE" | bc -l`
         value=`printf "%.2f" "$(echo "$Th" | bc -l)"`
         Latency=$(echo "$line" | cut -f 12 -d ',' | cut -d ":" -f2 )
-        Lat=`printf "%.2f" "$(echo $Th | bc -l)"`
+        Lat=`printf "%.2f" "$(echo "$Th" | bc -l)"`
         size=$OBJECT_SIZE\Mb
         ops1=${ops1^}
         update_value_1="Latency,host=`hostname`,operation=$ops1,Obj_size=$size,Benchmark_Type=$BENCHMARK,region=us-west value=$Lat"
@@ -37,7 +37,7 @@ then
         IOPS=$(echo "$line" | cut -f 23 -d ',' | cut -d ":" -f2 )
         Th_value=$(echo "$line" | cut -f 23 -d ',' | cut -d ":" -f2 )
         Th=`expr "$Th_value * $OBJECT_SIZE" | bc -l`
-        value=`printf "%.2f" $(echo $Th | bc -l)`
+        value=`printf "%.2f" "$(echo "$Th" | bc -l)"`
         Latency=$(echo "$line" | cut -f 26 -d ',' | cut -d ":" -f2 )
         Lat=`printf "%.2f" "$(echo "$Latency" | bc -l)"`
         size=$OBJECT_SIZE\Mb

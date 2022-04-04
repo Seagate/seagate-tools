@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Main file for REST API application."""
+"""Schemas to consider while coding."""
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
@@ -17,17 +17,10 @@
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 
-from flask import Flask
-from werkzeug.middleware.proxy_fix import ProxyFix
 
-from rest_app import api
-from flask_cors import CORS
-
-app = Flask(__name__)
-app.wsgi_app = ProxyFix(app.wsgi_app)
-CORS(app)
-
-api.init_app(app)
-
-# app.run(host='0.0.0.0', debug=False, port="5050")
-app.run(debug=False, port="5050")
+results_format = {
+    "value": {},
+    "baseline": {},
+    "diff": {},
+    "deviation": {}
+}

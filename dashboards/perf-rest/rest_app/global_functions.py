@@ -19,8 +19,25 @@
 #
 
 def convert_objectids(results):
+    """Converting ObjectID datatype to string."""
     results["_id"] = str(results["_id"])
     if "run_ID" in results:
         results["run_ID"] = str(results["run_ID"])
     if "Config_ID" in results:
         results["Config_ID"] = str(results["Config_ID"])
+
+
+def covert_query_to_readable(**kwargs):
+    """Converting query to another form."""
+    input_vals = {}
+    major_repos = ["motr", "rgw", "hare"]
+    for repo in major_repos:
+        repo_pair = dict(kwargs["Commit_ID"][kwargs["Repository"].index(
+            kwargs[f"{repo}_repository"])])
+        input_vals[repo] = {
+            "repository": kwargs[f"{repo}_repository"],
+            "branch": list(repo_pair.keys())[0],
+            "commit": list(repo_pair.values())[0]
+        }
+
+    return input_vals

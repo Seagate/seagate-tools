@@ -25,7 +25,7 @@ RESULT_DIR=/root/PerfProBenchmark/perfpro_build$BUILD/results
 
 validate_args() {
 
-        if [ -z $no_of_buckets ] || [ -z $no_of_objects ] || [ -z $object_size ] || [ -z $no_of_workers ] || [ -z $workload_type ] || [ -z $run_time_in_seconds ]
+        if [ -z "$no_of_buckets" ] || [ -z "$no_of_objects" ] || [ -z "$object_size" ] || [ -z "$no_of_workers" ] || [ -z "$workload_type" ] || [ -z "$run_time_in_seconds" ]
         then
                 show_usage
         fi
@@ -54,25 +54,25 @@ config_s3workloads() {
                for io_size in ${object_size//,/ }
                do
                     TOOL_DIR=$BENCHMARKLOG/$TOOL_NAME/numclients_$clients/buckets_$bucket/$io_size
-                    mkdir -p $TOOL_DIR
+                    mkdir -p "$TOOL_DIR"
                     workload_file=$TOOL_DIR/workloads_workers_$clients\_sample_$sample\_size_$io_size
                     size=$(echo "$io_size" | sed 's/[a-zA-Z]//g' )
                     obj_type=$(echo "$io_size" | sed 's/[0-9]*//g' | sed 's/b/B/g' )
-                    echo "no_of_workers=$clients" > $workload_file
-                    echo "no_of_objects=$sample" >> $workload_file
-                    echo "type_of_object_MB_or_KB=$obj_type" >> $workload_file
-                    echo "object_size=$size" >> $workload_file
-                    echo "no_of_buckets=$bucket" >> $workload_file
-                    echo "workload_type=$workload_type" >> $workload_file
-                    echo "run_time_in_seconds=$run_time_in_seconds" >> $workload_file                    
+                    echo "no_of_workers=$clients" > "$workload_file"
+                    echo "no_of_objects=$sample" >> "$workload_file"
+                    echo "type_of_object_MB_or_KB=$obj_type" >> "$workload_file"
+                    echo "object_size=$size" >> "$workload_file"
+                    echo "no_of_buckets=$bucket" >> "$workload_file"
+                    echo "workload_type=$workload_type" >> "$workload_file"
+                    echo "run_time_in_seconds=$run_time_in_seconds" >> "$workload_file"                   
                     sh configure.sh "$ENDPOINTS"
-                    sh run-test.sh --s3setup s3setup.properties --controller $HOSTNAME --workload $workload_file >> $TOOL_DIR/workloads 
-                    check_completion `tail -n 3 $TOOL_DIR/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' '`
+                    sh run-test.sh --s3setup s3setup.properties --controller "$HOSTNAME" --workload "$workload_file" >> "$TOOL_DIR"/workloads 
+                    check_completion `tail -n 3 "$TOOL_DIR"/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' '`
                     echo "Cosbench Triggered for worker: $clients sample: $sample obj_size:$io_size bucket:$bucket"
                     sleep 20
-                    for i in `cat $TOOL_DIR/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' '`; 
+                    for i in `cat "$TOOL_DIR"/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' '`; 
                     do 
-                      cp -r ~/cos/archive/$i* $TOOL_DIR/;
+                      cp -r ~/cos/archive/$i* "$TOOL_DIR"/;
                     done
                     
                     
@@ -85,7 +85,7 @@ config_s3workloads() {
 check_completion() {
     while [ true ]
     do
-         if [ -d /root/cos/archive/$1* ]
+         if [ -d /root/cos/archive/"$1"* ]
          then
              break
          fi
@@ -94,7 +94,7 @@ check_completion() {
 }
 
 
-while [ ! -z $1 ]; do
+while [ ! -z "$1" ]; do
 
         case $1 in
         -nc)    shift
@@ -130,13 +130,13 @@ validate_args
 #
 ./installCosbench.sh `hostname`
 #
-if [ ! -d $BENCHMARKLOG ]; then
-    mkdir $BENCHMARKLOG
+if [ ! -d "$BENCHMARKLOG" ]; then
+    mkdir "$BENCHMARKLOG'
     config_s3workloads
-    cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/   
+    cp -r "$BENCHMARKLOG"/"$TOOL_NAME" "$RESULT_DIR"/   
 else
-    rm -rf $BENCHMARKLOG
-    mkdir $BENCHMARKLOG
+    rm -rf "$BENCHMARKLOG"
+    mkdir "$BENCHMARKLOG"
     config_s3workloads
-    cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/  
+    cp -r "$BENCHMARKLOG"/"$TOOL_NAME" "$RESULT_DIR"/  
 fi

@@ -46,14 +46,14 @@ config_s3workloads() {
                do
                     workload_file=$LOG/workloads_workers_$clients\_sample_$sample\_size_$io_size
                     size=$(echo "$io_size" | tr -d 'Mb')
-                    echo "no_of_workers=$clients" > $workload_file
-                    echo "no_of_objects=$sample" >> $workload_file
-                    echo "object_size_in_mb=$size" >> $workload_file
-                    echo "no_of_buckets=$no_of_buckets" >> $workload_file
-                    echo "workload_type=$workload_type" >> $workload_file
-                    echo "run_time_in_seconds=$run_time_in_seconds" >> $workload_file
+                    echo "no_of_workers=$clients" > "$workload_file"
+                    echo "no_of_objects=$sample" >> "$workload_file"
+                    echo "object_size_in_mb=$size" >> "$workload_file"
+                    echo "no_of_buckets=$no_of_buckets" >> "$workload_file"
+                    echo "workload_type=$workload_type" >> "$workload_file"
+                    echo "run_time_in_seconds=$run_time_in_seconds" >> "$workload_file"
                     sh configure.sh
-                    sh run-test.sh --s3setup s3setup.properties --controller $HOSTNAME --workload $workload_file >> benchmark.log/workloads
+                    sh run-test.sh --s3setup s3setup.properties --controller "$HOSTNAME" --workload "$workload_file" >> benchmark.log/workloads
                     check_completion
                     echo "Cosbench Triggered for worker: $clients sample: $sample obj_size:$size"
                     
@@ -75,7 +75,7 @@ check_completion() {
 }
 
 
-while [ ! -z $1 ]; do
+while [ ! -z "$1" ]; do
 
         case $1 in
         -nc)    shift
@@ -105,20 +105,20 @@ done
 
 validate_args
 
-if [ ! -d $LOG ]; then
-      mkdir $LOG
+if [ ! -d "$LOG" ]; then
+      mkdir "$LOG"
       config_s3workloads
       for i in `cat benchmark.log/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' '`; 
       do 
-          cp -r ~/cos/archive/$i* benchmark.log/;
+          cp -r ~/cos/archive/"$i"* benchmark.log/;
       done      
 else
-      mv $LOG $CURRENT_PATH/benchmark.bak_$TIMESTAMP
-      mkdir $LOG
+      mv "$LOG" "$CURRENT_PATH"/benchmark.bak_"$TIMESTAMP"
+      mkdir "$LOG"
       config_s3workloads
       for i in `cat benchmark.log/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' '`;
       do
-          cp -r ~/cos/archive/$i* benchmark.log/;
+          cp -r ~/cos/archive/"$i"* benchmark.log/;
       done
      
 fi

@@ -26,7 +26,7 @@ from pymongo.errors import ServerSelectionTimeoutError, OperationFailure
 
 
 def pymongo_exception(func):
-    """Decorator for pymongo exceptions"""
+    """Decorator for pymongo exceptions."""
 
     def new_func(*args, **kwargs):
         try:
@@ -240,4 +240,34 @@ def aggregate(data: list,
         pymongo_db = client[db_name]
         tests = pymongo_db[collection]
         result = tests.aggregate(data)
+        return True, result
+
+
+@pymongo_exception
+def get_highest_value_document(query: dict,
+                   field: str,
+                   projection: dict,
+                   uri: str,
+                   db_name: str,
+                   collection: str
+                   ) -> Union[bool, str]:
+    """
+    Return highest value for given field in mongodb records
+
+    Args:
+        query: Query to be searched in MongoDB
+        field: key of to find max value for
+        projection: Fields to be returned
+        uri: URI of MongoDB database
+        db_name: Database name
+        collection: Collection name in database
+
+    Returns:
+        On failure returns http status code and message
+        On success returns documents
+    """
+    with MongoClient(uri) as client:
+        pymongo_db = client[db_name]
+        tests = pymongo_db[collection]
+        result = tests.find(query, projection).sort([(field, -1)]).limit(1)
         return True, result

@@ -1,6 +1,6 @@
 MongoDB:
-  db_hostname: 
-  db_name: performance_db
+  db_hostname:
+  db_name:
   results_collection: results_2
 
 Sanity:

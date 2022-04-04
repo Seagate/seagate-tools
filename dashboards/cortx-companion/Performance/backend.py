@@ -333,7 +333,7 @@ def get_benchmark_data(data_needed_for_query):  # pylint: disable=too-many-branc
             "avg_lat_avg": {"$avg": "$Latency.Avg"},
             "run_state": { "$addToSet": "$Run_State"},
             "avg_ttfb_avg": {"$avg": "$TTFB.Avg"},
-            "avg_ttfb_99p": {"$avg": "$TTFB.Avg"},
+            "avg_ttfb_99p": {"$avg": "$TTFB.99p"},
             }
 
         cursor = get_aggregate(query=query, group_query=group_query, uri=uri, db_name=db_name,

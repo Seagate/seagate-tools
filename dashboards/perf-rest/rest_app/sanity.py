@@ -64,12 +64,12 @@ class throughput(Resource):
             base_query = {'Baseline': base_index,
                  "Sessions": read_config.sanity_sessions, 'Object_Size': obj}
             sanityapi.read_write_routine(
-                uri=uri, query=value_query, metrix='Throughput', obj=obj, 
-                temp_read=results['read']['value'], 
+                uri=uri, query=value_query, metrix='Throughput', obj=obj,
+                temp_read=results['read']['value'],
                 temp_write=results['write']['value'])
             sanityapi.read_write_routine(
-                uri=uri, query=base_query, metrix='Throughput', obj=obj, 
-                temp_read=results['read']['baseline'], 
+                uri=uri, query=base_query, metrix='Throughput', obj=obj,
+                temp_read=results['read']['baseline'],
                 temp_write=results['write']['baseline'])
 
             results['read']['diff'][obj] = results['read']['value'][obj] - \
@@ -93,7 +93,7 @@ class throughput(Resource):
 @api.response(403, "Forbidden: User does not have permission for operation.")
 @api.response(404, "Not Found: No entry for that query in MongoDB.")
 @api.response(503, "Service Unavailable: Unable to connect to mongoDB.")
-class throughput(Resource):
+class iops(Resource):
     """Sanity iops endpoint"""
     @staticmethod
     def get():
@@ -122,12 +122,12 @@ class throughput(Resource):
             base_query = {'Baseline': base_index,
                  "Sessions": read_config.sanity_sessions, 'Object_Size': obj}
             sanityapi.read_write_routine(
-                uri=uri, query=value_query, metrix='IOPS', obj=obj, 
-                temp_read=results['read']['value'], 
+                uri=uri, query=value_query, metrix='IOPS', obj=obj,
+                temp_read=results['read']['value'],
                 temp_write=results['write']['value'])
             sanityapi.read_write_routine(
-                uri=uri, query=base_query, metrix='IOPS', obj=obj, 
-                temp_read=results['read']['baseline'], 
+                uri=uri, query=base_query, metrix='IOPS', obj=obj,
+                temp_read=results['read']['baseline'],
                 temp_write=results['write']['baseline'])
 
             results['read']['diff'][obj] = results['read']['value'][obj] - \
@@ -152,7 +152,7 @@ class throughput(Resource):
 @api.response(403, "Forbidden: User does not have permission for operation.")
 @api.response(404, "Not Found: No entry for that query in MongoDB.")
 @api.response(503, "Service Unavailable: Unable to connect to mongoDB.")
-class throughput(Resource):
+class latency(Resource):
     """Sanity latency endpoint"""
     @staticmethod
     def get():
@@ -181,12 +181,12 @@ class throughput(Resource):
             base_query = {'Baseline': base_index,
                  "Sessions": read_config.sanity_sessions, 'Object_Size': obj}
             sanityapi.read_write_routine(
-                uri=uri, query=value_query, metrix='IOPS', param='Avg', obj=obj, 
-                temp_read=results['read']['value'], 
+                uri=uri, query=value_query, metrix='IOPS', param='Avg', obj=obj,
+                temp_read=results['read']['value'],
                 temp_write=results['write']['value'])
             sanityapi.read_write_routine(
-                uri=uri, query=base_query, metrix='IOPS', param='Avg', obj=obj, 
-                temp_read=results['read']['baseline'], 
+                uri=uri, query=base_query, metrix='IOPS', param='Avg', obj=obj,
+                temp_read=results['read']['baseline'],
                 temp_write=results['write']['baseline'])
 
             results['read']['diff'][obj] = results['read']['value'][obj] - \
@@ -211,7 +211,7 @@ class throughput(Resource):
 @api.response(403, "Forbidden: User does not have permission for operation.")
 @api.response(404, "Not Found: No entry for that query in MongoDB.")
 @api.response(503, "Service Unavailable: Unable to connect to mongoDB.")
-class throughput(Resource):
+class ttfb(Resource):
     """Sanity TTFB endpoint"""
     @staticmethod
     def get():
@@ -240,12 +240,12 @@ class throughput(Resource):
             base_query = {'Baseline': base_index,
                  "Sessions": read_config.sanity_sessions, 'Object_Size': obj}
             sanityapi.read_write_routine_for_ttfb(
-                uri=uri, query=value_query, metrix='TTFB', obj=obj, 
-                temp_read=results['read']['value'], 
+                uri=uri, query=value_query, metrix='TTFB', obj=obj,
+                temp_read=results['read']['value'],
                 temp_write=results['write']['value'])
             sanityapi.read_write_routine_for_ttfb(
-                uri=uri, query=base_query, metrix='TTFB', obj=obj, 
-                temp_read=results['read']['baseline'], 
+                uri=uri, query=base_query, metrix='TTFB', obj=obj,
+                temp_read=results['read']['baseline'],
                 temp_write=results['write']['baseline'])
 
             results['read']['diff'][obj] = results['read']['value'][obj] - \

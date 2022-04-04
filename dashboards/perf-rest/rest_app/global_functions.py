@@ -26,7 +26,7 @@ def convert_objectids(results):
     if "Config_ID" in results:
         results["Config_ID"] = str(results["Config_ID"])
 
-    
+
 def covert_query_to_readable(**kwargs):
     """Converting query to another form."""
     input_vals = {}
@@ -36,8 +36,8 @@ def covert_query_to_readable(**kwargs):
             kwargs[f"{repo}_repository"])])
         input_vals[repo] = {
             "repository": kwargs[f"{repo}_repository"],
-            "branch": list(repo_pair.keys())[0], 
+            "branch": list(repo_pair.keys())[0],
             "commit": list(repo_pair.values())[0]
         }
-    
+
     return input_vals

@@ -30,4 +30,4 @@ CORS(app)
 api.init_app(app)
 
 # app.run(debug=False, port="5050")
-app.run(host="0.0.0.0", debug=False, port="5050")
+app.run(debug=False, port="5050")

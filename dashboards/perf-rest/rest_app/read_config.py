@@ -19,24 +19,27 @@
 #
 """Read config file for database."""
 
-import configparser
+import yaml
 import sys
 
-config = configparser.ConfigParser()
-config.read('config.ini')
-try:
-    db_hostname = config["MongoDB"]["db_hostname"]
-    db_name = config["MongoDB"]["db_name"]
-    results_collection = config["MongoDB"]["results_collection"]
+with open("config.yml") as file:
+    config = yaml.load(file, Loader=yaml.SafeLoader)
+    try:
+        db_hostname = config["MongoDB"]["db_hostname"]
+        db_name = config["MongoDB"]["db_name"]
+        results_collection = config["MongoDB"]["results_collection"]
 
-    sanity_config = config["Sanity"]["config"]
-    sanity_run_details = config["Sanity"]["run_details"]
-    sanity_results = config["Sanity"]["results"]
+        sanity_config = config["Sanity"]["database"]["config"]
+        sanity_run_details = config["Sanity"]["database"]["run_details"]
+        sanity_results = config["Sanity"]["database"]["results"]
 
-    db_username = config["Authentication"]["db_username"]
-    db_password = config["Authentication"]["db_password"]
-except KeyError:
-    print("Could not start REST server. Please verify config.ini file")
-    sys.exit(1)
+        sanity_obj_sizes = config["Sanity"]["workload"]["primary"]["object_sizes"]
+        sanity_sessions = config["Sanity"]["workload"]["primary"]["sessions"]
+
+        db_username = config["Authentication"]["db_username"]
+        db_password = config["Authentication"]["db_password"]
+    except KeyError:
+        print("Could not start REST server. Please verify config.ini file")
+        sys.exit(1)
 
 mongodb_uri = "mongodb://{0}:{1}@{2}"

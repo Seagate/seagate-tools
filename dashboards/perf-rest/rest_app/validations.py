@@ -64,10 +64,15 @@ def validate_search_fields(json_data: dict) -> Union[bool, tuple]:
     if "projection" in json_data and not isinstance(json_data["projection"], dict):
         return False, (HTTPStatus.BAD_REQUEST,
                        "Please provide projection keys as dictionary")
-    # for key in json_data["query"]:
-    #     if key not in db_keys and key not in extra_db_keys and key not in mongodb_operators:
-    #         return False, (HTTPStatus.BAD_REQUEST,
-    #                        f"{key} is not correct db field")
+    return True, None
+
+def validate_sanity_fields(json_data: dict) -> Union[bool, tuple]:
+    """Validate search fields"""
+    if "query" not in json_data:
+        return False, (HTTPStatus.BAD_REQUEST, "Please provide query key")
+    if not isinstance(json_data["query"], dict):
+        return False, (HTTPStatus.BAD_REQUEST,
+                       "Please provide query key as dictionary")
     return True, None
 
 

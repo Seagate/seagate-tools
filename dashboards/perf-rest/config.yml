@@ -1,0 +1,22 @@
+MongoDB:
+  db_hostname: 
+  db_name: performance_db
+  results_collection: results_2
+
+Sanity:
+  database:
+    results: sanity_results
+    config: sanity_config
+    run_details: sanity_run_details
+
+  workload:
+    primary:
+      object_sizes: ["256KB", "16MB", "128MB"]
+      sessions: 300
+    secondary:
+      object_sizes: ["128MB"]
+      sessions: 450
+
+Authentication:
+  db_username:
+  db_password:

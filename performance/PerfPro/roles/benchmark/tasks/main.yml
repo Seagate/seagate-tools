@@ -75,18 +75,18 @@
    with_items: "{{ groups['nodes'] }}"
    when: SYSTEM_STATS
 
- - name: Create S3 Account
-   command: python3 /root/PerfProBenchmark/s3account/create_s3user.py "{{ hostvars['srvnode-1']['ansible_host'] }}"
-   register: resp
-   delegate_to: "clientnode-1"
-
- - name: Configure S3 Credentials
-   vars:
-      cred: "{{ (resp.stdout | from_json) }}"
-   command: python3 /root/PerfProBenchmark/s3account/update_credentials.py '{{ cred.access }}' '{{ cred.secret }}'
-   delegate_to: "{{ item }}"
-   with_items: "{{ groups['clients'] }}"
-   when: cred.status == 201
+# - name: Create S3 Account
+#   command: python3 /root/PerfProBenchmark/s3account/create_s3user.py "{{ hostvars['srvnode-1']['ansible_host'] }}"
+#   register: resp
+#   delegate_to: "clientnode-1"
+#
+# - name: Configure S3 Credentials
+#   vars:
+#      cred: "{{ (resp.stdout | from_json) }}"
+#   command: python3 /root/PerfProBenchmark/s3account/update_credentials.py '{{ cred.access }}' '{{ cred.secret }}'
+#   delegate_to: "{{ item }}"
+#   with_items: "{{ groups['clients'] }}"
+#   when: cred.status == 201
 
  - name: Make an entry for config.yml on a database
    command: python3 /root/PerfProBenchmark/addconfiguration.py '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'

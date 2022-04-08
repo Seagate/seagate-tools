@@ -11,6 +11,9 @@ $ ansible-playbook perfpro.yml -i inventories/hosts -v
 ## or simply execute run.sh
 $ run.sh
 
+## For Sanity PerfPro execution run either of the following: 
+$ ansible-playbook perfpro.yml -i inventories/hosts --extra-vars '{ "EXECUTION_TYPE" : "sanity" ,"REPOSITORY":{"motr":"cortx-motr","rgw":"cortx-rgw"} , "COMMIT_ID": { "main" : "d1234c" , "dev" : "a5678b"},"PR_ID" : "cortx-rgw/1234" , "USER":"Username","GID" : "1234" }' -v
+
 ## User Guide
 https://seagate-systems.atlassian.net/wiki/spaces/PRIVATECOR/pages/339117894/PerfPro#User-Guide
 

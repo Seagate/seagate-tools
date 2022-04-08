@@ -1,0 +1,27 @@
+---
+ - name: "[S3Bench] Preaparing Cluster Node List"
+   set_fact: nodelist={%for host in groups['nodes']%}{{hostvars[host]['ansible_host']}}{% if not loop.last %},{% endif %}{% endfor %}
+
+ - name: "Importing configuration"
+   include_vars: s3config.yml
+
+ - name: "[S3Bench] Preparing Configuration for sanity low load"
+   vars:
+      runconfig:
+         nodelist: "{{ nodelist }}"
+         numclients: "{{ item[0] }}"
+         objsize: "{{ item[1].objsize }}"
+         numsamples: "{{ item[1].numsamples }}"
+   include_tasks: execute_sanity_s3bench.yml
+   loop: "{{ sanity_low_load.sessions|product(sanity_low_load.objs)|list }}"
+
+ - name: "[S3Bench] Preparing Configuration for sanity high load"
+   vars:
+      runconfig:
+         nodelist: "{{ nodelist }}"
+         numclients: "{{ item[0] }}"
+         objsize: "{{ item[1].objsize }}"
+         numsamples: "{{ item[1].numsamples }}"
+   include_tasks: execute_sanity_s3bench.yml
+   loop: "{{ sanity_high_load.sessions|product(sanity_high_load.objs)|list }}"
+

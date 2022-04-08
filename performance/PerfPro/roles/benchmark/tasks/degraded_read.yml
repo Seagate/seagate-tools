@@ -31,20 +31,46 @@
      hsb_var: "'lg'"
      cluster_state: "'normal-read'"
 
+# Fail the node using k8s
+ - name: "deleting the pod using K8s to degrade the cluster"
+   shell: /root/PerfProBenchmark/degraded_read/k8_pod_handler.sh down
+   delegate_to: "srvnode-1"
 
-#Fail the node
-
- - name: "Loading config from another role"
-   include_vars:
-      file: "{{ role_path }}/../perfpro_deployment/vars/config.yml"
-      name: config
-
- - name: "Stopping node to bring cluster into degraded state"
-   shell: python3 /root/PerfProBenchmark/degraded_read/node_stop.py {{ config['MGMT_VIP']  }}  {{ groups['nodes'] | length }}
-   delegate_to: "{{ groups['clients'][0] }}"
-
- - name: "Waiting for node to stop and cluster get into degraded mode"
+ - name: "Waiting for pod to stop and cluster get into degraded mode"
    shell: sleep 30
+
+
+# This integration is not working right now, keeping for future use
+# Copy Solution.yml file to PerfProBenchmark directory from deploy scripts directory
+# - name: "Copy solution.yml file of cluster to PerfProBenchmark"
+#   shell: cp /root/deploy-scripts/k8_cortx_cloud/solution.yaml /root/PerfProBenchmark/degraded_read/pods_status/
+#   delegate_to: "srvnode-1"
+
+# This integration is not working right now, keeping for future use
+# Checking state of cluster
+# - name: "Waiting until cluster state is in degraded mode"
+#   shell: /root/PerfProBenchmark/degraded_read/pods_status/pods_status.sh
+#   register: is_cluster_degraded
+#   until: is_cluster_degraded == "FAILED"
+#   retries: 10
+#   delay: 5
+#   delegate_to: "srvnode-1"
+
+
+
+# APIs based method,keeping this method for future use
+#Fail the node
+# - name: "Loading config from another role"
+#   include_vars:
+#      file: "{{ role_path }}/../perfpro_deployment/vars/config.yml"
+#      name: config
+
+# - name: "Stopping node to bring cluster into degraded state"
+#   shell: python3 /root/PerfProBenchmark/degraded_read/node_stop.py {{ config['MGMT_VIP']  }}  {{ groups['nodes'] | length }}
+#   delegate_to: "{{ groups['clients'][0] }}"
+
+# - name: "Waiting for node to stop and cluster get into degraded mode"
+#   shell: sleep 30
 
 #collect read stats
 
@@ -60,14 +86,36 @@
      hsb_var: "'lg'"
      cluster_state: "'degraded-read'"
 
+# Booting the failed node using K8s
+ - name: "creating the pod using K8s to degrade the cluster"
+   shell: /root/PerfProBenchmark/degraded_read/k8_pod_handler.sh up
+   delegate_to: "srvnode-1"
+
+
+ - name: "Waiting for pod to stop and cluster get into degraded mode"
+   shell: sleep 30
+
+# This integration is not working right now, keeping for future use
+# Checking state of cluster
+# - name: "Waiting until cluster state is in normal mode"
+#   shell: /root/PerfProBenchmark/degraded_read/pods_status/pods_status.sh
+#   register: is_cluster_degraded
+#   until: is_cluster_degraded == "PASSED"
+#   retries: 10
+#   delay: 5
+#   delegate_to: "srvnode-1"
+
+
+
+# APIs based method, keeping this method for future use
 #Boot the failed node
 
- - name: "Starting node to bring degraded cluster back  into healthy state"
-   shell: python3 /root/PerfProBenchmark/degraded_read/node_start.py {{ config['MGMT_VIP']  }}  {{ groups['nodes'] | length }}
-   delegate_to: "{{ groups['clients'][0] }}"
+# - name: "Starting node to bring degraded cluster back  into healthy state"
+#   shell: python3 /root/PerfProBenchmark/degraded_read/node_start.py {{ config['MGMT_VIP']  }}  {{ groups['nodes'] | length }}
+#   delegate_to: "{{ groups['clients'][0] }}"
 
- - name: "Waiting for node to start and join cluster"
-   shell: sleep 30
+# - name: "Waiting for node to start and join cluster"
+#   shell: sleep 30
 
 
 #Collect read starts after cluster is recovered and cleanup

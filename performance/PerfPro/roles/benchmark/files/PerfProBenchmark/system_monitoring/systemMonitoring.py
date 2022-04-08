@@ -28,6 +28,7 @@ Config_path = sys.argv[2]
 Object_Size = sys.argv[3]
 Name = sys.argv[4]
 
+
 """
 hostname = socket.gethostname()
 backupfile = hostname+"_sar.json"
@@ -57,6 +58,9 @@ def makeconfig(name):  #function for connecting with configuration file
 configs_config = makeconfig(Config_path)  # getting instance  of config file
 
 build_url=configs_config.get('BUILD_URL')
+overwrite=configs_config.get('OVERWRITE')
+custom=configs_config.get('CUSTOM')
+solution=configs_config.get('SOLUTION')
 
 def get_release_info(variable):
     release_info= urllib.request.urlopen(build_url+'RELEASE.INFO')
@@ -66,41 +70,94 @@ def get_release_info(variable):
             strip_strinfo=re.split(': ',strinfo)
             return(strip_strinfo[1])
 
+Build=get_release_info('BUILD')
+Build=Build[1:-1]
 
 
 def makeconnection(collection):  #function for making connection with database
     configs = makeconfig(Main_path)
     client = MongoClient(configs['db_url'])  #connecting with mongodb database
     db=client[configs['db_database']]  #database name=performance
-    Version=get_release_info('VERSION')
-    Version=Version[1:-1]
-    col_stats=configs.get('R'+Version[0])[collection]
-    col=db[col_stats]  #collection name = systemresults
+    if solution.upper() == 'LC':
+        col_stats=configs.get('LC')[collection]
+    elif solution.upper() == 'LR':
+        col_stats=configs.get('LR')[collection]
+    elif solution.upper() == 'LEGACY':
+       Version=get_release_info('VERSION')
+       Version=Version[1:-1]
+       col_stats=configs.get('R'+Version[0])[collection]
+    else:
+        print("Error! Can not find suitable collection to upload data")
+    col=db[col_stats]  #collection name = configurations
     return col
 
 def getconfig():
-    build_url=configs_config.get('BUILD_URL')
     nodes_list=configs_config.get('NODES')
     clients_list=configs_config.get('CLIENTS')
+    build_url=configs_config.get('BUILD_URL')
+    execution_type=configs_config.get('EXECUTION_TYPE')
+    cluster_pass=configs_config.get('CLUSTER_PASS')
+    solution=configs_config.get('SOLUTION')
+    end_points=configs_config.get('END_POINTS')
+    system_stats=configs_config.get('SYSTEM_STATS')
     pc_full=configs_config.get('PC_FULL')
     custom=configs_config.get('CUSTOM')
     overwrite=configs_config.get('OVERWRITE')
-    iteration=configs_config.get('ITERATION')
-    cluster_pass=configs_config.get('CLUSTER_PASS')
-    change_pass=configs_config.get('CHANGE_PASS')
-    prv_cli=configs_config.get('PRVSNR_CLI_REPO')
-    prereq_url=configs_config.get('PREREQ_URL')
-    srv_usr=configs_config.get('SERVICE_USER')
-    srv_pass=configs_config.get('SERVICE_PASS')
+    degraded_IO=configs_config.get('DEGRADED_IO')
+    copy_object=configs_config.get('COPY_OBJECT')
     nfs_serv=configs_config.get('NFS_SERVER')
     nfs_exp=configs_config.get('NFS_EXPORT')
     nfs_mp=configs_config.get('NFS_MOUNT_POINT')
     nfs_fol=configs_config.get('NFS_FOLDER')
 
-    dict1={'NODES' :str(nodes_list) , 'CLIENTS' : str(clients_list) ,'BUILD_URL': build_url ,'CLUSTER_PASS': cluster_pass ,'CHANGE_PASS': change_pass ,'PRVSNR_CLI_REPO': prv_cli ,'PREREQ_URL': prereq_url ,'SERVICE_USER': srv_usr ,'SERVICE_PASS': srv_pass , 'PC_FULL': pc_full , 'CUSTOM': custom , 'OVERWRITE':overwrite , 'ITERATION': iteration,'NFS_SERVER': nfs_serv ,'NFS_EXPORT' : nfs_exp ,'NFS_MOUNT_POINT' : nfs_mp , 'NFS_FOLDER' : nfs_fol }
-    return (dict1)
+    nodes=[]
+    clients=[]
+
+    for i in range(len(nodes_list)):
+        nodes.append(nodes_list[i][i+1])
+
+    for i in range(len(clients_list)):
+        clients.append(clients_list[i][i+1])
+
+    dic1={
+        'NODES' :str(nodes) ,
+        'CLIENTS' : str(clients) ,
+        'BUILD_URL': build_url ,
+        'EXECUTION_TYPE': execution_type,
+        'CLUSTER_PASS': cluster_pass ,
+        'SOLUTION' : solution ,
+        'END_POINTS' : end_points ,
+        'SYSTEM_STATS' : system_stats ,
+        'PC_FULL' : pc_full ,
+        'CUSTOM' : custom ,
+        'OVERWRITE' : overwrite ,
+        'DEGRADED_IO' : degraded_IO ,
+        'COPY_OBJECT' : copy_object ,
+        'NFS_SERVER': nfs_serv ,
+        'NFS_EXPORT' : nfs_exp ,
+        'NFS_MOUNT_POINT' : nfs_mp ,
+        'NFS_FOLDER' : nfs_fol
+        }
+
+    return (dic1)
+
+
+##Function to find latest iteration
+def get_latest_iteration(query):
+    max = 0
+    col=makeconnection('db_collection')
+    cursor = col.find(query)
+    for record in cursor:
+        if max < record['Iteration']:
+            max = record['Iteration']
+    return max
+
+
 
 def adddata(data,device,col):
+    find_iteration = True
+    delete_data = True
+
     dict1 = getconfig()
     conf = makeconnection('config_collection')
     Config_ID = "NA"
@@ -114,18 +171,48 @@ def adddata(data,device,col):
         if value[0] !="":
             if value[2]!="DEV" and value[2]!="IFACE":
                 count=2
-                dic = {"Name": Name,"Object_Size": Object_Size,"Device":device,"Timestamp":datetime.now().strftime("%Y-%m-%d %H:%M:%S"),"Time":value[0],"HOST" : socket.gethostname(),"Config_ID":Config_ID}
+                primary_set = {
+                      "Name": Name , 
+                      "Build": str(Build), 
+                      "Custom": str(custom).upper() 
+                      }
+                dic = {
+                      "Object_Size": Object_Size,
+                      "Device":device,
+                      "Timestamp":datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                      "Time":value[0],
+                      "HOST" : socket.gethostname(),
+                      "Config_ID":Config_ID
+                      }
                 while count<length:
                     dic.update( {attr[count] : value[count]} ) # adding respective attribute and value pair in dictionary
                     count+=1
-                print(dic)
+                sysstats={}
+                sysstats.update(primary_set)
+                sysstats.update(dic)
                 try:
-                    col.insert_one(dic)  #inserting dictionary values in mongodb
+                    if find_iteration:
+                        iteration_number= get_latest_iteration(primary_set)
+                        find_iteration = False
+                    if iteration_number == 0:
+                        sysstats.update(Iteration=iteration_number+1)
+                    elif overwrite == True :
+                        primary_set.update(Iteration=iteration_number)
+                        primary_set.update(Object_Size=Object_Size)
+                        if delete_data and device == "CPU":
+                            col.delete_many(primary_set)
+                            delete_data = False
+                            print("'overwrite' is True in config. Hence, old DB entry deleted")
+                        sysstats.update(Iteration=iteration_number)
+                    else :
+                        sysstats.update(Iteration=iteration_number+1)
+                    print(sysstats)
+                    col.insert_one(sysstats)  #inserting dictionary values in mongodb
                 except Exception as e:
                     print("Unable to insert/update documents into database. Observed following exception:")
                     print(e)
-                else:
-                    print(dic)
+                #else:
+                #    print(dic)
 
 
 

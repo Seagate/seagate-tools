@@ -6,6 +6,10 @@ db_name: PerfPro
 db_user: perfpro 
 db_passwd: perfpro
 db_database: performance_db
+SANITY:
+  sanity_details_collection: sanity_run_details # stores sanity repo and user-specific details
+  sanity_config_collection: sanity_config # stores run specific configurations
+  sanity_dbcollection: sanity_results # stores performance metrics and record-specific data
 R1:
   db_collection: results_1
   sysstat_collection: systemresults_1
@@ -14,5 +18,13 @@ R2:
   db_collection: results_2
   sysstat_collection: systemresults_2
   config_collection: configurations_2
+LC:
+  db_collection: lc
+  sysstat_collection: lc_sys
+  config_collection: lc_config
+LR:
+  db_collection: lr
+  sysstat_collection: lr_sys
+  config_collection: lr_config
 db_url: mongodb://perfpro:PerfPro@cftic1.pun.seagate.com:27017,cftic2.pun.seagate.com:27017,apollojenkins.pun.seagate.com:27017/test?authSource=performance_db&replicaSet=rs0&readPreference=primary&appname=MongoDB%20Compass%20Community&ssl=false
 

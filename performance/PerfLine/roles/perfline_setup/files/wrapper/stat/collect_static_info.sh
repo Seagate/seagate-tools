@@ -2,7 +2,7 @@
 
 set -x
 
-SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 
 rm -rf /var/perfline/hw.$(hostname -s) || true

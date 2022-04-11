@@ -11,7 +11,7 @@ BUCKET_PREFIX=Seagate
 MAX_ATTEMPT=1				
 NO_OF_THREADS=""			
 NO_OF_OBJECTS=""			
-REGION=US				
+REGION=us-east-1
 #ENDPOINTS=https://s3.seagate.com		
 COUNT=0
 SIZE_OF_OBJECTS=""
@@ -66,12 +66,12 @@ hotsause_benchmark()
                  TOOL_DIR=$BENCHMARKLOG/$TOOL_NAME/numclients_$client/buckets_$bucket/$size
                  echo "$BENCHMARK_PATH/hsbench -a $ACCESS_KEY -s $SECRET_KEY -u $ENDPOINTS -z $obj_size -d $TEST_DURATION -t $client -b $bucket -n $sample -r $REGION -j $JSON_FILENAME"
 
-                 $BENCHMARK_PATH/hsbench -a $ACCESS_KEY -s $SECRET_KEY -u $ENDPOINTS -z $obj_size -d $TEST_DURATION -t $client -b $bucket -n $sample -r $REGION -j $JSON_FILENAME 2>&1 | tee $BENCHMARKLOG/object_$size\_numsamples_$sample\_buckets_$bucket\_sessions_$client\_output.log
+                 "$BENCHMARK_PATH"/hsbench -a "$ACCESS_KEY" -s "$SECRET_KEY" -u "$ENDPOINTS" -z "$obj_size" -d "$TEST_DURATION" -t "$client" -b "$bucket" -n "$sample" -r "$REGION" -j "$JSON_FILENAME" 2>&1 | tee "$BENCHMARKLOG"/object_"$size"\_numsamples_"$sample"\_buckets_"$bucket"\_sessions_"$client"\_output.log
 
-                 mkdir -p $TOOL_DIR
-                 mv $CURRENTPATH/*.json $TOOL_DIR/
-                 mv $BENCHMARKLOG/object_$size\_numsamples_$sample\_buckets_$bucket\_sessions_$client\_output.log $TOOL_DIR/
-                 sleep 30
+                 mkdir -p "$TOOL_DIR"
+                 mv "$CURRENTPATH"/*.json "$TOOL_DIR"/
+                 mv "$BENCHMARKLOG"/object_"$size"\_numsamples_"$sample"\_buckets_"$bucket"\_sessions_"$client"\_output.log "$TOOL_DIR"/
+                 sleep 1
                done 
            done
         done
@@ -80,7 +80,7 @@ hotsause_benchmark()
     done
 } 
 
-while [ ! -z $1 ]; do
+while [ ! -z "$1" ]; do
 
         case $1 in
         -b)    shift
@@ -116,21 +116,17 @@ validate_args
 #
 ./installHSbench.sh
 #
-if [ ! -d $BENCHMARKLOG ]; then
-    mkdir $BENCHMARKLOG
+if [ ! -d "$BENCHMARKLOG" ]; then
+    mkdir "$BENCHMARKLOG"
     hotsause_benchmark #2>&1 | tee $BENCHMARKLOG/output.log
-    sleep 20
-    python3 hsbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG 
-    cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/    
+    cp -r "$BENCHMARKLOG"/"$TOOL_NAME" "$RESULT_DIR"/    
     
       
 else
-    rm -rf $BENCHMARKLOG
-    mkdir $BENCHMARKLOG
+    rm -rf "$BENCHMARKLOG"
+    mkdir "$BENCHMARKLOG"
     hotsause_benchmark #2>&1 | tee $BENCHMARKLOG/output.log
-    sleep 20 
-    python3 hsbench_DBupdate.py $BENCHMARKLOG $MAIN $CONFIG
-    cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/    
+    cp -r "$BENCHMARKLOG"/"$TOOL_NAME" "$RESULT_DIR"/    
     
 
 fi

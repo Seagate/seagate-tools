@@ -61,7 +61,7 @@ function prepare_env() {
     fi
 
     if [ ! -d "$CORTX_DIR" ]; then
-	mkdir -p $DOCKER_DIR
+	mkdir -p "$DOCKER_DIR"
 	pushd $DOCKER_DIR
 	git clone --recursive https://github.com/Seagate/cortx
 	popd
@@ -87,7 +87,7 @@ function check_version() {
     fi
 
     if [ -n "${UTILS_REPO}" ]; then
-	utils_ver=`git ls-remote $UTILS_REPO $UTILS_BRANCH | cut -f1 | cut -c1-8`
+	utils_ver=`git ls-remote $UTILS_REPO "$UTILS_BRANCH" | cut -f1 | cut -c1-8`
 
 	if [ -n "${utils_ver}" ]; then
 	    is_utils_same=`yum list installed | grep cortx-py | grep ${utils_ver}` || true
@@ -212,6 +212,7 @@ function stop_cluster() {
          pdsh -S -w $NODES 'systemctl status haproxy' | grep Active
          set +e
          ssh $PRIMARY_NODE 'hctl status'
+         ssh $PRIMARY_NODE 'consul kv export cortx/ > /opt/seagate/cortx/consul-cortx-kv.json'
          if [ $? -eq 0 ]; then
             ssh $PRIMARY_NODE 'cortx cluster stop --all'
          fi
@@ -324,7 +325,7 @@ function stop_services() {
 
 function check_cluster_status() {
     local wait_period=0
-    while ! is_cluster_online $PRIMARY_NODE
+    while ! is_cluster_online "$PRIMARY_NODE"
     do
        wait_period=$(($wait_period+10))
        if [ $wait_period -gt 600 ];then
@@ -344,12 +345,14 @@ function pcs_cluster_start() {
     ssh $PRIMARY_NODE '/opt/seagate/cortx/s3/bin/s3_setup init --config "json:///opt/seagate/cortx_configs/provisioner_cluster.json"'
     ssh $PRIMARY_NODE '/opt/seagate/cortx/motr/bin/motr_setup config --config "json:///opt/seagate/cortx_configs/provisioner_cluster.json"'
     ssh $PRIMARY_NODE '/opt/seagate/cortx/hare/bin/hare_setup init --config "json:///opt/seagate/cortx_configs/provisioner_cluster.json"'
+    ssh $PRIMARY_NODE 'cat /opt/seagate/cortx/consul-cortx-kv.json | consul kv import -'
     pdsh -S -w $NODES "systemctl start haproxy || true"
     ssh $PRIMARY_NODE 'cortx cluster start'
+    pdsh -S -w $NODES "pcs property set stonith-enabled=false"
   
  }
 
- function pcs_cluster_reinit() {
+function pcs_cluster_reinit() {
     NUM_PCS_BOOTSTRAP_ATTEMPTS=3
     for i in {1..$NUM_PCS_BOOTSTRAP_ATTEMPTS}; 
     do

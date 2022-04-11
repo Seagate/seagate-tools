@@ -221,24 +221,52 @@ def update_mega_chain(build, version, col):
 
 
 def getconfig():
-    build_url=configs_config.get('BUILD_URL')
     nodes_list=configs_config.get('NODES')
     clients_list=configs_config.get('CLIENTS')
+    build_url=configs_config.get('BUILD_URL')
+    execution_type=configs_config.get('EXECUTION_TYPE')
+    cluster_pass=configs_config.get('CLUSTER_PASS')
+    solution=configs_config.get('SOLUTION')
+    end_points=configs_config.get('END_POINTS')
+    system_stats=configs_config.get('SYSTEM_STATS')
     pc_full=configs_config.get('PC_FULL')
     custom=configs_config.get('CUSTOM')
     overwrite=configs_config.get('OVERWRITE')
-    cluster_pass=configs_config.get('CLUSTER_PASS')
-    change_pass=configs_config.get('CHANGE_PASS')
-    prv_cli=configs_config.get('PRVSNR_CLI_REPO')
-    prereq_url=configs_config.get('PREREQ_URL')
-    srv_usr=configs_config.get('SERVICE_USER')
-    srv_pass=configs_config.get('SERVICE_PASS')
+    degraded_IO=configs_config.get('DEGRADED_IO')
+    copy_object=configs_config.get('COPY_OBJECT')
     nfs_serv=configs_config.get('NFS_SERVER')
     nfs_exp=configs_config.get('NFS_EXPORT')
     nfs_mp=configs_config.get('NFS_MOUNT_POINT')
     nfs_fol=configs_config.get('NFS_FOLDER')
 
-    dic={'NODES' :str(nodes_list) , 'CLIENTS' : str(clients_list) ,'BUILD_URL': build_url ,'CLUSTER_PASS': cluster_pass ,'CHANGE_PASS': change_pass ,'PRVSNR_CLI_REPO': prv_cli ,'PREREQ_URL': prereq_url ,'SERVICE_USER': srv_usr ,'SERVICE_PASS': srv_pass , 'PC_FULL': pc_full , 'CUSTOM': custom , 'OVERWRITE':overwrite , 'NFS_SERVER': nfs_serv ,'NFS_EXPORT' : nfs_exp ,'NFS_MOUNT_POINT' : nfs_mp , 'NFS_FOLDER' : nfs_fol }
+    nodes=[]
+    clients=[]
+
+    for i in range(len(nodes_list)):
+        nodes.append(nodes_list[i][i+1])
+
+    for i in range(len(clients_list)):
+        clients.append(clients_list[i][i+1])
+
+    dic={
+        'NODES' :str(nodes) ,
+        'CLIENTS' : str(clients) ,
+        'BUILD_URL': build_url ,
+        'EXECUTION_TYPE': execution_type,
+        'CLUSTER_PASS': cluster_pass ,
+        'SOLUTION' : solution ,
+        'END_POINTS' : end_points ,
+        'SYSTEM_STATS' : system_stats ,
+        'PC_FULL' : pc_full ,
+        'CUSTOM' : custom ,
+        'OVERWRITE' : overwrite ,
+        'DEGRADED_IO' : degraded_IO ,
+        'COPY_OBJECT' : copy_object ,
+        'NFS_SERVER': nfs_serv ,
+        'NFS_EXPORT' : nfs_exp ,
+        'NFS_MOUNT_POINT' : nfs_mp ,
+        'NFS_FOLDER' : nfs_fol
+        }
     return (dic)
 
 
@@ -256,17 +284,22 @@ def main(argv):
     OS=OS[1:-1]
 
     db = makeconnection()  # getting instance  of database
-    col_config=configs_main.get('R'+Version[0])['config_collection']
     dic = getconfig()
-    result = db[col_config].find_one(dic)# find entry from configurations collection
+    if dic['SOLUTION'].upper() == 'LC':
+       col=configs_main.get('LC')
+    elif dic['SOLUTION'].upper() == 'LR':
+       col=configs_main.get('LR')
+    elif dic['SOLUTION'].upper() == 'LEGACY':
+       col=configs_main.get(f"R{Version.split('.')[0]}")
+    else:
+        print("Error! Can not find suitable collection to upload data")
+
+    result = db[col['config_collection']].find_one(dic)# find entry from configurations collection
     Config_ID = "NA"
     if result:
         Config_ID = result['_id']        # foreign key : it will map entry in configurations to results entry
 
-    col =configs_main.get('R'+Version[0])['db_collection']
-    insert_data(files,Build,Version,Config_ID,db,col,Branch,OS )
+    insert_data(files,Build,Version,Config_ID,db,col['db_collection'],Branch,OS )
 
 if __name__ == "__main__":
     main(sys.argv)
-
-# End

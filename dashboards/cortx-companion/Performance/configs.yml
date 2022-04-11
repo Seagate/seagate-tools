@@ -1,0 +1,10 @@
+PerfDB:
+  hostname: # insert hostname/ DB URL of mongoDB
+  database: performance_db
+  collection:
+    LR1: results_1
+    LR2: results_2
+    LC: lc
+  auth:
+    full_access_user: # insert mongoDB read access username
+    full_access_password: # insert mongoDB read access password

@@ -13,24 +13,48 @@
      path: "{{ role_path }}/files/PerfProBenchmark"
      dest: "{{ role_path }}/files/PerfProBenchmark.tar.gz"
 
- - name: Copying and Unarchieving PerfProBenchmark tar file
+ - name: Copying and Unarchieving PerfProBenchmark tar file to Clients
    unarchive:
      src: files/PerfProBenchmark.tar.gz
      dest: /root/
    delegate_to: "{{ item }}"
-   with_items: "{{ groups['all'] }}"
+   with_items: "{{ groups['clients'] }}"
 
- - name: copying config.yml file 
+ - name: Copying and Unarchieving PerfProBenchmark tar file to Nodes
+   unarchive:
+     src: files/PerfProBenchmark.tar.gz
+     dest: /root/
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['nodes'] }}"
+   when: SYSTEM_STATS
+
+ - name: Setting up ulimit as 100000 on Clients
+   shell: /root/PerfProBenchmark/set_ulimit.sh
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
+
+ - name: copying config.yml file to Clients
    copy:
      src: roles/benchmark/vars/config.yml
      dest: /root/PerfProBenchmark/
      owner: root
      group: root
-     mode: '0644' 
+     mode: '0644'
    delegate_to: "{{ item }}"
-   with_items: "{{ groups['all'] }}"
- 
- - name: copying main.yml file 
+   with_items: "{{ groups['clients'] }}"
+
+ - name: copying config.yml file to Nodes
+   copy:
+     src: roles/benchmark/vars/config.yml
+     dest: /root/PerfProBenchmark/
+     owner: root
+     group: root
+     mode: '0644'
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['nodes'] }}"
+   when: SYSTEM_STATS
+
+ - name: copying main.yml file to Clients
    copy:
      src: vars/main.yml
      dest: /root/PerfProBenchmark/
@@ -38,39 +62,31 @@
      group: root
      mode: '0644'
    delegate_to: "{{ item }}"
-   with_items: "{{ groups['all'] }}"
+   with_items: "{{ groups['clients'] }}"
 
- - name: copying s3account.yml file to client
+ - name: copying main.yml file to Nodes
    copy:
-      src: vars/s3account.yml
-      dest: /root/PerfProBenchmark/
-      owner: root
-      group: root
-      mode: '0644'
+     src: vars/main.yml
+     dest: /root/PerfProBenchmark/
+     owner: root
+     group: root
+     mode: '0644'
    delegate_to: "{{ item }}"
-   with_items: "{{ groups['clients'] }}"
+   with_items: "{{ groups['nodes'] }}"
+   when: SYSTEM_STATS
 
- - name: updating s3account.yml file on client with MGMT_VIP from config.yml
-   shell: |
-      mgmt_vip=`grep MGMT_VIP /root/PerfProBenchmark/config.yml | cut -d ":" -f2`
-      sed -i "s/ip : /ip : $mgmt_vip/" /root/PerfProBenchmark/s3account.yml
-   delegate_to: "{{ item }}"
-   with_items: "{{ groups['clients'] }}"
-
- - name: Create S3 account
-   command: python3 /root/PerfProBenchmark/S3UserCreation/main_createusers.py /root/PerfProBenchmark/s3account.yml
-   register: resp
-   delegate_to: "clientnode-1"
-
- - name: Configure S3 Credentials
-   vars:
-      cred: "{{ (resp.stdout | from_json) }}"
-   command: python3 /root/PerfProBenchmark/S3UserCreation/update_credentials.py '{{ cred.access }}' '{{ cred.secret }}'
-   delegate_to: "{{ item }}"
-   with_items: "{{ groups['clients'] }}"
-   when: (cred.status == 201) or (cred.status == 200)
-
- - include: finish_setup.yml
+# - name: Create S3 Account
+#   command: python3 /root/PerfProBenchmark/s3account/create_s3user.py "{{ hostvars['srvnode-1']['ansible_host'] }}"
+#   register: resp
+#   delegate_to: "clientnode-1"
+#
+# - name: Configure S3 Credentials
+#   vars:
+#      cred: "{{ (resp.stdout | from_json) }}"
+#   command: python3 /root/PerfProBenchmark/s3account/update_credentials.py '{{ cred.access }}' '{{ cred.secret }}'
+#   delegate_to: "{{ item }}"
+#   with_items: "{{ groups['clients'] }}"
+#   when: cred.status == 201
 
  - name: Make an entry for config.yml on a database
    command: python3 /root/PerfProBenchmark/addconfiguration.py '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'
@@ -98,38 +114,64 @@
    when: PC_FULL > 0
 
  - include: s3bench.yml
- 
+   when: EXECUTION_TYPE == "normal"
+
  - name: s3bench results upload to db
    shell: python3 /root/PerfProBenchmark/s3bench/s3bench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/s3bench /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
+   when: EXECUTION_TYPE == "normal"
 
  - include: hsbench.yml
+   when: EXECUTION_TYPE == "normal"
 
  - name: hsbench results upload to db
    shell: python3 /root/PerfProBenchmark/hsbench/hsbench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/hsbench /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
+   when: EXECUTION_TYPE == "normal"
 
  - include: cosbench.yml
+   when: EXECUTION_TYPE == "normal"
 
  - name: cosbench results upload to db
    shell: python3 /root/PerfProBenchmark/cosbench/cosbench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/cosbench /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
+   when: EXECUTION_TYPE == "normal"
 
-#Performing Degraded read benchmarking
+#Performing Sanity PerfPro run
+ - include: sanity.yml
+   when: EXECUTION_TYPE == "sanity"
 
- - include: degraded_read.yml
-   when: DEGRADED_READ == True
+ - name: Inserting DB entries for Sanity run. 
+   shell: python3 /root/PerfProBenchmark/sanity/s3bench_DBupdate.py /root/PerfProBenchmark/sanity_results/ /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml "{{ REPOSITORY }}" "{{ COMMIT_ID }}" "{{ PR_ID }}" "{{ USER }}" "{{ GID }}"
+   when: EXECUTION_TYPE == "sanity"
 
- - name: Updating DB with degraded read entries
+#Performing Degraded IO benchmarking
+
+ - include: degraded_IO.yml
+   when: DEGRADED_IO == True
+
+ - name: Updating DB with degraded IO entries
    shell: |
-     python3 /root/PerfProBenchmark/db_scripts/hsbench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/degraded_read/hsbench/ /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
-     python3 /root/PerfProBenchmark/db_scripts/s3bench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/degraded_read/s3bench/ /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
+     python3 /root/PerfProBenchmark/db_scripts/hsbench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/degraded_IO/hsbench/ /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
+     python3 /root/PerfProBenchmark/db_scripts/s3bench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/degraded_IO/s3bench/ /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
-   when: DEGRADED_READ == True
+   when: DEGRADED_IO == True
+
+#Performing Copy object benchmarking
+
+ - include: copy_object.yml
+   when: COPY_OBJECT == True
+
+ - name: Updating DB with copy object entries
+   shell: |
+     python3 /root/PerfProBenchmark/copy_object/s3bench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/copyobject/s3bench/ /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
+   delegate_to: "{{ item }}"
+   with_items: "{{ groups['clients'] }}"
+   when: COPY_OBJECT == True
 
 #Copying ansible.log for the run to logs/ansible folder
 
@@ -146,18 +188,21 @@
    shell: "date +%F-%H-%M-%S"
    register: tstamp
 
-
- - name: Rename perfpro_build<build> directory
-   shell: mv /root/PerfProBenchmark/perfpro_build{{ build.stdout }} /root/PerfProBenchmark/perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}
+ - name: Rearranging perfpro_build<build> directory data on clients
+   shell: |
+      mkdir /root/PerfProBenchmark/perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}
+      mv /root/PerfProBenchmark/perfpro_build{{ build.stdout }} /root/PerfProBenchmark/perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}/{{ item }}
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
 
+ - name: Collecting Results from all clients
+   command: scp -r {{ hostvars[item]['ansible_host'] }}:/root/PerfProBenchmark/perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}/{{ item }} /root/PerfProBenchmark/perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}/
+   delegate_to: "clientnode-1"
+   loop: "{{ groups['clients'] }}"
+   when: item != "clientnode-1"
 
  - name: Archiving artifacts to NFS server
    shell: |
      cd /root/PerfProBenchmark/ 
      python3 /root/PerfProBenchmark/archive_artifacts.py /root/PerfProBenchmark/config.yml perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}
-   delegate_to: "{{ item }}"
-   with_items: "{{ groups['clients'] }}"
-
-
+   delegate_to: "clientnode-1"

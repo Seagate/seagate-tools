@@ -93,15 +93,15 @@ replace_placeholders() {
   #generate hash of 32 char
   hash=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
 
-  sed -i  's/_SIZE_/'"$object_size_in_mb"'/g' $workload_file_name
-  sed -i  's/_OBJECTS_/'"$no_of_objects"'/g' $workload_file_name
-  sed -i  's/_WORKERS_/'"$no_of_workers"'/g' $workload_file_name
-  sed -i  's/_RUNTIME_/'"$run_time_in_seconds"'/g' $workload_file_name
-  sed -i  's/_BUCKETS_/'"$no_of_buckets"'/g' $workload_file_name
-  sed -i  's/_ACCESSKEY_/'"$access_key"'/g' $workload_file_name
-  sed -i  "s/_SECRETKEY_/${secret_key//\//\\/}/g" $workload_file_name
-  sed -i  "s/_S3ENDPOINT_/${s3_endpoint//\//\\/}/g"  $workload_file_name
-  sed -i  's/_HASH_/'"$hash"'/g'  $workload_file_name
+  sed -i  's/_SIZE_/'"$object_size_in_mb"'/g' "$workload_file_name"
+  sed -i  's/_OBJECTS_/'"$no_of_objects"'/g' "$workload_file_name"
+  sed -i  's/_WORKERS_/'"$no_of_workers"'/g' "$workload_file_name"
+  sed -i  's/_RUNTIME_/'"$run_time_in_seconds"'/g' "$workload_file_name"
+  sed -i  's/_BUCKETS_/'"$no_of_buckets"'/g' "$workload_file_name"
+  sed -i  's/_ACCESSKEY_/'"$access_key"'/g' "$workload_file_name"
+  sed -i  "s/_SECRETKEY_/${secret_key//\//\\/}/g" "$workload_file_name"
+  sed -i  "s/_S3ENDPOINT_/${s3_endpoint//\//\\/}/g"  "$workload_file_name"
+  sed -i  's/_HASH_/'"$hash"'/g'  "$workload_file_name"
 
 }
 
@@ -109,18 +109,18 @@ create_workload_file() {
   if [ "$workload_type" == "read" ]
   then
     workload_file_name="read_${object_size_in_mb}_mb_${no_of_buckets}_buckets_${no_of_workers}_workers.xml"
-    cp read_workload_template.xml $workload_file_name
+    cp read_workload_template.xml "$workload_file_name"
   elif [ "$workload_type" == "write" ]
   then
     workload_file_name="write_${object_size_in_mb}_mb_${no_of_buckets}_buckets_${no_of_workers}_workers.xml"
-    cp write_workload_template.xml $workload_file_name
+    cp write_workload_template.xml "$workload_file_name"
   elif [ "$workload_type" == "mixed" ]
   then
     workload_file_name="mixed_${object_size_in_mb}_mb_${no_of_buckets}_buckets_${no_of_workers}_workers.xml"
-    cp mixed_workload_template.xml $workload_file_name
+    cp mixed_workload_template.xml "$workload_file_name"
   else
     workload_file_name="all_${object_size_in_mb}_mb_${no_of_buckets}_buckets_${no_of_workers}_workers.xml"
-    cp all_workload_template.xml $workload_file_name
+    cp all_workload_template.xml "$workload_file_name"
   fi
 
   replace_placeholders
@@ -130,13 +130,13 @@ run_workload() {
   # Copy the workload file to conroller node
   scp "$workload_file_name" "$(whoami)"@"$CONTROLLER":/tmp
   # Run workload on controller
-  result=$(ssh root@$CONTROLLER "cd ~/cos; sh cli.sh submit /tmp/$workload_file_name")
-  if [[ $result == "Accepted"* ]]; then
+  result="$(ssh root@"$CONTROLLER" "cd ~/cos; sh cli.sh submit /tmp/$workload_file_name")"
+  if [[ "$result" == "Accepted"* ]]; then
     printf "\n**** Successfully launched workload ****\n"
     echo "$result"
     printf "\n***************************************\n"
   else
-    echo $result
+    echo "$result"
     printf "\nFailed to run the workload\n"
     exit 1
   fi

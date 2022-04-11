@@ -28,6 +28,7 @@ def makeconfig(name):  #function for connecting with configuration file
 configs_config = makeconfig(Config_path)  # getting instance  of config file
 
 build_url=configs_config.get('BUILD_URL')
+solution=configs_config.get('SOLUTION')
 
 def get_release_info(variable):
     release_info= urllib.request.urlopen(build_url+'RELEASE.INFO')
@@ -38,39 +39,72 @@ def get_release_info(variable):
             return(strip_strinfo[1])
 
 
-def makeconnection():  #function for making connection with database
+def makeconnection(collection):  #function for making connection with database
     configs = makeconfig(Main_path)
     client = MongoClient(configs['db_url'])  #connecting with mongodb database
-    db=client[configs['db_database']]  #database name=performance 
-    Version=get_release_info('VERSION')
-    Version=Version[1:-1]
-#    col_conf='configurations_'+Version[0]
-    col_conf=configs.get('R'+Version[0])['config_collection']
-    col=db[col_conf]  #collection name = configurations
+    db=client[configs['db_database']]  #database name=performance
+    if solution.upper() == 'LC':
+        col_stats=configs.get('LC')[collection]
+    elif solution.upper() == 'LR':
+        col_stats=configs.get('LR')[collection]
+    elif solution.upper() == 'LEGACY':
+       Version=get_release_info('VERSION')
+       Version=Version[1:-1]
+       col_stats=configs.get('R'+Version[0])[collection]
+    else:
+        print("Error! Can not find suitable collection to upload data")
+    col=db[col_stats]  #collection name = configurations
     return col
 
 
 def storeconfigurations():
-    build_url=configs_config.get('BUILD_URL')
     nodes_list=configs_config.get('NODES')
     clients_list=configs_config.get('CLIENTS')
+    build_url=configs_config.get('BUILD_URL')
+    execution_type=configs_config.get('EXECUTION_TYPE')
+    cluster_pass=configs_config.get('CLUSTER_PASS')
+    solution=configs_config.get('SOLUTION')
+    end_points=configs_config.get('END_POINTS')
+    system_stats=configs_config.get('SYSTEM_STATS')
     pc_full=configs_config.get('PC_FULL')
     custom=configs_config.get('CUSTOM')
     overwrite=configs_config.get('OVERWRITE')
-    #iteration=configs_config.get('ITERATION')
-    cluster_pass=configs_config.get('CLUSTER_PASS')
-    change_pass=configs_config.get('CHANGE_PASS')
-    prv_cli=configs_config.get('PRVSNR_CLI_REPO')
-    prereq_url=configs_config.get('PREREQ_URL')
-    srv_usr=configs_config.get('SERVICE_USER')
-    srv_pass=configs_config.get('SERVICE_PASS')
+    degraded_IO=configs_config.get('DEGRADED_IO')
+    copy_object=configs_config.get('COPY_OBJECT')
     nfs_serv=configs_config.get('NFS_SERVER')
     nfs_exp=configs_config.get('NFS_EXPORT')
     nfs_mp=configs_config.get('NFS_MOUNT_POINT')
     nfs_fol=configs_config.get('NFS_FOLDER')
 
-    dic={'NODES' :str(nodes_list) , 'CLIENTS' : str(clients_list) ,'BUILD_URL': build_url ,'CLUSTER_PASS': cluster_pass ,'CHANGE_PASS': change_pass ,'PRVSNR_CLI_REPO': prv_cli ,'PREREQ_URL': prereq_url ,'SERVICE_USER': srv_usr ,'SERVICE_PASS': srv_pass , 'PC_FULL': pc_full , 'CUSTOM': custom , 'OVERWRITE':overwrite , 'NFS_SERVER': nfs_serv ,'NFS_EXPORT' : nfs_exp ,'NFS_MOUNT_POINT' : nfs_mp , 'NFS_FOLDER' : nfs_fol }
-    col = makeconnection()
+    nodes=[]
+    clients=[]
+
+    for i in range(len(nodes_list)):
+        nodes.append(nodes_list[i][i+1])
+
+    for i in range(len(clients_list)):
+        clients.append(clients_list[i][i+1])
+
+    dic={
+        'NODES' :str(nodes) , 
+        'CLIENTS' : str(clients) ,
+        'BUILD_URL': build_url ,
+        'EXECUTION_TYPE': execution_type,
+        'CLUSTER_PASS': cluster_pass ,
+        'SOLUTION' : solution ,
+        'END_POINTS' : end_points ,
+        'SYSTEM_STATS' : system_stats ,
+        'PC_FULL' : pc_full ,
+        'CUSTOM' : custom ,
+        'OVERWRITE' : overwrite ,
+        'DEGRADED_IO' : degraded_IO ,
+        'COPY_OBJECT' : copy_object ,
+        'NFS_SERVER': nfs_serv ,
+        'NFS_EXPORT' : nfs_exp ,
+        'NFS_MOUNT_POINT' : nfs_mp , 
+        'NFS_FOLDER' : nfs_fol 
+        }
+    col = makeconnection('config_collection')
     try:
         count_documents= col.count_documents(dic)
         if count_documents == 0:
@@ -87,4 +121,4 @@ def storeconfigurations():
 def main(argv):
     storeconfigurations()
 if __name__=="__main__":
-	main(sys.argv) 
+    main(sys.argv) 

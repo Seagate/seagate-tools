@@ -13,7 +13,7 @@ PERFLINE_DIR="$SCRIPT_DIR/../.."
 PUBLIC_DATA_INTERFACE=""
 source "$SCRIPT_DIR/../../perfline.conf"
 
-EX_SRV="pdsh -S -w $NODES"
+EX_SRV="pdsh -R ssh -S -w $NODES"
 PRIMARY_NODE=$(echo "$NODES" | cut -d "," -f1)
 CUSTOM_COUNT=1
 COUNT=0

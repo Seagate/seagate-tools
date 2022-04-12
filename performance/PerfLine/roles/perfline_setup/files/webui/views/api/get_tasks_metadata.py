@@ -19,7 +19,7 @@
 #
 # -*- coding: utf-8 -*-
 
-from os.path import isdir, join, isfile, isdir
+from os.path import join, isfile
 from os import listdir
 import json
 import gzip

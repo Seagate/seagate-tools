@@ -23,8 +23,8 @@
 set -e
 # set -x
 
-SCRIPT_NAME=`echo $0 | awk -F "/" '{print $NF}'`
-SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_NAME=$(echo "$0" | awk -F "/" '{print $NF}')
+SCRIPT_PATH="$(readlink -f "$0")"
 TQ_DIR="${SCRIPT_PATH%/*}"
 
 function usage() {
@@ -184,7 +184,7 @@ function check_required_params() {
 }
 
 function check_if_all_tasks_finished() {
-    local task_list=$($TQ_DIR/task_queue.py -l | grep "$BATCH_ID")
+    local task_list=$("$TQ_DIR"/task_queue.py -l | grep "$BATCH_ID")
 
     if [[ -n "$task_list" ]]; then
         echo "Not all of the tasks of batch are finished"
@@ -193,10 +193,10 @@ function check_if_all_tasks_finished() {
 }
 
 function print_results() {
-    $TQ_DIR/task_queue.py -r | grep "$BATCH_ID" | $TQ_DIR/print_task_results
+    "$TQ_DIR"/task_queue.py -r | grep "$BATCH_ID" | "$TQ_DIR"/print_task_results
 }
 
-parse_params $@
+parse_params "$@"
 check_required_params
 check_if_all_tasks_finished
 print_results

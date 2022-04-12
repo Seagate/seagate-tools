@@ -82,7 +82,7 @@ get_motr_pkg_config_dev() {
     if [[ "$include" != *"lustre-client"* ]] # exclude include paths from 'lustre-client*'
     then
       # Remove leading "-I"
-      inc_path=$(echo $include | sed 's/-I//')
+      inc_path=$(echo "$include" | sed 's/-I//')
       dev_includes_array+=( $inc_path )
     fi
   done
@@ -92,7 +92,7 @@ get_motr_pkg_config_dev() {
   do
     if [[ "$lib" == *"motr/"* ]] # this is 'L' part
     then
-      lib_path=$(echo $lib | sed 's/-L//')
+      lib_path=$(echo "$lib" | sed 's/-L//')
       dev_lib_search_paths_array+=( $lib_path )
     elif [[ ${lib:0:2} == '-l' ]]
     then
@@ -137,11 +137,11 @@ get_motr_pkg_config_rpm() {
 }
 
 # read the options
-OPTS=`getopt -o h --long no-motr-rpm,no-motr-build,use-build-cache,no-check-code,no-clean-build,\
+OPTS=$(getopt -o h --long no-motr-rpm,no-motr-build,use-build-cache,no-check-code,no-clean-build,\
 no-s3ut-build,no-s3mempoolut-build,no-s3mempoolmgrut-build,no-s3server-build,\
 no-motrkvscli-build,no-s3background-build,no-s3recoverytool-build,\
 no-s3addbplugin-build,no-auth-build,no-jclient-build,no-jcloudclient-build,\
-no-s3iamcli-build,no-install,just-gen-build-file,help -n 'rebuildall.sh' -- "$@"`
+no-s3iamcli-build,no-install,just-gen-build-file,help -n 'rebuildall.sh' -- "$@")
 
 eval set -- "$OPTS"
 
@@ -231,7 +231,7 @@ prepare_BUILD_file() {
   if [ $no_motr_rpm -eq 1 ] # use motr libs from source code (built location or cache)
   then
     # set motr_include_path for 'copts' in BUILD file
-    get_motr_pkg_config_dev $M0_SRC_DIR
+    get_motr_pkg_config_dev "$M0_SRC_DIR"
     for path in "${dev_includes_array[@]}"
     do
       if [[ $path == $M0_SRC_DIR ]]; then
@@ -240,7 +240,7 @@ prepare_BUILD_file() {
         MOTR_INC_="MOTR_INC=external/$name"
       else
         # Get the name from path
-        name=$(echo "m0""${path#$M0_SRC_DIR/}" | tr ./- _)
+        name=$(echo "m0""${path#"$M0_SRC_DIR"/}" | tr ./- _)
       fi
 
       m0deps="$m0deps, \"@$name//:headers\""
@@ -259,7 +259,7 @@ prepare_BUILD_file() {
     for path in "${dev_lib_search_paths_array[@]}"
     do
       # Get the name from path
-      name=$(echo "m0""${path#$M0_SRC_DIR/}" | tr ./- _)
+      name=$(echo "m0""${path#"$M0_SRC_DIR"/}" | tr ./- _)
       m0deps="$m0deps, \"@$name//:libs\""
 
       echo "Path: $path, Name: $name"
@@ -280,7 +280,7 @@ prepare_BUILD_file() {
     MOTR_LINK_LIB_=${MOTR_LINK_LIB_%" "}
 
     path="$M0_SRC_DIR/helpers/.libs"
-    name=$(echo "m0""${path#$M0_SRC_DIR/}" | tr ./- _)
+    name=$(echo "m0""${path#"$M0_SRC_DIR"/}" | tr ./- _)
     m0deps="$m0deps, \"@$name//:libs\""
 
     echo "Path: $path, Name: $name"
@@ -295,7 +295,7 @@ prepare_BUILD_file() {
     echo "m0deps: ${m0deps}"
   else
     # use motr libs from pre-installed motr rpm location
-    get_motr_pkg_config_rpm $S3_SRC_DIR
+    get_motr_pkg_config_rpm "$S3_SRC_DIR"
     for path in "${rpm_includes_array[@]}"
     do
       motr_include_path=$motr_include_path$path"\", \"-I"
@@ -362,37 +362,37 @@ else
     ./build_thirdparty.sh $motr_build_opt
   else
     # Use build cache
-    if [ ! -d ${BUILD_CACHE_DIR} ]
+    if [ ! -d "${BUILD_CACHE_DIR}" ]
     then
       # Rebuild all third_party
       ./build_thirdparty.sh $motr_build_opt
 
       # Copy to CACHE
-      rm -rf ${BUILD_CACHE_DIR}
-      mkdir -p ${BUILD_CACHE_DIR}
+      rm -rf "${BUILD_CACHE_DIR}"
+      mkdir -p "${BUILD_CACHE_DIR}"
 
       echo "Sync third_party(,motr) binaries from third_party/"
-      rsync -aW $M0_SRC_DIR $BUILD_CACHE_DIR/motr
-      cd $M0_SRC_DIR && git rev-parse HEAD > $BUILD_CACHE_DIR/cached_motr.git.rev && cd -
+      rsync -aW "$M0_SRC_DIR" "$BUILD_CACHE_DIR"/motr
+      cd "$M0_SRC_DIR" && git rev-parse HEAD > "$BUILD_CACHE_DIR"/cached_motr.git.rev && cd -
 
-      mkdir -p $BUILD_CACHE_DIR/libevent
-      rsync -aW $S3_SRC_DIR/third_party/libevent/s3_dist $BUILD_CACHE_DIR/libevent
-      cd $S3_SRC_DIR/third_party/libevent/ && git rev-parse HEAD > $BUILD_CACHE_DIR/cached_libevent.git.rev && cd -
+      mkdir -p "$BUILD_CACHE_DIR"/libevent
+      rsync -aW "$S3_SRC_DIR"/third_party/libevent/s3_dist "$BUILD_CACHE_DIR"/libevent
+      cd "$S3_SRC_DIR"/third_party/libevent/ && git rev-parse HEAD > "$BUILD_CACHE_DIR"/cached_libevent.git.rev && cd -
 
-      mkdir -p $BUILD_CACHE_DIR/libevhtp
-      rsync -aW $S3_SRC_DIR/third_party/libevhtp/s3_dist $BUILD_CACHE_DIR/libevhtp
-      cd $S3_SRC_DIR/third_party/libevhtp/ && git rev-parse HEAD > $BUILD_CACHE_DIR/cached_libevhtp.git.rev && cd -
+      mkdir -p "$BUILD_CACHE_DIR"/libevhtp
+      rsync -aW "$S3_SRC_DIR"/third_party/libevhtp/s3_dist "$BUILD_CACHE_DIR"/libevhtp
+      cd "$S3_SRC_DIR"/third_party/libevhtp/ && git rev-parse HEAD > "$BUILD_CACHE_DIR"/cached_libevhtp.git.rev && cd -
 
-      mkdir -p $BUILD_CACHE_DIR/jsoncpp
-      rsync -aW $S3_SRC_DIR/third_party/jsoncpp/dist $BUILD_CACHE_DIR/jsoncpp
-      cd $S3_SRC_DIR/third_party/jsoncpp/ && git rev-parse HEAD > $BUILD_CACHE_DIR/cached_jsoncpp.git.rev && cd -
+      mkdir -p "$BUILD_CACHE_DIR"/jsoncpp
+      rsync -aW "$S3_SRC_DIR"/third_party/jsoncpp/dist "$BUILD_CACHE_DIR"/jsoncpp
+      cd "$S3_SRC_DIR"/third_party/jsoncpp/ && git rev-parse HEAD > "$BUILD_CACHE_DIR"/cached_jsoncpp.git.rev && cd -
     fi  # build cache not present
     # Copy from cache
-    rsync -aW $BUILD_CACHE_DIR/ $S3_SRC_DIR/third_party/
+    rsync -aW "$BUILD_CACHE_DIR"/ "$S3_SRC_DIR"/third_party/
   fi  # if [ $use_build_cache -eq 0 ]
 fi  # if [ $no_motr_rpm -eq 0 ]
 
-cp -f $S3_SRC_DIR/third_party/jsoncpp/dist/jsoncpp.cpp $S3_SRC_DIR/server/jsoncpp.cc
+cp -f "$S3_SRC_DIR"/third_party/jsoncpp/dist/jsoncpp.cpp "$S3_SRC_DIR"/server/jsoncpp.cc
 
 # Do we want a clean S3 build?
 if [ $no_clean_build -eq 0 ]
@@ -413,12 +413,12 @@ prepare_BUILD_file
 if [ $no_s3ut_build -eq 0 ]
 then
   bazel build //:s3ut --cxxopt="-std=c++11" --define $MOTR_INC_ \
-                      --define $MOTR_LIB_ --define $MOTR_HELPERS_LIB_ \
+                      --define "$MOTR_LIB_" --define $MOTR_HELPERS_LIB_ \
                       --spawn_strategy=standalone \
                       --strip=never
 
   bazel build //:s3utdeathtests --cxxopt="-std=c++11" --define $MOTR_INC_ \
-                                --define $MOTR_LIB_ --define $MOTR_HELPERS_LIB_ \
+                                --define "$MOTR_LIB_" --define $MOTR_HELPERS_LIB_ \
                                 --spawn_strategy=standalone \
                                 --strip=never
 fi
@@ -432,7 +432,7 @@ fi
 if [ $no_s3mempoolmgrut_build -eq 0 ]
 then
   bazel build //:s3mempoolmgrut --cxxopt="-std=c++11" --define $MOTR_INC_ \
-                      --define $MOTR_LIB_ --define $MOTR_HELPERS_LIB_ \
+                      --define "$MOTR_LIB_" --define $MOTR_HELPERS_LIB_ \
                       --spawn_strategy=standalone \
                       --strip=never
 fi
@@ -440,7 +440,7 @@ fi
 assert_addb_plugin_autogenerated_sources_are_correct() {
   cd server
   ./addb-codegen.py
-  if test -n "`git diff s3_addb_*_auto*`"; then
+  if test -n "$(git diff s3_addb_*_auto*)"; then
     echo "ERROR (FATAL): There are changes in list of action classes!" >&2
     echo "You need to re-generate addb files.  To do that," >&2
     echo "cd to server/ folder and run addb-codegen.py script." >&2
@@ -454,7 +454,7 @@ if [ $no_s3server_build -eq 0 ]
 then
   assert_addb_plugin_autogenerated_sources_are_correct
   bazel build //:s3server --cxxopt="-std=c++11" --define $MOTR_INC_ \
-                          --define $MOTR_LIB_ --define $MOTR_HELPERS_LIB_ \
+                          --define "$MOTR_LIB_" --define $MOTR_HELPERS_LIB_ \
                           --spawn_strategy=standalone \
                           --strip=never
 fi
@@ -463,7 +463,7 @@ if [ $no_s3addbplugin_build -eq 0 ]
 then
   assert_addb_plugin_autogenerated_sources_are_correct
   bazel build //:s3addbplugin --define $MOTR_INC_ \
-                              --define $MOTR_LIB_ --define $MOTR_HELPERS_LIB_ \
+                              --define "$MOTR_LIB_" --define $MOTR_HELPERS_LIB_ \
                               --spawn_strategy=standalone \
                               --strip=never
 fi
@@ -471,7 +471,7 @@ fi
 if [ $no_motrkvscli_build -eq 0 ]
 then
   bazel build //:motrkvscli --cxxopt="-std=c++11" --define $MOTR_INC_ \
-                              --define $MOTR_LIB_ --define $MOTR_HELPERS_LIB_ \
+                              --define "$MOTR_LIB_" --define $MOTR_HELPERS_LIB_ \
                               --spawn_strategy=standalone \
                               --strip=never
 fi

@@ -15,17 +15,11 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 
 import pandas as pd
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpl_patches
 from pandas.io import sql
-import sqlite3
 import gc
 import sys
 import argparse
 from sys_utils import *
-import copy
 
 class LocalFigure():
     def __init__(self, fig):

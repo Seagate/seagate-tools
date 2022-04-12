@@ -12,7 +12,7 @@
       state: directory
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
-    
+
   - name: "Creating perfline directory {{ PERFLINE_DIR }}"
     file:
       path: "{{ PERFLINE_DIR }}/bin"
@@ -51,7 +51,7 @@
       dest: "{{ PERFLINE_DIR }}"
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
-    
+
   - name: "Create List of nodes to be added into Cluster"
     set_fact: nodelist={%for host in groups['nodes']%}{{hostvars[host]['ansible_host']}}{% if not loop.last %},{% endif %}{% endfor %}
 
@@ -102,7 +102,7 @@
        description: Packages required for s3 account
        baseurl: http://cortx-storage.colo.seagate.com/releases/cortx/uploads/centos/centos-7.9.2009/s3server_uploads/
        gpgcheck: no
-    delegate_to: "client-1" 
+    delegate_to: "client-1"
 
   - name: Add repository for s3 account
     yum_repository:
@@ -110,11 +110,11 @@
        description: Packages required for s3 account
        baseurl: http://cortx-storage.colo.seagate.com/releases/cortx/github/main/centos-7.9.2009/last_successful/
        gpgcheck: no
-    delegate_to: "client-1" 
+    delegate_to: "client-1"
 
   - name: "Installing cortx-s3iamcli"
     yum:
       name: cortx-s3iamcli
       state: present
-    delegate_to: "client-1" 
-      
+    delegate_to: "client-1"
+

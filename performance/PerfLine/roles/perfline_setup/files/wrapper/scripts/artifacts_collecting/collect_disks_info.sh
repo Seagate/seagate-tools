@@ -33,25 +33,25 @@ set -e
 # MD_DISKS=`echo "$RESULT" | grep 'MD:' | sed 's/MD://'`
 
 # LC CODE
-DISKS=`cat /tmp/cortx_disks_map | grep 'IO:' | sed 's/IO://'`
-MD_DISKS=`cat /tmp/cortx_disks_map | grep 'MD:' | sed 's/MD://'`
+DISKS=$(cat /tmp/cortx_disks_map | grep 'IO:' | sed 's/IO://')
+MD_DISKS=$(cat /tmp/cortx_disks_map | grep 'MD:' | sed 's/MD://')
 
 
 function main()
 {
     for d in $DISKS; do
-        dm=`realpath $d | xargs basename`
+        dm=$(realpath "$d" | xargs basename)
         disks_dm="$disks_dm $dm"
         echo "IO $d $dm"
     done
 
     for d in $MD_DISKS; do
-        dm=`realpath $d | xargs basename`
+        dm=$(realpath "$d" | xargs basename)
         disks_dm="$disks_dm $dm"
         echo "MD $d $dm"
     done
 }
 
 
-main $@
+main "$@"
 exit $?

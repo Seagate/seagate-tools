@@ -5,7 +5,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
 <script src="templates/scripts/dashboard.js"></script>
-  
+
 <style>
   #cover-spin {
     position:fixed;
@@ -264,9 +264,9 @@ app.controller('resultsCC', function($scope, $window, $http) {
             return;
         }
 
-        
+
         let is_confirmed = confirm("Results will be moved to backup directory");
-           
+
         if(!is_confirmed)
         {
             return;
@@ -279,7 +279,7 @@ app.controller('resultsCC', function($scope, $window, $http) {
             });
         taskList.clear();
         $scope.updateButtonsVisibility();
-        
+
     }
 
     $scope.compareTasks = function() {
@@ -297,7 +297,7 @@ app.controller('resultsCC', function($scope, $window, $http) {
         console.log(`compare tasks: ${get_params}`);
         window.location.href = `/compare_runs${get_params}`;
     }
- 
+
     $scope.reload = function() {
 	$('#cover-spin').show(0);
 	$http.get("/api/results/" + $scope.limit)
@@ -307,7 +307,7 @@ app.controller('resultsCC', function($scope, $window, $http) {
 		$('#cover-spin').hide(0);
 	    });
     }
-    
+
     $scope.OnRun = function(taskid) {
         var inputdata = confirm("Are you sure to execute this action?");
         if (inputdata) {
@@ -323,7 +323,7 @@ app.controller('resultsCC', function($scope, $window, $http) {
              alert("Action cancelled");
         }
     }
- 
+
 
     $scope.pageChanged = function() {
 	$scope.reload();
@@ -391,8 +391,8 @@ app.controller('queueCC', function($scope, $http) {
     $scope.selectTask = function(row) {
        console.log(row.selected)
        if (row.selected == 1){
-            if (row.state === "QUEUED") {				
-                taskList.add(row.task_id);	
+            if (row.state === "QUEUED") {
+                taskList.add(row.task_id);
             }
        }
        else{
@@ -408,8 +408,8 @@ app.controller('queueCC', function($scope, $http) {
         if(checkbox.checked) {
             angular.forEach($scope.names, function(row) {
                 row.selected = true;
-                if (row.state === "QUEUED") {				
-                   taskList.add(row.task_id);	
+                if (row.state === "QUEUED") {
+                   taskList.add(row.task_id);
                 }
             });
         }
@@ -452,7 +452,7 @@ app.controller('queueCC', function($scope, $http) {
                   .then(function (response) {
                        var failed_status = {};
                        var success_status = {};
-                       var keys = Object.keys(response.data)                      
+                       var keys = Object.keys(response.data)
                        console.log(response.data)
                        keys.forEach(function(taskid){
                             if(response.data[taskid].includes("REVOKED")) {
@@ -463,9 +463,9 @@ app.controller('queueCC', function($scope, $http) {
                                 failed_status[taskid] = "Failed";
                                 console.log(taskid + " : " + response.data[taskid] + " : Status : " + failed_status[taskid])
                             }
-                       }); 
+                       });
                        if ( Object.keys(failed_status).length > 0 ) {
-                           alert("Success : [ " + Object.keys(success_status) + " ] \nFailed : [ "+ Object.keys(failed_status) + " ]")                  
+                           alert("Success : [ " + Object.keys(success_status) + " ] \nFailed : [ "+ Object.keys(failed_status) + " ]")
                        }
                        $scope.reload();
                });
@@ -513,7 +513,7 @@ app.controller('addTaskCC', function($scope, $http, $routeParams) {
              if (response.data.includes("Failed")){
                 $scope.successMsg = null;
                 $scope.errorLog = null;
-                $scope.errorMsg = "Sorry! Unable to save workload config. Please use different filename";      
+                $scope.errorMsg = "Sorry! Unable to save workload config. Please use different filename";
              }
              else if (response.data.includes("PRIORITY")){
                 $scope.successMsg = null;
@@ -534,7 +534,7 @@ app.controller('addTaskCC', function($scope, $http, $routeParams) {
                 console.log(response.data);
              }
           })
-           
+
     };
     $scope.onConfSubmit = function() {
         $http({
@@ -542,7 +542,7 @@ app.controller('addTaskCC', function($scope, $http, $routeParams) {
                url: "/addtask",
                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                transformRequest: function(obj) {
-               return "config=" + encodeURIComponent(document.getElementById("config").value); 
+               return "config=" + encodeURIComponent(document.getElementById("config").value);
          }
         }).then(function (response) {
              if (response.data.includes("Validation failed with the following errors")){
@@ -555,11 +555,11 @@ app.controller('addTaskCC', function($scope, $http, $routeParams) {
              else if (response.data.includes("PRIORITY")){
                 $scope.successMsg = null;
                 $scope.task_id = null;
-                $scope.state = null; 
+                $scope.state = null;
                 $scope.errorMsg = "Failed ! Wrong priority";
                 $scope.errorLog = response.data;
              }
- 
+
              else if (response.data[1].state.includes("ENQUEUED")) {
                  $scope.errorMsg = null;
                  $scope.errorLog = null;

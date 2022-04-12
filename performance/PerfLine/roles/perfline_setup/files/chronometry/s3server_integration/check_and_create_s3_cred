@@ -22,10 +22,10 @@
 set -x
 set -e
 
-SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 
-. ${SCRIPT_DIR}/../common/common_funcs
+. "${SCRIPT_DIR}"/../common/common_funcs
 
 S3_CRED_FILE="${SCRIPT_DIR}/s3_credentials_$(hostname -s)"
 LDAP_USER="sgiamadmin"
@@ -35,14 +35,14 @@ function check_and_create_s3_cred() {
     if [[ ! -f "$S3_CRED_FILE" ]]; then
         _info "creation s3 credentials in $S3_CRED_FILE"
 
-        local rnd_str=`dd if=/dev/urandom bs=1024 count=1 2>/dev/null \
-            | tr -dc a-z | head -c10`
+        local rnd_str=$(dd if=/dev/urandom bs=1024 count=1 2>/dev/null \
+            | tr -dc a-z | head -c10)
         local hostname=$(hostname -s)
         local username="perf_${hostname}_${rnd_str}"
 
-        $SCRIPT_DIR/s3_create_user --name $username \
-            --email ${username}@seagate.com --ldap-user $LDAP_USER \
-            --ldap-pass $LDAP_PASS > $S3_CRED_FILE
+        "$SCRIPT_DIR"/s3_create_user --name "$username" \
+            --email "${username}"@seagate.com --ldap-user $LDAP_USER \
+            --ldap-pass $LDAP_PASS > "$S3_CRED_FILE"
     fi
 }
 

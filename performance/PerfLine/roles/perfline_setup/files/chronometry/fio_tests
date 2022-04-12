@@ -30,8 +30,8 @@ function run_fio_tests() {
     mkdir -p $FIO_RESULTS_DIR
     rm -f $FIO_RESULTS_DIR/*
 
-    for fio_test in $(ls $FIO_TESTS_DIR | grep `hostname -s`); do
-        fio $FIO_TESTS_DIR/$fio_test > $FIO_RESULTS_DIR/${fio_test}.txt
+    for fio_test in $(ls "$FIO_TESTS_DIR" | grep $(hostname -s)); do
+        fio "$FIO_TESTS_DIR"/"$fio_test" > $FIO_RESULTS_DIR/"${fio_test}".txt
     done
 }
 

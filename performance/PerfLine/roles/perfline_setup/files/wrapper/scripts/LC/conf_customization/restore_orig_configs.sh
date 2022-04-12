@@ -22,8 +22,8 @@
 set -e
 set -x
 
-SCRIPT_NAME=`echo $0 | awk -F "/" '{print $NF}'`
-SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_NAME=$(echo "$0" | awk -F "/" '{print $NF}')
+SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 
 source "$SCRIPT_DIR/../../../../perfline.conf"
@@ -34,7 +34,7 @@ SOLUTION_CONFIG_BACKUP="$CORTX_K8S_REPO/k8_cortx_cloud/.perfline__solution.yaml_
 function restore_original_solution_config()
 {
     if [[ -e $SOLUTION_CONFIG_BACKUP ]]; then
-        mv -f $SOLUTION_CONFIG_BACKUP $SOLUTION_CONFIG
+        mv -f "$SOLUTION_CONFIG_BACKUP" "$SOLUTION_CONFIG"
     fi
 }
 

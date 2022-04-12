@@ -41,5 +41,5 @@ if __name__ == '__main__':
     pl_api.init_tq_endpoint("./perfline_proxy.sh")
     cache.update(all_artif_dirs)
     async_worker.start()
-    app.run(host='0.0.0.0',port=PERFLINE_UI_PORT)
+    app.run(host="0.0.0.0",port=PERFLINE_UI_PORT)
     async_worker.stop()

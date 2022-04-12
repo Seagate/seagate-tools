@@ -20,7 +20,6 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import yaml
 
 def parse_args():
     description="""

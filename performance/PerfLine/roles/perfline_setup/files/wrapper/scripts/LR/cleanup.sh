@@ -28,5 +28,5 @@ function main()
     echo 'nothing to do'
 }
 
-main $@
+main "$@"
 exit $?

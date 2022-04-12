@@ -26,14 +26,14 @@ function main()
     local nodes="$1"
     local out_file="$2"
 
-    echo "" > $out_file
+    echo "" > "$out_file"
 
-    for srv_node in $(echo $nodes | tr ',' ' '); do
+    for srv_node in $(echo "$nodes" | tr ',' ' '); do
         for app_name in m0d s3server hax; do
-            local pids=$(ssh $srv_node "pgrep $app_name")
+            local pids=$(ssh "$srv_node" "pgrep $app_name")
 
             for pid in $pids; do
-                echo "$srv_node $app_name $pid" >> $out_file
+                echo "$srv_node $app_name $pid" >> "$out_file"
             done
 
         done
@@ -41,5 +41,5 @@ function main()
 
 }
 
-main $@
+main "$@"
 exit $?

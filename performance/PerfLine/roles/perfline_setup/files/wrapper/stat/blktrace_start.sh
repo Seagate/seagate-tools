@@ -24,7 +24,7 @@ set -x
 CLUSTER_CONFIG_FILE="/var/lib/hare/cluster.yaml"
 ASSIGNED_IPS=$(ifconfig | grep inet | awk '{print $2}' )
 
-disks=`python3 - $CLUSTER_CONFIG_FILE $ASSIGNED_IPS <<EOF
+disks=$(python3 - "$CLUSTER_CONFIG_FILE" "$ASSIGNED_IPS" <<EOF
 import yaml
 import sys
 
@@ -61,18 +61,19 @@ devices = next(d for d in m0servers if next(iter(d)) == 'io_disks')['io_disks'][
 
 # Print block devices
 print(' '.join(devices))
-EOF`
+EOF
+)
 
 
-md=`mount | grep -e mero -e m0tr -e motr | awk '{print $1}'`
+md=$(mount | grep -e mero -e m0tr -e motr | awk '{print $1}')
 md=${md::-1}
 
-rm -rf /var/perfline/blktrace.$(hostname -s) || true
+rm -rf /var/perfline/blktrace."$(hostname -s)" || true
 # pids=`ps ax | grep blktrace | grep -v blktrace_start | grep -v grep | awk '{print $1}'`
 # for pid in $pids; do
 #     kill -9 $pid
 # done
-mkdir /var/perfline/blktrace.$(hostname -s)
+mkdir /var/perfline/blktrace."$(hostname -s)"
 #blktrace $disks $md -D /tmp/blktrace.$(hostname -s)
 # W/o metadata
-blktrace $disks -D /var/perfline/blktrace.$(hostname -s)
+blktrace "$disks" -D /var/perfline/blktrace."$(hostname -s)"

@@ -22,7 +22,7 @@
 set -e
 # set -x
 
-SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 TOOLS_DIR="$SCRIPT_DIR/../../chronometry_v2"
 
@@ -54,36 +54,36 @@ function check_params()
 function generate_queue_imgs()
 {
     echo "generating queues..."
-    $TOOLS_DIR/queues.py --db $M0PLAY_DB --no-window --output-file queues_aggr || true
-    $TOOLS_DIR/queues.py --db $M0PLAY_DB --no-window -s --output-file queues_srv || true
-    $TOOLS_DIR/queues.py --db $M0PLAY_DB --no-window -c --output-file queues_cli || true
+    "$TOOLS_DIR"/queues.py --db "$M0PLAY_DB" --no-window --output-file queues_aggr || true
+    "$TOOLS_DIR"/queues.py --db "$M0PLAY_DB" --no-window -s --output-file queues_srv || true
+    "$TOOLS_DIR"/queues.py --db "$M0PLAY_DB" --no-window -c --output-file queues_cli || true
 }
 
 function generate_rps_imgs()
 {
     echo "generating RPS..."
-    python3 $TOOLS_DIR/rps.py --db $M0PLAY_DB -w 10ms --s3put --save-only || true
-    python3 $TOOLS_DIR/rps.py --db $M0PLAY_DB -w 10ms --s3get --save-only || true
+    python3 "$TOOLS_DIR"/rps.py --db "$M0PLAY_DB" -w 10ms --s3put --save-only || true
+    python3 "$TOOLS_DIR"/rps.py --db "$M0PLAY_DB" -w 10ms --s3get --save-only || true
 }
 
 function generate_latency_imgs()
 {
     echo "generating latency imgs..."
-    python3 $TOOLS_DIR/latency.py --db $M0PLAY_DB -w 10ms --s3put --save-only || true
-    python3 $TOOLS_DIR/latency.py --db $M0PLAY_DB -w 10ms --s3get --save-only || true
+    python3 "$TOOLS_DIR"/latency.py --db "$M0PLAY_DB" -w 10ms --s3put --save-only || true
+    python3 "$TOOLS_DIR"/latency.py --db "$M0PLAY_DB" -w 10ms --s3get --save-only || true
 }
 
 function generate_mbps_imgs()
 {
     echo "generating throughput imgs..."
-    python3 $TOOLS_DIR/mbps.py --db $M0PLAY_DB -w 10ms --s3put --save-only || true
-    python3 $TOOLS_DIR/mbps.py --db $M0PLAY_DB -w 10ms --s3get --save-only || true
+    python3 "$TOOLS_DIR"/mbps.py --db "$M0PLAY_DB" -w 10ms --s3put --save-only || true
+    python3 "$TOOLS_DIR"/mbps.py --db "$M0PLAY_DB" -w 10ms --s3get --save-only || true
 }
 
 function generate_histogram_imgs()
 {
     echo "generating histograms..."
-    python3 $TOOLS_DIR/system_hist.py -s --db $M0PLAY_DB || true
+    python3 "$TOOLS_DIR"/system_hist.py -s --db "$M0PLAY_DB" || true
 }
 
 function parse_val()
@@ -91,7 +91,7 @@ function parse_val()
     local param_name="$1"
     local data_str="$2"
     local result=$(echo "$data_str" | grep -E -o "${param_name}:\S+" | sed "s/${param_name}://")
-    echo $result
+    echo "$result"
 }
 
 function generate_timeline_imgs()
@@ -100,7 +100,7 @@ function generate_timeline_imgs()
 
     set +e
 
-    $SCRIPT_DIR/req_browser.py --db $M0PLAY_DB | while read line; do
+    "$SCRIPT_DIR"/req_browser.py --db "$M0PLAY_DB" | while read line; do
         local fields_nr=$(echo "$line" | awk '{print NF}')
         local workload_part=$(parse_val "time" "$line")
         local req_type=$(parse_val "s3_op" "$line")
@@ -114,10 +114,10 @@ function generate_timeline_imgs()
             local motr_req_id=$(parse_val "cli_reqid" "$line")
 
             filename="motr_${filename}_${motr_req_pid}_${motr_req_id}"
-            $TOOLS_DIR/req_timelines.py --db $M0PLAY_DB --pid $motr_req_pid --no-window --output-file $filename $motr_req_id
+            "$TOOLS_DIR"/req_timelines.py --db "$M0PLAY_DB" --pid "$motr_req_pid" --no-window --output-file "$filename" "$motr_req_id"
         else
             filename="s3_${filename}"
-            $TOOLS_DIR/req_timelines.py --db $M0PLAY_DB --pid $pid --depth 2 --no-window --output-file $filename $req_id
+            "$TOOLS_DIR"/req_timelines.py --db "$M0PLAY_DB" --pid "$pid" --depth 2 --no-window --output-file "$filename" "$req_id"
         fi
     done
 

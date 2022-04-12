@@ -23,7 +23,6 @@ import matplotlib.pyplot as plt
 import datetime
 import yaml
 import os
-import sys
 import taskq_api
 
 STATS = "stats.svg"

@@ -19,7 +19,6 @@
 #
 # -*- coding: utf-8 -*-
 
-import os.path
 import sys
 
 M0CRATE_MEASUREMENTS = ('Throughput',)

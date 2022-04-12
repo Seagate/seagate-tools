@@ -23,8 +23,8 @@
 set -e
 # set -x
 
-SCRIPT_NAME=`echo $0 | awk -F "/" '{print $NF}'`
-SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_NAME=$(echo "$0" | awk -F "/" '{print $NF}')
+SCRIPT_PATH="$(readlink -f "$0")"
 TQ_DIR="${SCRIPT_PATH%/*}"
 
 function usage() {
@@ -100,8 +100,8 @@ function check_required_params() {
 }
 
 function detect_batch_name() {
-    BATCH_NAME=`echo $TASKQ_CONFIGS_DIR | sed 's/\/*$//' \
-        | awk -F "/" '{print $NF}'`
+    BATCH_NAME=$(echo "$TASKQ_CONFIGS_DIR" | sed 's/\/*$//' \
+        | awk -F "/" '{print $NF}')
 }
 
 function enqueue_tasks() {
@@ -109,24 +109,24 @@ function enqueue_tasks() {
     local batch_id="${BATCH_NAME}_$(date '+%Y-%m-%d-%H-%M-%S')"
     echo "batch_id: $batch_id"
 
-    for task_conf in $(ls $TASKQ_CONFIGS_DIR/*.yaml); do
+    for task_conf in $(ls "$TASKQ_CONFIGS_DIR"/*.yaml); do
 
-        if grep 'batch_id' $task_conf > /dev/null; then
+        if grep 'batch_id' "$task_conf" > /dev/null; then
             #replace batch_id
-            sed "s/batch_id:.*/batch_id: $batch_id/" $task_conf > $tmp_task_conf
+            sed "s/batch_id:.*/batch_id: $batch_id/" "$task_conf" > $tmp_task_conf
         else
             #add batch_id
-            cp $task_conf $tmp_task_conf
+            cp "$task_conf" $tmp_task_conf
             echo "batch_id: $batch_id" >> $tmp_task_conf
         fi
 
-        python3 $TQ_DIR/task_queue.py -a < $tmp_task_conf
+        python3 "$TQ_DIR"/task_queue.py -a < $tmp_task_conf
     done
 
     rm -f $tmp_task_conf
 }
 
-parse_params $@
+parse_params "$@"
 check_required_params
 detect_batch_name
 enqueue_tasks

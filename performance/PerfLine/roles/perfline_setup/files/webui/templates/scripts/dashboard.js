@@ -14,31 +14,29 @@ class DashboardTableController
     fill_table()
     {
 	let table = this.html_table;
-	let data = this.raw_data
-	
+	let data = this.raw_data;
+
 	// Populate header
-	console.log(data.columns)
+	console.log(data.columns);
 	let header_row = table.insertRow();
 	for (let col of data.columns)
         {
-	    let cell = header_row.insertCell();
-	    cell.appendChild(document.createTextNode(col))
-	    cell.setAttribute("class", TBL_HEADER_CSS);
+			let cell = header_row.insertCell();
+			cell.appendChild(document.createTextNode(col));
+			cell.setAttribute("class", TBL_HEADER_CSS);
         }
 
 	// Populate internals
-	console.log(data.data)
+	console.log(data.data);
 	for (let arr of data.data)
 	{
-	    let row = table.insertRow();
-
-	    for (let el of arr)
-            {
-		let cell = row.insertCell();
-
-		cell.appendChild(document.createTextNode(el))
-		cell.setAttribute("class", TBL_CELL_CSS);
-            }
-        }
+        let row = table.insertRow();
+		for (let el of arr)
+		{
+			let cell = row.insertCell();
+			cell.appendChild(document.createTextNode(el));
+			cell.setAttribute("class", TBL_CELL_CSS);
+		}
+	}
     }
 }

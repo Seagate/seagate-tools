@@ -20,17 +20,17 @@
 # -*- coding: utf-8 -*-
 
 
-pids=$(ps aux | grep '/endless_m0crate' | grep bash | awk '{print $2}')
+pids=$(pgrep '/endless_m0crate' | grep bash | awk '{print $2}')
 
 if [[ -z $pids ]]; then
     echo "not found pids of endless_m0crate"
     exit 1
 fi
 
-kill $pids
+kill "$pids"
 killall -9 lt-m0crate #speed up endless_m0crate termination
 echo "waiting endless_m0crate processes..."
-while ps aux | grep '/endless_m0crate' | grep 'bash' > /dev/null; do
+while pgrep '/endless_m0crate' | grep 'bash' > /dev/null; do
     sleep 5
 done
 

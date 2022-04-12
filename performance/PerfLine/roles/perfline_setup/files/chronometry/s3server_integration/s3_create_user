@@ -23,7 +23,7 @@
 #set -x
 set -e
 
-SCRIPT_NAME=`echo $0 | awk -F "/" '{print $NF}'`
+SCRIPT_NAME=$(echo "$0" | awk -F "/" '{print $NF}')
 
 function usage() {
     cat << EOF
@@ -91,14 +91,14 @@ function check_required_params() {
 }
 
 function create_account() {
-    local output=`s3iamcli CreateAccount -n $NEW_ACCOUNT_NAME \
-        -e $NEW_ACCOUNT_EMAIL --ldapuser $LDAP_USER --ldappasswd $LDAP_PASS`
+    local output=$(s3iamcli CreateAccount -n "$NEW_ACCOUNT_NAME" \
+        -e "$NEW_ACCOUNT_EMAIL" --ldapuser "$LDAP_USER" --ldappasswd "$LDAP_PASS")
 
     echo "$output" | awk -F "," '{ for(i = 1; i <= NF; i++) { print $i; } }' \
         | sed "s/[[:blank:]]//g"
 }
 
-parse_params $@
+parse_params "$@"
 check_required_params
 create_account
 exit 0

@@ -1,51 +1,51 @@
 {% if addb_queues %}
 <h2 align=center>ADDB Cortx queues</h2>
 <div class="row">
-    
+
     {% for img in addb_queues %}
         <img src="/report/{{task_id}}/addb_imgs/{{img}}" alt="ADDB queues">
     {% endfor %}
-    
+
 </div>
 {% endif %}
 {% if addb_rps %}
 <h2 align=center>ADDB Cortx RPS</h2>
 <div class="row">
-    
+
     {% for img in addb_rps %}
         <img src="/report/{{task_id}}/addb_imgs/{{img}}" alt="ADDB RPS">
     {% endfor %}
-    
+
 </div>
 {% endif %}
 {% if addb_lat %}
 <h2 align=center>ADDB Cortx Latency</h2>
 <div class="row">
-    
+
     {% for img in addb_lat %}
         <img src="/report/{{task_id}}/addb_imgs/{{img}}" alt="ADDB Latency">
     {% endfor %}
-    
+
 </div>
 {% endif %}
 {% if addb_mbps %}
 <h2 align=center>ADDB Cortx throughput</h2>
 <div class="row">
-    
+
     {% for img in addb_mbps %}
         <img src="/report/{{task_id}}/addb_imgs/{{img}}" alt="ADDB Throughput">
     {% endfor %}
-    
+
 </div>
 {% endif %}
 {% if addb_hists %}
 <h2 align=center>ADDB Cortx histograms</h2>
 <div class="row">
-    
+
     {% for img in addb_hists %}
         <img src="/report/{{task_id}}/addb_imgs/{{img}}" alt="ADDB hists">
     {% endfor %}
-    
+
 </div>
 {% endif %}
 
@@ -55,7 +55,7 @@
 
     <h2 align=center>ADDB Cortx S3 {{ti.op_name}} timelines</h2>
     <div class="row">
-    
+
         {% for img in ti.imgs %}
         <h4>{{img.workload_part}}% workload, pid: {{img.pid}}, id: {{img.id}}</h4><br>
         <img src="/report/{{task_id}}/addb_imgs/{{img.fname}}" alt="S3 PUT req">
@@ -71,7 +71,7 @@
 
 
         {% endfor %}
-    
+
     </div>
     {% endif %}
 {% endfor %}

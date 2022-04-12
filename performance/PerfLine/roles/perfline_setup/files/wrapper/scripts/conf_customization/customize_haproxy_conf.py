@@ -22,7 +22,6 @@
 
 import argparse
 import sys
-import re
 
 
 S3SERVER_ENTRY_FORMAT = "    server s3-instance-{0} {1}:{2} {3}    # s3 instance {0}"

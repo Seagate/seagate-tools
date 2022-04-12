@@ -22,8 +22,8 @@
 set -x
 set -e
 
-SCRIPT_NAME=`echo $0 | awk -F "/" '{print $NF}'`
-SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_NAME=$(echo "$0" | awk -F "/" '{print $NF}')
+SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 source "$SCRIPT_DIR/../perfline.conf"
 source "$SCRIPT_DIR/.latest_stable_build"
@@ -41,12 +41,12 @@ function stable_build() {
     BUILD_LIST=$(curl -s $STABLE_BUILD_URL/ | grep href | sed 's/.*href="//' | sed 's/".*//' | grep -o '[[:digit:]]*' | sort -n)
     for build in $BUILD_LIST;
     do
-       if (($build>=$BUILDNO))
+       if [ "$build" -ge "$BUILDNO" ]
        then
            BUILD_URLS=("$STABLE_BUILD_URL/$build/prod/")
-           for workload_file in `ls $STABLE_WORKLOAD_DIR/*.yaml`
+           for workload_file in $(ls $STABLE_WORKLOAD_DIR/*.yaml)
            do
-	       	python3 - $workload_file $build $BUILD_URLS << EOF
+	       	python3 - "$workload_file" "$build" "$BUILD_URLS" << EOF
 import sys
 import yaml
 
@@ -71,7 +71,7 @@ with open(filename, 'w') as fd:
     yaml.dump(data, fd)
 EOF
 
-               $SCRIPT_DIR/perfline.py -a < $workload_file
+               "$SCRIPT_DIR"/perfline.py -a < "$workload_file"
            done
            echo "BUILDNO=$build" > .latest_stable_build
            echo "Successfully triggered for $build"
@@ -86,42 +86,42 @@ function main_build() {
     local pyutils_main=
     local descr_str=""
 
-    pushd $PERFLINE_DIR/docker/cortx/
+    pushd "$PERFLINE_DIR"/docker/cortx/
 
     pushd cortx-motr
     git checkout main
     git reset --hard
     git pull --rebase
-    motr_main=`git log --format="%H" -n 1 | cut -c1-9`
+    motr_main=$(git log --format="%H" -n 1 | cut -c1-9)
     popd			# from cortx-motr
 
     pushd cortx-s3server
     git checkout main
     git reset --hard
     git pull --rebase
-    s3server_main=`git log --format="%H" -n 1 | cut -c1-9`
+    s3server_main=$(git log --format="%H" -n 1 | cut -c1-9)
     popd			# from cortx-s3server
 
     pushd cortx-hare
     git checkout main
     git reset --hard
     git pull --rebase
-    hare_main=`git log --format="%H" -n 1 | cut -c1-9`
+    hare_main=$(git log --format="%H" -n 1 | cut -c1-9)
     popd			# from cortx-s3server
 
     pushd cortx-utils
     git checkout main
     git reset --hard
     git pull --rebase
-    pyutils_main=`git log --format="%H" -n 1 | cut -c1-9`
+    pyutils_main=$(git log --format="%H" -n 1 | cut -c1-9)
     popd			# from cortx-utils
 
     popd 			# from docker/cortx
 
-    for workload_file in `ls $MAIN_WORKLOAD_DIR/template.*.yaml`
+    for workload_file in $(ls $MAIN_WORKLOAD_DIR/template.*.yaml)
     do
-	cp -f $workload_file "$MAIN_WORKLOAD_DIR/workload.yaml"
-	python3 - "$MAIN_WORKLOAD_DIR/workload.yaml" $motr_main $s3server_main $hare_main << EOF
+	cp -f "$workload_file" "$MAIN_WORKLOAD_DIR/workload.yaml"
+	python3 - "$MAIN_WORKLOAD_DIR/workload.yaml" "$motr_main" "$s3server_main" "$hare_main" << EOF
 import sys
 import yaml
 
@@ -151,7 +151,7 @@ with open(filename, 'w') as fd:
     yaml.dump(data, fd)
 EOF
 
-	$SCRIPT_DIR/perfline.py -a < "$MAIN_WORKLOAD_DIR/workload.yaml"
+	"$SCRIPT_DIR"/perfline.py -a < "$MAIN_WORKLOAD_DIR/workload.yaml"
     done
 }
 

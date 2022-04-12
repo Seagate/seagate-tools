@@ -25,16 +25,17 @@ declare -A workload_type
 set -e
 set -x
 
-SCRIPT_NAME=`echo $0 | awk -F "/" '{print $NF}'`
-SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_NAME=$(echo "$0" | awk -F "/" '{print $NF}')
+SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 
 TOOLS_DIR="$SCRIPT_DIR/../../chronometry"
 PERFLINE_DIR="$SCRIPT_DIR/../"
 STAT_DIR="$SCRIPT_DIR/../stat"
 # PUBLIC_DATA_INTERFACE=$(ip addr show | egrep 'data0|enp179s0|enp175s0f0|eth0|p1p1' | grep -Po 'inet \K[\d.]+')
-
+# shellcheck source=/dev/null
 source "$SCRIPT_DIR/../../perfline.conf"
+# shellcheck source=/dev/null
 source "$SCRIPT_DIR/$CLUSTER_TYPE/worker_polymorphic_funcs.sh"
 
 STAT_COLLECTION=""
@@ -75,15 +76,15 @@ function validate() {
 
 function custom_workloads()
 {
-    mkdir -p $CLIENT_ARTIFACTS_DIR
-    pushd $CLIENT_ARTIFACTS_DIR
+    mkdir -p "$CLIENT_ARTIFACTS_DIR"
+    pushd "$CLIENT_ARTIFACTS_DIR"
 
-    START_TIME=`date +%s000000000`
-    eval $CUSTOM_WORKLOADS | tee custom-workload-$CUSTOM_COUNT-$(date +"%F_%T.%3N").log
+    START_TIME=$(date +%s000000000)
+    eval "$CUSTOM_WORKLOADS" | tee custom-workload-$CUSTOM_COUNT-"$(date +"%F_%T.%3N")".log
     ((CUSTOM_COUNT=CUSTOM_COUNT+1))
     STATUS=${PIPESTATUS[0]}
 
-    STOP_TIME=`date +%s000000000`
+    STOP_TIME=$(date +%s000000000)
     sleep 30
 
     popd			# $CLIENT_ARTIFACTS_DIR
@@ -92,53 +93,55 @@ function custom_workloads()
 function s3bench_workloads()
 {
     local s3bench_params=$@
-    mkdir -p $CLIENT_ARTIFACTS_DIR
-    pushd $CLIENT_ARTIFACTS_DIR
-    START_TIME=`date +%s000000000`
-    $SCRIPT_DIR/s3bench_run.sh $s3bench_params | tee $S3BENCH_LOGFILE-$(date +"%F_%T.%3N").log
+    mkdir -p "$CLIENT_ARTIFACTS_DIR"
+    pushd "$CLIENT_ARTIFACTS_DIR"
+    START_TIME=$(date +%s000000000)
+    echo "$START_TIME"
+    "$SCRIPT_DIR"/s3bench_run.sh "$s3bench_params" | tee "$S3BENCH_LOGFILE-$(date +"%F_%T.%3N")".log
     STATUS=${PIPESTATUS[0]}
-    STOP_TIME=`date +%s000000000`
+    STOP_TIME=$(date +%s000000000)
+    echo "$STOP_TIME"
     sleep 60
     popd
 }
 
 function pushd_to_results_dir() {
     echo "go to results folder"
-    pushd $RESULTS_DIR
+    pushd "$RESULTS_DIR"
 }
 
 function save_stats() {
-    for srv in $(echo $NODES | tr ',' ' '); do
-        mkdir -p $srv
-        pushd $srv
-        scp -r $srv:/var/perfline/iostat* iostat || true
-        scp -r $srv:/var/perfline/blktrace* blktrace || true
-        scp -r $srv:/var/perfline/dstat* dstat || true
+    for srv in $(echo "$NODES" | tr ',' ' '); do
+        mkdir -p "$srv"
+        pushd "$srv"
+        scp -r "$srv":/var/perfline/iostat* iostat || true
+        scp -r "$srv":/var/perfline/blktrace* blktrace || true
+        scp -r "$srv":/var/perfline/dstat* dstat || true
 
         if [[ "$STAT_COLLECTION" == *"GLANCES"* ]]; then
             mkdir glances
-            scp $srv:/var/perfline/glances*/glances.csv glances
+            scp "$srv":/var/perfline/glances*/glances.csv glances
         fi
 
-        scp -r $srv:/var/perfline/hw* hw || true
-        scp -r $srv:/var/perfline/network* network || true
-        scp -r $srv:/var/perfline/5u84* 5u84 || true
-        scp -r $srv:/var/perfline/fio* fio || true
+        scp -r "$srv":/var/perfline/hw* hw || true
+        scp -r "$srv":/var/perfline/network* network || true
+        scp -r "$srv":/var/perfline/5u84* 5u84 || true
+        scp -r "$srv":/var/perfline/fio* fio || true
 
-        ssh $srv "$SCRIPT_DIR/artifacts_collecting/collect_disks_info.sh" > disks.mapping
+        ssh "$srv" "$SCRIPT_DIR"/artifacts_collecting/collect_disks_info.sh > disks.mapping
         popd
     done
 }
 
 function save_perf_results() {
-    local s3bench_files=$(ls $CLIENT_ARTIFACTS_DIR | grep $S3BENCH_LOGFILE)
+    local s3bench_files=$(ls "$CLIENT_ARTIFACTS_DIR" | grep "$S3BENCH_LOGFILE")
     for s3bench_file in $s3bench_files;
     do
        local s3bench_log="$CLIENT_ARTIFACTS_DIR/$s3bench_file"
        if [[ -f "$s3bench_log" ]]; then
-           echo "Benchmark: $s3bench_file" >> $PERF_RESULTS_FILE
-           $SCRIPT_DIR/../stat/report_generator/s3bench_log_parser.py $s3bench_log >> $PERF_RESULTS_FILE
-           echo "" >> $PERF_RESULTS_FILE
+           echo "Benchmark: $s3bench_file" >> "$PERF_RESULTS_FILE"
+           "$SCRIPT_DIR"/../stat/report_generator/s3bench_log_parser.py "$s3bench_log" >> "$PERF_RESULTS_FILE"
+           echo "" >> "$PERF_RESULTS_FILE"
        fi
     done
 
@@ -148,30 +151,30 @@ function save_perf_results() {
         # in order to support the same structure of m0crate artifacts.
         # Example: m0crate/0/m0crate-0x7200000000000001:0x29
         for iteration in $(ls "$M0CRATE_ARTIFACTS_DIR" | grep -E ^[0-9]+$); do
-            for m0crate_log in $M0CRATE_ARTIFACTS_DIR/$iteration/m0crate-*/m0crate.*.log; do
-                local fname=$(echo $m0crate_log | awk -F "/" '{print $NF}')
-                local motr_port=$(echo $fname | awk -F '.' '{print $2}')
-                local hostname=$(echo $fname | sed "s/m0crate.$motr_port.//" | sed "s/.log//")
+            for m0crate_log in "$M0CRATE_ARTIFACTS_DIR"/"$iteration"/m0crate-*/m0crate.*.log; do
+                local fname=$(echo "$m0crate_log" | awk -F "/" '{print $NF}')
+                local motr_port=$(echo "$fname" | awk -F '.' '{print $2}')
+                local hostname=$(echo "$fname" | sed "s/m0crate.$motr_port.//" | sed "s/.log//")
 
-                echo "Benchmark: m0crate" >> $PERF_RESULTS_FILE
-                echo "Host: $hostname" >> $PERF_RESULTS_FILE
-                echo "Motr port: $motr_port" >> $PERF_RESULTS_FILE
-                $SCRIPT_DIR/../stat/report_generator/m0crate_log_parser.py \
-                        $m0crate_log >> $PERF_RESULTS_FILE
-                echo "" >> $PERF_RESULTS_FILE
+                echo "Benchmark: m0crate" >> "$PERF_RESULTS_FILE"
+                echo "Host: $hostname" >> "$PERF_RESULTS_FILE"
+                echo "Motr port: $motr_port" >> "$PERF_RESULTS_FILE"
+                "$SCRIPT_DIR"/../stat/report_generator/m0crate_log_parser.py \
+                        "$m0crate_log" >> "$PERF_RESULTS_FILE"
+                echo "" >> "$PERF_RESULTS_FILE"
             done
         done
     fi
 
-    if `ls $CORE_BENCHMARK/*iperf-* > /dev/null`; then
+    if $(ls "$CORE_BENCHMARK"/*iperf-* > /dev/null); then
         i=0
-        iperf_logs=$(ls $CORE_BENCHMARK/*iperf-*)
+        iperf_logs=$(ls "$CORE_BENCHMARK"/*iperf-*)
         for iperf_log in $iperf_logs;
         do
             ((i=i+1))
-            echo "Benchmark: iPerf-$i" >> $PERF_RESULTS_FILE
-            $SCRIPT_DIR/../stat/report_generator/iperf_log_parser.py $iperf_log >> $PERF_RESULTS_FILE
-            echo "" >> $PERF_RESULTS_FILE
+            echo "Benchmark: iPerf-$i" >> "$PERF_RESULTS_FILE"
+            "$SCRIPT_DIR"/../stat/report_generator/iperf_log_parser.py "$iperf_log" >> "$PERF_RESULTS_FILE"
+            echo "" >> "$PERF_RESULTS_FILE"
         done
     fi
 }
@@ -203,12 +206,12 @@ function stop_stat_utils()
 
 function start_measuring_workload_time()
 {
-    WORKLOAD_TIME_START_SEC=`date +'%s'`
+    WORKLOAD_TIME_START_SEC=$(date +'%s')
 }
 
 function stop_measuring_workload_time()
 {
-    WORKLOAD_TIME_STOP_SEC=`date +'%s'`
+    WORKLOAD_TIME_STOP_SEC=$(date +'%s')
     local stats="stats"
     mkdir -p $stats
     pushd $stats
@@ -237,26 +240,26 @@ function stop_measuring_test_time()
 
 function generate_report()
 {
-    python3 $STAT_DIR/report_generator/gen_report.py . $STAT_DIR/report_generator
+    python3 "$STAT_DIR"/report_generator/gen_report.py . "$STAT_DIR"/report_generator
 }
 
 function do_result_backup()
 {
-    result_dir_path=$(dirname ${RESULTS_DIR})
-    cur_result_dir=$(basename ${RESULTS_DIR})
-    pushd $result_dir_path
+    result_dir_path=$(dirname "${RESULTS_DIR}")
+    cur_result_dir=$(basename "${RESULTS_DIR}")
+    pushd "$result_dir_path"
 
     echo "Backing up results to NFS Location"
     if ! mount | grep "$BACKUP_MOUNT_POINT"
     then
-        mkdir -p $BACKUP_MOUNT_POINT
-        mount $BACKUP_NFS_LOCATION $BACKUP_MOUNT_POINT
+        mkdir -p "$BACKUP_MOUNT_POINT"
+        mount "$BACKUP_NFS_LOCATION" "$BACKUP_MOUNT_POINT"
     fi
-    tar -czf /tmp/${cur_result_dir}.tar.gz $cur_result_dir
-    cp /tmp/${cur_result_dir}.tar.gz ${BACKUP_MOUNT_POINT}/
-    tar -xzf ${BACKUP_MOUNT_POINT}/${cur_result_dir}.tar.gz -C ${BACKUP_MOUNT_POINT}/
-    rm -rf $cur_result_dir /tmp/${cur_result_dir}.tar.gz ${BACKUP_MOUNT_POINT}/${cur_result_dir}.tar.gz
-    ln -s ${BACKUP_MOUNT_POINT}/${cur_result_dir} $cur_result_dir
+    tar -czf /tmp/"${cur_result_dir}".tar.gz "$cur_result_dir"
+    cp /tmp/"${cur_result_dir}".tar.gz "${BACKUP_MOUNT_POINT}"/
+    tar -xzf "${BACKUP_MOUNT_POINT}"/"${cur_result_dir}".tar.gz -C "${BACKUP_MOUNT_POINT}"/
+    rm -rf "$cur_result_dir" /tmp/"${cur_result_dir}".tar.gz "${BACKUP_MOUNT_POINT}"/"${cur_result_dir}".tar.gz
+    ln -s "${BACKUP_MOUNT_POINT}"/"${cur_result_dir}" "$cur_result_dir"
     echo "Backup complete"
     popd
 }
@@ -266,7 +269,7 @@ function perform_workloads()
     local m0crate_iteration=0
 
     length=${#workload_type[@]}
-    for (( key=0; key<${length}; key++ )); do
+    for (( key=0; key<"$length"; key++ )); do
         case "${workload_type[${key}]}" in
              "custom")
                 echo "Start custom workloads"
@@ -275,11 +278,11 @@ function perform_workloads()
                 ;;
              "s3bench")
                 echo "Start s3bench workload"
-                s3bench_workloads ${workloads[${key}]}
+                s3bench_workloads "${workloads[${key}]}"
                 ;;
              "m0crate")
                 echo "Start m0crate workload (iteration $m0crate_iteration)"
-                m0crate_workload $m0crate_iteration ${workloads[${key}]}
+                m0crate_workload $m0crate_iteration "${workloads[${key}]}"
                 ((m0crate_iteration=m0crate_iteration+1))
                 ;;
             *)
@@ -340,7 +343,7 @@ function main() {
         do_result_backup
     fi
 
-    exit $STATUS
+    exit "$STATUS"
 }
 
 echo "parameters: $@"

@@ -15,7 +15,7 @@ function round_number(value)
         value = +value;
     }
 
-    return value             
+    return value
 }
 
 function compare_with_base_value(base_val, value, metric_name)
@@ -24,7 +24,7 @@ function compare_with_base_value(base_val, value, metric_name)
     let result = 0;
     let sign = 1
 
-    for (let m of ['TTFB','ERRORS', 'DURATION'])
+    for (let m of ["TTFB","ERRORS", "DURATION"])
     {
         if (metric_name.toUpperCase().indexOf(m) != -1)
         {
@@ -183,10 +183,10 @@ class BaseTableController
                 {
                     workloads_metrics.set(workload_name, new Array());
                 }
-    
+
                 workloads_metrics.get(workload_name).push(task_benchmark.metrics);
             }
-    
+
             tmp_results.set(task_benchmarks.task_id, workloads_metrics);
         }
 
@@ -211,7 +211,7 @@ class BaseTableController
                         {
                             need_next_iteration = true;
                         }
-                        
+
                         tmp_obj[task_id] = task_results.get(workload)[iteration];
                     }
                     else
@@ -227,7 +227,7 @@ class BaseTableController
 
     prepare_data()
     {
-        if (this.tasks_benchmarks_results.length == 0)
+        if (this.tasks_benchmarks_results.length === 0)
         {
             return;
         }
@@ -237,7 +237,7 @@ class BaseTableController
         this.find_metrics();
         this.find_task_ids();
         this.find_tasks_metadata();
-        
+
         if (this.workloads_order_equal())
         {
             this.match_workloads_in_original_order();
@@ -351,7 +351,7 @@ class SummaryTableController extends BaseTableController
                         val = `${val} (${diff.difference}%)`;
                     }
                     else if (diff.result < 0)
-                    {  
+                    {
                         css_class = RED_TEXT_CSS;
                         val = `${val} (${diff.difference}%)`;
                     }
@@ -403,7 +403,7 @@ class DetailedTableController extends BaseTableController
             else
             {
                 let value = task_results[metric_name];
-                let diff = compare_with_base_value(base_val, value, metric_name);        
+                let diff = compare_with_base_value(base_val, value, metric_name);
                 value = round_number(value);
 
                 let css_class = BLACK_TEXT_CSS;
@@ -413,7 +413,7 @@ class DetailedTableController extends BaseTableController
                     value = `${value} (${diff.difference}%)`;
                 }
                 else if (diff.result < 0)
-                {  
+                {
                     css_class = RED_TEXT_CSS;
                     value = `${value} (${diff.difference}%)`;
                 }
@@ -505,7 +505,7 @@ function request_data_from_api(method_name, task_ids)
     let http_req = new XMLHttpRequest();
     http_req.open('GET', `/api/${method_name}${get_params}`, false);
     http_req.onload = () => {
-        if (http_req.status == 200)
+        if (http_req.status === 200)
         {
             result = JSON.parse(http_req.response);
         }
@@ -536,7 +536,7 @@ document.addEventListener('DOMContentLoaded', () => {
         task_ids.push(tid_input.value);
     }
 
-    if (task_ids.length == 0)
+    if (task_ids.length === 0)
     {
         alert("task list is emply");
         return;
@@ -578,7 +578,7 @@ document.addEventListener('DOMContentLoaded', () => {
     {
         data.push(tmp_map.get(tid));
     }
-      
+
     let ctrl = new DetailedTableController(document.getElementById("data_table"), data);
     ctrl.fill_table();
 

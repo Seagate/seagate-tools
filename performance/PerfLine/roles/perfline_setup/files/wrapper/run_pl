@@ -20,11 +20,11 @@
 # -*- coding: utf-8 -*-
 
 
-SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 
 # load 'LOGFILE' variable
 source "$SCRIPT_DIR/../perfline.conf"
 
 
-nohup /usr/local/bin/huey_consumer perfline.huey -k process &>> $LOGFILE
+nohup /usr/local/bin/huey_consumer perfline.huey -k process &>> "$LOGFILE"

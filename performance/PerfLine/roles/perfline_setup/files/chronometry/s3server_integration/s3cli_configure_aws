@@ -25,8 +25,8 @@ set -e
 SCRIPT_PATH="$(readlink -f $0)"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 
-. ${SCRIPT_DIR}/../common/common_funcs
-. ${SCRIPT_DIR}/functions
+. "${SCRIPT_DIR}"/../common/common_funcs
+. "${SCRIPT_DIR}"/functions
 
 S3_CRED_FILE="${SCRIPT_DIR}/s3_credentials_$(hostname -s)"
 S3_SRV_CLI_MAP=$1
@@ -52,10 +52,10 @@ if [[ -z "$S3_SRV_CLI_MAP" ]]; then
     exit 1
 fi
 
-parse_s3_cred_file $S3_CRED_FILE
-parse_s3_nodes_map $S3_SRV_CLI_MAP
+parse_s3_cred_file "$S3_CRED_FILE"
+parse_s3_nodes_map "$S3_SRV_CLI_MAP"
 
-if [ -z $CLI_NODES ]; then
+if [ -z "$CLI_NODES" ]; then
     exit 0
 fi
 

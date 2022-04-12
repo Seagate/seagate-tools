@@ -20,7 +20,7 @@
 # -*- coding: utf-8 -*-
 
 from huey import SqliteHuey
-import os
+
 
 huey = SqliteHuey(filename='s3cluster_queue.db')
 

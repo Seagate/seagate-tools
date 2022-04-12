@@ -34,7 +34,6 @@ from argparse import RawTextHelpFormatter
 import signal
 from datetime import datetime
 import validator as vr
-from pprint import pprint
 exec(open("../perfline.conf").read())
 
 def print_info(tid, state, info=None):

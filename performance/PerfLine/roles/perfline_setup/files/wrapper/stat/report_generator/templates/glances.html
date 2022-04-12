@@ -29,7 +29,7 @@
             <td><img src="/report/{{task_id}}/glances_imgs/{{glances_imgs['cpu'][hn]}}" alt="CPU"></td>
             {% endfor %}
         </tr>
-    
+
         <tr>
             <td colspan="2" align="center"><h3>Interrupts</h3></td>
         </tr>
@@ -67,7 +67,7 @@
                 <td align="center"><h3>{{hn}}</h3></td>
                 {% endfor %}
             </tr>
-            
+
             {% for metric_name in percpu_metrics %}
             <tr>
                 {% for hn in hostnames %}
@@ -87,7 +87,7 @@
             <td align="center"><h4>{{hn}}</h4></td>
             {% endfor %}
         </tr>
-        
+
         <tr>
             {% for hn in hostnames %}
             <td><img src="/report/{{task_id}}/glances_imgs/{{glances_imgs['mem'][hn]}}" alt="Glances mem"></td>
@@ -102,7 +102,7 @@
             <td align="center"><h4>{{hn}}</h4></td>
             {% endfor %}
         </tr>
-        
+
         {% for metric_name in net_metrics %}
         <tr>
             {% for hn in hostnames %}
@@ -110,7 +110,7 @@
             {% endfor %}
         </tr>
         {% endfor %}
-        
+
     </table>
 
 {% endif %}

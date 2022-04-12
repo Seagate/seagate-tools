@@ -27,16 +27,16 @@ set -x
 #
 CLUSTER_CONFIG_FILE="/var/lib/hare/cluster.yaml"
 ASSIGNED_IPS=$(ifconfig | grep inet | awk '{print $2}')
-SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
-RESULT=$(python3 $SCRIPT_DIR/../stat/extract_disks.py $CLUSTER_CONFIG_FILE $ASSIGNED_IPS)
-DISKS=$(echo $RESULT | cut -d' ' -f 2-)
+RESULT=$(python3 "$SCRIPT_DIR"/../stat/extract_disks.py $CLUSTER_CONFIG_FILE "$ASSIGNED_IPS")
+DISKS=$(echo "$RESULT" | cut -d' ' -f 2-)
 PERFLINE_DIR="/var/perfline/"
 
 DURATION=""
 BLOCK_SIZE=""
 NUMOFJOBS=""
-TIMESTAMP=`date +'%Y-%m-%d_%H:%M:%S'`
+TIMESTAMP=$(date +'%Y-%m-%d_%H:%M:%S')
 SAMPLE=""
 TEMPLATE=""
 
@@ -61,33 +61,33 @@ show_usage() {
 fio_benchmark() {
        rm -rf $PERFLINE_DIR/fio-workload_$(hostname)
        WORKLOAD_DIR=$PERFLINE_DIR/fio-workload_$(hostname)
-       mkdir -p $WORKLOAD_DIR
+       mkdir -p "$WORKLOAD_DIR"
        for bs in ${BLOCK_SIZE//,/ }
        do
            for numjob in ${NUMOFJOBS//,/ }
            do
                    IOSIZE=$(echo "$bs" | sed -e 's/Mb/M/g')
                    template_file=$SCRIPT_DIR/fio-template/$TEMPLATE
-                   workload_file=$WORKLOAD_DIR/$TEMPLATE\_bs_$IOSIZE\_numjobs_$numjob\_$(hostname)
-                   cp $template_file $workload_file
-                   sed -i "/\[global\]/a bs=$IOSIZE" $workload_file
-                   sed -i "/time_based/a runtime=$DURATION" $workload_file
-                   sed -i "/runtime/a numjobs=$numjob" $workload_file
+                   workload_file=$WORKLOAD_DIR/"$TEMPLATE"_bs_"$IOSIZE"_numjobs_"$numjob"_$(hostname)
+                   cp "$template_file" "$workload_file"
+                   sed -i "/\[global\]/a bs=$IOSIZE" "$workload_file"
+                   sed -i "/time_based/a runtime=$DURATION" "$workload_file"
+                   sed -i "/runtime/a numjobs=$numjob" "$workload_file"
                    for i in $DISKS
                    do
                        disk=$(echo "$i" | cut -d '/' -f 4)
-                       echo -e "\n[$disk]" >> $workload_file
-                       echo -e "filename = /dev/disk/by-id/dm-name-$disk \n" >> $workload_file
+                       echo -e "\n[$disk]" >> "$workload_file"
+                       echo -e "filename = /dev/disk/by-id/dm-name-$disk \n" >> "$workload_file"
                    done
-                   FIOLOG=$WORKLOAD_DIR/$TEMPLATE\_bs_$IOSIZE\_numjobs_$numjob\.log
-                   fio $workload_file > $FIOLOG
+                   FIOLOG=$WORKLOAD_DIR/"$TEMPLATE"_bs_"$IOSIZE"_numjobs_"$numjob".log
+                   fio "$workload_file" > "$FIOLOG"
                    echo "Fio scripts is completed on $(hostname) ..."
            done
        done
 
 }
 
-while [ ! -z $1 ]; do
+while [ ! -z "$1" ]; do
 
         case $1 in
         -t)     shift

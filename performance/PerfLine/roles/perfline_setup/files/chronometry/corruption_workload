@@ -23,8 +23,8 @@
 set -x
 set -e
 
-SCRIPT_NAME=`echo $0 | awk -F "/" '{print $NF}'`
-SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_NAME=$(echo "$0" | awk -F "/" '{print $NF}')
+SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 
 if [[ -z "$MOTR_SRC_DIR" ]]; then
@@ -34,18 +34,18 @@ fi
 HALON_SRC_DIR="${MOTR_SRC_DIR}/../halon"
 HARE_SRC_DIR="${MOTR_SRC_DIR}/../cortx-hare"
 
-CURENT_DIR=`pwd`
-ARTIFACTS_TOP_DIR=$CURENT_DIR/m0crate_artifacts_`date '+%Y-%m-%d_%H.%M.%S'`
+CURENT_DIR=$(pwd)
+ARTIFACTS_TOP_DIR=$CURENT_DIR/m0crate_artifacts_$(date '+%Y-%m-%d_%H.%M.%S')
 
 OVERRIDE_MOTR_CONF_PARAMS=""
 
 # functions check_root(), _check_is_cluster_online()
-. ${SCRIPT_DIR}/common/common_funcs
+. "${SCRIPT_DIR}"/common/common_funcs
 # functions parse_nodes(), ...
-. ${SCRIPT_DIR}/common/remote_execution
+. "${SCRIPT_DIR}"/common/remote_execution
 
 # function set_timeout()
-. ${SCRIPT_DIR}/common/timeout_funcs
+. "${SCRIPT_DIR}"/common/timeout_funcs
 
 MOTR_CONF_FILE="/etc/sysconfig/motr"
 IOS_RESTART_LOG="/tmp/restart_ios.log"
@@ -100,7 +100,7 @@ function cleanup_cluster()
 
     $EX_SRV pkill -9 -f s3server
     $EX_SRV systemctl start motr-cleanup
-    $EX_SRV $HALON_SRC_DIR/scripts/h0 fini
+    $EX_SRV "$HALON_SRC_DIR"/scripts/h0 fini
     $EX_SRV "pushd $HARE_SRC_DIR && make uninstall && popd"
     $EX_SRV rmmod m0tr
     $EX_SRV rmmod m0gf
@@ -126,18 +126,18 @@ function setup_ha()
 {
     _info "setup Hare"
     CURRENT_CDF="/tmp/cdf.yaml"
-    $EX_SRV $MOTR_SRC_DIR/scripts/install-motr-service -l
+    $EX_SRV "$MOTR_SRC_DIR"/scripts/install-motr-service -l
 
     for s in $(echo "$SRV_NODES" | sed 's/,/ /g'); do
-        pdsh -S -w $s "pushd $HARE_SRC_DIR && make devinstall && popd"
+        pdsh -S -w "$s" "pushd $HARE_SRC_DIR && make devinstall && popd"
     done
 }
 
 function setup_m0_configs()
 {
     _info "copying cluster config files from $CLUSTER_CONFIGS_DIR"
-    cp $CLUSTER_CONFIGS_DIR/motr /tmp/motr
-    override_motr_conf /tmp/motr $OVERRIDE_MOTR_CONF_PARAMS
+    cp "$CLUSTER_CONFIGS_DIR"/motr /tmp/motr
+    override_motr_conf /tmp/motr "$OVERRIDE_MOTR_CONF_PARAMS"
     $EX_SRV scp $(hostname):/tmp/motr $MOTR_CONF_FILE
     rm -f /tmp/motr
 }
@@ -148,13 +148,13 @@ function setup_ha_configs()
         _info "setup Halon configs"
    else
         _info "setup Hare configs"
-        case $(echo $SRV_NODES | sed "s/,/ /g" | wc -w) in
+        case $(echo "$SRV_NODES" | sed "s/,/ /g" | wc -w) in
             1)
-                local node=$(echo $SRV_NODES | awk -F '.' '{print $1}')
-                cp $CLUSTER_CONFIGS_DIR/cdf.$node.io.yaml $CURRENT_CDF
+                local node=$(echo "$SRV_NODES" | awk -F '.' '{print $1}')
+                cp "$CLUSTER_CONFIGS_DIR"/cdf."$node".io.yaml $CURRENT_CDF
                 ;;
             2)
-                cp $CLUSTER_CONFIGS_DIR/cdf.dual.io.yaml $CURRENT_CDF
+                cp "$CLUSTER_CONFIGS_DIR"/cdf.dual.io.yaml $CURRENT_CDF
                 ;;
         esac
    fi
@@ -174,8 +174,8 @@ function create_artifacts_dir()
     local app=$1
     shift
 
-    ARTIFACTS_DIR=`echo t$num-$app-$@ | sed -r -e 's/\s+/__/g' | sed -r 's/=/-/g'`
-    mkdir -p $ARTIFACTS_DIR
+    ARTIFACTS_DIR=$(echo t"$num"-"$app"-"$@" | sed -r -e 's/\s+/__/g' | sed -r 's/=/-/g')
+    mkdir -p "$ARTIFACTS_DIR"
 
     # Create temporary dir on remote nodes
     $EX_SRV rm -fr /tmp/io_workload_arts/ || true
@@ -186,9 +186,9 @@ function dump_m0traces()
 {
     for filename in m0trace.*; do
         _info "dump $filename"
-        $MOTR_SRC_DIR/utils/trace/m0trace -i ${filename} \
-            -o ${filename}.txt 2>/dev/null
-        rm $filename
+        "$MOTR_SRC_DIR"/utils/trace/m0trace -i "${filename}" \
+            -o "${filename}".txt 2>/dev/null
+        rm "$filename"
     done
 }
 
@@ -202,8 +202,8 @@ function save_hardware_conf()
         fi
 
         _info "saving of hardware config"
-        $SCRIPT_DIR/get_hw_conf.exp $TELNET_ADDR $TELNET_LOGIN \
-                                      $TELNET_PASS > hw_conf.json
+        "$SCRIPT_DIR"/get_hw_conf.exp "$TELNET_ADDR" "$TELNET_LOGIN" \
+                                      "$TELNET_PASS" > hw_conf.json
     fi
 }
 
@@ -213,9 +213,9 @@ function save_cli_artifacts()
     local app=$1
 
     if [[ $app == "m0crate" ]]; then
-        cluster_copy '/tmp/m0crate.*.$(hostname).log' $(pwd)
-        $EX_CLI 'rm -f /tmp/m0crate.*.$(hostname).log'
-        mv $SCRIPT_DIR/test_io*.yaml ./
+        cluster_copy "/tmp/m0crate.*.$(hostname).log" $(pwd)
+        $EX_CLI "rm -f /tmp/m0crate.*.$(hostname).log"
+        mv "$SCRIPT_DIR"/test_io*.yaml ./
     fi
 }
 
@@ -233,10 +233,10 @@ function save_motr_artifacts()
 
     mkdir -p $crash_dir
     pushd $crash_dir
-    for srv in $(echo $SRV_NODES | tr ',' ' '); do
-        mkdir -p $srv
-        scp -r $srv:/var/crash/* $srv || true
-        ssh $srv -T "rm -rf /var/crash/*" || true
+    for srv in $(echo "$SRV_NODES" | tr ',' ' '); do
+        mkdir -p "$srv"
+        scp -r "$srv":/var/crash/* "$srv" || true
+        ssh "$srv" -T "rm -rf /var/crash/*" || true
     done
     popd
 
@@ -247,13 +247,13 @@ function save_motr_artifacts()
         set +e
         local cur_dir=$(pwd)
         local cur_hostname=$(hostname)
-        local ioservice_list=$(cat $ARTIFACTS_TOP_DIR/hctl-status.stop \
+        local ioservice_list=$(cat "$ARTIFACTS_TOP_DIR"/hctl-status.stop \
             | grep ioservice | sed 's/\[.*\]//' | awk '{print $2}')
 
         for ios_fid in $ioservice_list; do
             local ios_dir="/var/motr/m0d-$ios_fid"
             local srv_node_cmd="if [ -e $ios_dir ]; then scp $ios_dir/m0trace.* ${cur_hostname}:${cur_dir} ; fi"
-            $EX_SRV $srv_node_cmd
+            $EX_SRV "$srv_node_cmd"
         done
         set -e
 
@@ -270,13 +270,13 @@ function save_motr_artifacts()
         for ios_fid in $ioservice_list; do
             local ios_dir="/var/motr/m0d-$ios_fid"
             local ios_addb_stob="$ios_dir/addb-stobs/o/100000000000000:2"
-            local pid=$(echo $ios_addb_stob | sed -E 's/.*[x]([a-z0-9]*)[/].*/\1/')
+            local pid=$(echo "$ios_addb_stob" | sed -E 's/.*[x]([a-z0-9]*)[/].*/\1/')
             srv_node_cmd="if [ -e $ios_addb_stob ]; then scp $ios_addb_stob ${cur_hostname}:${cur_dir} ; fi"
-            $EX_SRV $srv_node_cmd
+            $EX_SRV "$srv_node_cmd"
             set -x
-            ${MOTR_SRC_DIR}/utils/m0addb2dump -f  -- "$cur_dir/100000000000000:2" > dumps_${pid}.txt
+            "${MOTR_SRC_DIR}"/utils/m0addb2dump -f  -- "$cur_dir/100000000000000:2" > dumps_"${pid}".txt
             set +x
-            rm -f $cur_dir/100000000000000:2
+            rm -f "$cur_dir"/100000000000000:2
         done
     fi
 }
@@ -349,12 +349,12 @@ function override_motr_conf()
     shift
 
     for param in $@; do
-        local param_name=`echo "${param}" | awk -F "=" '{print $1}'`
-        local param_value=`echo "${param}" | awk -F "=" '{print $2}'`
+        local param_name=$(echo "${param}" | awk -F "=" '{print $1}')
+        local param_value=$(echo "${param}" | awk -F "=" '{print $2}')
 
-        sed -i "/.*${param_name}.*/d" $conf
+        sed -i "/.*${param_name}.*/d" "$conf"
         param_value="$param_name=$param_value #changed by io_workload script"
-        echo -e "\n$param_value" >> $conf
+        echo -e "\n$param_value" >> "$conf"
     done
 }
 
@@ -369,14 +369,14 @@ function set_term_flag()
 
 function restart_random_ioservice()
 {
-    local srv_node_list=$(echo $SRV_NODES | sed 's/,/ /g')
-    local srv_node_nr=$(echo $srv_node_list | wc | awk '{print $2}')
+    local srv_node_list=$(echo "$SRV_NODES" | sed 's/,/ /g')
+    local srv_node_nr=$(echo "$srv_node_list" | wc | awk '{print $2}')
     local rnd_node_index=$(( RANDOM % $srv_node_nr ))
     local awk_cmd="{print \$$((rnd_node_index+1))}"
-    local rnd_node_name=$(echo $srv_node_list | awk "$awk_cmd")
+    local rnd_node_name=$(echo "$srv_node_list" | awk "$awk_cmd")
 
     _info "kill ioservice on $rnd_node_name"
-    pdsh -S -w $rnd_node_name "$SCRIPT_DIR/restart_ios.sh &>> $IOS_RESTART_LOG" &
+    pdsh -S -w "$rnd_node_name" "$SCRIPT_DIR/restart_ios.sh &>> $IOS_RESTART_LOG" &
     restart_pid=$!
     while kill -0 "$restart_pid" >/dev/null 2>&1; do
         sleep 30
@@ -392,26 +392,26 @@ function run_tests() {
 
     restart_cluster
 
-    mkdir -p $ARTIFACTS_TOP_DIR
-    pushd $ARTIFACTS_TOP_DIR
+    mkdir -p "$ARTIFACTS_TOP_DIR"
+    pushd "$ARTIFACTS_TOP_DIR"
 
     mkdir -p $m0cli_dir
     pushd $m0cli_dir
 
     mkdir -p $m0bins
     pushd $m0bins
-    cp $MOTR_SRC_DIR/motr/m0crate/.libs/m0crate ./
-    cp $MOTR_SRC_DIR/motr/.libs/lt-m0d ./
+    cp "$MOTR_SRC_DIR"/motr/m0crate/.libs/m0crate ./
+    cp "$MOTR_SRC_DIR"/motr/.libs/lt-m0d ./
     popd
 
     #delete old logs
-    $EX_CLI 'rm -f /tmp/m0crate.*.$(hostname).log'
+    $EX_CLI "rm -f /tmp/m0crate.*.$(hostname).log"
 
     for ((i = 0; i < $((${#CONFS[*]})); i++)); do
         conf=${CONFS[((i))]}
-        echo "conf: "$conf
+        echo "conf: $conf"
         local motr_port=$((i+1)) #TODO: improve that
-        local hostname_cmd='$(hostname)'
+        local hostname_cmd=$(hostname)
 
         $EX_CLI "MOTR_SRC_DIR=\"$MOTR_SRC_DIR\" \
             $SCRIPT_DIR/endless_m0crate --motr-port $motr_port -w \"$conf\" \
@@ -426,7 +426,7 @@ function run_tests() {
         local found_m0d_crash=""
 
         for srv_node in $(echo "$SRV_NODES" | sed 's/,/ /g'); do
-            if ssh $srv_node 'ls /var/crash/core*m0d* &> /dev/null'; then
+            if ssh "$srv_node" 'ls /var/crash/core*m0d* &> /dev/null'; then
                 _info "found new m0d crashes on $srv_node"
                 found_m0d_crash=1
             fi
@@ -525,7 +525,7 @@ function check_arg_value()
 while [[ $# -gt 0 ]]; do
     case $1 in
         --config)
-            check_arg_value $1 $2
+            check_arg_value "$1" "$2"
 
             [[ -f "$2" ]] || {
                 echo -e "File not exist: $2"
@@ -535,19 +535,19 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         -w|--workload_config)
-            check_arg_value $1 $2 $3
+            check_arg_value "$1" "$2" "$3"
             override_app_conf "$2"
             override_workload_conf "$3"
             shift
             shift
             ;;
         -m|--motr_config)
-            check_arg_value $1 $2
+            check_arg_value "$1" "$2"
             OVERRIDE_MOTR_CONF_PARAMS=$2
             shift
             ;;
         -c|--cluster-configs)
-            check_arg_value $1 $2
+            check_arg_value "$1" "$2"
 
             [[ -d $2 ]] || {
                 echo "Directory not exist: $2"

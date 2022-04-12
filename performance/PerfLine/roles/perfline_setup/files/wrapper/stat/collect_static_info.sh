@@ -11,7 +11,7 @@ rm -rf /var/perfline/network.$(hostname -s) || true
 mkdir /var/perfline/network.$(hostname -s)
 rm -rf /var/perfline/5u84.$(hostname -s) || true
 mkdir /var/perfline/5u84.$(hostname -s)
-${SCRIPT_DIR}/5u84stats.sh /var/perfline/5u84.$(hostname -s)
+# ${SCRIPT_DIR}/5u84stats.sh /var/perfline/5u84.$(hostname -s)
 
 cp /etc/modprobe.d/lnet.conf /var/perfline/network.$(hostname -s)/lnet.conf
 cp /etc/multipath.conf /var/perfline/network.$(hostname -s)/multipath.conf

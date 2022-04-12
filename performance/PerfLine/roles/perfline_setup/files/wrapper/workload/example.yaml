@@ -125,4 +125,6 @@ execution_options:
   mkfs: false
   collect_m0trace: false
   collect_addb: false
+  addb_duration: 5 min         # This options would be required to filter last N hour/minute/second addb dump
+  analyze_addb: false
   backup_result: false

@@ -27,9 +27,9 @@ set -x
 # Please don't put any additional code here. Any required changes
 # should be placed in the particular update_configs.sh LR/LC-version
 
-SCRIPT_NAME=`echo $0 | awk -F "/" '{print $NF}'`
-SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_NAME=$(echo "$0" | awk -F "/" '{print $NF}')
+SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 source "$SCRIPT_DIR/../../../perfline.conf"
 
-$SCRIPT_DIR/../$CLUSTER_TYPE/conf_customization/update_configs.sh "$@"
+"$SCRIPT_DIR"/../"$CLUSTER_TYPE"/conf_customization/update_configs.sh "$@"

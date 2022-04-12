@@ -54,7 +54,7 @@ function set_timeout()
             ;;
     esac
 
-    local time_val_sec=$(($time_val*$multiplier))
+    local time_val_sec=$((time_val*multiplier))
     local now=$(date '+%s')
-    DEADLINE_UNIXTIME=$(($now+$time_val_sec))
+    DEADLINE_UNIXTIME=$((now+time_val_sec))
 }

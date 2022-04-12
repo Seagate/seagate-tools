@@ -40,6 +40,6 @@ echo "============================================================="
 for x in $(echo "select fom_sm_id, pid from fom_desc where req_opcode like '$PATTERN' limit $LIMIT_OFFSET,$LIMIT;" | sqlite3 m0play.db); do
     IFS='|' read -r -a args <<< "$x"
     echo "FOM id: ${args[0]}, pid: ${args[1]}"
-    python3 fom_req.py -f ${args[0]} -p ${args[1]}
+    python3 fom_req.py -f "${args[0]}" -p "${args[1]}"
     echo "-------------------------------------------------------------"
 done

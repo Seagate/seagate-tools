@@ -22,7 +22,7 @@
 
 import sys
 from addb2db import *
-from typing import List, Dict
+from typing import List
 from req_utils import *
 
 

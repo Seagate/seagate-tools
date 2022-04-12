@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 #
-#
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
 # This program is free software: you can redistribute it and/or modify
@@ -26,6 +25,6 @@ source "$SCRIPT_DIR/../perfline.conf"
 PL_SCRIPT_PATH=$PERFLINE_DIR/wrapper/perfline.py
 PL_DIR="${PL_SCRIPT_PATH%/*}"
 
-pushd $PL_DIR > /dev/null
-$PL_SCRIPT_PATH $@
+pushd "$PL_DIR" > /dev/null
+$PL_SCRIPT_PATH "$@"
 popd > /dev/null

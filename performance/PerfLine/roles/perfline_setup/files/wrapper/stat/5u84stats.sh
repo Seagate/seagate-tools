@@ -21,12 +21,12 @@
 
 set -x
 
-cd $1
+cd "$1"
 
 function collect_strg_ctrlr_config()
 {
 	echo 'Collecting 5u84 configuration using cmdline'
-	sshpass -p ${STRG_CTRLR_PASSWORD} ssh -T ${STRG_CTRLR_USER}@${STRG_CTRLR_CONTROLLER_IP} <<-EOF > 5u84.config
+	sshpass -p "${STRG_CTRLR_PASSWORD}" ssh -T "${STRG_CTRLR_USER}"@"${STRG_CTRLR_CONTROLLER_IP}" <<-EOF > 5u84.config
 	set cli-parameters Pager Disabled
 	show volumes
 	show pools
@@ -39,7 +39,7 @@ function collect_strg_ctrlr_config()
 function collect_perf_logs()
 {
 	echo 'Collecting 5u84 perf logs using ftp'
-	ftp -in $STRG_CTRLR_CONTROLLER_IP <<-EOF
+	ftp -in "$STRG_CTRLR_CONTROLLER_IP" <<-EOF
 	user $STRG_CTRLR_USER $STRG_CTRLR_PASSWORD
 	get logs:heatmap io_density_heatmap.csv
 	get perf perf_log.csv
@@ -50,7 +50,7 @@ function collect_perf_logs()
 function collect_debug_logs()
 {
 	echo 'Collecting 5u84 debug logs using ftp'
-	ftp -in $STRG_CTRLR_CONTROLLER_IP <<-EOF
+	ftp -in "$STRG_CTRLR_CONTROLLER_IP" <<-EOF
 	user $STRG_CTRLR_USER $STRG_CTRLR_PASSWORD
 	logs debug_logs.zip
 	bye
@@ -60,7 +60,7 @@ function collect_debug_logs()
 STRG_CTRLR_USER=''
 STRG_CTRLR_PASSWORD=''
 TAP0_IP=$(ifconfig tap0 | grep '10.0.0' | awk '{print $2}')
-if [ $TAP0_IP == '10.0.0.4' ]
+if [ "$TAP0_IP" == '10.0.0.4' ]
 then
     STRG_CTRLR_CONTROLLER_IP='10.0.0.2'
 else

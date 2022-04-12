@@ -19,7 +19,6 @@
 #
 # -*- coding: utf-8 -*-
 
-import os
 from flask import send_from_directory, make_response
 
 from app_global_data import *

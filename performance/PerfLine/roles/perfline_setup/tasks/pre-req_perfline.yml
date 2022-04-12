@@ -12,7 +12,7 @@
       state: directory
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
-    
+
   - name: "Creating perfline directory {{ PERFLINE_DIR }}"
     file:
       path: "{{ PERFLINE_DIR }}/bin"
@@ -45,7 +45,7 @@
       dest: "{{ PERFLINE_DIR }}"
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
-    
+
   - name: "Create List of nodes to be added into Cluster"
     set_fact: nodelist={%for host in groups['nodes']%}{{hostvars[host]['ansible_host']}}{% if not loop.last %},{% endif %}{% endfor %}
 
@@ -96,5 +96,5 @@
     yum:
       name: cortx-s3iamcli
       state: present
-    delegate_to: "client-1" 
-      
+    delegate_to: "client-1"
+

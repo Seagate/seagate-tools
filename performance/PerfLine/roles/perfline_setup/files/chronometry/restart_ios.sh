@@ -26,9 +26,9 @@ status=$(hctl status)
 addr="([0-9]+[.][0-9]+[.][0-9]+[.][0-9]+)"
 host=$(hostname -s)
 
-NODE_IP=`echo "$status" | grep "$host" -A 1 | grep -E -o "$addr"`
-IOS_FID=`echo "$status" | grep "\[.*\].*ioservice" | grep ${NODE_IP} \
-        | awk '{print $3}'`
+NODE_IP=$(echo "$status" | grep "$host" -A 1 | grep -E -o "$addr")
+IOS_FID=$(echo "$status" | grep "\[.*\].*ioservice" | grep ${NODE_IP} \
+        | awk '{print $3}')
 
 # Wait before kill
 sleep_before=$((( RANDOM % 60 ) + 120))
@@ -37,14 +37,14 @@ sleep $sleep_before
 
 hctl status
 
-ios_pid=$(ps ax | grep -v grep | grep $IOS_FID | awk '{print $1}')
+ios_pid=$(ps ax | grep -v grep | grep "$IOS_FID" | awk '{print $1}')
 
 if [[ -z "$ios_pid" ]]; then
     echo "m0d ioservice process is not alive"
     exit 0
 fi
 
-kill -9 $ios_pid
+kill -9 "$ios_pid"
 
 # Wait after kill
 sleep_after=$((( RANDOM % 30 ) + 10))
@@ -53,7 +53,7 @@ sleep $sleep_after
 hctl status
 
 echo "IOS_FID: $IOS_FID"
-systemctl start m0d@$IOS_FID || echo "ioservice starting failed"
+systemctl start m0d@"$IOS_FID" || echo "ioservice starting failed"
 
 sleep 10
 hctl status

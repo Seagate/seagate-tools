@@ -20,7 +20,7 @@
 # -*- coding: utf-8 -*-
 
 set -x
-SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 source "$SCRIPT_DIR/../../perfline.conf"
 
@@ -69,8 +69,8 @@ function parse_creds()
     if [[ -n "$ACCESS_KEY" && -n "$SECRET_KEY" ]]; then
         return 0
     fi
-    ACCESS_KEY=$(egrep ^[^#] ~/.aws/credentials | grep aws_access_key_id | cut -d= -f2 | tr -d " ")
-    SECRET_KEY=$(egrep ^[^#] ~/.aws/credentials | grep aws_secret_access_key | cut -d= -f2 | tr -d " ")
+    ACCESS_KEY=$(grep -E ^[^#] ~/.aws/credentials | grep aws_access_key_id | cut -d= -f2 | tr -d " ")
+    SECRET_KEY=$(grep -E ^[^#] ~/.aws/credentials | grep aws_secret_access_key | cut -d= -f2 | tr -d " ")
 }
 
 
@@ -79,9 +79,9 @@ function run_s3bench()
     local format="Parameters:label;Parameters:numClients;Parameters:objectSize (MB);Parameters:copies;-Parameters:sampleReads;-Parameters:readObj;-Parameters:headObj;-Parameters:putObjTag;-Parameters:getObjTag;-Parameters:TLSHandshakeTimeout;-Parameters:bucket;-Parameters:connectTimeout;-Parameters:deleteAtOnce;-Parameters:deleteClients;-Parameters:deleteOnly;-Parameters:endpoints;-Parameters:httpClientTimeout;-Parameters:idleConnTimeout;-Parameters:maxIdleConnsPerHost;-Parameters:multipartSize;-Parameters:numTags;-Parameters:objectNamePrefix;-Parameters:protocolDebug;-Parameters:reportFormat;-Parameters:responseHeaderTimeout;-Parameters:s3Disable100Continue;-Parameters:profile;-Parameters:s3MaxRetries;-Parameters:skipRead;-Parameters:skipWrite;-Parameters:tagNamePrefix;-Parameters:tagValPrefix;-Parameters:validate;-Parameters:zero;-Parameters:outstream;-Parameters:outtype;Tests:Operation;Tests:RPS;Tests:Total Requests Count;Tests:Errors Count;Tests:Total Throughput (MB/s);Tests:Total Duration (s);Tests:Total Transferred (MB);Tests:Duration Max;Tests:Duration Avg;Tests:Duration Min;Tests:Ttfb Max;Tests:Ttfb Avg;Tests:Ttfb Min;-Tests:Duration 25th-ile;-Tests:Duration 50th-ile;-Tests:Duration 75th-ile;-Tests:Ttfb 25th-ile;-Tests:Ttfb 50th-ile;-Tests:Ttfb 75th-ile;-Tests:Errors;-Version;"
 
     if [[ -f "s3bench_report.csv" ]]; then
-        $PERFLINE_DIR/bin/s3bench_perfline -region us-east-1 -reportFormat "$format" -accessKey $ACCESS_KEY -accessSecret $SECRET_KEY -bucket $BUCKET_NAME -numSamples $NUM_SAMPLES -objectSize $OBJ_SIZE -numClients $NUM_CLIENTS -endpoint "$ENDPOINT" -o s3bench_report.csv -t csv+
+        "$PERFLINE_DIR"/bin/s3bench_perfline -region us-east-1 -reportFormat "$format" -accessKey "$ACCESS_KEY" -accessSecret "$SECRET_KEY" -bucket "$BUCKET_NAME" -numSamples "$NUM_SAMPLES" -objectSize "$OBJ_SIZE" -numClients "$NUM_CLIENTS" -endpoint "$ENDPOINT" -o s3bench_report.csv -t csv+
     else
-        $PERFLINE_DIR/bin/s3bench_perfline -region us-east-1 -reportFormat "$format" -accessKey $ACCESS_KEY -accessSecret $SECRET_KEY -bucket $BUCKET_NAME -numSamples $NUM_SAMPLES -objectSize $OBJ_SIZE -numClients $NUM_CLIENTS -endpoint "$ENDPOINT" -o s3bench_report.csv -t csv
+        "$PERFLINE_DIR"/bin/s3bench_perfline -region us-east-1 -reportFormat "$format" -accessKey "$ACCESS_KEY" -accessSecret "$SECRET_KEY" -bucket "$BUCKET_NAME" -numSamples "$NUM_SAMPLES" -objectSize "$OBJ_SIZE" -numClients "$NUM_CLIENTS" -endpoint "$ENDPOINT" -o s3bench_report.csv -t csv
     fi
 
 

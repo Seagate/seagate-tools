@@ -19,7 +19,7 @@
 #
 # -*- coding: utf-8 -*-
 
-import re
+
 import yaml
 import datetime
 import argparse
@@ -60,7 +60,7 @@ def consume_data(input_file):
         for line_in in file_in:
             res = line_in.split(MEAS_LABEL)
             if len(res) == 2:
-                y = yaml.load(res[1])
+                y = yaml.safe_load(res[1])
 
                 time = y.pop('time', None)
                 name = y.pop('name', None)

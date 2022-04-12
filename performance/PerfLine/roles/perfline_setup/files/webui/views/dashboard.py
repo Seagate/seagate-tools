@@ -20,7 +20,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
 import gzip
 from flask import send_file, request, make_response
 

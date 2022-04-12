@@ -70,6 +70,7 @@
        - { variable: 'ARTIFACTS_DIR', value: '{{ ARTIFACTS_DIR }}'}
        - { variable: 'NIGHT_ARTIFACTS', value: '{{ NIGHT_ARTIFACTS }}'}
        - { variable: 'PUBLIC_DATA_INTERFACE_NAME', value: '{{ PUBLIC_DATA_INTERFACE_NAME }}'}
+       - { variable: 'DISK', value: '{{ disk }}' }
 
   - name: "Updating numeric values of a variables in perfline.conf"
     lineinfile:
@@ -95,3 +96,25 @@
        mode: '0751'
     delegate_to: "client-1"
 
+  - name: Add repository for s3iamcli
+    yum_repository:
+       name: s3iamcli
+       description: Packages required for s3 account
+       baseurl: http://cortx-storage.colo.seagate.com/releases/cortx/uploads/centos/centos-7.9.2009/s3server_uploads/
+       gpgcheck: no
+    delegate_to: "client-1" 
+
+  - name: Add repository for s3 account
+    yum_repository:
+       name: s3_account
+       description: Packages required for s3 account
+       baseurl: http://cortx-storage.colo.seagate.com/releases/cortx/github/main/centos-7.9.2009/last_successful/
+       gpgcheck: no
+    delegate_to: "client-1" 
+
+  - name: "Installing cortx-s3iamcli"
+    yum:
+      name: cortx-s3iamcli
+      state: present
+    delegate_to: "client-1" 
+      

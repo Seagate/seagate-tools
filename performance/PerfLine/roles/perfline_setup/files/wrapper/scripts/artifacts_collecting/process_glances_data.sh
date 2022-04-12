@@ -27,6 +27,7 @@ GLANCES_DIR="$SCRIPT_DIR/../../stat/glances"
 
 DISKS_MAPPING_FILE="../disks.mapping"
 NETWORK_IFACES_FILE="../network/network_interfaces_info"
+CPU_INFO_FILE="../hw/cpu_info"
 CSV_DATA_FILE="glances.csv"
 
 YAML_TEMPLATE_FILE="$GLANCES_DIR/glances_stats_schema.template.yaml"
@@ -38,10 +39,10 @@ function process_data_for_node()
     
     pushd $hostname/glances
 
-    local cpu_nr=$(lscpu | grep '^CPU(s):' | awk '{print $2}')
+    local cpu_nr=$(cat $CPU_INFO_FILE | grep '^CPU(s):' | sed "s/'//g" | awk '{print $2}')
     local data_vols=$(cat $DISKS_MAPPING_FILE | grep IO | awk '{print $3}')
     local md_vols=$(cat $DISKS_MAPPING_FILE | grep MD | awk '{print $3}')
-    local net_ifaces=$(cat $NETWORK_IFACES_FILE | grep '^[0-9]:' | awk -F ': ' '{print $2}')
+    local net_ifaces=$(cat $NETWORK_IFACES_FILE | grep '^[0-9]:' | awk -F ': ' '{print $2}' | sed 's/@.*$//')
     
     $GLANCES_DIR/gen_glances_stats_schema.py -y $YAML_TEMPLATE_FILE \
             -d "$data_vols" -m "$md_vols" -n "$net_ifaces" -c "$cpu_nr"

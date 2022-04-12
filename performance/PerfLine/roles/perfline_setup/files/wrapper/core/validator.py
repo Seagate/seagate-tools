@@ -109,6 +109,13 @@ def get_schema_motr():
                     'schema': {
                         'custom_conf': {'type': 'string', 'required': False, 'empty': False},
                     }
+                },
+                'solution': {
+                    'required': False,
+                    'type': 'dict',
+                    'schema': {
+                        'custom_conf': {'type': 'string', 'required': False, 'empty': False},
+                    }
                 }
             }
         },
@@ -129,6 +136,11 @@ def get_schema_motr():
                 {
                     'schema': {
                         'url': {'type': 'string', 'empty': False},
+                    }
+                },
+                {
+                    'schema': {
+                        'update_resource': {'type': 'string', 'empty': False},
                     }
                 },
                 {
@@ -289,6 +301,7 @@ def get_schema_motr():
                 'collect_m0trace': {'type': 'boolean'},
                 'collect_addb': {'type': 'boolean'},
                 'analyze_addb': {'type': 'boolean', 'required': False},
+                'addb_duration': {'type': 'string', 'required': False, 'empty': False, 'regex': '(^all$)|(^\d+((m$)|(h$)|(s$)|(min$)|(sec$)|(hr$)|(hour$)|(minute$)|(second$))$)'},
                 'backup_result': {'type': 'boolean'}
             }
         }

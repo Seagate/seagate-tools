@@ -1,11 +1,11 @@
 #!/bin/bash
 mylimit=`cat ~/.bashrc | grep 'ulimit' | awk '{print $3}'`
-if [ -z $mylimit ]
+if [ -z "$mylimit" ]
   then
     echo "*** Appending ulimit to bashrc ***"
     echo "ulimit -n 100000" >> ~/.bashrc
     echo "*** Appended ***"
-elif [ $mylimit -eq 100000 ]
+elif [ "$mylimit" -eq 100000 ]
   then
     echo "*** Ulimit is already set to 100000 ***"
     echo "*** Nothing to modify ***"

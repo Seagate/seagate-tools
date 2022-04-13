@@ -7,7 +7,7 @@ SCRIPT_NAME=`echo $0 | awk -F "/" '{print $NF}'`
 SCRIPT_PATH="$(readlink -f $0)"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 
-PERFLINE_DIR="$SCRIPT_DIR/../.."
+PERFLINE_DIR="$SCRIPT_DIR/../../.."
 DOCKER_DIR="$PERFLINE_DIR/docker"
 CORTX_DIR="$DOCKER_DIR/cortx"
 RPM_DIR="$PERFLINE_DIR/rpm"
@@ -15,8 +15,8 @@ RPM_DIR="$PERFLINE_DIR/rpm"
 DOCKER_ARTIFACTS_DIR="/var/artifacts"
 BUILD_DIR="$DOCKER_ARTIFACTS_DIR/0"
 
-source "$SCRIPT_DIR/../../perfline.conf"
-source "$SCRIPT_DIR/cluster_status.sh"
+source "$SCRIPT_DIR/../../../perfline.conf"
+source "$SCRIPT_DIR/../cluster_status.sh"
 
 EX_SRV="pdsh -S -w $NODES"
 PRIMARY_NODE=$(echo "$NODES" | cut -d "," -f1)
@@ -61,7 +61,7 @@ function prepare_env() {
     fi
 
     if [ ! -d "$CORTX_DIR" ]; then
-	mkdir -p $DOCKER_DIR
+	mkdir -p "$DOCKER_DIR"
 	pushd $DOCKER_DIR
 	git clone --recursive https://github.com/Seagate/cortx
 	popd
@@ -87,7 +87,7 @@ function check_version() {
     fi
 
     if [ -n "${UTILS_REPO}" ]; then
-	utils_ver=`git ls-remote $UTILS_REPO $UTILS_BRANCH | cut -f1 | cut -c1-8`
+	utils_ver=`git ls-remote $UTILS_REPO "$UTILS_BRANCH" | cut -f1 | cut -c1-8`
 
 	if [ -n "${utils_ver}" ]; then
 	    is_utils_same=`yum list installed | grep cortx-py | grep ${utils_ver}` || true
@@ -325,7 +325,7 @@ function stop_services() {
 
 function check_cluster_status() {
     local wait_period=0
-    while ! is_cluster_online $PRIMARY_NODE
+    while ! is_cluster_online "$PRIMARY_NODE"
     do
        wait_period=$(($wait_period+10))
        if [ $wait_period -gt 600 ];then
@@ -504,7 +504,7 @@ while [[ $# -gt 0 ]]; do
             EX_SRV="pdsh -S -w $NODES"
             shift
             ;;
-	--url)
+	--update-resource)
             URL=$2
             shift
             ;;

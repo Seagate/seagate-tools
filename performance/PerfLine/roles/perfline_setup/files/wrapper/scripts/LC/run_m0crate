@@ -1,0 +1,148 @@
+#!/usr/bin/env bash
+#
+# Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+
+set -x
+set -e
+
+SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_DIR="${SCRIPT_PATH%/*}"
+
+_get_cluster_params() {
+    local hostname="$1"
+    POD=$(kubectl get pod -o wide | grep $hostname | grep cortx-data-pod | awk '{print $1}')
+    CONTAINER=$(kubectl get pods $POD -o jsonpath='{.spec.containers[*].name}' | tr ' ' '\n' | grep cortx-motr-hax)
+    HCTL_STATUS=$(kubectl exec -it $POD -c $CONTAINER -- hctl status)
+
+    local addr="([0-9]+[.][0-9]+[.][0-9]+[.][0-9]+)"
+    local addr_ext='.* ([0-9]+[.][0-9]+[.][0-9]+[.][0-9]+@.+:[0-9]{5}:[0-9]{2}:).*'
+    local addr_extp='.* ([0-9]+[.][0-9]+[.][0-9]+[.][0-9]+@.+:[0-9]{5}:[0-9]{2}:[0-9]+).*'
+
+    HAX_IP_EXT=$(echo "$HCTL_STATUS" \
+         | grep $hostname | grep hax |awk '{print $4}'| tr -d ' ' | tr -d '\r')
+
+    APP_IP_EXT=$(echo "$HCTL_STATUS" | grep $hostname | grep m0_client \
+         | sed -E "s/:[0-9]+$/:/" |  awk '{print $4}' | head -1 | tr -d ' ' | tr -d '\r')
+
+    CONFD_IP_EXT=$(echo "$HCTL_STATUS" \
+         | grep $hostname | grep confd |awk '{print $4}'| tr -d ' ' | tr -d '\r')
+
+    M0_CLIENT=$(echo "$HCTL_STATUS" \
+         | grep $hostname | grep m0_client |awk '{print $4}' \
+         | awk -F@ '{print $1}' | tr -d '\r')
+
+    CLUSTER_PROFILE=$(echo "$HCTL_STATUS" \
+         | grep 'Profile_the_pool' | awk '{ print $1}' | tr -d '\r')
+
+
+    IOS_FID=$(echo "$HCTL_STATUS" \
+         | grep "\[.*\].*ioservice" | grep $hostname | awk '{print $3}' | tr -d '\r')
+
+    MOTR_PORTS=$(echo "$HCTL_STATUS" | grep $hostname | grep m0_client | grep -E 'unknown|offline' \
+        | awk '{print $4}' | awk -F@ '{print $NF}' | head -1 | tr -d '\r')
+}
+
+_iter_m0crate_params() {
+    local all_params=$(cat ${SCRIPT_DIR}/../test_io.yaml.template \
+       | grep -P -o "###__.+=.+__###"                \
+       | sed -E "s/###__(.*=.*)__###/\1/g")
+
+    for param_eq in $all_params; do
+        case $1 in
+            ev) eval $param_eq;;
+            pr) echo $param_eq;;
+            *);;
+        esac
+    done
+}
+
+_set_default_m0crate_params() {
+    MOTR_CONFD_ADDR=$CONFD_IP_EXT
+    MOTR_HA_ADDR=$HAX_IP_EXT
+    PROF=$CLUSTER_PROFILE
+
+    _iter_m0crate_params ev
+}
+
+_parse_m0crate_params() {
+    for x in $@; do
+        eval $x;
+    done
+
+    return 0
+}
+
+_set_m0crate_config_file_params() {
+    local config_file=$1
+
+    local all_params=$(cat ${SCRIPT_DIR}/../test_io.yaml.template        \
+               | grep -P -o "###__.+__###"                          \
+               | sed -E "s/###__([^=]*?)={0,1}(.*?){0,1}__###/\1/")
+
+    for param_name in $all_params; do
+        local param_value=${!param_name}
+        echo "set parameter: ${param_name}=${param_value}"
+
+        [[ -n $param_value ]] || {
+            echo "parameter $param_name not found"
+            exit 1
+        }
+        echo "${param_value}"
+        sed -i -E "s/###__${param_name}={0,1}(.*?){0,1}__###/${param_value}/" ${config_file}
+    done
+}
+
+prepare_and_run() {
+
+    local iteration="$1"
+    shift
+
+    local hostname="$1"
+    shift
+
+    local src_data_file="/tmp/128M"
+    _get_cluster_params $hostname
+    kubectl exec -it $POD -- rm -f $src_data_file
+    kubectl exec -it $POD -- dd if=/dev/urandom of="$src_data_file" bs=1M count=128 &> /dev/null
+    _set_default_m0crate_params
+    _parse_m0crate_params $@
+
+    local m0crate_pids=""
+
+    logfile="m0crate.$iteration.$MOTR_PORTS.$hostname.log"
+    MOTR_LOCAL_ADDR_EXT=${APP_IP_EXT}
+    PROCESS_FID=$(echo "$HCTL_STATUS" | grep m0_client \
+            | grep "${MOTR_LOCAL_ADDR_EXT}" | awk '{print $3}')
+
+    local m0crate_conf="$(pwd)/test_io.$iteration.$MOTR_PORTS.$hostname.yaml"
+    cp $SCRIPT_DIR/../test_io.yaml.template $m0crate_conf
+    _set_m0crate_config_file_params "$m0crate_conf" > $logfile
+    echo "$m0crate_conf"
+
+    # create directory for m0crate
+    # TODO check if /share/var/log/cortx exists
+    local machine_id=$(kubectl exec $POD -- bash -c 'cat /etc/machine-id')
+    local m0crate_dir="/share/var/log/cortx/m0crate/$iteration/$machine_id/m0crate-$PROCESS_FID"
+    kubectl exec $POD -- bash -c "mkdir -p $m0crate_dir"
+
+    kubectl cp $m0crate_conf $POD:$m0crate_dir/test_io.$iteration.$MOTR_PORTS.$hostname.yaml
+    kubectl exec $POD -- bash -c "cd $m0crate_dir && m0crate -S test_io.$iteration.$MOTR_PORTS.$hostname.yaml &>> $logfile"  
+}
+
+prepare_and_run $@

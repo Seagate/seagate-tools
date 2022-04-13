@@ -44,7 +44,7 @@ do
             bucket=$BUCKETNAME-$RANDOM
             aws s3 mb s3://$bucket
             value=$(echo "$SIZE_OF_OBJECTS" | sed -e 's/Kb//g' | sed -e 's/Mb//g' )
-            units=$(echo ${SIZE_OF_OBJECTS:(-2)})
+            units=$(echo "${SIZE_OF_OBJECTS:(-2)}")
             case "$units" in
                  Mb)   let 'value *= 1024 * 1024'  ;;
                  Kb)   let 'value *= 1024' ;;
@@ -67,7 +67,7 @@ do
 
 	    "$BINPATH"/s3bench_perfpro -region="$REGION"  -accessKey="$ACCESS_KEY"  -accessSecret="$SECRET_KEY" -bucket="$bucket" -endpoint="$ENDPOINTS" -numClients="$NUMCLIENTS" -numSamples="$NO_OF_SAMPLES" -objectNamePrefix=prefill -objectSize="$SIZE_OF_OBJECTS" -skipCleanup -skipRead -o "$TOOL_DIR"/report.s3bench -label object_"$SIZE_OF_OBJECTS"\_numsamples_"$NO_OF_SAMPLES"\_bucket_"$NUMBUCKET"\_sessions_"$NUMCLIENTS"
 
-            mv s3bench-object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_bucket_$NUMBUCKET\_sessions_$NUMCLIENTS\.log $TOOL_DIR/s3bench_object_$SIZE_OF_OBJECTS\_numsamples_$NO_OF_SAMPLES\_buckets_$NUMBUCKET\_sessions_$NUMCLIENTS\.log
+            mv s3bench-object_"$SIZE_OF_OBJECTS"\_numsamples_"$NO_OF_SAMPLES"\_bucket_"$NUMBUCKET"\_sessions_"$NUMCLIENTS"\.log "$TOOL_DIR"/s3bench_object_"$SIZE_OF_OBJECTS"\_numsamples_"$NO_OF_SAMPLES"\_buckets_"$NUMBUCKET"\_sessions_"$NUMCLIENTS"\.log
 
             echo "S3Benchmark is completed for object size : $SIZE_OF_OBJECTS"
         done
@@ -80,7 +80,7 @@ echo 'Successfully completed'
 }
 
 
-while [ ! -z $1 ]; do
+while [ ! -z "$1" ]; do
         
         case $1 in
         -ep)     shift
@@ -114,19 +114,19 @@ done
 validate_args
 
 if [ ! -d $BENCHMARKLOG ]; then
-     mkdir -p $BENCHMARKLOG
+     mkdir -p "$BENCHMARKLOG"
      s3benchmark
      sleep 20
-     mkdir -p $RESULT_DIR/
-     cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/
+     mkdir -p "$RESULT_DIR"/
+     cp -r "$BENCHMARKLOG"/"$TOOL_NAME" "$RESULT_DIR"/
 
 else
-#     rm -rf $BENCHMARKLOG
-     mkdir -p $BENCHMARKLOG
+#     rm -rf "$BENCHMARKLOG"
+     mkdir -p "$BENCHMARKLOG"
      s3benchmark
      sleep 20
-     mkdir -p $RESULT_DIR/
-     cp -r $BENCHMARKLOG/$TOOL_NAME $RESULT_DIR/
+     mkdir -p "$RESULT_DIR"/
+     cp -r "$BENCHMARKLOG"/"$TOOL_NAME" "$RESULT_DIR"/
 
 fi
 

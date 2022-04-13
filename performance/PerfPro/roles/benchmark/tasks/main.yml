@@ -75,18 +75,18 @@
    with_items: "{{ groups['nodes'] }}"
    when: SYSTEM_STATS
 
- - name: Create S3 Account
-   command: python3 /root/PerfProBenchmark/s3account/create_s3user.py "{{ hostvars['srvnode-1']['ansible_host'] }}"
-   register: resp
-   delegate_to: "clientnode-1"
-
- - name: Configure S3 Credentials
-   vars:
-      cred: "{{ (resp.stdout | from_json) }}"
-   command: python3 /root/PerfProBenchmark/s3account/update_credentials.py '{{ cred.access }}' '{{ cred.secret }}'
-   delegate_to: "{{ item }}"
-   with_items: "{{ groups['clients'] }}"
-   when: cred.status == 201
+# - name: Create S3 Account
+#   command: python3 /root/PerfProBenchmark/s3account/create_s3user.py "{{ hostvars['srvnode-1']['ansible_host'] }}"
+#   register: resp
+#   delegate_to: "clientnode-1"
+#
+# - name: Configure S3 Credentials
+#   vars:
+#      cred: "{{ (resp.stdout | from_json) }}"
+#   command: python3 /root/PerfProBenchmark/s3account/update_credentials.py '{{ cred.access }}' '{{ cred.secret }}'
+#   delegate_to: "{{ item }}"
+#   with_items: "{{ groups['clients'] }}"
+#   when: cred.status == 201
 
  - name: Make an entry for config.yml on a database
    command: python3 /root/PerfProBenchmark/addconfiguration.py '/root/PerfProBenchmark/main.yml' '/root/PerfProBenchmark/config.yml'
@@ -155,18 +155,18 @@
    shell: python3 /root/PerfProBenchmark/sanity/s3bench_DBupdate.py /root/PerfProBenchmark/sanity_results/ /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml "{{ REPOSITORY }}" "{{ COMMIT_ID }}" "{{ PR_ID }}" "{{ USER }}" "{{ GID }}"
    when: EXECUTION_TYPE == "sanity"
 
-#Performing Degraded read benchmarking
+#Performing Degraded IO benchmarking
 
- - include: degraded_read.yml
-   when: DEGRADED_READ == True
+ - include: degraded_IO.yml
+   when: DEGRADED_IO == True
 
- - name: Updating DB with degraded read entries
+ - name: Updating DB with degraded IO entries
    shell: |
-     python3 /root/PerfProBenchmark/db_scripts/hsbench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/degraded_read/hsbench/ /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
-     python3 /root/PerfProBenchmark/db_scripts/s3bench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/degraded_read/s3bench/ /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
+     python3 /root/PerfProBenchmark/db_scripts/hsbench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/degraded_IO/hsbench/ /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
+     python3 /root/PerfProBenchmark/db_scripts/s3bench_DBupdate.py /root/PerfProBenchmark/perfpro_build{{ build.stdout }}/results/degraded_IO/s3bench/ /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml
    delegate_to: "{{ item }}"
    with_items: "{{ groups['clients'] }}"
-   when: DEGRADED_READ == True
+   when: DEGRADED_IO == True
 
 #Performing Copy object benchmarking
 

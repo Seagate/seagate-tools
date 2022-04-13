@@ -13,7 +13,7 @@ then
 git clone --recursive https://github.com/Seagate/cortx-test.git -b dev
 else
 # Private repository cloning
-git clone --recursive https://$GIT_USER:$GIT_PASS@github.com/Seagate/cortx-test.git -b dev
+git clone --recursive https://"$GIT_USER":"$GIT_PASS"@github.com/Seagate/cortx-test.git -b dev
 fi
 
 
@@ -41,7 +41,7 @@ cd dashboards/Python-3.7.12/
 ./configure --enable-optimizations
 make altinstall
 echo "*********************Installed and Configured Python3.7.12***********************"
-cd $cur_path/
+cd "$cur_path"/
 
 # python3.7 --version
 
@@ -70,7 +70,7 @@ cur_path=$(pwd)
 req_path="/cortx-test/tools/dash_server/requirements.txt"
 install_path=$cur_path$req_path
 #echo "$install_path"
-pip3.7 install -r $install_path
+pip3.7 install -r "$install_path"
 echo "***********************All required package are installed***********************"
 
 

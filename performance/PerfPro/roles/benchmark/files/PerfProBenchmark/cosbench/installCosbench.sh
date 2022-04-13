@@ -3,9 +3,9 @@
 echo "$1" > driver-nodes-list
 if [ ! -d "/root/cos" ] ; then
    echo "Installing cosbench"
-   sh cosbench.sh install --controller $1 --drivers driver-nodes-list
-   sh cosbench.sh configure --controller $1 --drivers driver-nodes-list
-   sh cosbench.sh start --controller $1 --drivers driver-nodes-list
+   sh cosbench.sh install --controller "$1" --drivers driver-nodes-list
+   sh cosbench.sh configure --controller "$1" --drivers driver-nodes-list
+   sh cosbench.sh start --controller "$1" --drivers driver-nodes-list
 else
    echo -e "cosbench tools is already installed on $1"
 fi

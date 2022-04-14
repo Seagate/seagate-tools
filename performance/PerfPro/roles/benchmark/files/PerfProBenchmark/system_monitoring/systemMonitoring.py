@@ -57,6 +57,7 @@ def makeconfig(name):  #function for connecting with configuration file
 
 configs_config = makeconfig(Config_path)  # getting instance  of config file
 
+build_info=str(configs_config.get('BUILD_INFO'))
 build_url=configs_config.get('BUILD_URL')
 overwrite=configs_config.get('OVERWRITE')
 custom=configs_config.get('CUSTOM')
@@ -70,9 +71,12 @@ def get_release_info(variable):
             strip_strinfo=re.split(': ',strinfo)
             return(strip_strinfo[1])
 
-Build=get_release_info('BUILD')
-Build=Build[1:-1]
-
+if build_info == 'RELEASE.INFO':
+    BUILD=get_release_info('BUILD')
+    BUILD=BUILD[1:-1]
+elif build_info == 'USER_INPUT':
+    BUILD=configs_config.get('BUILD')
+print (BUILD)
 
 def makeconnection(collection):  #function for making connection with database
     configs = makeconfig(Main_path)
@@ -83,9 +87,12 @@ def makeconnection(collection):  #function for making connection with database
     elif solution.upper() == 'LR':
         col_stats=configs.get('LR')[collection]
     elif solution.upper() == 'LEGACY':
-       Version=get_release_info('VERSION')
-       Version=Version[1:-1]
-       col_stats=configs.get('R'+Version[0])[collection]
+        if build_info == 'RELEASE.INFO':
+            Version=get_release_info('VERSION')
+            Version=Version[1:-1]
+        elif build_info == 'USER_INPUT':
+            Version=configs_config.get('VERSION')
+        col_stats=configs.get('R'+Version[0])[collection]
     else:
         print("Error! Can not find suitable collection to upload data")
     col=db[col_stats]  #collection name = configurations
@@ -94,7 +101,12 @@ def makeconnection(collection):  #function for making connection with database
 def getconfig():
     nodes_list=configs_config.get('NODES')
     clients_list=configs_config.get('CLIENTS')
+    build_info=configs_config.get('BUILD_INFO')
     build_url=configs_config.get('BUILD_URL')
+    build=configs_config.get('BUILD')
+    version=configs_config.get('VERSION')
+    branch=configs_config.get('BRANCH')
+    os=configs_config.get('OS')
     execution_type=configs_config.get('EXECUTION_TYPE')
     cluster_pass=configs_config.get('CLUSTER_PASS')
     solution=configs_config.get('SOLUTION')
@@ -122,7 +134,12 @@ def getconfig():
     dic1={
         'NODES' :str(nodes) ,
         'CLIENTS' : str(clients) ,
+        'BUILD_INFO': build_info ,
         'BUILD_URL': build_url ,
+        'BUILD': build ,
+        'VERSION': version ,
+        'BRANCH': branch ,
+        'OS': os ,
         'EXECUTION_TYPE': execution_type,
         'CLUSTER_PASS': cluster_pass ,
         'SOLUTION' : solution ,
@@ -172,9 +189,9 @@ def adddata(data,device,col):
             if value[2]!="DEV" and value[2]!="IFACE":
                 count=2
                 primary_set = {
-                      "Name": Name , 
-                      "Build": str(Build), 
-                      "Custom": str(custom).upper() 
+                      "Name": Name ,
+                      "Build": str(BUILD),
+                      "Custom": str(custom).upper()
                       }
                 dic = {
                       "Object_Size": Object_Size,

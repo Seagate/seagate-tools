@@ -26,6 +26,7 @@ def makeconfig(name):  #function for connecting with configuration file
 configs_main = makeconfig(Main_path)
 configs_config= makeconfig(Config_path)
 
+build_info=configs_config.get('BUILD_INFO')
 build_url=configs_config.get('BUILD_URL')
 nodes_list=configs_config.get('NODES')
 clients_list=configs_config.get('CLIENTS')
@@ -280,7 +281,12 @@ def update_mega_chain(build,version, col):
 def getconfig():
     nodes_list=configs_config.get('NODES')
     clients_list=configs_config.get('CLIENTS')
+    build_info=configs_config.get('BUILD_INFO')
     build_url=configs_config.get('BUILD_URL')
+    build=configs_config.get('BUILD')
+    version=configs_config.get('VERSION')
+    branch=configs_config.get('BRANCH')
+    os=configs_config.get('OS')
     execution_type=configs_config.get('EXECUTION_TYPE')
     cluster_pass=configs_config.get('CLUSTER_PASS')
     solution=configs_config.get('SOLUTION')
@@ -308,7 +314,12 @@ def getconfig():
     dic={
         'NODES' :str(nodes) ,
         'CLIENTS' : str(clients) ,
+        'BUILD_INFO': build_info ,
         'BUILD_URL': build_url ,
+        'BUILD': build ,
+        'VERSION': version ,
+        'BRANCH': branch ,
+        'OS': os ,
         'EXECUTION_TYPE': execution_type,
         'CLUSTER_PASS': cluster_pass ,
         'SOLUTION' : solution ,
@@ -333,14 +344,21 @@ def main(argv):
     dic=argv[1]
     files = getallfiles(dic,".log")#getting all files with log as extension from given directory
     db = makeconnection() #getting instance of database
-    Build=get_release_info('BUILD')
-    Build=Build[1:-1]
-    Version=get_release_info('VERSION')
-    Version=Version[1:-1]
-    Branch=get_release_info('BRANCH')
-    Branch=Branch[1:-1]
-    OS=get_release_info('OS')
-    OS=OS[1:-1]
+
+    if build_info == 'RELEASE.INFO':
+        Build=get_release_info('BUILD')
+        Build=Build[1:-1]
+        Version=get_release_info('VERSION')
+        Version=Version[1:-1]
+        Branch=get_release_info('BRANCH')
+        Branch=Branch[1:-1]
+        OS=get_release_info('OS')
+        OS=OS[1:-1]
+    elif build_info == 'USER_INPUT':
+        Build=configs_config.get('BUILD')
+        Version=configs_config.get('VERSION')
+        Branch=configs_config.get('BRANCH')
+        OS=configs_config.get('OS')
 
     dic = getconfig()
     if dic['SOLUTION'].upper() == 'LC':

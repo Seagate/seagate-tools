@@ -9,7 +9,14 @@ CLIENTS:
   - 2:  #client_number: hostname of client  
 
 # For Build and SystemUnderTest INFO
-BUILD_URL: 
+BUILD_INFO:  # Please select the menthod to collect Build info from given options : RELEASE.INFO / USER_INPUT / FROM_K8
+BUILD_URL: # insert here is RELEASE.INFO is selected.
+# Please insert below details if USER_INPUT is selected.
+BUILD: 
+VERSION: 
+BRANCH: 
+OS: 
+
 CLUSTER_PASS: seagate1
 SOLUTION: lc    # DB collection for uploading data legacy, lc or lr
 EXECUTION_TYPE: normal # execution type can be 'normal' or 'sanity'

@@ -7,6 +7,7 @@ import re
 
 conf_yaml = open(sys.argv[1])
 parse_conf = yaml.load(conf_yaml , Loader=yaml.FullLoader)
+build_info=str(parse_conf.get('BUILD_INFO'))
 build_url=parse_conf.get('BUILD_URL')
 
 def get_build_info(variable):
@@ -16,6 +17,11 @@ def get_build_info(variable):
             strinfo=line.decode("utf-8").strip()
             strip_strinfo=re.split(': ',strinfo)
             return(strip_strinfo[1])
-						
-BUILD=get_build_info('BUILD')
-print(BUILD[1:-1])
+
+if build_info == 'RELEASE.INFO':
+    BUILD=get_build_info('BUILD')
+    print(BUILD[1:-1])
+elif build_info == 'USER_INPUT':
+    BUILD=parse_conf.get('BUILD')
+    print(BUILD)
+

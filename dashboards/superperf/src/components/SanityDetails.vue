@@ -1,29 +1,30 @@
 <template>
   <v-container>
-    <v-card>
+    <v-card v-if="headers && headers.length > 0">
       <SanityDataTable
-        TableName="Throughput"
+        TableName="Throughput (MBps)"
+        v-if="data_throughput_write && data_throughput_write.length > 0"
         :Headers="headers"
-        :DataValuesRead="DataValuesRead"
-        :DataValuesWrite="DataValuesWrite"
+        :DataValuesRead="data_throughput_read"
+        :DataValuesWrite="data_throughput_write"
       />
       <SanityDataTable
-        TableName="Latency"
+        TableName="Latency (ms)"
         :Headers="headers"
-        :DataValuesRead="DataValuesRead"
-        :DataValuesWrite="DataValuesWrite"
+        :DataValuesRead="data_latency_read"
+        :DataValuesWrite="data_latency_write"
       />
       <SanityDataTable
         TableName="IOPS"
         :Headers="headers"
-        :DataValuesRead="DataValuesRead"
-        :DataValuesWrite="DataValuesWrite"
+        :DataValuesRead="data_iops_read"
+        :DataValuesWrite="data_iops_write"
       />
       <SanityDataTable
-        TableName="TTFB"
+        TableName="TTFB (ms)"
         :Headers="headers"
-        :DataValuesRead="DataValuesRead"
-        :DataValuesWrite="DataValuesWrite"
+        :DataValuesRead="data_ttfb_read"
+        :DataValuesWrite="data_ttfb_write"
       />
     </v-card>
   </v-container>
@@ -31,72 +32,77 @@
 
 <script>
 import SanityDataTable from "./SanityDataTable.vue";
+import * as sanityapi from "./backend/getSanityData.js";
 
 export default {
   name: "SanityDetailsPage",
   components: {
     SanityDataTable,
   },
-
   data: () => ({
-    headers: [
-      { text: "Index", value: "index" },
-      { text: "1 KB", value: "1KB" },
-      { text: "2 KB", value: "2KB" },
-      { text: "3 KB", value: "3KB" },
-    ],
-    DataValuesRead: [
-      {
-        index: "Baseline",
-        "1KB": 100,
-        "2KB": 101,
-        "3KB": 102,
-      },
-      {
-        index: "Data",
-        "1KB": 90,
-        "2KB": 91,
-        "3KB": 92,
-      },
-      {
-        index: "Difference",
-        "1KB": 10,
-        "2KB": 10,
-        "3KB": 10,
-      },
-      {
-        index: "Deviation",
-        "1KB": 10,
-        "2KB": 10,
-        "3KB": 10,
-      },
-    ],
-    DataValuesWrite: [
-      {
-        index: "Baseline",
-        "1KB": 100,
-        "2KB": 101,
-        "3KB": 102,
-      },
-      {
-        index: "Data",
-        "1KB": 90,
-        "2KB": 91,
-        "3KB": 92,
-      },
-      {
-        index: "Diff",
-        "1KB": 10,
-        "2KB": 10,
-        "3KB": 10,
-      },
-      {
-        index: "Deviation",
-        "1KB": 10,
-        "2KB": 10,
-        "3KB": 10,
-      },
-    ],
+    run_id: null,
+    query_results_tput: [],
+    query_results_lat: [],
+    query_results_iops: [],
+    query_results_ttfb: [],
+    headers: [],
+    data_throughput_read: [],
+    data_throughput_write: [],
+    data_latency_read: [],
+    data_latency_write: [],
+    data_iops_read: [],
+    data_iops_write: [],
+    data_ttfb_read: [],
+    data_ttfb_write: [],
   }),
+  mounted: function () {
+    this.run_id = this.$route.query.run_id;
+    console.log(this.$route.query.id);
+    sanityapi
+      .fetch_data_from_respose(this.run_id, "throughput")
+      .then((response) => {
+        this.query_results_tput = response.data.result;
+        this.headers = sanityapi.get_header_of_sanity(this.query_results_tput);
+        this.data_throughput_read = sanityapi.get_data_for_sanity_tables(
+          this.query_results_tput["read"]
+        );
+        console.log(this.data_throughput_read);
+        this.data_throughput_write = sanityapi.get_data_for_sanity_tables(
+          this.query_results_tput["write"]
+        );
+      });
+
+    sanityapi
+      .fetch_data_from_respose(this.run_id, "latency")
+      .then((response) => {
+        this.query_results_lat = response.data.result;
+        this.data_latency_read = sanityapi.get_data_for_sanity_tables(
+          this.query_results_lat["read"]
+        );
+        this.data_latency_write = sanityapi.get_data_for_sanity_tables(
+          this.query_results_lat["write"]
+        );
+      });
+
+    sanityapi.fetch_data_from_respose(this.run_id, "iops").then((response) => {
+      this.query_results_iops = response.data.result;
+      this.data_iops_read = sanityapi.get_data_for_sanity_tables(
+        this.query_results_iops["read"]
+      );
+      this.data_iops_write = sanityapi.get_data_for_sanity_tables(
+        this.query_results_iops["write"]
+      );
+    });
+
+    sanityapi.fetch_data_from_respose(this.run_id, "ttfb").then((response) => {
+      this.query_results_ttfb = response.data.result;
+      this.data_ttfb_read = sanityapi.get_data_for_sanity_tables(
+        this.query_results_ttfb["read"]
+      );
+      this.data_ttfb_write = sanityapi.get_data_for_sanity_tables(
+        this.query_results_ttfb["write"]
+      );
+    });
+  },
 };
 </script>

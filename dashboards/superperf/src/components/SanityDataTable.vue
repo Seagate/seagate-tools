@@ -2,7 +2,8 @@
   <v-container>
     <v-row>
       <v-col>
-        <h3>Read {{ TableName }}</h3>
+        <h3 v-if=" TableName === 'TTFB (ms)'">Read Avg {{ TableName }}</h3>
+        <h3 v-else>Read {{ TableName }}</h3>
         <v-row>
           <v-col>
             <v-data-table
@@ -17,7 +18,8 @@
       </v-col>
 
       <v-col>
-        <h3>Write {{ TableName }}</h3>
+        <h3 v-if=" TableName === 'TTFB (ms)'">Read 99% {{ TableName }}</h3>
+        <h3 v-else>Write {{ TableName }}</h3>
         <v-row>
           <v-col>
             <v-data-table

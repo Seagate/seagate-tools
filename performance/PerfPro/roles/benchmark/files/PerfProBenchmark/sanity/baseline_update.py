@@ -1,4 +1,3 @@
-import pymongo
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 import yaml
@@ -12,7 +11,7 @@ objInstance = ObjectId(Config_ID)
 
 def makeconfig(name):  #function for connecting with configuration file
     with open(name) as config_file:
-        configs = yaml.load(config_file, Loader=yaml.FullLoader)
+        configs = yaml.safe_load(config_file)
     return configs
 
 configs_main = makeconfig(Main_path)

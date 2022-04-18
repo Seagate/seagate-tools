@@ -30,6 +30,16 @@ def get_run_id(uri, query):
         return None
 
 
+def get_run_results_from_id(uri, id):
+    """Get run results data based on run ID."""
+    query_results = mongodbapi.find_documents({"run_id": id}, None, uri,
+                                              read_config.db_name, read_config.sanity_run_details)
+    if query_results[0]:
+        return query_results[1][0]
+    else:
+        return None
+
+
 def get_baseline_index(uri):
     """Get Baseline index of latest baseline in database."""
     query_results = mongodbapi.get_highest_value_document({}, "Baseline", None, uri,
@@ -42,7 +52,7 @@ def get_baseline_index(uri):
 
 def calculate_deviation(value, baseline):
     """Calculates % deviation from value and baseline."""
-    return (value - baseline) * 100 / baseline
+    return round((value - baseline) * 100 / baseline, 3)
 
 
 def read_write_routine(**kwargs):
@@ -50,12 +60,12 @@ def read_write_routine(**kwargs):
     kwargs['query']['Operation'] = 'Read'
     query_results = mongodbapi.find_documents(kwargs['query'], None, kwargs['uri'],
                                               read_config.db_name, read_config.sanity_results)
-    kwargs['temp_read'][kwargs['obj']] = query_results[1][0][kwargs['metrix']]
+    kwargs['temp_read'][kwargs['obj']] = round(query_results[1][0][kwargs['metrix']], 3)
 
     kwargs['query']['Operation'] = 'Write'
     query_results = mongodbapi.find_documents(kwargs['query'], None, kwargs['uri'],
                                               read_config.db_name, read_config.sanity_results)
-    kwargs['temp_write'][kwargs['obj']] = query_results[1][0][kwargs['metrix']]
+    kwargs['temp_write'][kwargs['obj']] = round(query_results[1][0][kwargs['metrix']], 3)
 
 
 def read_write_routine_for_params(**kwargs):
@@ -64,13 +74,13 @@ def read_write_routine_for_params(**kwargs):
     query_results = mongodbapi.find_documents(kwargs['query'], None, kwargs['uri'],
                                               read_config.db_name, read_config.sanity_results)
     kwargs['temp_read'][kwargs['obj']
-                        ] = query_results[1][0][kwargs['metrix']][kwargs['param']]
+                        ] = round(query_results[1][0][kwargs['metrix']][kwargs['param']], 3)
 
     kwargs['query']['Operation'] = 'Write'
     query_results = mongodbapi.find_documents(kwargs['query'], None, kwargs['uri'],
                                               read_config.db_name, read_config.sanity_results)
     kwargs['temp_write'][kwargs['obj']
-                         ] = query_results[1][0][kwargs['metrix']][kwargs['param']]
+                         ] = round(query_results[1][0][kwargs['metrix']][kwargs['param']], 3)
 
 
 def read_write_routine_for_ttfb(**kwargs):
@@ -79,7 +89,7 @@ def read_write_routine_for_ttfb(**kwargs):
     query_results = mongodbapi.find_documents(kwargs['query'], None, kwargs['uri'],
                                               read_config.db_name, read_config.sanity_results)
     kwargs['temp_read'][kwargs['obj']
-                        ] = query_results[1][0][kwargs['metrix']]['Avg']
+                        ] = round(query_results[1][0][kwargs['metrix']]['Avg'], 3)
 
     kwargs['temp_write'][kwargs['obj']
-                         ] = query_results[1][0][kwargs['metrix']]['99p']
+                         ] = round(query_results[1][0][kwargs['metrix']]['99p'], 3)

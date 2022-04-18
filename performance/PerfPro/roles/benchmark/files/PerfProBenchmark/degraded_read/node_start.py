@@ -28,7 +28,7 @@ api_service='/api/v2/system/management/service'
 print('\nRequest => Auth Token')
 api_url=f'{url}{api_login}'
 #print(f'{api_url}')
-response = requests.post(api_url, data = {'username':adminusr, 'password':adminpwd}, verify=False)
+response = requests.post(api_url, data = {'username':adminusr, 'password':adminpwd}, verify=True)
 authToken = response.headers["Authorization"]
 print(f'Response => {response.status_code} : {authToken}')
 
@@ -37,7 +37,7 @@ print(f'Response => {response.status_code} : {authToken}')
 print('\nRequest => Cluster status')
 api_url=f'{url}{api_cluster_status}/{node_id}'
 #print(f'URL={api_url}')
-response = requests.get(api_url, verify=False,  headers={'Authorization': authToken} )
+response = requests.get(api_url, verify=True,  headers={'Authorization': authToken} )
 if response.status_code == 200 and response.json()['status'] == "ok":
     print(f'Response => {response.status_code} : {response.json()}')
     print('Skipping to start node! Cluster is already healthy, Node must be already up')

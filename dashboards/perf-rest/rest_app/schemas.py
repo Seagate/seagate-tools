@@ -21,6 +21,6 @@
 results_format = {
     "value": {},
     "baseline": {},
-    "diff": {},
+    "difference": {},
     "deviation": {}
 }

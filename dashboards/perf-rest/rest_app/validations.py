@@ -20,6 +20,8 @@
 
 from http import HTTPStatus
 from typing import Union
+from bson.objectid import ObjectId
+
 
 mongodb_operators = ["$and", "$nor", "$or"]
 
@@ -66,13 +68,18 @@ def validate_search_fields(json_data: dict) -> Union[bool, tuple]:
                        "Please provide projection keys as dictionary")
     return True, None
 
+
 def validate_sanity_fields(json_data: dict) -> Union[bool, tuple]:
     """Validate search fields"""
-    if "query" not in json_data:
-        return False, (HTTPStatus.BAD_REQUEST, "Please provide query key")
-    if not isinstance(json_data["query"], dict):
+    if "run_id" not in json_data:
+        return False, (HTTPStatus.BAD_REQUEST, "Please provide query with proper run ID.")
+    if not ObjectId.is_valid(json_data['run_id']):
         return False, (HTTPStatus.BAD_REQUEST,
-                       "Please provide query key as dictionary")
+                       "Given run_id is not a valid ObjectId, it must be a 12-byte \
+                           input or a 24-character hex string.")
+    elif isinstance(json_data["run_id"], str):
+        json_data["run_id"] = ObjectId(json_data["run_id"])
+
     return True, None
 
 

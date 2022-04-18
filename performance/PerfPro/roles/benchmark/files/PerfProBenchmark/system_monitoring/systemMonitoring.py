@@ -219,12 +219,12 @@ def adddata(data,device,col):
 
 def addReport(): #function for getting system report accoordiing to 'cmd' argument
     col = makeconnection('sysstat_collection')
-    cmd = [['sar 5','p1',"CPU"],['sar -r 5','p2',"MEMORY"],['sar -d 5','p3',"DISK"],['sar -b 5','p4',"I/O"],['sar -n DEV 5','p5',"NETWORK"]]
+    cmd = [[['sar', '5'], 'p1', "CPU"],[['sar', '-r', '5'], 'p2', "MEMORY"],[['sar', '-d', '5'], 'p3' ,"DISK"],[['sar', '-b', '5'], 'p4', "I/O"],[['sar', '-n', 'DEV', '5'], 'p5', "NETWORK"]]
     count =0
     f = open("pidfile","w+")
     f.close()
     for c in cmd:
-        c[1] =subprocess.Popen(c[0], shell=True, stdout=subprocess.PIPE)
+        c[1] =subprocess.Popen(c[0], stdout=subprocess.PIPE)
         count+=1
 
         #time.sleep(3)

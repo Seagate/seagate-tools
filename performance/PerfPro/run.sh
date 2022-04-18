@@ -1,8 +1,8 @@
 #!/bin/bash
 
-curdir="$(dirname $0)"
+curdir="$(dirname "$0")"
 
-cd $curdir
+cd "$curdir"
 
 if rpm -qa | grep ansible > /dev/null
   then

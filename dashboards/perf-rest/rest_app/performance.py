@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test Execution endpoint entry functions."""
+"""General Performance endpoint entry functions."""
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #

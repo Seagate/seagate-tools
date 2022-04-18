@@ -55,8 +55,7 @@ def fill_data(pre_fill):
     num_clients=200
     print('pre_fill size(MB) :' , Pre_fill_mb , '\nNumber of objects per bucket(10 buckets)(128Mb Object size)', num_obj_per_bucket )
     for i in range(num_bucket):
-        subprocess.call([f"/{prebench} -ep {str(endpoints)} -nc {num_clients} -ns {num_obj_per_bucket} -s {str(obj_size)+'Mb'} -nb {i}"],shell=True)
-
+        subprocess.call([f"/{prebench}", "-ep", f"{str(endpoints)}", "-nc", f"{num_clients}", "-ns", f"{num_obj_per_bucket}", "-s", f"{str(obj_size)+'Mb'}", "-nb", f"{i}"])
 
 def pre_fill_calc():
     if (avail_disk==total_disk):

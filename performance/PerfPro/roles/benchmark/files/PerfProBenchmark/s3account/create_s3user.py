@@ -33,7 +33,7 @@ ansible_response = dict()
 api_url=f'{url}{api_login}'
 params={'username': adminusr, 'password': adminpwd}
 params=json.dumps(params)
-response = requests.post(api_url, data=params, verify=False)
+response = requests.post(api_url, data=params, verify=True)
 authToken = response.headers["Authorization"]
 if response.status_code != 200:
     ansible_response["status"] = response.status_code
@@ -45,7 +45,7 @@ if response.status_code != 200:
 api_url=f"{url}{api_s3user}"
 params={"account_name": s3account, "password": password, "account_email": email, "access_key": access_key, "secret_key": secret_key}
 params=json.dumps(params)
-response = requests.post(api_url, verify=False, headers={"Authorization": authToken, "Content-Type": "application/json"}, data=params)
+response = requests.post(api_url, verify=True, headers={"Authorization": authToken, "Content-Type": "application/json"}, data=params)
 ansible_response["status"] = response.status_code
 if response.status_code == 201:
     ansible_response["access"] = response.json()["access_key"]
@@ -55,4 +55,4 @@ print(json.dumps(ansible_response))
 ## Requesting Admin Logout
 ## -----------------------
 api_url=f'{url}{api_logout}'
-response = requests.post(api_url, verify=False, headers={'Authorization': authToken})
+response = requests.post(api_url, verify=True, headers={'Authorization': authToken})

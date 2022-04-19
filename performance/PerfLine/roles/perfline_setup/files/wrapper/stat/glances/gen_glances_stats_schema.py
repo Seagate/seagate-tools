@@ -1,22 +1,23 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
+# -*- coding: utf-8 -*-
 
 import sys
 import yaml
@@ -48,10 +49,10 @@ Usage example:
     $ ./gen_glances_stats_schema.py -y ./glances_stats_schema.template.yaml
         -d "dm-14 dm-3 dm-0 dm-15 dm-9 dm-1 dm-11" -n "eno1 enp175s0f0 enp175s0f1 eno2 tap0" -c 48
     """)
-    
+
     parser.add_argument("-y", "--yaml-schema", type=str, required=True,
                         help="yaml formatted schema of graphs and metrics")
-    
+
     parser.add_argument("-d", "--data-volumes", type=str, required=True,
                         help="list of data volumes")
 
@@ -80,7 +81,7 @@ def process_metric_template(metric_name, mapping):
             result = metric_name.replace(template_part, template_val)
 
     return result
-        
+
 
 def main():
 

@@ -1,21 +1,18 @@
+#!/usr/bin/env python3
 #
-# Copyright (c) 2021 Seagate Technology LLC and/or its Affiliates
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
+# Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
-#
 
 import pandas as pd
 import numpy as np
@@ -46,7 +43,7 @@ class TypeId():
     def __init__(self, name, type_id):
         self.name = name
         self.type_id = type_id
-        
+
 class Layer():
     def __init__(self, layer_type, connection, start=None, stop=None):
         self.layer_type = layer_type
@@ -207,14 +204,14 @@ class Histogram():
         textstr = textstr + "99.9%: " + "{:.2f}".format(q999) + "\n"
         textstr = textstr + text[-1].split(' ')[0] + ": " + text[-1].split(' ')[-1]
 
-        handles = [mpl_patches.Rectangle((0, 0), 1, 1, fc="white", ec="white", 
+        handles = [mpl_patches.Rectangle((0, 0), 1, 1, fc="white", ec="white",
                                          lw=0, alpha=0)]
         labels = []
         labels.append(textstr)
-        ax.legend(handles, labels, loc='upper right', prop={'size': 8}, 
-                  fancybox=True, framealpha=0.7, 
+        ax.legend(handles, labels, loc='upper right', prop={'size': 8},
+                  fancybox=True, framealpha=0.7,
                   handlelength=0, handletextpad=0)
-        
+
 
     def name(self):
         return self.name
@@ -365,7 +362,7 @@ class Figure():
         self.plots = []
         self.axes = dict()
         self.mpl_plt.suptitle(self.name)
-    
+
     def add(self, hist, row, col, sharex=None, sharey=None):
         if (row, col) in self.axes:
             ax = self.axes[(row, col)]
@@ -440,7 +437,7 @@ class Queue():
 
         df = pd.merge(df, mask, how='inner', on=['pid','id'])
         return df
-    
+
     def calculate(self):
         df = self.layer.read()
         if self.pids is not None:
@@ -454,7 +451,7 @@ class Queue():
         self.label = f'{self.layer.layer_type.name}{nl}{self.start_states} -> {self.stop_states}'
         df.rename(columns={"state": self.label}, inplace=True)
         self.queue = df
-                
+
     def draw(self, fig, ax, color):
         df = self.queue
         if df.empty:
@@ -510,7 +507,7 @@ class RPS():
         df = df.sort_values('time')
         df.index = [pd.Timestamp(x, unit='ns') for x in df.index]
         return df
-    
+
     def calculate(self):
         df = self.layer.read()
         if self.pids is not None:
@@ -521,7 +518,7 @@ class RPS():
         self.label = f"{self.layer.layer_type.name}: {self.states}"
         rps.rename(columns={"state": self.label}, inplace=True)
         self.rps = rps
-                
+
     def draw(self, fig, ax, color):
         if self.color:
             color = self.color

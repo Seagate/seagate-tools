@@ -1,4 +1,23 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#
+#
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+# -*- coding: utf-8 -*-
 
 set -x
 set -e
@@ -96,9 +115,9 @@ function main_build() {
     git pull --rebase
     pyutils_main=`git log --format="%H" -n 1 | cut -c1-9`
     popd			# from cortx-utils
-    
+
     popd 			# from docker/cortx
-    
+
     for workload_file in `ls $MAIN_WORKLOAD_DIR/template.*.yaml`
     do
 	cp -f $workload_file "$MAIN_WORKLOAD_DIR/workload.yaml"
@@ -131,7 +150,7 @@ data['post_exec_cmds'] = [{'cmd': '/root/perfline/wrapper/scripts/update_runs_st
 with open(filename, 'w') as fd:
     yaml.dump(data, fd)
 EOF
-	
+
 	$SCRIPT_DIR/perfline.py -a < "$MAIN_WORKLOAD_DIR/workload.yaml"
     done
 }

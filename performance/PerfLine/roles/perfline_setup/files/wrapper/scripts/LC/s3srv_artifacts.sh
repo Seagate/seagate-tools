@@ -1,4 +1,23 @@
-
+#!/usr/bin/env bash
+#
+#
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+# -*- coding: utf-8 -*-
 # public interface
 
 function create_s3_account()
@@ -125,7 +144,7 @@ function save_s3srv_logs() {
     local pod
     local cont
     local serv
-    local trace 
+    local trace
     local addb
     local lines_n
     local rel_path
@@ -136,21 +155,21 @@ function save_s3srv_logs() {
     local log_dir
 
     lines_n=`cat ../s3server_map | wc -l`
-    for i in $(seq 1 $lines_n) ; do 
+    for i in $(seq 1 $lines_n) ; do
         read h pod cont serv trace addb log <<< `awk "NR==$i" ../s3server_map`
 
         name="s3server-$serv"
         mkdir -p $name
         pushd $name
         dirs=`find $LOCAL_MOUNT_POINT/var/log/s3/ -name "*$serv*" -exec realpath {} \;`
-        
+
         for d in $dirs ; do
             uid=`echo $d | awk -F'/' '{print $(NF-1)}'`
             mkdir -p $uid
             pushd $uid
 
             cp -r $d ./
-	    
+
             popd 		# $uid
         done
 
@@ -186,7 +205,7 @@ function save_s3_traces() {
     local pod
     local cont
     local serv
-    local trace 
+    local trace
     local addb
     local lines_n
     local rel_path
@@ -197,7 +216,7 @@ function save_s3_traces() {
 
     set +e
     lines_n=`cat ../s3server_map | wc -l`
-    for i in $(seq 1 $lines_n) ; do 
+    for i in $(seq 1 $lines_n) ; do
         read h pod cont serv trace addb log <<< `awk "NR==$i" ../s3server_map`
 
         dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find /share/var/log/motr -name \"*$serv*\" -exec realpath {} \;" )`
@@ -223,7 +242,7 @@ function save_s3_traces() {
         dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find /share/var/log/motr -name \"*$serv*\" -exec realpath {} \;" )`
         for d in $dirs ; do
             uid=`echo $d | awk -F'/' '{print $(NF-1)}'`
-            # Assuming `/share` at the beginning of the string 
+            # Assuming `/share` at the beginning of the string
             rel_path="${d:6}"
 
             mkdir -p $uid
@@ -240,7 +259,7 @@ function save_s3_addb() {
     local pod
     local cont
     local serv
-    local trace 
+    local trace
     local addb
     local lines_n
     local rel_path
@@ -253,7 +272,7 @@ function save_s3_addb() {
     > addb_mapping
     pid=$S3_INIT_PID
     lines_n=`cat ../s3server_map | wc -l`
-    for i in $(seq 1 $lines_n) ; do 
+    for i in $(seq 1 $lines_n) ; do
         read h pod cont serv trace addb log <<< `awk "NR==$i" ../s3server_map`
 
         dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find /share/var/log/motr -name \"*$serv*\" -exec realpath {} \;" ) `

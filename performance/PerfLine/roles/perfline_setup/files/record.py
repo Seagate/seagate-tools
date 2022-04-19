@@ -1,24 +1,26 @@
+#!/usr/bin/env python3
 #
-# Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
+# -*- coding: utf-8 -*-
 
-"""trace class accepts a stream of incoming records (represented by 
-   the record class) and produces the output in the form of an SVG image, 
+"""trace class accepts a stream of incoming records (represented by
+   the record class) and produces the output in the form of an SVG image,
    describing the stream.
 
    Some assumptions are made about the input stream:
@@ -208,7 +210,7 @@ class trace(object):
         green = hash(seed + "g") % 90
         blue  = hash(seed + "b") % 90
         return svgwrite.rgb(red, green, blue, '%')
-        
+
     def fomcolour(self, fom):
         return self.getcolour(fom.phase)
 
@@ -355,7 +357,7 @@ class trace(object):
         if not exists:
             if len(self.locks) >= self.lockmax:
                 if not self.warnedlock:
-                    self.warnedlock = True                
+                    self.warnedlock = True
                     print "Too many locks. Increase lockmax."
                 return
             self.locks[addr] = len(self.locks)
@@ -394,7 +396,7 @@ class locality(object):
     def fomdel(self, fom):
         assert self.foms[fom.loc_idx] == fom
         del self.foms[fom.loc_idx]
-        
+
 def keep(word):
     return word in tags
 
@@ -413,7 +415,7 @@ def parsetime(stamp):
                                  minute      = int(stamp[14:16]),
                                  second      = int(stamp[17:19]),
                                  microsecond = int(stamp[20:26]))
-    
+
 def parse(trace, words):
     stamp = words[0]
     tag   = words[1]
@@ -480,7 +482,7 @@ class fstate(record):
                            stroke_width = 3)
                 self.trace.fomdel(fom)
                 del trace.foms[self.get("fom")]
-            
+
 
 class fphase(record):
     def done(self, trace):
@@ -498,7 +500,7 @@ class fphase(record):
                         **trace.dash)
             fom.phase_time = self.time
             fom.phase = self.params[-1]
-            
+
 class fom(record):
     def done(self, trace):
         addr = self.get("fom")
@@ -541,7 +543,7 @@ class netbuf(record):
     def done(self, trace):
         super(netbuf, self).done(trace)
         assert (self.params[0] == "buf:" and self.params[2] == "qtype:" and
-                self.params[4] == "time:" and self.params[6] == "duration:" 
+                self.params[4] == "time:" and self.params[6] == "duration:"
                 and self.params[8] == "status:" and self.params[10] == "len:")
         trace.netbufadd(self.time,
                         buf     = self.params[1][:-1],

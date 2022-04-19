@@ -1,3 +1,19 @@
+#!/usr/bin/env python3
+#
+# Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+
 import pandas as pd
 import numpy as np
 import matplotlib
@@ -36,7 +52,7 @@ class TypeId():
     def __init__(self, name, type_id):
         self.name = name
         self.type_id = type_id
-        
+
 class Layer():
     def __init__(self, layer_type, connection):
         self.layer_type = layer_type
@@ -161,15 +177,15 @@ class Histogram():
             textstr = textstr + t[0] + ": " + t[-1]
             if i < (len(text) - 1):
                 textstr = textstr + '\n'
-            
-        handles = [mpl_patches.Rectangle((0, 0), 1, 1, fc="white", ec="white", 
+
+        handles = [mpl_patches.Rectangle((0, 0), 1, 1, fc="white", ec="white",
                                          lw=0, alpha=0)]
         labels = []
         labels.append(textstr)
-        ax.legend(handles, labels, loc='upper right', prop={'size': 8}, 
-                  fancybox=True, framealpha=0.7, 
+        ax.legend(handles, labels, loc='upper right', prop={'size': 8},
+                  fancybox=True, framealpha=0.7,
                   handlelength=0, handletextpad=0)
-        
+
 
     def name(self):
         return self.name
@@ -177,7 +193,7 @@ class Histogram():
     def merge(self, histogram):
         self.hist = pd.concat([self.hist, histogram.hist], ignore_index=True)
         self.hist.reset_index(drop=True)
-        
+
 
 class Relation():
     def __init__(self, relation_type, connection):
@@ -315,7 +331,7 @@ class Figure():
         self.filename = name.replace(' ', '_') + ".png"
         self.plots = []
         self.mpl_plt.suptitle(self.name)
-    
+
     def add(self, hist, row, col, sharex=None, sharey=None):
         ax = self.fig.add_subplot(self.layout[row, col], sharex=sharex, sharey=sharey)
         self.plots.append(Plot(hist, ax))
@@ -332,7 +348,7 @@ class Figure():
 
     def save(self):
         self.fig.savefig(self.filename, format="png")
-    
+
 def calculate(conn, fiter, save_only):
     s3fig = Figure(f"{fiter.name} system histograms", 4, 2)
     mfig = Figure(f"{fiter.name} Motr histograms", 6, 3)
@@ -518,31 +534,31 @@ def calculate(conn, fiter, save_only):
         betx_ioo_hist = Histogram(betx_ioo, ['prepare'], ['done'])
         betx_ioo_hist.calculate()
         mfig.add(betx_ioo_hist, 5, 0, sharex=axm)
-        
+
         betx_cob_hist = Histogram(betx_cob, ['prepare'], ['done'])
         betx_cob_hist.calculate()
         mfig.add(betx_cob_hist, 5, 1, sharex=axm)
-        
+
         betx_cas_hist = Histogram(betx_cas, ['prepare'], ['done'])
         betx_cas_hist.calculate()
         mfig.add(betx_cas_hist, 5, 2, sharex=axm)
-        
+
         betx_hist = Histogram(betx_ioo, ['prepare'], ['done'])
         betx_hist.calculate()
         betx_hist.merge(betx_cob_hist)
         betx_hist.merge(betx_cas_hist)
         s3fig.add(betx_hist, 3, 1, sharex=axs)
-        
+
     s3fig.draw()
     mfig.draw()
 
     s3fig.save()
     mfig.save()
-    
+
     if not save_only:
         s3fig.show()
         mfig.show()
-        
+
 def parse_args():
     parser = argparse.ArgumentParser(prog=sys.argv[0], description="""
     system_hist.py: Generate histograms of Cortx S3 and Motr layers
@@ -562,7 +578,7 @@ def main():
     args = parse_args()
 
     pandas_init()
-    
+
     conn = Connection(args.db)
 
     if not args.s3get and not args.s3put:

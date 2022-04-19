@@ -1,4 +1,24 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#
+#
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+# -*- coding: utf-8 -*-
+
 set -e
 set -x
 
@@ -45,8 +65,8 @@ fio_benchmark() {
        for bs in ${BLOCK_SIZE//,/ }
        do
            for numjob in ${NUMOFJOBS//,/ }
-           do   
-                   IOSIZE=$(echo "$bs" | sed -e 's/Mb/M/g') 
+           do
+                   IOSIZE=$(echo "$bs" | sed -e 's/Mb/M/g')
                    template_file=$SCRIPT_DIR/fio-template/$TEMPLATE
                    workload_file=$WORKLOAD_DIR/$TEMPLATE\_bs_$IOSIZE\_numjobs_$numjob\_$(hostname)
                    cp $template_file $workload_file
@@ -57,7 +77,7 @@ fio_benchmark() {
                    do
                        disk=$(echo "$i" | cut -d '/' -f 4)
                        echo -e "\n[$disk]" >> $workload_file
-                       echo -e "filename = /dev/disk/by-id/dm-name-$disk \n" >> $workload_file 
+                       echo -e "filename = /dev/disk/by-id/dm-name-$disk \n" >> $workload_file
                    done
                    FIOLOG=$WORKLOAD_DIR/$TEMPLATE\_bs_$IOSIZE\_numjobs_$numjob\.log
                    fio $workload_file > $FIOLOG

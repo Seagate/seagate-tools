@@ -1,18 +1,16 @@
+#!/usr/bin/env python3
 #
-# Copyright (c) 2021 Seagate Technology LLC and/or its Affiliates
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
+# Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 
@@ -38,7 +36,7 @@ class Handler():
     NUM_CLI_LAYERS = 1 # MOTR IOO
     NUM_SRV_LAYERS = 2 # FOM, STIO
     NUM_COLS       = 1 # Only MBps
-    
+
     def __init__(self, fiter, avg_window, save_only,
                  hostmap=None, agg=True,
                  per_host=False, per_process=True,
@@ -78,15 +76,15 @@ class Handler():
                    sharex=None, samex=False):
         ax = fig.add(mbps, ypos, 0, sharex=sharex)
         return ax
-   
+
     def draw(self, lfig, ypos, mbps, first_plot=False, pids=None):
         ax = self.draw_layer(lfig.fig, ypos, mbps,
-                             self.avg_window, sharex=lfig.sharex, 
+                             self.avg_window, sharex=lfig.sharex,
                              samex=first_plot, pids=pids)
         lfig.sharex = ax
         if first_plot:
             ax.set_title(f"Throughput, MBps, avg_window {self.avg_window}")
-    
+
     def process_agg(self, mbps, ypos_com, ypos_cli, ypos_srv):
 
         if self.agg and ypos_com is not None:
@@ -104,7 +102,7 @@ class Handler():
                 title = f'{self.fiter.name} node {host} {label} throughput'
                 lfig = LocalFigure(Figure(title, rows, cols))
                 container[host] = lfig
-            
+
     def process_per_host(self, mbps,
                          dummy, ypos_cli, ypos_srv):
         if self.hostmap and self.per_host and self.client and ypos_cli is not None:
@@ -115,7 +113,7 @@ class Handler():
                                       'client')
             for host in self.hostmap.keys():
                 df = MBPS(mbps.layer, mbps.attr, mbps.states,
-                          mbps.op, avg_window=mbps.window, 
+                          mbps.op, avg_window=mbps.window,
                           pids=self.hostmap[host])
                 df.attr_cache = mbps.attr_cache
                 df.calculate()
@@ -132,7 +130,7 @@ class Handler():
                                       'server')
             for host in self.hostmap.keys():
                 df = MBPS(mbps.layer, mbps.attr, mbps.states,
-                          mbps.op, avg_window=mbps.window, 
+                          mbps.op, avg_window=mbps.window,
                           pids=self.hostmap[host])
                 df.attr_cache = mbps.attr_cache
                 df.calculate()
@@ -164,7 +162,7 @@ class Handler():
                 self.draw(lfig, ypos_cli,
                           df, df.layer.layer_type == IOO,
                           pids=[pid])
-                
+
         if self.per_process and self.server and ypos_srv is not None:
             if not self.server_process:
                 self.create_process_figs(mbps, self.server_process,
@@ -195,7 +193,7 @@ class Handler():
     def consume(self, mbps):
         desc = self.LAYER_MAP[mbps.layer.layer_type]
         self.process_layer(mbps, desc['ypos_com'], desc['ypos_cli'], desc['ypos_srv'])
-        
+
     def done(self):
         if self.agg:
             self.cluster_agg.fig.draw()
@@ -289,7 +287,7 @@ def calculate(conn, fiter, handler):
     rpc_all = Layer(SRPC, conn)
     rel = XIDRelation(conn)
     srpc = rel.sieve(crpc, rpc_all)
-    
+
     del rpc_all
     del crpc
 
@@ -319,7 +317,7 @@ def calculate(conn, fiter, handler):
     stio_attr.read()
     stio_mbps = MBPS(stio, stio_attr, ['M0_AVI_AD_ENDIO'], 'sum')
     stio_mbps.calculate()
-    
+
     handler.consume(stio_mbps)
     del stio
     del fom
@@ -397,7 +395,7 @@ def main():
         args.aggregated = True
         args.per_process = True
         args.per_host = True
-        
+
     hostmap = get_hosts_pids(conn)
 
     if args.s3put:

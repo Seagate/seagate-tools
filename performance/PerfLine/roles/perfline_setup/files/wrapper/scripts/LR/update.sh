@@ -1,4 +1,23 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#
+#
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+# -*- coding: utf-8 -*-
 
 set -e
 set -x
@@ -30,7 +49,7 @@ URL=
 function prepare_env() {
     local docker_installed=
     local status=
-    
+
     set +e
     yum list installed | grep docker
     docker_installed=$?
@@ -71,7 +90,7 @@ function prepare_env() {
 function check_version() {
     # If branch name is passed, find theirs commit id
     motr_ver=`git ls-remote $MOTR_REPO $MOTR_BRANCH | cut -f1 | cut -c1-8`
-    s3_ver=`git ls-remote $S3_REPO $S3_BRANCH | cut -f1 | cut -c1-8` 
+    s3_ver=`git ls-remote $S3_REPO $S3_BRANCH | cut -f1 | cut -c1-8`
     hare_ver=`git ls-remote $HARE_REPO $HARE_BRANCH | cut -f1 | cut -c1-8`
 
     if [ -n "${motr_ver}" ]; then
@@ -95,19 +114,19 @@ function check_version() {
     else
 	is_utils_same="yes"
     fi
-    
+
     if [ -n "${is_motr_same}" -a -n "${is_s3_same}" -a -n "${is_hare_same}" -a -n "${is_utils_same}" ]; then
 	echo "Requested versions already installed"
 	exit 0
     fi
 
-    # Otherwise branches may be passed as commit_ids. 
+    # Otherwise branches may be passed as commit_ids.
     # In this case `git ls-remote` gives empty string.
     motr_ver=`echo $MOTR_BRANCH | cut -c1-8`
     s3_ver=`echo $S3_BRANCH | cut -c1-8`
     hare_ver=`echo $HARE_BRANCH | cut -c1-8`
     utils_ver=`echo $UTILS_BRANCH | cut -c1-8`
-    
+
     if [ -z "${is_motr_same}" ]; then
 	is_motr_same=`yum list installed | grep cortx-motr | grep ${motr_ver}` || true
     fi
@@ -123,7 +142,7 @@ function check_version() {
     if [ -z "${is_utils_same}" ]; then
 	is_utils_same=`yum list installed | grep cortx-py | grep ${utils_ver}` || true
     fi
-    
+
     if [ -n "${is_motr_same}" -a -n "${is_s3_same}" -a -n "${is_hare_same}" -a -n "${is_utils_same}" ]; then
 	echo "Requested versions already installed"
 	exit 0
@@ -175,11 +194,11 @@ function checkout() {
 
 function build() {
     mkdir -p $BUILD_DIR/cortx_iso
-    
+
     cd $CORTX_DIR/..
 
     # time docker run --rm -v $DOCKER_ARTIFACTS_DIR:$DOCKER_ARTIFACTS_DIR -v ${CORTX_DIR}:/cortx-workspace ghcr.io/seagate/cortx-build:centos-7.8.2003 make clean build -i
-    
+
     time docker run --rm -v $DOCKER_ARTIFACTS_DIR:$DOCKER_ARTIFACTS_DIR -v ${CORTX_DIR}:/cortx-workspace ghcr.io/seagate/cortx-build:centos-7.9.2009 make clean build -i
 
     pushd $BUILD_DIR
@@ -234,7 +253,7 @@ function backup_configs() {
     pdsh -S -w $NODES "cp /opt/seagate/cortx/s3/s3backgrounddelete/s3_cluster.yaml $cfg_backup_dir/s3_cluster.yaml"
     pdsh -S -w $NODES "cp /opt/seagate/cortx/auth/resources/authserver.properties $cfg_backup_dir/authserver.properties"
     pdsh -S -w $NODES "cp /opt/seagate/cortx/auth/resources/keystore.properties $cfg_backup_dir/keystore.properties"
- 
+
     pdsh -S -w $NODES "ls -lsah $cfg_backup_dir"
 }
 
@@ -259,7 +278,7 @@ function update() {
 	echo "Packages not found"
 	exit 1
     fi
-    
+
     backup_configs
 
     if [ -n "$BUILD_MOTR_WITH_LNET" ]; then
@@ -301,7 +320,7 @@ function update() {
             exit 1
         fi
     fi
-	
+
     # Handle cortx-py-utils also -- if passed by URL update ALWAYS
     # For branches - deploy cortx-py-utils only if is requisted
     if [ -n "${UTILS_BRANCH}" -a -z "${is_utils_same}" ]; then
@@ -334,7 +353,7 @@ function check_cluster_status() {
           sleep 10
        fi
 
-    done   
+    done
 }
 
 function pcs_cluster_start() {
@@ -349,12 +368,12 @@ function pcs_cluster_start() {
     pdsh -S -w $NODES "systemctl start haproxy || true"
     ssh $PRIMARY_NODE 'cortx cluster start'
     pdsh -S -w $NODES "pcs property set stonith-enabled=false"
-  
+
  }
 
 function pcs_cluster_reinit() {
     NUM_PCS_BOOTSTRAP_ATTEMPTS=3
-    for i in {1..$NUM_PCS_BOOTSTRAP_ATTEMPTS}; 
+    for i in {1..$NUM_PCS_BOOTSTRAP_ATTEMPTS};
     do
        pdsh -S -w $NODES "systemctl status haproxy" | grep Active
        if is_cluster_online $PRIMARY_NODE; then
@@ -365,7 +384,7 @@ function pcs_cluster_reinit() {
        if is_cluster_online $PRIMARY_NODE; then
           create_s3Account
           break
-       fi       
+       fi
     done
 }
 
@@ -383,7 +402,7 @@ function start_services() {
     set +e
     if [[ "$HA_TYPE" == "pcs" ]]; then
         pcs_cluster_start
-        check_cluster_status   
+        check_cluster_status
         if ! is_cluster_online $PRIMARY_NODE; then
             pcs_cluster_reinit
         else
@@ -400,7 +419,7 @@ function start_services() {
 	echo "S3authserver failed"
 	exit 1
     fi
-    
+
 }
 
 function main() {
@@ -440,12 +459,12 @@ function validate() {
            echo "Motr branch is not specified"
            leave="1"
        fi
-   
+
        if [[ -z "$S3_BRANCH" ]]; then
            echo "S3 server branch is not specified"
            leave="1"
        fi
-   
+
        if [[ -z "$HARE_BRANCH" ]]; then
            echo "Hare branch is not specified"
            leave="1"
@@ -509,7 +528,7 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
 	--help)
-	    echo -e "Usage: bash update.sh --motr_id a1b2d3e --s3_id bbccdde --hare_id abcdef1\n" 
+	    echo -e "Usage: bash update.sh --motr_id a1b2d3e --s3_id bbccdde --hare_id abcdef1\n"
 	    exit 0
 	    ;;
         *)

@@ -1,22 +1,18 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2021 Seagate Technology LLC and/or its Affiliates
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
+# Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
-#
 
 import pandas as pd
 import numpy as np
@@ -40,7 +36,7 @@ class Handler():
     NUM_SRV_LAYERS = 4 # SRPC, FOM, BETX, STIO
     NUM_COLS       = 2 # Queue and RPS
     SRV_IDX_OFFSET = 3
-    
+
     def __init__(self, fiter, avg_window, save_only, hostmap=None):
         self.cluster_agg = LocalFigure(Figure(f'{fiter.name} cluster-wide RPS',
                                               self.NUM_CLI_LAYERS + self.NUM_SRV_LAYERS,
@@ -61,21 +57,21 @@ class Handler():
     def draw_layer(self, fig, ypos, layer, start, stop, avg, pids,
                    sharex=None, samex=False):
         queue = Queue(layer, start, stop, pids=pids)
-        rps_in = RPS(layer, start, color='green', 
+        rps_in = RPS(layer, start, color='green',
                      avg_window=avg, pids=pids)
-        rps_out = RPS(layer, stop, color='red', 
+        rps_out = RPS(layer, stop, color='red',
                       avg_window=avg, pids=pids)
         queue.calculate()
         rps_in.calculate()
         rps_out.calculate()
-        
+
         axq = fig.add(queue, ypos, 0, sharex=sharex)
         if samex:
             sharex = axq
         axi = fig.add(rps_in, ypos, 1, sharex=sharex)
         axo = fig.add(rps_out, ypos, 1, sharex=sharex)
         return (axq, axi, axo)
-            
+
     def process_s3(self, layer):
         (axq, axi, axo) = self.draw_layer(self.cluster_agg.fig, 0, layer,
                                           ["START"], ["COMPLETE"],
@@ -111,9 +107,9 @@ class Handler():
                 self.client_hosts[host] = lfig
                 (axq, axi, axo) = self.draw_layer(lfig.fig, 0, layer,
                                                   ["START"], ["COMPLETE"],
-                                                  self.avg_window, 
+                                                  self.avg_window,
                                                   self.hostmap[host], samex=True)
-    
+
                 axq.set_title("Queue length")
                 axi.set_title(f"Requests per second, avg_window {self.avg_window}")
                 lfig.sharex = axq
@@ -145,10 +141,10 @@ class Handler():
         (axq, axi, axo) = self.draw_layer(self.cluster_agg.fig, ypos, layer,
                                           start, stop, self.avg_window, None,
                                           sharex=self.cluster_agg.sharex)
-        
-        (axq, axi, axo) = self.draw_layer(self.server_agg.fig, 
+
+        (axq, axi, axo) = self.draw_layer(self.server_agg.fig,
                                           ypos - self.SRV_IDX_OFFSET,
-                                          layer, start, stop, self.avg_window, 
+                                          layer, start, stop, self.avg_window,
                                           None, samex=True)
         axq.set_title("Queue length")
         axi.set_title(f"Requests per second, avg_window {self.avg_window}")
@@ -159,9 +155,9 @@ class Handler():
             lfig = LocalFigure(Figure(f'{self.fiter.name} process {pid} server RPS',
                                      self.NUM_SRV_LAYERS, self.NUM_COLS))
             self.server_process[pid] = lfig
-            (axq, axi, axo) = self.draw_layer(lfig.fig, 
+            (axq, axi, axo) = self.draw_layer(lfig.fig,
                                               ypos - self.SRV_IDX_OFFSET,
-                                              layer, start, stop, self.avg_window, 
+                                              layer, start, stop, self.avg_window,
                                               [pid], samex=True)
             axq.set_title("Queue length")
             axi.set_title(f"Requests per second, avg_window {self.avg_window}")
@@ -176,9 +172,9 @@ class Handler():
                 (axq, axi, axo) = self.draw_layer(lfig.fig,
                                                   ypos - self.SRV_IDX_OFFSET,
                                                   layer, start, stop,
-                                                  self.avg_window, 
+                                                  self.avg_window,
                                                   self.hostmap[host], samex=True)
-    
+
                 axq.set_title("Queue length")
                 axi.set_title(f"Requests per second, avg_window {self.avg_window}")
                 lfig.sharex = axq
@@ -188,8 +184,8 @@ class Handler():
         (axq, axi, axo) = self.draw_layer(self.cluster_agg.fig, ypos, layer,
                                           start, stop, self.avg_window, None,
                                           sharex=self.cluster_agg.sharex)
-        
-        (axq, axi, axo) = self.draw_layer(self.server_agg.fig, 
+
+        (axq, axi, axo) = self.draw_layer(self.server_agg.fig,
                                           ypos - self.SRV_IDX_OFFSET,
                                           layer, start, stop, self.avg_window, None,
                                           sharex=self.server_agg.sharex)
@@ -197,17 +193,17 @@ class Handler():
         pids = self.server_process.keys()
         for pid in pids:
             lfig = self.server_process[pid]
-            (axq, axi, axo) = self.draw_layer(lfig.fig, 
+            (axq, axi, axo) = self.draw_layer(lfig.fig,
                                               ypos - self.SRV_IDX_OFFSET,
-                                              layer, start, stop, self.avg_window, 
+                                              layer, start, stop, self.avg_window,
                                               [pid], sharex=lfig.sharex)
 
         if self.hostmap is not None:
             for host in self.hostmap.keys():
                 lfig = self.server_hosts[host]
                 (axq, axi, axo) = self.draw_layer(lfig.fig,
-                                                  ypos - self.SRV_IDX_OFFSET, 
-                                                  layer, start, stop, 
+                                                  ypos - self.SRV_IDX_OFFSET,
+                                                  layer, start, stop,
                                                   self.avg_window,
                                                   self.hostmap[host], lfig.sharex)
 
@@ -226,7 +222,7 @@ class Handler():
             self.process_server(layer, ['M0_AVI_IO_LAUNCH'], ['M0_AVI_AD_ENDIO'], 5)
         if layer.layer_type == BETX:
             self.process_server(layer, ['prepare'], ['done'], 6)
-        
+
     def done(self):
         self.cluster_agg.fig.draw()
         self.cluster_agg.fig.save()
@@ -256,7 +252,7 @@ class Handler():
             fig = self.server_hosts[host].fig
             fig.draw()
             fig.save()
-            
+
         if not self.save_only:
             self.cluster_agg.fig.show()
 
@@ -276,7 +272,7 @@ def calculate(conn, fiter, handler):
     handler.consume(s3)
     del s3all
     gc.collect()
-    
+
     rel = Relation(S3_TO_CLIENT, conn)
     motr_all = Layer(MOTR_REQ, conn)
     motr = rel.sieve(s3, motr_all)
@@ -347,7 +343,7 @@ def calculate(conn, fiter, handler):
     rpc_all = Layer(SRPC, conn)
     rel = XIDRelation(conn)
     srpc = rel.sieve(crpc, rpc_all)
-    
+
     del rpc_all
     del crpc
 

@@ -1,3 +1,24 @@
+#!/usr/bin/env python3
+#
+#
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+# -*- coding: utf-8 -*-
+
 from os import listdir, getcwd, walk
 from os.path import isdir, join, isfile, isdir
 
@@ -221,15 +242,15 @@ def parse_s3bench_csv(csvfile_path):
                     if field_name in fields:
                         header.append(field_name)
                         indexes.append(i)
-                
+
                 result.append(header)
                 continue
-                
+
             bench_res = list()
 
             for index in indexes:
                 value = row[index]
-                
+
                 # try to round float value
                 try:
                     if '.' in value:
@@ -444,7 +465,7 @@ def parse_glances_imgs(stat_dir):
 
         if graph_type not in result:
             result[graph_type] = {}
-        
+
         result[graph_type][hostname] = img
         hostnames.add(hostname)
 
@@ -456,7 +477,7 @@ def parse_glances_imgs(stat_dir):
             datavol_metric_names.add(graph_type)
         elif graph_type.startswith('mdvolume__'):
             mdvol_metric_names.add(graph_type)
-    
+
     sorted_hostnames = list(sorted(hostnames))
     sorted_percpu_metrics = list(sorted(percpu_metric_names,
                                         key=lambda x: int(x.replace('percpu__', ''))))

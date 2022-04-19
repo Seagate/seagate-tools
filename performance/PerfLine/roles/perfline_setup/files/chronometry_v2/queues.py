@@ -1,22 +1,23 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
+# -*- coding: utf-8 -*-
 
 import pandas as pd
 import numpy as np
@@ -70,7 +71,7 @@ def layout_init(cli_rows_nr, srv_rows_nr, cols_nr, is_cli_aggr, is_srv_aggr, tit
     fig = plt.figure(figsize=(10, 10))
     layout = fig.add_gridspec(rows, cols_nr)
 
-    ax = None 
+    ax = None
     for i in range(0, rows):
         axes.append([])
 
@@ -138,7 +139,7 @@ def plot(df, ax=None, label=None, color='b', title=None):
 def s3reqs(conn):
     query = 'SELECT * FROM request where type_id like "%s3_request_state%"'
     return sql.read_sql(query, con=conn)
-    
+
 def s3states(df, state):
     mask = df[df.state.str.contains(state)][['pid', 'id']].drop_duplicates()
     return pd.merge(df, mask, on=['pid', 'id'], how='inner')
@@ -174,7 +175,7 @@ def get_workload_interval(conn):
     client.time as time, client.pid as pid, client.id as id, client.state as state
     FROM request client
     JOIN attr ON client.pid=attr.pid and client.id=attr.entity_id
-    WHERE 
+    WHERE
     attr.val in ('M0_OC_READ', 'M0_OC_WRITE') AND
     client.type_id="client_req"
     '''
@@ -195,11 +196,11 @@ def client_req(conn, operation):
     client.time as time, client.pid as pid, client.id as id, client.state as state
     FROM request client
     JOIN attr ON client.pid=attr.pid and client.id=attr.entity_id
-    WHERE 
+    WHERE
     attr.val="{operation}" AND
     client.type_id="client_req"
     '''
-    
+
     df = sql.read_sql(query, con=conn)
     df = df.drop_duplicates()
     return df
@@ -233,11 +234,11 @@ def crpc_writev_req(conn):
     crpc.time as time, crpc.pid as pid, crpc.id as id, crpc.state as state
     FROM request crpc
     JOIN attr ON crpc.pid=attr.pid and crpc.id=attr.entity_id
-    WHERE 
+    WHERE
     (attr.val="M0_IOSERVICE_WRITEV_OPCODE" OR attr.val="M0_IOSERVICE_COB_CREATE_OPCODE") AND
     crpc.type_id="rpc_req"
     '''
-    
+
     df = sql.read_sql(query, con=conn)
     df = df.drop_duplicates()
     return df
@@ -248,11 +249,11 @@ def crpc_readv_req(conn):
     crpc.time as time, crpc.pid as pid, crpc.id as id, crpc.state as state
     FROM request crpc
     JOIN attr ON crpc.pid=attr.pid and crpc.id=attr.entity_id
-    WHERE 
+    WHERE
     attr.val="M0_IOSERVICE_READV_OPCODE" AND
     crpc.type_id="rpc_req"
     '''
-    
+
     df = sql.read_sql(query, con=conn)
     df = df.drop_duplicates()
     return df
@@ -369,7 +370,7 @@ def stio_queue(conn, ax, hosts, time_interval, show_title):
     stio_df = sql.read_sql(stio_query, con=conn)
 
     stio_write_mask = stio_df[stio_df.state.str.contains('M0_AVI_AD_WR_PREPARE')][ ['pid', 'id'] ].drop_duplicates()
-    
+
     stio_write_mask['is_write'] = 1
     stio_df = pd.merge(stio_df, stio_write_mask, on=['pid', 'id'], how='left')
     stio_write_df = stio_df[ (stio_df["is_write"] == 1) ]
@@ -401,7 +402,7 @@ There are two factors of how data may be groupped:
 
   - By server nodes running m0d processes
   - By Motr Client (S3server/m0crate) nodes
-    
+
 Hence, there are four options of how plot could be drawn:
 
   - Full system state (i.e. aggregated info for client and server layers)
@@ -409,7 +410,7 @@ Hence, there are four options of how plot could be drawn:
   - Server layers decomposition by hostname, clients are aggregated
   - Clients and servers are both decomposed
 """)
-    
+
     parser.add_argument("-d", "--db", type=str, default="m0play.db",
                         help="Performance database (m0play.db)")
     parser.add_argument("-c", "--per-client-host", action='store_true',
@@ -430,7 +431,7 @@ def main():
     layers_cli = [s3_queue, client_req_queue, crpc_queue]
     layers_srv = [srpc_queue, fom_queue, be_queue, stio_queue]
     pandas_init()
-    
+
     conn = connect(args.db)
 
     aggregated_pids = get_aggregated_pids(conn)
@@ -438,7 +439,7 @@ def main():
 
     if hosts_pids is None:
         hosts_pids = aggregated_pids
-    
+
     cli_aggr = True
     srv_aggr = True
 
@@ -446,8 +447,8 @@ def main():
         cli_aggr = False
 
     if args.per_server_host:
-        srv_aggr = False    
-    
+        srv_aggr = False
+
     show_srv_title = False
     show_cli_title = False
 

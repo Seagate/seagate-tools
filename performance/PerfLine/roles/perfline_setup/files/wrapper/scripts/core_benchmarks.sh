@@ -1,4 +1,24 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#
+#
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+# -*- coding: utf-8 -*-
+
 
 declare -A benchmark_type
 declare -A benchmarks
@@ -22,7 +42,7 @@ function public_interface_name() {
     if [[ -z "$PUBLIC_DATA_INTERFACE_NAME" ]]; then
         PUBLIC_DATA_INTERFACE=$(ip addr show | egrep 'data0|enp179s0|enp175s0f0|eth0' | grep -Po 'inet \K[\d.]+')
     else
-        PUBLIC_DATA_INTERFACE=$(ip addr show | egrep "$PUBLIC_DATA_INTERFACE_NAME" | grep -Po 'inet \K[\d.]+')   
+        PUBLIC_DATA_INTERFACE=$(ip addr show | egrep "$PUBLIC_DATA_INTERFACE_NAME" | grep -Po 'inet \K[\d.]+')
     fi
 }
 
@@ -41,7 +61,7 @@ function validate() {
     case $HA_TYPE in
 	"hare") echo "HA type: HARE" ;;
 	"pcs") echo "HA type: Pacemaker" ;;
-	*) 
+	*)
 	    echo "Unknown HA type: $HA_TYPE"
 	    leave="1"
 	    ;;
@@ -84,8 +104,8 @@ function fio_workloads()
 {
    mkdir -p $CORE_BENCHMARK
    pushd $CORE_BENCHMARK
-   START_TIME=`date +%s000000000`  
-   echo "Fio workload triggered on $NODES" 
+   START_TIME=`date +%s000000000`
+   echo "Fio workload triggered on $NODES"
    $EX_SRV "$SCRIPT_DIR/run_fiobenchmark.sh $FIO_PARAMS"
    STATUS=${PIPESTATUS[0]}
    STOP_TIME=`date +%s000000000`
@@ -163,7 +183,7 @@ function main() {
 
     # Stop workload time execution measuring
     stop_measuring_benchmark_time
- 
+
     exit $STATUS
 }
 
@@ -182,7 +202,7 @@ while [[ $# -gt 0 ]]; do
             RESULTS_DIR=$2
             shift
             ;;
-        --fio)                 
+        --fio)
             FIO="1"
             ;;
         --fio-params)
@@ -199,7 +219,7 @@ while [[ $# -gt 0 ]]; do
             benchmarks["$COUNT"]+="$2"
             ((COUNT=COUNT+1))
             shift
-            ;;       
+            ;;
         --iperf)
             RUN_IPERF="1"
             ;;

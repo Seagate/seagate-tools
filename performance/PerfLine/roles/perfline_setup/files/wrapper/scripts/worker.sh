@@ -1,4 +1,25 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#
+#
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+# -*- coding: utf-8 -*-
+
+
 declare -A workloads
 declare -A workload_type
 set -e
@@ -41,7 +62,7 @@ function validate() {
     case $HA_TYPE in
 	"hare") echo "HA type: HARE" ;;
 	"pcs") echo "HA type: Pacemaker" ;;
-	*) 
+	*)
 	    echo "Unknown HA type: $HA_TYPE"
 	    leave="1"
 	    ;;
@@ -61,7 +82,7 @@ function custom_workloads()
     eval $CUSTOM_WORKLOADS | tee custom-workload-$CUSTOM_COUNT-$(date +"%F_%T.%3N").log
     ((CUSTOM_COUNT=CUSTOM_COUNT+1))
     STATUS=${PIPESTATUS[0]}
-    
+
     STOP_TIME=`date +%s000000000`
     sleep 30
 
@@ -131,7 +152,7 @@ function save_perf_results() {
                 local fname=$(echo $m0crate_log | awk -F "/" '{print $NF}')
                 local motr_port=$(echo $fname | awk -F '.' '{print $2}')
                 local hostname=$(echo $fname | sed "s/m0crate.$motr_port.//" | sed "s/.log//")
-                
+
                 echo "Benchmark: m0crate" >> $PERF_RESULTS_FILE
                 echo "Host: $hostname" >> $PERF_RESULTS_FILE
                 echo "Motr port: $motr_port" >> $PERF_RESULTS_FILE
@@ -141,7 +162,7 @@ function save_perf_results() {
             done
         done
     fi
-    
+
     if `ls $CORE_BENCHMARK/*iperf-* > /dev/null`; then
         i=0
         iperf_logs=$(ls $CORE_BENCHMARK/*iperf-*)
@@ -165,14 +186,14 @@ function close_results_dir() {
 function start_stat_utils()
 {
     echo "Start stat utils"
-    $EX_SRV "$STAT_DIR/start_stats_service.sh $STAT_COLLECTION" & 
+    $EX_SRV "$STAT_DIR/start_stats_service.sh $STAT_COLLECTION" &
     sleep 30
 }
 
 function stop_stat_utils()
 {
     echo "Stop stat utils"
-    $EX_SRV "$STAT_DIR/stop_stats_service.sh $STAT_COLLECTION" 
+    $EX_SRV "$STAT_DIR/stop_stats_service.sh $STAT_COLLECTION"
 
     echo "Gather static info"
     $EX_SRV "$STAT_DIR/collect_static_info.sh"
@@ -271,7 +292,7 @@ function perform_workloads()
 function main() {
 
     start_measuring_test_time
-    
+
     stop_cluster
     cleanup_logs
 
@@ -290,7 +311,7 @@ function main() {
     start_measuring_workload_time
 
     perform_workloads
-    
+
     # Stop workload time execution measuring
     stop_measuring_workload_time
 

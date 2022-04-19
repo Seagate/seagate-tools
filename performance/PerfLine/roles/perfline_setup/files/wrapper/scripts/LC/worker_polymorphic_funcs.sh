@@ -1,3 +1,24 @@
+#!/usr/bin/env bash
+#
+#
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+# -*- coding: utf-8 -*-
+
 source "$SCRIPT_DIR/$CLUSTER_TYPE/${S3_APP}_artifacts.sh"
 
 K8S_SCRIPTS_DIR="$CORTX_K8S_REPO/k8_cortx_cloud"
@@ -91,7 +112,7 @@ function restart_cluster() {
     wait_for_cluster_start
 
     ssh $PRIMARY_NODE "kubectl get pod"
-    sleep 20    
+    sleep 20
 }
 
 function wait_for_cluster_start() {
@@ -101,7 +122,7 @@ function wait_for_cluster_start() {
     do
         sleep 5
     done
-    
+
     # $EX_SRV $SCRIPT_DIR/wait_s3_listeners.sh $S3SERVER
     # sleep 300
 }
@@ -184,7 +205,7 @@ function save_motr_configs() {
 
     mkdir -p $config_dir
     pushd $config_dir
-    
+
     for srv in $(echo $NODES | tr ',' ' '); do
  	    pod=`ssh $PRIMARY_NODE "kubectl get pod -o wide" | grep $srv | grep $CORTX_DATA_POD_PREFIX | awk '{print $1}'`
 	    containers=`ssh $PRIMARY_NODE "kubectl get pods $pod -o jsonpath='{.spec.containers[*].name}'" | tr ' ' '\n' | grep cortx-motr-io`
@@ -198,7 +219,7 @@ function save_motr_configs() {
 	        # Copy motr config
 	        ssh $PRIMARY_NODE "kubectl exec $pod -c $cont -- cat /etc/sysconfig/motr" > motr
 	        ssh $PRIMARY_NODE "kubectl exec $pod -c $cont -- cat /etc/cortx/cluster.conf" > cluster.conf
-	    
+
 	        # Gather metadata
 	        service=`ssh $PRIMARY_NODE "kubectl exec $pod -c $cont -- ps auxww" | grep m0d | tr ' ' '\n' | grep -A1 -- "-f" | tail -n1 | tr -d '<' | tr -d '>'`
 
@@ -212,7 +233,7 @@ function save_motr_configs() {
     done
 
     popd			# $config_dir
-    
+
     printf "$mapping" > ioservice_map
 }
 
@@ -265,7 +286,7 @@ function save_motr_traces() {
     local pod
     local cont
     local serv
-    local trace 
+    local trace
     local addb
     local lines_n
     local rel_path
@@ -277,9 +298,9 @@ function save_motr_traces() {
     set +e
 
     lines_n=`cat ../ioservice_map | wc -l`
-    for i in $(seq 1 $lines_n) ; do 
+    for i in $(seq 1 $lines_n) ; do
 	read h pod cont serv trace addb <<< `awk "NR==$i" ../ioservice_map`
-	
+
 	eval "$trace/m0d-$serv"
 	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find /share/var/log/motr -name \"*$serv*\" -exec realpath {} \;" ) | grep trace`
 	for d in $dirs ; do
@@ -294,7 +315,7 @@ function save_motr_traces() {
     wait
 
     # Copy traces to results folder
-    for i in $(seq 1 $lines_n) ; do 
+    for i in $(seq 1 $lines_n) ; do
 	read h pod cont serv trace addb <<< `awk "NR==$i" ../ioservice_map`
 
 	eval "$trace/m0d-$serv"
@@ -308,7 +329,7 @@ function save_motr_traces() {
 
 	    mkdir -p $uid
 	    pushd $uid
-	    # Assuming `/share` at the beginning of the string 
+	    # Assuming `/share` at the beginning of the string
 	    rel_path="${d:6}"
 	    scp -r $PRIMARY_NODE:$LOCAL_MOUNT_POINT/$rel_path/* ./
 	    popd		# $uid
@@ -323,7 +344,7 @@ function save_motr_addb() {
     local pod
     local cont
     local serv
-    local trace 
+    local trace
     local addb
     local lines_n
     local rel_path
@@ -336,9 +357,9 @@ function save_motr_addb() {
     > addb_mapping
     pid=$M0D_INIT_PID
     lines_n=`cat ../ioservice_map | wc -l`
-    for i in $(seq 1 $lines_n) ; do 
+    for i in $(seq 1 $lines_n) ; do
 	read h pod cont serv trace addb <<< `awk "NR==$i" ../ioservice_map`
-	
+
 	eval "$addb/m0d-$serv"
 	dirs=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME find /share/var/log/motr -name \"*$serv*\" -exec realpath {} \;" ) | grep addb`
 
@@ -452,7 +473,7 @@ function collect_artifacts() {
     pushd $pods
     copy_pods_artifacts
     popd
-    
+
     mkdir -p $stats
     pushd $stats
     save_stats
@@ -464,14 +485,14 @@ function collect_artifacts() {
     popd			# $m0d
 
     save_s3app_artifacts
-    
+
     if [[ -n "$RUN_M0CRATE" ]]; then
          mkdir -p $M0CRATE_ARTIFACTS_DIR
          pushd $M0CRATE_ARTIFACTS_DIR
          save_m0crate_artifacts
          popd
     fi
-    
+
     save_perf_results
 
     if [[ -n $ADDB_DUMPS ]]; then
@@ -510,7 +531,7 @@ function collect_artifacts() {
         $SCRIPT_DIR/artifacts_collecting/process_glances_data.sh $srv_nodes
         popd
     fi
-    
+
     # # generate structured form of stats
     # $SCRIPT_DIR/../stat/gen_run_metadata.py -a $(pwd) -o run_metadata.json
 }
@@ -532,7 +553,7 @@ function m0crate_workload()
     done
 
     wait $pids
-    
+
     # STATUS=$?
 
     STATUS=0 #TODO: fix it
@@ -563,7 +584,7 @@ function parse_addb_duration_in_sec()
             exit 1
             ;;
     esac
-    
+
 }
 
 function fiter_addb_dumps()

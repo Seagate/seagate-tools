@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
+# -*- coding: utf-8 -*-
+
 import os
 import sys
 sys.path.insert(1, os.path.join(os.getcwd(), 'sys'))
@@ -53,10 +55,10 @@ def task_add():
     if all([v for e in errors for v in e.values()]):
         validation_failed(errors)
         return
-    
+
     if HIGHEST_PRIO < prio or prio < LOWEST_PRIO:
        print(f'Too high priority are not allowed. Please use between {LOWEST_PRIO} to {HIGHEST_PRIO}')
-       return 
+       return
 
     opt  = { 'enqueue_time': str(datetime.now()) }
     task = worker_task((config, opt), priority=config['common']['priority'])

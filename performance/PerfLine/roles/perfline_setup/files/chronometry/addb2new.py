@@ -1,20 +1,22 @@
 #
-# Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+# -*- coding: utf-8 -*-
 #
 
 # METADATA PATH DB SCHEMA DIAGRAM
@@ -568,7 +570,7 @@ def db_consume_data(files: List[str], db):
     rows   = []
     tables = defaultdict(list)
     pool = []
-    
+
     with profiler(f"Read files: {files}"):
         for f in files:
 
@@ -582,7 +584,7 @@ def db_consume_data(files: List[str], db):
 
             def pool_init(pid):
                 global PID; PID=pid
-                
+
             # Ugly reinitialisation of the pool due to PID value propagation
             del pool
             pool = multiprocessing.Pool(PROC_NR, pool_init, (fd_id_get(f),))
@@ -595,7 +597,7 @@ def db_consume_data(files: List[str], db):
             db_init(db)
             db_setup_loggers()
             db_connect()
-                
+
             with tqdm(total=len(rows), desc="Insert records") as t:
                 with profiler("Write to db"):
                     for k in tables.keys():
@@ -619,7 +621,7 @@ def db_consume_data(files: List[str], db):
                                             else:
                                                 raise ex
                         t.update(len(tables[k]))
-        
+
 def db_setup_loggers():
     format='%(asctime)s %(name)s %(levelname)s %(message)s'
     level=logging.INFO

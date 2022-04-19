@@ -34,7 +34,7 @@
     "@mdi/font": "4.7.95",
     "@vue/cli-plugin-babel": "3.10.0",
     "@vue/cli-plugin-typescript": "3.10.0",
-    "@vue/cli-service": "3.10.0",
+    "@vue/cli-service": "4.0.0",
     "prettier": "^2.0.5",
     "sass": "^1.26.7",
     "sass-loader": "7.1.0",

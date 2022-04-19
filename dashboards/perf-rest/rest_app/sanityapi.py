@@ -93,3 +93,13 @@ def read_write_routine_for_ttfb(**kwargs):
 
     kwargs['temp_write'][kwargs['obj']
                          ] = round(query_results[1][0][kwargs['metrix']]['99p'], 3)
+
+
+def get_sanity_config(uri, run_id):
+    """Get run ID from the given query."""
+    query_results = mongodbapi.find_documents({"run_ID": run_id}, None, uri,
+                                              read_config.db_name, read_config.sanity_config)
+    if query_results[0]:
+        return query_results[1][0]
+    else:
+        return None

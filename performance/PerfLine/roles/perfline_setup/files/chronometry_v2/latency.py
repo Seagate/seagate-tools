@@ -1,21 +1,18 @@
+#!/usr/bin/env python3
 #
-# Copyright (c) 2021 Seagate Technology LLC and/or its Affiliates
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
+# Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
-#
 
 import pandas as pd
 import numpy as np
@@ -38,7 +35,7 @@ class Handler():
     NUM_CLI_LAYERS = 3 # S3, MOTR, CRPC
     NUM_SRV_LAYERS = 4 # SRPC, FOM, BETX, STIO
     NUM_COLS       = 2 # Queue and Latency
-    
+
     def __init__(self, fiter, avg_window, save_only,
                  hostmap=None, agg=True,
                  per_host=False, per_process=True,
@@ -81,24 +78,24 @@ class Handler():
                           pids=pids, avg_window=avg, scale='ms')
         queue.calculate()
         latency.calculate()
-        
+
         axq = fig.add(queue, ypos, 0, sharex=sharex)
         if samex:
             sharex = axq
         axl = fig.add(latency, ypos, 1, sharex=sharex)
         return (axq, axl)
-   
+
     def draw(self, lfig, ypos, layer, start, stop,
              first_plot=False, pids=None):
         (axq, axl) = self.draw_layer(lfig.fig, ypos, layer,
                                      start, stop,
-                                     self.avg_window, sharex=lfig.sharex, 
+                                     self.avg_window, sharex=lfig.sharex,
                                      samex=first_plot, pids=pids)
         lfig.sharex = axq
         if first_plot:
             axq.set_title("Queue length")
             axl.set_title(f"Latency, ms, avg_window {self.avg_window}")
-    
+
     def process_agg(self, layer, start, stop,
                     ypos_com, ypos_cli, ypos_srv):
 
@@ -120,7 +117,7 @@ class Handler():
                 title = f'{self.fiter.name} node {host} {label} latency'
                 lfig = LocalFigure(Figure(title, rows, cols))
                 container[host] = lfig
-            
+
     def process_per_host(self, layer, start, stop,
                          dummy, ypos_cli, ypos_srv):
         if self.hostmap and self.per_host and self.client and ypos_cli is not None:
@@ -167,7 +164,7 @@ class Handler():
                 self.draw(lfig, ypos_cli,
                           layer, start, stop, layer.layer_type == S3,
                           pids=[pid])
-                
+
         if self.per_process and self.server and ypos_srv is not None:
             if not self.server_process:
                 self.create_process_figs(layer, self.server_process,
@@ -180,7 +177,7 @@ class Handler():
                           layer, start, stop, layer.layer_type == SRPC,
                           pids=[pid])
 
-    def process_layer(self, layer, start, stop, 
+    def process_layer(self, layer, start, stop,
                       ypos_com, ypos_cli, ypos_srv):
         foos = [self.process_agg, self.process_per_host, self.process_per_process]
         for f in foos:
@@ -200,7 +197,7 @@ class Handler():
         desc = self.LAYER_MAP[layer.layer_type]
         self.process_layer(layer, desc['start'], desc['stop'],
                            desc['ypos_com'], desc['ypos_cli'], desc['ypos_srv'])
-        
+
     def done(self):
         if self.agg:
             self.cluster_agg.fig.draw()
@@ -328,7 +325,7 @@ def calculate(conn, fiter, handler):
     rpc_all = Layer(SRPC, conn)
     rel = XIDRelation(conn)
     srpc = rel.sieve(crpc, rpc_all)
-    
+
     del rpc_all
     del crpc
 
@@ -443,7 +440,7 @@ def main():
         args.aggregated = True
         args.per_process = True
         args.per_host = True
-        
+
     hostmap = get_hosts_pids(conn)
 
     if args.s3put:

@@ -1,21 +1,23 @@
+#!/usr/bin/env python3
 #
-# Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
+# -*- coding: utf-8 -*-
 
 import config
 from config import huey
@@ -137,12 +139,12 @@ def update_configs(conf, result_dir, logdir, task_id):
 
     options.append("--task-id")
     options.append(task_id)
-    
+
     if 'configuration' in conf:
 
         if 'motr' in conf['configuration']:
             motr = conf['configuration']['motr']
-            
+
             if 'custom_conf' in motr:
                 options.append('--motr-custom-conf')
                 options.append(motr['custom_conf'])
@@ -223,19 +225,19 @@ def update_configs(conf, result_dir, logdir, task_id):
             if 'custom_conf' in lnet:
                 options.append('--lnet-custom-conf')
                 options.append(lnet['custom_conf'])
-            
+
         if 'ko2iblnd' in conf['configuration']:
             ib = conf['configuration']['ko2iblnd']
             if 'custom_conf' in ib:
                 options.append('--ib-custom-conf')
                 options.append(ib['custom_conf'])
-        
+
         if 'solution' in conf['configuration']:
             cfg = conf['configuration']['solution']
             if 'custom_conf' in cfg:
                 options.append('--solution-custom-conf')
                 options.append(cfg['custom_conf'])
-            
+
         update_configs = plumbum.local["scripts/e2o.sh"]
         mv = plumbum.local['mv']
         try:
@@ -249,11 +251,11 @@ def update_configs(conf, result_dir, logdir, task_id):
     return result
 
 
-def restore_original_configs():    
+def restore_original_configs():
     result = 'SUCCESS'
 
     restore_configs = plumbum.local["scripts/conf_customization/restore_orig_configs.sh"]
-    
+
     try:
         (restore_configs['']) & plumbum.FG
     except plumbum.commands.processes.ProcessExecutionError:
@@ -265,7 +267,7 @@ def cleanup(task_id):
     result = 'SUCCESS'
     cleanup_cmd = plumbum.local["scripts/cleanup.sh"]
     options = ['--task-id', task_id]
-    
+
     try:
         (cleanup_cmd[options]) & plumbum.FG
     except plumbum.commands.processes.ProcessExecutionError:
@@ -328,7 +330,7 @@ def sw_update(conf, result_dir, logdir):
                 (update[options] | tee['/tmp/update.log']) & plumbum.FG
             except plumbum.commands.processes.ProcessExecutionError:
                 result = 'FAILED'
-                
+
         mv['/tmp/update.log', f"{result_dir}/{logdir}"] & plumbum.FG
 
     return result
@@ -378,8 +380,8 @@ def run_corebenchmark(conf, result_dir, logdir):
                   params_str += "{} {} ".format(param_name, param_val)
               options.append('--iperf-params')
               options.append(params_str)
-      		
-    
+
+
        with plumbum.local.env():
            benchmark_update = plumbum.local["scripts/e2o.sh"]
            try:
@@ -387,7 +389,7 @@ def run_corebenchmark(conf, result_dir, logdir):
               (benchmark_update[options] | tee['/tmp/core_benchmarks.log']) & plumbum.FG
            except plumbum.commands.processes.ProcessExecutionError:
               result = 'FAILED'
-        
+
        mv['/tmp/core_benchmarks.log', f"{result_dir}/{logdir}"] & plumbum.FG
 
     return result
@@ -442,7 +444,7 @@ def worker_task(conf_opt, task):
             if ret == 'FAILED':
                  result['finish_time'] = str(datetime.now())
                  failed = True
-               
+
         if not failed:
              ret = sw_update(conf, result["artifacts_dir"], result["log_dir"])
              if ret == 'FAILED':
@@ -474,7 +476,7 @@ def worker_task(conf_opt, task):
         ret = cleanup(task.id)
         if ret == 'FAILED':
             failed = True
-            
+
 
     result['finish_time'] = str(datetime.now())
     result['status'] = 'FAILED' if failed else 'SUCCESS'

@@ -1,22 +1,23 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
+# -*- coding: utf-8 -*-
 
 set -e
 set -x
@@ -49,7 +50,7 @@ function main()
 parse_params()
 {
     while [[ $# -gt 0 ]]; do
-    
+
     case $1 in
         --host)
             ARTIF_HOST="$2"
@@ -102,7 +103,7 @@ function process_motr_addb()
             continue
         fi
 
-        local ios_addb_stobs="$ios_dir/addb-stobs-*/o/100000000000000:2" 
+        local ios_addb_stobs="$ios_dir/addb-stobs-*/o/100000000000000:2"
 
         for addb_stob in $ios_addb_stobs; do
             pid=$(echo $addb_stob | sed -E 's/.*addb-stobs-([0-9]+)[/].*/\1/')
@@ -110,7 +111,7 @@ function process_motr_addb()
         done
     done
 
-    # generate motr m0play.db 
+    # generate motr m0play.db
     if ls dumps* &> /dev/null; then
         $TOOLS_DIR/../chronometry_v2/addb2db_multiprocess.sh --dumps ./dumps*
         local db_filename="m0play.db.$(hostname)"
@@ -138,7 +139,7 @@ function process_s3_addb()
             -- "$addb_stob" > ./dumpc_${host}_${pid}.txt
     done
 
-    # generate s3 m0play.db 
+    # generate s3 m0play.db
     if ls dumpc* &> /dev/null; then
         $TOOLS_DIR/../chronometry_v2/addb2db_multiprocess.sh --dumps ./dumpc*
         scp dumpc* root@${ARTIF_HOST}:${ARTIF_DIR}/$(hostname)
@@ -161,7 +162,7 @@ function process_m0crate_addb()
         m0addb2dump -f -- "$addb_stob" > ./dumpc_${host}_${pid}.txt
     done
 
-    # generate m0crate m0play.db 
+    # generate m0crate m0play.db
     if ls dumpc* &> /dev/null; then
         $TOOLS_DIR/../chronometry_v2/addb2db_multiprocess.sh --dumps ./dumpc*
         scp dumpc* root@${ARTIF_HOST}:${ARTIF_DIR}

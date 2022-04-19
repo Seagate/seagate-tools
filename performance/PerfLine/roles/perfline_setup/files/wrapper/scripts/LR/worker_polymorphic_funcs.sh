@@ -1,3 +1,23 @@
+#!/usr/bin/env bash
+#
+#
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+# -*- coding: utf-8 -*-
 
 function is_cluster_online() {
     local all_services=$(ssh $1 'hctl status | grep "\s*\[.*\]"')
@@ -11,14 +31,14 @@ function is_cluster_online() {
 }
 
 function stop_hare() {
-    ssh $PRIMARY_NODE 'hctl shutdown || true'    
+    ssh $PRIMARY_NODE 'hctl shutdown || true'
 }
 
 function stop_pcs() {
 #    ssh $PRIMARY_NODE 'pcs resource disable motr-ios-c{1,2}'
 #    ssh $PRIMARY_NODE 'pcs resource disable s3server-c{1,2}-{1,2,3,4,5,6,7,8,9,10,11}'
 #    sleep 30
-    
+
     set +e
     ssh $PRIMARY_NODE 'hctl status'
     if [ $? -eq 0 ]; then
@@ -57,7 +77,7 @@ function restart_hare() {
     fi
     wait_for_cluster_start
     $SCRIPT_DIR/hostconfig.sh $NODES
-     
+
 }
 
 function restart_pcs() {
@@ -96,7 +116,7 @@ function wait_for_cluster_start() {
 #
         sleep 5
     done
-    
+
     $EX_SRV $SCRIPT_DIR/wait_s3_listeners.sh $S3SERVER
     sleep 300
 }
@@ -106,7 +126,7 @@ function save_m0crate_artifacts()
     local m0crate_workdir="/tmp/m0crate_tmp"
     $EX_SRV "scp -r $m0crate_workdir/m0crate.*.log $PRIMARY_NODE:$(pwd)"
     $EX_SRV "scp -r $m0crate_workdir/test_io.*.yaml $PRIMARY_NODE:$(pwd)"
-    
+
     if [[ -n $ADDB_DUMPS ]]; then
         $EX_SRV $SCRIPT_DIR/process_addb --host $(hostname) --dir $(pwd) \
             --app "m0crate" --m0crate-workdir $m0crate_workdir \
@@ -250,8 +270,8 @@ function collect_artifacts() {
         popd
     fi
 
-    save_perf_results    
-    
+    save_perf_results
+
     if [[ -n $ADDB_DUMPS ]]; then
 
         local m0playdb_parts="$m0d/dumps/m0play* $s3srv/*/m0play*"
@@ -298,11 +318,11 @@ function m0crate_workload()
     START_TIME=`date +%s000000000`
     local m0crate_work_dir="/tmp/m0crate_tmp" #TODO: make it random
 
-    $EX_SRV "if [[ -d "$m0crate_work_dir" ]]; then rm -rf $m0crate_work_dir; fi;"   
+    $EX_SRV "if [[ -d "$m0crate_work_dir" ]]; then rm -rf $m0crate_work_dir; fi;"
     $EX_SRV "mkdir -p $m0crate_work_dir \
              && cd $m0crate_work_dir \
              && $SCRIPT_DIR/$CLUSTER_TYPE/run_m0crate $m0crate_params"
-    
+
     STATUS=$?
     STOP_TIME=`date +%s000000000`
     sleep 120

@@ -1,3 +1,24 @@
+#!/usr/bin/env bash
+#
+#
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+# -*- coding: utf-8 -*-
+
 
 # public interface
 
@@ -104,13 +125,13 @@ function save_rgw_logs() {
     local pod
     local cont
     local serv
-    local trace 
+    local trace
     local addb
     local lines_n
     local log_dir
 
     lines_n=`cat ../rgw_map | wc -l`
-    for i in $(seq 1 $lines_n) ; do 
+    for i in $(seq 1 $lines_n) ; do
         read hostname pod cont serv trace addb log <<< `awk "NR==$i" ../rgw_map`
         mkdir -p $hostname
         pushd $hostname
@@ -132,7 +153,7 @@ function save_rgw_traces()
     local pod
     local cont
     local serv
-    local trace 
+    local trace
     local addb
     local log
     local lines_n
@@ -140,7 +161,7 @@ function save_rgw_traces()
 
     set +e
     lines_n=`cat ../rgw_map | wc -l`
-    for i in $(seq 1 $lines_n) ; do 
+    for i in $(seq 1 $lines_n) ; do
         read hostname pod cont serv trace addb log <<< `awk "NR==$i" ../rgw_map`
 
         local trace_dir=$(echo $trace | sed 's|/etc/cortx/||')
@@ -157,7 +178,7 @@ function save_rgw_traces()
         read hostname pod cont serv trace addb log <<< `awk "NR==$i" ../rgw_map`
         mkdir -p $hostname
         pushd $hostname
-        
+
         local trace_dir=$(echo $trace | sed 's|/etc/cortx/||')
         trace_dir="$LOCAL_MOUNT_POINT/var/$trace_dir"
 

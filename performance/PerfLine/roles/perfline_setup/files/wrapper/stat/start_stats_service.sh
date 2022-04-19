@@ -1,4 +1,23 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#
+#
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+# -*- coding: utf-8 -*-
 
 set -x
 
@@ -30,11 +49,11 @@ function creating_dir()
 }
 
 echo "stat collection: $1"
-removing_dir    
+removing_dir
 creating_dir
 if [[ "$1" == *"IOSTAT"* ]]
 then
-     iostat -yxmt 1 > /var/perfline/iostat.$(hostname -s)/iostat.log & 
+     iostat -yxmt 1 > /var/perfline/iostat.$(hostname -s)/iostat.log &
      echo "iostat collection started"
 fi
 sleep 5
@@ -57,6 +76,6 @@ sleep 5
 if [[ "$1" == *"BLKTRACE"* ]]
 then
     echo "blktrace collection starting"
-    blktrace $DISKS -D /var/perfline/blktrace.$(hostname -s) 
+    blktrace $DISKS -D /var/perfline/blktrace.$(hostname -s)
 fi
 

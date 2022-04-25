@@ -3,8 +3,8 @@
 
 # Installing git and cloning cortx-test repo
 yum install -y git
-GIT_USER=`cat secret | grep GIT_USER_NAME | awk '{print$3}'`
-GIT_PASS=`cat secret | grep GIT_USER_TOKEN | awk '{print$3}'`
+GIT_USER=$(grep GIT_USER_NAME secret | awk '{print$3}')
+GIT_PASS=$(grep GIT_USER_TOKEN secret | awk '{print$3}')
 
 # Accessing cortx-test repository
 if [ -z "$GIT_USER"  ]
@@ -46,7 +46,7 @@ cd "$cur_path"/
 # python3.7 --version
 
 # Install and upgrade pip
-if [ -z `rpm -qa | grep -i python3-pip` ]
+if [ -z $(rpm -qa | grep -i python3-pip) ]
 then
 echo "******************Installing and Upgrading pip in your system********************"
 yum install -y python3-pip

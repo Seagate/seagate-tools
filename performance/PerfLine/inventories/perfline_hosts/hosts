@@ -5,15 +5,14 @@ srvnode-2 ansible_host=<SECONDARY-NODE-2>
 [client]
 client-1 ansible_host=<CLIENT-NODE-1>
 
-
 [all:vars]
 ansible_connection=ssh
 ansible_user=root
 # It's mandatory to define ha_type either 'hare' or 'pcs'. Please refer readme.md file 
-ha_type=                         
+ha_type=hare
 ansible_ssh_common_args='-o StrictHostKeyChecking=no'
 
-cluster_pass=
+cluster_pass=seagate
 
 enable_daemon_service='no'
 
@@ -23,4 +22,4 @@ perfline_ui_port=8005
 
 
 # Disk input would be required for LC setup
-disk=""
+disk=

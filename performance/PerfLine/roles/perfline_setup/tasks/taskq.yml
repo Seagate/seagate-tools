@@ -54,7 +54,14 @@
     with_items:
        - { port: "{{ perfline_ui_port }}", proto: "tcp", state: "enabled", zone: "management-zone" }
     ignore_errors: yes
+    
 
+  # - name: Copying local.repo in "/etc/yum.repo.d/" location
+  #   copy:
+  #     src: files/local.repo
+  #     dest: /etc/yum.repos.d/
+  #   delegate_to: "{{ item }}"
+  #   with_items: "{{ groups['nodes'] }}"
 
   - name: Install perfline system dependencies
     yum:
@@ -72,7 +79,7 @@
         - python3-devel
         - ftp
         - fio
-        - iperf
+        - iperf3
       state: present
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
@@ -100,16 +107,16 @@
     with_items: "{{ groups['all'] }}"
 
 
-  - name: Installing docker packages 
-    yum:
-      name:
-        - docker-ce 
-        - docker-ce-cli 
-        - containerd.io
-        - docker
-      state: present
-      skip_broken: yes
-    delegate_to: "client-1"
+  # - name: Installing docker packages 
+  #   yum:
+  #     name:
+  #       - docker-ce 
+  #       - docker-ce-cli 
+  #       - containerd.io
+  #       - docker
+  #     state: present
+  #     skip_broken: yes
+  #   delegate_to: "client-1"
 
   - name: Installing docker-compose service
     shell: curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose; chmod +x /usr/local/bin/docker-compose;

@@ -132,9 +132,9 @@ function iperf_workload()
     iperf -s | tee $(hostname)_iperf-$(date +"%F_%T.%3N").log &
     for node in ${NODES//,/ }
     do
-        ssh $node "iperf -c $PUBLIC_DATA_INTERFACE $IPERF_PARAMS" > $node-iperf_workload-$(date +"%F_%T.%3N").log
+        ssh $node "iperf3 -c $PUBLIC_DATA_INTERFACE $IPERF_PARAMS" > $node-iperf_workload-$(date +"%F_%T.%3N").log
     done
-    pkill iperf
+    pkill iperf3
     STATUS=${PIPESTATUS[0]}
     STOP_TIME=`date +%s000000000`
     popd

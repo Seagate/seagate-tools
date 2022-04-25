@@ -1,90 +1,29 @@
 #
+# Copyright (c) 2020 Seagate Technology LLC and/or its Affiliates
 #
-# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published
-# by the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU Affero General Public License for more details.
-# You should have received a copy of the GNU Affero General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
-# -*- coding: utf-8 -*-
 
 common:
   version: 1
-  description: Perf benchmark example
+  description: Dummy load
   priority: 1
   batch_id: null
-  user: user@seagate.com
+  user: maxim.malezhin@seagate.com
   send_email: false
-
-# Optional section. It may be deleted in case you don't want
-#  to build/deploy custom version of Cortx components. Either of the option
-#   you have to choose like Only URL or commitID of motr, s3server and hare.
-custom_build:
-  url: ""
-  motr:
-    repo: "https://github.com/Seagate/cortx-motr.git"
-    branch: b64b1bba
-
-    # Optional parameter. Can be skipped. Default value
-    # in case if 'use_lnet' is not specified is 'false'.
-    # This option affects only Motr versions that include
-    # Libfabric by default. If 'use_lnet' is 'true' Motr
-    # will be built with Lnet instead of Libfabric
-    use_lnet: true
-  s3server:
-    repo: "https://github.com/Seagate/cortx-s3server.git"
-    branch: c482a593
-  hare:
-    repo: "https://github.com/Seagate/cortx-hare.git"
-    branch: daddc4a
-
-# Optional section. if this section exists PerfLine will
-# change software configurations before starting the cluster.
-# Additional info may be found in:
-# https://seagate-systems.atlassian.net/wiki/spaces/PRIVATECOR/pages/481625195/Components+configuration
-configuration:
-  motr:
-    custom_conf: /path/to/custom/motr # custom config have to be located on client node
-    params:
-      MOTR_M0T1FS: yes
-      MOTR_LOG_DIR: /var/log/motr
-  s3:
-    custom_conf: /path/to/custom/s3config.yaml # custom config have to be located on client node
-    instances_per_node: 2
-    S3_SERVER_CONFIG:
-      S3_DI_DISABLE_DATA_CORRUPTION_IEM: false
-      S3_SERVER_REGION_ENDPOINTS: [s3-us-west-2.seagate.com, s3-us.seagate.com, s3-europe.seagate.com, s3-asia.seagate.com]
-    S3_AUTH_CONFIG:
-      S3_AUTH_IP_ADDR: ipv4:127.0.0.1
-    S3_MOTR_CONFIG:
-      S3_MOTR_LOCAL_ADDR: <ipaddress>@tcp:12345:33:100
-    S3_THIRDPARTY_CONFIG:
-      S3_LIBEVENT_POOL_BUFFER_SIZE: 16384
-  haproxy:
-    maxconn_total: 1000
-    maxconn_per_s3_instance: 300
-    nbproc: 1 # can't be used together with nbthread
-    nbthread: 2 # can't be used together with nbproc
-  hare:
-    custom_cdf: /path/to/custom/cdf.yaml # custom CDF have to be located on client node
-    sns:
-      data_units: 1
-      parity_units: 0
-      spare_units: 0
-    dix:
-      data_units: 4
-      parity_units: 2
-      spare_units: 2
 
 stats_collection:
   iostat: false
@@ -92,40 +31,18 @@ stats_collection:
   blktrace: false
   glances: false
 
-# List of benchmarks and parameters. This section must include
-# at least one benchmark (custom/fio/s3bench/m0crate).
-benchmarks:
-  - custom:
-      cmd: sleep 1
-  - lnet:
-      LNET_OPS: read,write,ping              # user can pass value operation separated by ',' Ex: read,write,ping
-  - fio:
-      Duration: 600
-      BlockSize: 8M
-      NumJobs: 32
-      Template: seq_read_fio       #Template for fio like seq_read_fio, seq_write_fio, randmix_80-20_fio, randmix_20-80_fio and rand_fio
-  - iperf:
-      Interval: 1
-      Duration: 60
-      Parallel: 2
-
 workloads:
+  - custom:
+      cmd: sleep 10
   - s3bench:
       BucketName: mybucket
       NumClients: 10
       NumSample: 100
-      ObjSize: 32Mb
-      EndPoint: https://s3.seagate.com
-  - m0crate:
-      NR_INSTANCES_PER_NODE: 2
-      NR_THREADS: 2
-      BLOCK_SIZE: 2m
-      IOSIZE: 4m
+      ObjSize: 4Mb
+      EndPoint: http://s3.seagate.com:22751
 
 execution_options:
-  mkfs: false
+  mkfs: true
   collect_m0trace: false
   collect_addb: false
-  addb_duration: 5 min         # This options would be required to filter last N hour/minute/second addb dump
-  analyze_addb: false
   backup_result: false

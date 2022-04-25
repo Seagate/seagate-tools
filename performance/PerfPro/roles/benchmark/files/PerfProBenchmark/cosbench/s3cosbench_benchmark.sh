@@ -131,7 +131,7 @@ validate_args
 ./installCosbench.sh `hostname`
 #
 if [ ! -d "$BENCHMARKLOG" ]; then
-    mkdir "$BENCHMARKLOG'
+    mkdir "$BENCHMARKLOG"
     config_s3workloads
     cp -r "$BENCHMARKLOG"/"$TOOL_NAME" "$RESULT_DIR"/   
 else

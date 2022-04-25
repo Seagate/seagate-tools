@@ -1,7 +1,7 @@
 #! /usr/bin/bash
 TOOL_NAME='s3bench'
-ACCESS_KEY=`cat /root/.aws/credentials | grep -A 3 default | grep aws_access_key_id | cut -d " " -f3`
-SECRET_KEY=`cat /root/.aws/credentials | grep -A 3 default | grep secret_access_key | cut -d " " -f3`
+ACCESS_KEY=$(grep -A 3 default /root/.aws/credentials | grep aws_access_key_id | cut -d " " -f3)
+SECRET_KEY=$(grep -A 3 default /root/.aws/credentials | grep secret_access_key | cut -d " " -f3)
 BINPATH=/root/PerfProBenchmark/s3bench
 CURRENTPATH=/root/PerfProBenchmark
 BENCHMARKLOG=$CURRENTPATH/prefill/
@@ -11,7 +11,7 @@ NUMSAMPLES=""
 NUMBUCKET=""
 IO_SIZE=""
 CONFIG="/root/PerfProBenchmark/config.yml"
-BUILD=`python3 /root/PerfProBenchmark/read_build.py $CONFIG 2>&1`
+BUILD=$(python3 /root/PerfProBenchmark/read_build.py $CONFIG 2>&1)
 RESULT_DIR=/root/PerfProBenchmark/perfpro_build$BUILD/results/prefill
 REGION=us-east-1
 
@@ -50,7 +50,6 @@ do
                  Kb)   let 'value *= 1024' ;;
                  b|'')   let 'value += 0'    ;;
                  *)
-                     value=
                      echo "Unsupported units '$units'" >&2
                  ;;
             esac

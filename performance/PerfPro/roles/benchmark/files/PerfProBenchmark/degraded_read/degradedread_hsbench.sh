@@ -1,13 +1,12 @@
 #! /bin/bash
 TOOL_NAME='hsbench'
 BENCHMARK_PATH=/root/go/bin
-CURRENTPATH=`pwd`
-ACCESS_KEY=`cat /root/.aws/credentials | grep -A 3 default | grep aws_access_key_id | cut -d " " -f3`		
-SECRET_KEY=`cat /root/.aws/credentials | grep -A 3 default | grep secret_access_key | cut -d " " -f3` 	
+CURRENTPATH=$(pwd)
+ACCESS_KEY=$(grep -A 3 default /root/.aws/credentials | grep aws_access_key_id | cut -d " " -f3)
+SECRET_KEY=$(grep -A 3 default /root/.aws/credentials | grep secret_access_key | cut -d " " -f3)	
 BENCHMARKLOG=$CURRENTPATH/dr_hsb.log
 NO_OF_BUCKET=""
 TEST_DURATION=-1
-BUCKET_PREFIX=Seagate  		
 MAX_ATTEMPT=1				
 NO_OF_THREADS=""			
 NO_OF_OBJECTS=""			
@@ -16,14 +15,11 @@ REGION=us-east-1
 COUNT=0
 SIZE_OF_OBJECTS=""
 JSON_FILENAME=				
-OUTPUT_FILE=
 FLAGS=""
 CLUSTER_STATE=""
-TIMESTAMP=`date +'%Y-%m-%d_%H:%M:%S'`
-MAIN="/root/PerfProBenchmark/main.yml"
 CONFIG="/root/PerfProBenchmark/config.yml"
-BUILD=`python3 /root/PerfProBenchmark/read_build.py $CONFIG 2>&1`
-ENDPOINTS=`python3 /root/PerfProBenchmark/get_param.py $CONFIG`
+BUILD=$(python3 /root/PerfProBenchmark/read_build.py $CONFIG 2>&1)
+ENDPOINTS=$(python3 /root/PerfProBenchmark/get_param.py $CONFIG)
 RESULT_DIR=/root/PerfProBenchmark/perfpro_build$BUILD/results/degraded_read
 validate_args() {
 
@@ -66,7 +62,6 @@ hotsause_benchmark()
                  echo -e "Thread: $client \t SAMPLE: $sample \t OBJECT_SIZE: $size \t BUCKET: $bucket"        
                  JSON_FILENAME=$TOOL_NAME\_$CLUSTER_STATE\_object_$size\_numsamples_$sample\_buckets_$bucket\_sessions_$client\.json
                  obj_size=$(echo "$size" | tr -d 'b')
-                 NUMSAMPLE=$((sample / client))
                  TOOL_DIR=$BENCHMARKLOG/$TOOL_NAME/numclients_$client/buckets_$bucket/$size
                  echo "$BENCHMARK_PATH/hsbench -a $ACCESS_KEY -s $SECRET_KEY -u $ENDPOINTS -z $obj_size -d $TEST_DURATION -t $client -b $bucket -n $sample -r $REGION -bp hsbench-dr-${obj_size,,} -m $FLAGS -j $JSON_FILENAME"
 
@@ -79,7 +74,7 @@ hotsause_benchmark()
            done
         done
       done
-      COUNT=$(($COUNT + 1))
+      COUNT=$((COUNT + 1))
     done
 } 
 

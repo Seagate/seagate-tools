@@ -1,21 +1,18 @@
 #! /usr/bin/bash
 TOOL_NAME='s3bench'
-ACCESS_KEY=`cat /root/.aws/credentials | grep -A 3 default | grep aws_access_key_id | cut -d " " -f3`
-SECRET_KEY=`cat /root/.aws/credentials | grep -A 3 default | grep secret_access_key | cut -d " " -f3`
+ACCESS_KEY=$(grep -A 3 default /root/.aws/credentials | grep aws_access_key_id | cut -d " " -f3)
+SECRET_KEY=$(grep -A 3 default /root/.aws/credentials | grep secret_access_key | cut -d " " -f3)
 BINPATH=/root/PerfProBenchmark/s3bench
-CURRENTPATH=`pwd`
+CURRENTPATH=$(pwd)
 BENCHMARKLOG=$CURRENTPATH/benchmark.log
 #ENDPOINTS=https://s3.seagate.com         
 BUCKETNAME="seagate"
-TIMESTAMP=`date +'%Y-%m-%d_%H:%M:%S'`
 CLIENTS=""     
 NUMSAMPLES=""     
 IO_SIZE=""
-MAIN="/root/PerfProBenchmark/main.yml"
 CONFIG="/root/PerfProBenchmark/config.yml"
-LOG_COLLECT="/root/PerfProBenchmark/collect_logs.py"
-BUILD=`python3 /root/PerfProBenchmark/read_build.py $CONFIG 2>&1`
-ENDPOINTS=`python3 /root/PerfProBenchmark/get_param.py $CONFIG`         
+BUILD=$(python3 /root/PerfProBenchmark/read_build.py $CONFIG 2>&1)
+ENDPOINTS=$(python3 /root/PerfProBenchmark/get_param.py $CONFIG)         
 RESULT_DIR=/root/PerfProBenchmark/perfpro_build$BUILD/results
 REGION=us-east-1
 
@@ -53,7 +50,6 @@ do
                  Kb)   let 'value *= 1024' ;;
                  b|'')   let 'value += 0'    ;;
                  *)
-                     value=
                      echo "Unsupported units '$units'" >&2
                  ;;
             esac

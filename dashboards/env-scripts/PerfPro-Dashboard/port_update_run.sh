@@ -4,14 +4,14 @@ source dashboards/venv/bin/activate
 # echo "$VIRTUAL_ENV"
 
 
-CFT_DB_USERNAME=$(cat secret | grep CFT_DB_USER_NAME  | awk '{print$3}')
-CFT_DB_USERPASS=$(cat secret | grep CFT_DB_USER_PASS  | awk '{print$3}')
+CFT_DB_USERNAME=$(grep CFT_DB_USER_NAME secret | awk '{print$3}')
+CFT_DB_USERPASS=$(grep CFT_DB_USER_PASS secret | awk '{print$3}')
 
-PERF_DB_USERNAME=$(cat secret | grep PERF_DB_USER_NAME | awk '{print$3}')
-PERF_DB_USERPASS=$(cat secret | grep PERF_DB_USER_PASS | awk '{print$3}')
+PERF_DB_USERNAME=$(grep PERF_DB_USER_NAME secret | awk '{print$3}')
+PERF_DB_USERPASS=$(grep PERF_DB_USER_PASS secret | awk '{print$3}')
 
-GIT_USER=$(cat secret | grep GIT_USER_NAME | awk '{print$3}')
-GIT_PASS=$(cat secret | grep GIT_USER_TOKEN | awk '{print$3}')
+GIT_USER=$(grep GIT_USER_NAME secret | awk '{print$3}')
+GIT_PASS=$(grep GIT_USER_TOKEN secret | awk '{print$3}')
 
 
 session_name=$(tmux display-message -p '#S')

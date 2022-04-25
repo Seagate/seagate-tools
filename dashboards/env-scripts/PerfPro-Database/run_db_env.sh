@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Fetching mongo-version 
-mongo_version=$(cat db_info | grep ^mongo_version | awk '{print $3}')
+mongo_version=$(grep ^mongo_version db_info | awk '{print $3}')
 
 # Copying congiguration file
 cp $(pwd)/mongo_release_info /etc/yum.repos.d/mongodb-org-"$mongo_version".repo
@@ -22,17 +22,17 @@ echo "mongod soft nproc 32000" >> /etc/security/limits.d/20-nproc.conf
 systemctl restart mongod
 
 # Fetching DB details
-host=$(cat db_info | grep ^host | awk '{print $3}')
-port=$(cat db_info | grep ^port | awk '{print $3}')
-username=$(cat db_info | grep ^username | awk '{print $3}')
-password=$(cat db_info | grep ^password | awk '{print $3}')
-path=$(cat db_info | grep ^path | awk '{print $3}')
-db_name=$(cat db_info | grep ^db_name | awk '{print $3}')
+host=$(grep ^host db_info | awk '{print $3}')
+port=$(grep ^port db_info | awk '{print $3}')
+username=$(grep ^username db_info | awk '{print $3}')
+password=$(grep ^password db_info | awk '{print $3}')
+path=$(grep ^path db_info | awk '{print $3}')
+db_name=$(grep ^db_name db_info | awk '{print $3}')
 
 # Updating create_user.js
-prev_user=$(cat create_user.js |grep ^user: | awk '{print$(NF-1)}')
-prev_user_pass=$(cat create_user.js |grep ^pwd: | awk '{print$(NF-1)}')
-prev_database=$(cat create_user.js |grep db: | awk '{print$(NF-1)}')
+prev_user=$(grep ^user: create_user.js | awk '{print$(NF-1)}')
+prev_user_pass=$(grep ^pwd: create_user.js | awk '{print$(NF-1)}')
+prev_database=$(grep db: create_user.js | awk '{print$(NF-1)}')
 
 sed -i "s/^user: ${prev_user}/user: \"${username}\"/g" create_user.js
 sed -i "s/^pwd: ${prev_user_pass}/pwd: \"${password}\"/g" create_user.js

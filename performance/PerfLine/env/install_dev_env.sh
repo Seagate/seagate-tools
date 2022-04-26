@@ -76,8 +76,10 @@ client=$(yq_linux_386 ".specification.nodes[0].hostname" ${SPEC_FILE})
 echo client-1=$client
 sed -i "/^\[client\]/a client-1 ansible_host=$host" ${PL_HOSTS}
 
+user=$(yq_linux_386 ".specification.nodes[0].username" ${SPEC_FILE})
 pass=$(yq_linux_386 ".specification.nodes[0].password" ${SPEC_FILE})
-echo cluster_pass=$pass
+
+sed -i "s/^ansible_user=.*/ansible_user=$user/g" $PL_HOSTS
 sed -i "s/^cluster_pass=.*/cluster_pass=$pass/g" $PL_HOSTS
 
 sed -i 's:^disk=.*:disk="/dev/sdb":g' $PL_HOSTS

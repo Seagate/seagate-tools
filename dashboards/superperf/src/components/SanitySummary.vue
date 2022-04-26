@@ -23,10 +23,10 @@
        <v-card v-if="headers && headers.length > 0">
         <SanityDataTable
           TableName="Data"
-          v-if="data_summary_read && data_summary_read.length>0"
+          v-if="dataSummaryRead && dataSummaryRead.length>0"
           :Headers="headers"
-          :DataValuesRead="data_summary_read"
-          :DataValuesWrite="data_summary_write"
+          :DataValuesRead="dataSummaryRead"
+          :DataValuesWrite="dataSummaryWrite"
         />
       </v-card>
       </v-expansion-panel-content>
@@ -49,9 +49,9 @@ export default {
           },
           run_id: this.$route.query.run_id,
           headers: [],
-          data_summary_tput: [],
-          data_summary_read: [],
-          data_summary_write: [],
+          dataSummaryTput: [],
+          dataSummaryRead: [],
+          dataSummaryWrite: [],
         };
     },
     mounted: function() {
@@ -63,13 +63,13 @@ export default {
       sanityapi
       .fetchDataFromResponse(this.run_id, "others")
       .then((response) => {
-        this.data_summary_tput = response.data.result;
-        this.headers = sanityapi.getHeaderOfSanity(this.data_summary_tput, "objects");
-        this.data_summary_read = sanityapi.getDataForSanityTables(
-          this.data_summary_tput["read"]
+        this.dataSummaryTput = response.data.result;
+        this.headers = sanityapi.getHeaderOfSanity(this.dataSummaryTput, "objects");
+        this.dataSummaryRead = sanityapi.getDataForSanityTables(
+          this.dataSummaryTput["read"]
         );
-        this.data_summary_write = sanityapi.getDataForSanityTables(
-          this.data_summary_tput["write"]
+        this.dataSummaryWrite = sanityapi.getDataForSanityTables(
+          this.dataSummaryTput["write"]
         );
       });
 

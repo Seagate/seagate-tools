@@ -334,8 +334,4 @@ class sanity_run_params(Resource):
                 temp_read=results['read'],
                 temp_write=results['write'])
 
-<<<<<<< HEAD
         return flask.jsonify({'result': results})
-=======
-        return flask.jsonify({'result': results})
->>>>>>> 12e1664858ca2f8f4775bc75908a2de740d001db

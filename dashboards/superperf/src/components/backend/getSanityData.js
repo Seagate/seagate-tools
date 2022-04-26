@@ -9,23 +9,6 @@ export function fetchDataFromResponse(run_id, endpoint) {
 }
 
 
-export function getDataForSanityTables(rawData) {
-    var results = [];
-    for(var key in rawData) {
-        if (Object.prototype.hasOwnProperty.call(rawData, key)) {
-            results.push(
-                Object.assign({}, {"index": getSanityTableMapper(key)}, rawData[key]));
-        }
-    }
-    return results;
-}
-
-
-export function splitObjectSize(obj) {
-    return obj.slice(0, -2).concat(" ", obj.slice(-2));
-}
-
-
 function getSanityTableMapper(key) {
     const mapper = {
         "baseline": "Baseline",
@@ -45,8 +28,25 @@ function getSanityTableMapper(key) {
 }
 
 
-export function getHeaderOfSanity(data, sub_key){
-    var keys = Object.keys(data["read"][sub_key]).reverse();
+export function getDataForSanityTables(rawData) {
+    var results = [];
+    for(var key in rawData) {
+        if (Object.prototype.hasOwnProperty.call(rawData, key)) {
+            results.push(
+                Object.assign({}, {"index": getSanityTableMapper(key)}, rawData[key]));
+        }
+    }
+    return results;
+}
+
+
+export function splitObjectSize(obj) {
+    return obj.slice(0, -2).concat(" ", obj.slice(-2));
+}
+
+
+export function getHeaderOfSanity(data, subKey){
+    var keys = Object.keys(data["read"][subKey]).reverse();
     var header = [{ text: "Index", value: "index" }];
     for(var key in keys) {
         if (Object.prototype.hasOwnProperty.call(keys, key)) {

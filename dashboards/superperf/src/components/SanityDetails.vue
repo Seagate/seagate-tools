@@ -39,34 +39,33 @@ export default {
   components: {
     SanityDataTable,
   },
-  data: () => ({
-    run_id: null,
-    query_results_tput: [],
-    query_results_lat: [],
-    query_results_iops: [],
-    query_results_ttfb: [],
-    headers: [],
-    data_throughput_read: [],
-    data_throughput_write: [],
-    data_latency_read: [],
-    data_latency_write: [],
-    data_iops_read: [],
-    data_iops_write: [],
-    data_ttfb_read: [],
-    data_ttfb_write: [],
-  }),
+  data() {
+    return {
+      run_id: this.$route.query.run_id,
+      query_results_tput: [],
+      query_results_lat: [],
+      query_results_iops: [],
+      query_results_ttfb: [],
+      headers: [],
+      data_throughput_read: [],
+      data_throughput_write: [],
+      data_latency_read: [],
+      data_latency_write: [],
+      data_iops_read: [],
+      data_iops_write: [],
+      data_ttfb_read: [],
+      data_ttfb_write: [],
+    }
+  },
   mounted: function () {
-    this.run_id = this.$route.query.run_id;
-    console.log(this.$route.query.id);
     sanityapi
       .fetch_data_from_respose(this.run_id, "throughput")
       .then((response) => {
         this.query_results_tput = response.data.result;
-        this.headers = sanityapi.get_header_of_sanity(this.query_results_tput);
+        this.headers = sanityapi.get_header_of_sanity(this.query_results_tput, "baseline");
         this.data_throughput_read = sanityapi.get_data_for_sanity_tables(
           this.query_results_tput["read"]
         );
-        console.log(this.data_throughput_read);
         this.data_throughput_write = sanityapi.get_data_for_sanity_tables(
           this.query_results_tput["write"]
         );

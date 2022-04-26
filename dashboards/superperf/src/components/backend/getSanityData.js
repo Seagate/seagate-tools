@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const host_url = "http://cftic2.pun.seagate.com:5050/sanity/";
+let host_url = "http://10.230.244.46:5050//sanity/";
 
 export function fetch_data_from_respose(run_id, endpoint) {
     const params = new URLSearchParams([['run_id', run_id]]);
@@ -28,7 +28,10 @@ function get_table_mapper_of_sanity(key) {
         "baseline": "Baseline",
         "value": "Value",
         "difference": "Difference",
-        "deviation": "Deviation (%)"
+        "deviation": "Deviation (%)",
+        "objects": "Objects",
+        "total_ops": "Total Operations",
+        "total_errors": "Total Errors"
     };
     if(key in mapper) {
         return mapper[key];
@@ -39,8 +42,8 @@ function get_table_mapper_of_sanity(key) {
 }
 
 
-export function get_header_of_sanity(data){
-    var keys = Object.keys(data['read']["baseline"]);
+export function get_header_of_sanity(data, sub_key){
+    var keys = Object.keys(data['read'][sub_key]).reverse();
     var header = [{ text: "Index", value: "index" }];
     for(var key in keys) {
         header.push(

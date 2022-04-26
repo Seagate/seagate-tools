@@ -295,3 +295,43 @@ class sanity_config(Resource):
         global_functions.convert_objectids(data)
 
         return data
+
+
+@api.route("/others", doc={"description": "Get sanity run params from MongoDB."})
+@api.response(200, "Success")
+@api.response(400, "Bad Request: Missing parameters. Do not retry.")
+@api.response(401, "Unauthorized: Wrong db_username/db_password.")
+@api.response(403, "Forbidden: User does not have permission for operation.")
+@api.response(404, "Not Found: No entry for that query in MongoDB.")
+@api.response(503, "Service Unavailable: Unable to connect to mongoDB.")
+class sanity_run_params(Resource):
+    """Sanity other endpoint"""
+    @staticmethod
+    def get():
+        """Get sanity run params from MongoDB for given query."""
+        request_runid = flask.request.args.get('run_id')
+        json_data = { "run_id": request_runid }
+
+        if not request_runid:
+            return flask.Response(status=HTTPStatus.BAD_REQUEST,
+                                  response="Body is empty")
+
+        validate_field = validations.validate_sanity_fields(json_data)
+        if not validate_field[0]:
+            return flask.Response(status=validate_field[1][0], response=validate_field[1][1])
+
+        uri = read_config.mongodb_uri.format(read_config.db_username, read_config.db_password,
+                                             read_config.db_hostname)
+
+        results = {'write': schemas.config_format,
+                   'read': schemas.config_format}
+
+        for obj in read_config.sanity_obj_sizes:
+            value_query = {"run_ID": json_data["run_id"],
+                 "Sessions": read_config.sanity_sessions, 'Object_Size': obj}
+            sanityapi.get_summary_params(
+                uri=uri, query=value_query, metrix='Throughput', obj=obj,
+                temp_read=results['read'],
+                temp_write=results['write'])
+
+        return flask.jsonify({'result': results})

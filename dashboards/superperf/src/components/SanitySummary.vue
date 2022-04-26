@@ -20,15 +20,15 @@
            </div>
        </div>
 
-       <!-- <v-card v-if="headers && headers.length > 0">
+       <v-card v-if="headers && headers.length > 0">
         <SanityDataTable
           TableName="Data"
-          v-if="data_throughput_write && data_throughput_write.length>0"
+          v-if="data_summary_read && data_summary_read.length>0"
           :Headers="headers"
-          :DataValuesRead="data_throughput_read"
-          :DataValuesWrite="data_throughput_write"
+          :DataValuesRead="data_summary_read"
+          :DataValuesWrite="data_summary_write"
         />
-      </v-card> -->
+      </v-card>
       </v-expansion-panel-content>
     </v-expansion-panel>
   </v-expansion-panels>
@@ -36,24 +36,41 @@
 
 <script>
 import * as sanityapi from "./backend/getSanityData.js";
-// import SanityDataTable from "./SanityDataTable.vue";
+import SanityDataTable from "./SanityDataTable.vue";
 
 export default {
     name: "SanitySummary",
-    // components: {
-    // SanityDataTable,
-    // },
+    components: {
+    SanityDataTable,
+    },
     data() {
         return {
           config_data: {
           },
-          run_id: this.$route.query.run_id
+          run_id: this.$route.query.run_id,
+          headers: [],
+          data_summary_tput: [],
+          data_summary_read: [],
+          data_summary_write: [],
         };
     },
     mounted: function() {
       sanityapi.fetch_data_from_respose(this.run_id, "config")
         .then((response) => {
           this.config_data = response.data;
+      });
+
+      sanityapi
+      .fetch_data_from_respose(this.run_id, "others")
+      .then((response) => {
+        this.data_summary_tput = response.data.result;
+        this.headers = sanityapi.get_header_of_sanity(this.data_summary_tput, "objects");
+        this.data_summary_read = sanityapi.get_data_for_sanity_tables(
+          this.data_summary_tput["read"]
+        );
+        this.data_summary_write = sanityapi.get_data_for_sanity_tables(
+          this.data_summary_tput["write"]
+        );
       });
 
     },

@@ -17,6 +17,10 @@
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 
+<<<<<<< HEAD
+=======
+from rest_app import schemas
+>>>>>>> 12e1664858ca2f8f4775bc75908a2de740d001db
 from . import mongodbapi, read_config, schemas
 
 

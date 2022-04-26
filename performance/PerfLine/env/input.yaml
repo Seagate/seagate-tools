@@ -1,0 +1,14 @@
+specification:
+  nodes:
+    - hostname: ssc-vm-rhev4-2526.colo.seagate.com
+      username: root
+      password: seagate
+  cortx_re:
+    repo: https://github.com/Seagate/cortx-re
+    branch: main
+  service_framework:
+    repo: https://github.com/Seagate/cortx-k8s
+    branch: v0.4.0
+  perfline:
+    repo: git@github.com:Seagate/seagate-tools.git
+    branch: dps

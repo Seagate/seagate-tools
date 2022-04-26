@@ -5,30 +5,30 @@
       <v-expansion-panel-content>
        <div>
            <h4>Run ID: {{ run_id }}</h4>
-           <h4 style='display:inline'>User: </h4> <p style='display:inline'>{{ config_data['User'] }}</p>
+           <h4 style='display:inline'>User: </h4> <p style='display:inline'>{{ configData['User'] }}</p>
            <div>
-           <h4 style='display:inline'>Nodes ({{ config_data['Count_of_Servers'] }}): </h4>
-           <p style='display:inline'>{{ config_data['Nodes'].join([separator = ', ']) }}</p>
+           <h4 style='display:inline'>Nodes ({{ configData['Count_of_Servers'] }}): </h4>
+           <p style='display:inline'>{{ configData['Nodes'].join([separator = ', ']) }}</p>
            </div>
            <div>
-            <h4 style='display:inline'>Clients ({{ config_data['Count_of_Clients'] }}): </h4>
-            <p style='display:inline'>{{ config_data['Clients'].join([separator = ', ']) }}</p>
+            <h4 style='display:inline'>Clients ({{ configData['Count_of_Clients'] }}): </h4>
+            <p style='display:inline'>{{ configData['Clients'].join([separator = ', ']) }}</p>
            </div>
            <div>
              <h4 style='display:inline'>Cluster Fill: </h4>
-             <p style='display:inline'>{{ config_data['Percentage_full'] }}%</p>
+             <p style='display:inline'>{{ configData['Percentage_full'] }}%</p>
            </div>
        </div>
 
-       <!-- <v-card v-if="headers && headers.length > 0">
+       <v-card v-if="headers && headers.length > 0">
         <SanityDataTable
           TableName="Data"
-          v-if="data_throughput_write && data_throughput_write.length>0"
+          v-if="data_summary_read && data_summary_read.length>0"
           :Headers="headers"
-          :DataValuesRead="data_throughput_read"
-          :DataValuesWrite="data_throughput_write"
+          :DataValuesRead="data_summary_read"
+          :DataValuesWrite="data_summary_write"
         />
-      </v-card> -->
+      </v-card>
       </v-expansion-panel-content>
     </v-expansion-panel>
   </v-expansion-panels>
@@ -36,28 +36,45 @@
 
 <script>
 import * as sanityapi from "./backend/getSanityData.js";
-// import SanityDataTable from "./SanityDataTable.vue";
+import SanityDataTable from "./SanityDataTable.vue";
 
 export default {
     name: "SanitySummary",
-    // components: {
-    // SanityDataTable,
-    // },
+    components: {
+    SanityDataTable,
+    },
     data() {
         return {
-          config_data: {
+          configData: {
           },
-          run_id: this.$route.query.run_id
+          run_id: this.$route.query.run_id,
+          headers: [],
+          data_summary_tput: [],
+          data_summary_read: [],
+          data_summary_write: [],
         };
     },
     mounted: function() {
-      sanityapi.fetch_data_from_respose(this.run_id, "config")
+      sanityapi.fetchDataFromResponse(this.run_id, "config")
         .then((response) => {
-          this.config_data = response.data;
+          this.configData = response.data;
       });
 
-    },
-  }
+      sanityapi
+      .fetchDataFromResponse(this.run_id, "others")
+      .then((response) => {
+        this.data_summary_tput = response.data.result;
+        this.headers = sanityapi.getHeaderOfSanity(this.data_summary_tput, "objects");
+        this.data_summary_read = sanityapi.getDataForSanityTables(
+          this.data_summary_tput["read"]
+        );
+        this.data_summary_write = sanityapi.getDataForSanityTables(
+          this.data_summary_tput["write"]
+        );
+      });
+
+    }
+  };
 </script>
 
 <style>

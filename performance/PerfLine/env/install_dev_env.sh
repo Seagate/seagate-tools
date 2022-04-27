@@ -1,13 +1,33 @@
 #!/bin/bash
 
 set -e
-set -x
+# set -x
 
 SPEC_FILE="$1"
 
 if [ -z "${SPEC_FILE}" ]; then
     echo "ERROR: No specification provided"
     exit 1
+fi
+
+DISKS="sdb sdc sdd sde sdf sdg sdh sdi"
+
+set +e
+error=0
+for disk in $DISKS; do
+    echo -n "Checking presence of disk /dev/$disk: "
+    ls /dev/sd* | grep $disk > /dev/null
+    if [ "$?" -eq 0  ] ; then
+	echo OK
+    else
+	echo FAIL
+	error=1
+    fi
+done
+set -e
+
+if [ "$error" -ne 0 ] ; then
+    echo "Disk prerequisites are not met"
 fi
 
 wget https://github.com/mikefarah/yq/releases/download/v4.24.5/yq_linux_386

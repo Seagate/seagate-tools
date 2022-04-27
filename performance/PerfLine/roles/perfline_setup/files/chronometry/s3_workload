@@ -594,10 +594,10 @@ function run_client() {
             $EX_SRV "$SCRIPT_DIR"/s3server_integration/s3cli_s3bench "$SRV_CLI_MAP" "$@"
             ;;
         sleep)
-            sleep "$@"
+            sleep $@
             ;;
         "exit")
-            exit "$@"
+            exit $@
             ;;
     esac
 }
@@ -722,7 +722,7 @@ function check_arg_value() {
 while [[ $# -gt 0 ]]; do
     case $1 in
         --config)
-            check_arg_value $1 $2
+            check_arg_value "$1" "$2"
 
             [[ -f "$2" ]] || {
                 echo -e "File not exist: $2"
@@ -732,29 +732,29 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         -w|--workload_config)
-            check_arg_value $1 $2 $3
+            check_arg_value "$1" "$2" "$3"
             override_app_conf "$2"
             override_workload_conf "$3"
             shift
             shift
             ;;
         -m|--motr_config)
-            check_arg_value $1 $2
+            check_arg_value "$1" "$2"
             OVERRIDE_MOTR_CONF_PARAMS=$2
             shift
             ;;
         -s|--s3srv_config)
-            check_arg_value $1 $2
+            check_arg_value "$1" "$2"
             OVERRIDE_S3_CONF_PARAMS=$2
             shift
             ;;
         --s3-cred)
-            check_arg_value $1 $2
+            check_arg_value "$1" "$2"
             S3_CRED_FILE="$2"
             shift
             ;;
         -c|--cluster-configs)
-            check_arg_value $1 $2
+            check_arg_value "$1" "$2"
 
             [[ -d $2 ]] || {
                 echo "Directory not exist: $2"
@@ -800,7 +800,7 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         --s3srv-opts)
-            check_arg_value $1 $2
+            check_arg_value "$1" "$2"
             S3_SERVER_OPTS="$2"
             shift
             ;;

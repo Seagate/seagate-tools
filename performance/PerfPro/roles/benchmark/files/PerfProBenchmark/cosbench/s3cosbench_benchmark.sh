@@ -68,7 +68,7 @@ config_s3workloads() {
                     check_completion $(tail -n 3 "$TOOL_DIR"/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' ')
                     echo "Cosbench Triggered for worker: $clients sample: $sample obj_size:$io_size bucket:$bucket"
                     sleep 20
-                    for i in "$(cat "$TOOL_DIR"/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' ')"; 
+                    for i in "$(grep Accepted  "$TOOL_DIR"/workloads | cut -d ":" -f2 | tr -d ' ')"; 
                     do 
                       cp -r ~/cos/archive/"$i"* "$TOOL_DIR"/;
                     done

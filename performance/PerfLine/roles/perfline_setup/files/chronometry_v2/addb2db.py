@@ -56,6 +56,7 @@
 
 import argparse
 import logging
+from sqlite3 import OperationalError
 import yaml
 import numpy
 import time
@@ -63,6 +64,7 @@ from peewee import TextField
 from peewee import IntegerField
 from peewee import SqliteDatabase
 from peewee import Model
+from peewee import chunked
 from typing import List
 from itertools import zip_longest
 from collections import defaultdict

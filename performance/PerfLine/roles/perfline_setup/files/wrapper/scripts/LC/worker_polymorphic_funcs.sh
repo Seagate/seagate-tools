@@ -276,7 +276,7 @@ function collect_stat_data()
     for srv in $(echo "$NODES" | tr ',' ' '); do
         local cluster_conf="/tmp/cluster.conf"
         local disks_map="/tmp/cortx_disks_map"
-        local hostname_short=$(echo $srv | awk -F '.' '{print $1}')
+        local hostname_short=$(echo "$srv" | awk -F '.' '{print $1}')
         scp cluster.conf $srv:$cluster_conf
         ssh "$srv" "$SCRIPT_DIR/LC/get_disks_map.py $cluster_conf $hostname_short > $disks_map"
     done
@@ -302,9 +302,9 @@ function save_motr_traces() {
 	read h pod cont serv trace addb <<< $(awk "NR==$i" ../ioservice_map)
 
 	eval "$trace/m0d-$serv"
-	dirs=$(( ssh "$PRIMARY_NODE" "docker exec $DOCKER_CONTAINER_NAME find /share/var/log/motr -name \"*$serv*\" -exec realpath {} \;" ) | grep trace)
+	dirs=$(ssh "$PRIMARY_NODE" "docker exec $DOCKER_CONTAINER_NAME find /share/var/log/motr -name \"*$serv*\" -exec realpath {} \;" | grep trace)
 	for d in $dirs ; do
-	    files=$(( ssh "$PRIMARY_NODE" "docker exec $DOCKER_CONTAINER_NAME ls -1 $d" ) | grep m0trace | grep -v txt)
+	    files=$(ssh "$PRIMARY_NODE" "docker exec $DOCKER_CONTAINER_NAME ls -1 $d" | grep m0trace | grep -v txt)
 	    for file in $files; do
 		ssh "$PRIMARY_NODE" "nohup docker exec $DOCKER_CONTAINER_NAME m0trace -i $d/$file -o $d/$file.txt &" &
 	    done
@@ -321,9 +321,9 @@ function save_motr_traces() {
 	eval "$trace/m0d-$serv"
 	name="m0d-$serv"
 
-	mkdir -p $name
-	pushd $name
-	dirs=$(( ssh "$PRIMARY_NODE" "docker exec $DOCKER_CONTAINER_NAME find /share/var/log/motr -name \"*$serv*\" -exec realpath {} \;" ) | grep trace)
+	mkdir -p "$name"
+	pushd "$name"
+	dirs=$( ssh "$PRIMARY_NODE" "docker exec $DOCKER_CONTAINER_NAME find /share/var/log/motr -name \"*$serv*\" -exec realpath {} \;" | grep trace)
 	for d in $dirs ; do
 	    uid=$(echo "$d" | awk -F'/' '{print $(NF-2)}')
 
@@ -361,12 +361,12 @@ function save_motr_addb() {
 	read h pod cont serv trace addb <<< $(awk "NR==$i" ../ioservice_map)
 
 	eval "$addb/m0d-$serv"
-	dirs=$(( ssh "$PRIMARY_NODE" "docker exec $DOCKER_CONTAINER_NAME find /share/var/log/motr -name \"*$serv*\" -exec realpath {} \;" ) | grep addb)
+	dirs=$(ssh "$PRIMARY_NODE" "docker exec $DOCKER_CONTAINER_NAME find /share/var/log/motr -name \"*$serv*\" -exec realpath {} \;" | grep addb)
 
 	for d in $dirs ; do
 	    uid=$(echo "$d" | awk -F'/' '{print $(NF-2)}')
 
-	    stobs=$(( ssh "$PRIMARY_NODE" "docker exec $DOCKER_CONTAINER_NAME ls -1 $d" ) | grep "addb-stob")
+	    stobs=$(ssh "$PRIMARY_NODE" "docker exec $DOCKER_CONTAINER_NAME ls -1 $d" | grep "addb-stob")
 	    for st in $stobs; do
 		addb_stob="$d/$st/o/100000000000000:2"
 		echo "$h" "$pod" "$cont" "$serv" "$addb_stob" "$uid" $pid >> addb_mapping
@@ -381,17 +381,24 @@ function save_motr_addb() {
 }
 
 function generate_motr_m0play() {
-    if $(ls dumps* &> /dev/null); then
+    if ls dumps* &> /dev/null; then
         "$TOOLS_DIR"/../chronometry_v2/addb2db_multiprocess.sh --dumps ./dumps*
 	mv m0play.db m0play.m0d.db
     fi
 }
 
+function check_existing_docker() {
+    docker ps | grep "$DOCKER_CONTAINER_NAME"
+    status=$?
+    if [ $status -eq 0 ]; then
+        docker rm -f "$DOCKER_CONTAINER_NAME"
+    fi
+}
 function start_docker_container() {
     local image
 
     set +e
-
+    check_existing_docker
     image=$(ssh "$PRIMARY_NODE" "cat $K8S_SCRIPTS_DIR/solution.yaml" | grep "cortxdata:" | awk '{print $2}')
     ssh "$PRIMARY_NODE" "docker run --rm -dit --name $DOCKER_CONTAINER_NAME --mount type=bind,source=$LOCAL_MOUNT_POINT,target=/share $image sleep infinity"
     set -e
@@ -600,7 +607,7 @@ function fiter_addb_dumps()
 
             local tmp_time=$((end_time_in_s - ADDB_DURATION_IN_SEC))
             local start_time=$(date -d @$tmp_time '+%Y-%m-%d-%H:%M:%S')
-            py_code=$(python3 - "$dump_file" "$start_time" "$end_time" << EOF
+            python3 - "$dump_file" "$start_time" "$end_time" << EOF
 import sys
 with open(sys.argv[1],'r') as f:
     for line in f:
@@ -609,8 +616,6 @@ with open(sys.argv[1],'r') as f:
            with open('tmp_dump', 'a') as the_file:
                 the_file.write(line)
 EOF
-)
-
             mv -f tmp_dump "$dump_file"
         done
     fi

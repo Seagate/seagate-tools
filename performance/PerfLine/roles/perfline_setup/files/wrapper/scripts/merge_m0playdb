@@ -24,7 +24,7 @@ RESULT_DB="./m0play.db"
 
 function main()
 {
-    cp $1 $RESULT_DB
+    cp "$1" $RESULT_DB
     shift
 
     TABLES=$(echo '.tables' | sqlite3 $RESULT_DB)

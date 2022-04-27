@@ -571,7 +571,7 @@ function override_motr_conf()
     local conf=$1
     shift
 
-    for param in "$@"; do
+    for param in $@; do
         local param_name=$(echo "${param}" | awk -F "=" '{print $1}')
         local param_value=$(echo "${param}" | awk -F "=" '{print $2}')
 
@@ -641,13 +641,13 @@ function run_client()
 
     case $app in
         s3bench)
-            run_s3bench "$@"
+            run_s3bench $@
             ;;
         sleep)
-            sleep "$@"
+            sleep $@
             ;;
         "exit")
-            exit "$@"
+            exit $@
             ;;
     esac
 }

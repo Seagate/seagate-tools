@@ -2,7 +2,6 @@
 set -e
 SHORT=h
 LONG=help,controller:,drivers:
-COSBENCH_VERSION="0.4.2.c3"
 configure_action=0
 stop_action=0
 start_action=0
@@ -24,7 +23,7 @@ eval set -- "$OPTS"
 precheck() {
   function version3 { echo "$@" | gawk -F. '{ printf("%03d%03d%03d\n", $1,$2,$3); }'; }
   if command -v curl >/dev/null 2>&1; then
-    curl_version=`curl --version | head -n1 | cut -d" " -f2`
+    curl_version=$(curl --version | head -n1 | cut -d" " -f2)
     if [ "$(version3 "$curl_version")" -ge "$(version3 "7.22.0")" ]
     then
       printf "\nCheck curl...OK\n"
@@ -67,13 +66,13 @@ install_cmds() {
   unzip 0.4.2.c3.zip
   ln -s 0.4.2.c3 cos
   cd cos
-  chmod +x *.sh
+  chmod +x ./*.sh
 }
 
 precheck_on_controller_drivers() {
   printf "\nChecking prerequiste on controller node $CONTROLLER\n"
   ssh "$USERNAME"@"$CONTROLLER" "$(typeset -f precheck); precheck"
-  for driver_host in `cat "$DRIVERS_FILE"`
+  for driver_host in $(cat "$DRIVERS_FILE")
   do
      printf "\nChecking prerequiste on node $driver_host...\n"
      ssh "$USERNAME"@"$driver_host" "$(typeset -f precheck); precheck"
@@ -85,7 +84,7 @@ install_on_controller_drivers() {
    # Install on each driver nodes
    for driver_host in `cat "$DRIVERS_FILE"`
    do
-     echo '\nInstalling cosbench version $COSBENCH_VERSION to driver node $driver_host\n'
+     printf "\nInstalling cosbench version $COSBENCH_VERSION to driver node $driver_host\n"
      ssh "$USERNAME"@"$driver_host" "$(typeset -f install_cmds); install_cmds"
    done
 }
@@ -102,10 +101,10 @@ ENDSSH
 }
 
 configure_cosbench() {
-  DRIVERS_COUNT=`cat "$DRIVERS_FILE" | wc -l`
+  DRIVERS_COUNT=$(wc -l "$DRIVERS_FILE" | awk '{print $1}')
   CONTROLLER_STR="[controller]\nconcurrency = $DRIVERS_COUNT\ndrivers = $DRIVERS_COUNT\nlog_level = INFO\nlog_file = log/system.log\narchive_dir = archive\n\n"
   count=0
-  for driver_host in `cat $DRIVERS_FILE`
+  for driver_host in $(cat "$DRIVERS_FILE")
   do
     count=$((count+1))
     CONTROLLER_STR+="[driver$count]\nname = Driver$count\n"
@@ -176,7 +175,6 @@ invalid_command() {
 }
 
 # set initial values
-VERBOSE=false
 # extract options and their arguments into variables.
 while true ; do
   case "$1" in

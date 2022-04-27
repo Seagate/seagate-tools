@@ -1,5 +1,5 @@
 #!/bin/bash
-mylimit=`cat ~/.bashrc | grep 'ulimit' | awk '{print $3}'`
+mylimit=$(grep 'ulimit' ~/.bashrc| awk '{print $3}')
 if [ -z "$mylimit" ]
   then
     echo "*** Appending ulimit to bashrc ***"
@@ -19,5 +19,5 @@ echo "*** Loading bashrc ***"
 echo "*** Loaded ***"
 source ~/.bashrc
 echo "*** Old ulimit value: $mylimit ***"
-echo "*** New ulimit value: `ulimit -n` ***"
+echo "*** New ulimit value: $(ulimit -n) ***"
 

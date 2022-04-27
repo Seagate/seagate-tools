@@ -45,7 +45,6 @@ while true ; do
          invalid_command
       fi
       ACTION="$1"
-      WORKLOAD_ID="$2"
       shift 2
       ;;
     -- )

@@ -22,7 +22,6 @@
 
 import fileinput
 import record
-import getopt
 import sys
 
 def filter(argv):

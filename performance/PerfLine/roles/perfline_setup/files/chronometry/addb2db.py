@@ -60,7 +60,10 @@ import logging
 import yaml
 import numpy
 import time
-from peewee import *
+from peewee import TextField
+from peewee import IntegerField
+from peewee import SqliteDatabase
+from peewee import Model
 from typing import List
 import multiprocessing
 from itertools import zip_longest

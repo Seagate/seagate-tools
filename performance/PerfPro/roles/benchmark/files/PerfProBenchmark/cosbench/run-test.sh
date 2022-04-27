@@ -67,7 +67,6 @@ parse_workload_file() {
     elif [ "$workload_option" == "workload_type" ]
     then
       workload_type=$workload_value
-      workload_type_set=true
     elif [ "$workload_option" == "run_time_in_seconds" ]
     then
       run_time_in_seconds=$workload_value

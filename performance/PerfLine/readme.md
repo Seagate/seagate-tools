@@ -7,7 +7,7 @@ It consists of three modules:
 -   webui - Web server based PerfLine UI for interacting with PerfLine
 -   ansible playbook - Ansible based PerfLine Installation
 
-# Prerequisites
+## Prerequisites
 
 PerfLine can be installed from any machine. Below prerequisites must be satisfied to setup PerfLine or deploying PerfLine on a client:
 
@@ -65,7 +65,7 @@ PerfLine can be installed from any machine. Below prerequisites must be satisfie
 
         cluster_pass=
 
-# Installation
+## Installation
 
 1.  When prerequisites are satisfied you need to `# cd` to `PerfLine` directory and run:
     `# ansible-playbook -i inventories/perfline_hosts/hosts run_perfline.yml -v`
@@ -75,7 +75,7 @@ PerfLine can be installed from any machine. Below prerequisites must be satisfie
     2.  results at `/var/perfline`
     3.  log file at `/var/log/perfline.log`
 
-## Multiple Instance of PerfLine
+### Multiple Instance of PerfLine
 
 -   If you want to install PerfLine into non-default directory you can specify `PURPOSE`.
 
@@ -183,7 +183,7 @@ For ex:
     Ex:
     addb_duration: 5min
 
-# Starting workload
+## Starting workload
 
 Workload can be started only from client_node machine
 For starting workload on a cluster you need to run tasks, which describing amount/size of files you want to upload/download and how many clients will perform load.
@@ -197,9 +197,9 @@ or
 
 `# python3 perfline.py  -a < workload/<example>.yaml`
 
-# Additional info
+## Additional info
 
-## Webui
+### Webui
 
 After successful execution of ansible playbook, you should be able to access webui page from browser at `"http://<client_ip>:8005"`.
 
@@ -217,17 +217,17 @@ After successful execution of ansible playbook, you should be able to access web
 
 -   If you have different `PUBLIC_DATA_INTERFACE_NAME` other than `data0|enp179s0|enp175s0f0|eth0` interface, then you have to provide `PUBLIC_DATA_INTERFACE_NAME` in `roles/perfline_setup/vars/main.yml`. These interface name will be going to use by iperf workload only.
 
-# Daemon services
+## Daemon services
 
 This feature will allow user to run nightly build, test and run perfline workload for subsequent build number till date. It would be required to specify the build number to `/root/perfline/wrapper/.latest_stable_build` on client server. It's a one time activity. It will take the list of build above it and including "BUILDNO" value.
 
     BUILDNO=307
 
-# DISCLAIMER / WARNING
+## DISCLAIMER / WARNING
 
 PerfLine is a tool, not a service, which is available to users to install and use at their own setups/machines. For multi-user use, PerfLine provide all required infrastructure with task/run queues and optional email notifications. But, It is outside scope of PerfLine to ensure that nothing runs outside of PerfLine infrastructure on user machines, when PerfLine is executing tasks/runs. This islolation is necessary for accurate data measurements / artifacts collection and must be ensured by user. If not ensured, results might have data which is adulterated unintentionally and accuracy compromised due to user machines being shared and used in parallel to PerfLine.
 
-# Known Issues
+## Known Issues
 
 Description:
 

@@ -32,7 +32,7 @@ function main()
     echo "waiting for s3server tcp listeners"
 
     while true; do
-        local s3_ports=$(netstat -tlpn | grep s3server | grep -E '0.0.0.0:[0-9]+' | wc -l)
+        local s3_ports=$(netstat -tlpn | grep s3server | grep -cE '0.0.0.0:[0-9]+')
         if [[ "$s3_ports" -ge "$s3_instances_nr" ]]; then
             echo "found $s3_ports listeners"
             break
@@ -41,5 +41,5 @@ function main()
     done
 }
 
-main $@
+main "$@"
 exit $?

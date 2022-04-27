@@ -17,7 +17,7 @@
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 
-from . import mongodbapi, read_config
+from . import mongodbapi, read_config, schemas
 
 
 def get_run_id(uri, query):
@@ -93,6 +93,28 @@ def read_write_routine_for_ttfb(**kwargs):
 
     kwargs['temp_write'][kwargs['obj']
                          ] = round(query_results[1][0][kwargs['metrix']]['99p'], 3)
+
+
+def get_summary(results, kwargs):
+    _temp = schemas.config_format
+    _temp['objects'][kwargs['obj']] = results['Objects']
+    _temp['total_ops'][kwargs['obj']] = results['Total_Ops']
+    _temp['total_errors'][kwargs['obj']] = results['Total_Errors']
+
+    return _temp
+
+
+def get_summary_params(**kwargs):
+    """Data for total ops, total erros, objects of the run to be displayed in summary."""
+    kwargs['query']['Operation'] = 'Read'
+    query_results = mongodbapi.find_documents(kwargs['query'], None, kwargs['uri'],
+                                              read_config.db_name, read_config.sanity_results)
+    kwargs['temp_read'] = get_summary(query_results[1][0], kwargs)
+
+    kwargs['query']['Operation'] = 'Write'
+    query_results = mongodbapi.find_documents(kwargs['query'], None, kwargs['uri'],
+                                              read_config.db_name, read_config.sanity_results)
+    kwargs['temp_write'] = get_summary(query_results[1][0], kwargs)
 
 
 def get_sanity_config(uri, run_id):

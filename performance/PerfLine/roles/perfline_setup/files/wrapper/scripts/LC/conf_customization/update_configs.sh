@@ -182,10 +182,10 @@ echo "$output"
 
 function main()
 {
-    parse_args "$@"
+    parse_args $@
     save_original_solution_config
     customize_solution_config
 }
 
-main "$@"
+main $@
 exit $?

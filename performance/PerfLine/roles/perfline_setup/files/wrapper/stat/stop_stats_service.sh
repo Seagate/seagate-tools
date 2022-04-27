@@ -64,12 +64,12 @@ function iostat_service_stop()
     done
 
      iostat-cli --fig-size 20,20 --data iostat.log \
-           --disks "$disks_dm" \
+           --disks $disks_dm \
            --fig-output iostat.aggregated.png plot
 
      for plot in io_rqm iops io_transfer "%util" avgrq-sz avgqu-sz await svctm; do
      iostat-cli --fig-size 20,20 --data iostat.log \
-           --disks "$disks_dm" \
+           --disks $disks_dm \
            --fig-output iostat.$plot.png plot --subplots $plot
      done
 

@@ -322,5 +322,5 @@ function main()
     apply_configs
 }
 
-main "$@"
+main $@
 exit $?

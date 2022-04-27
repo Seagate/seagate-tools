@@ -279,7 +279,7 @@ cmd_dump() {
 
 cmd_db() {
     _info "--- Create db from ${@} ---"
-    python3 "${PERF_DIR}"/addb2db.py --dumps "$@"
+    python3 "${PERF_DIR}"/addb2db.py --dumps $@
 }
 
 cmd_defaults() {

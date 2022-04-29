@@ -26,27 +26,38 @@ common:
   user: user@seagate.com
   send_email: false
 
-# Optional section. It may be deleted in case you don't want
-#  to build/deploy custom version of Cortx components. Either of the option
-#   you have to choose like Only URL or commitID of motr, s3server and hare.
+# Optional section. It allows you to build and deploy
+# your custom cortx docker images.
 custom_build:
-  url: ""
-  motr:
-    repo: "https://github.com/Seagate/cortx-motr.git"
-    branch: b64b1bba
+  sources:
+    motr:
+      repo: "https://github.com/Seagate/cortx-motr.git"
+      branch: 7d8c1957
+    rgw:
+      repo: "https://github.com/Seagate/cortx-rgw.git"
+      branch: 107dce0a93f84722936f2dd10bb5273402d45772
+    rgw-integration:
+      repo: https://github.com/Seagate/cortx-rgw-integration.git
+      branch: 04b3de2df1b8ebf4711e5984dd9908b62fa579a1
+    hare:
+      repo: "https://github.com/Seagate/cortx-hare.git"
+      branch: e405edf
+    utils:
+      repo: https://github.com/Seagate/cortx-utils.git
+      branch: 27067f11608ddd2a7b5b5b0a7e5266b9472323a6
+    prvsnr:
+      repo: https://github.com/Seagate/cortx-prvsnr.git
+      branch: 9c2b067d0621b65e83ba2216490039d8dfa3862c
 
-    # Optional parameter. Can be skipped. Default value
-    # in case if 'use_lnet' is not specified is 'false'.
-    # This option affects only Motr versions that include
-    # Libfabric by default. If 'use_lnet' is 'true' Motr
-    # will be built with Lnet instead of Libfabric
-    use_lnet: true
-  s3server:
-    repo: "https://github.com/Seagate/cortx-s3server.git"
-    branch: c482a593
-  hare:
-    repo: "https://github.com/Seagate/cortx-hare.git"
-    branch: daddc4a
+# Optional section. It allows you to specify cortx docker
+# image for each POD
+custom_build:
+  images:
+    cortxcontrol: ghcr.io/seagate/cortx-all:2.0.0-671-06402
+    cortxdata: ghcr.io/seagate/cortx-all:2.0.0-671-06402
+    cortxserver: ghcr.io/seagate/cortx-rgw:2.0.0-671-06402
+    cortxha: ghcr.io/seagate/cortx-all:2.0.0-671-06402
+    cortxclient: ghcr.io/seagate/cortx-all:2.0.0-671-06402
 
 # Optional section. if this section exists PerfLine will
 # change software configurations before starting the cluster.

@@ -71,6 +71,8 @@
        - { variable: 'NIGHT_ARTIFACTS', value: '{{ NIGHT_ARTIFACTS }}'}
        - { variable: 'PUBLIC_DATA_INTERFACE_NAME', value: '{{ PUBLIC_DATA_INTERFACE_NAME }}'}
        - { variable: 'DISK', value: '{{ disk }}' }
+       - { variable: 'CORTX_RE_REPO', value: '{{ cortx_re_repo }}'}
+       - { variable: 'CORTX_BUILD_IMAGE', value: '{{ cortx_build_image }}'}
 
   - name: "Updating numeric values of a variables in perfline.conf"
     lineinfile:

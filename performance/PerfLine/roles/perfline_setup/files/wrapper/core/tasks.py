@@ -73,7 +73,7 @@ def parse_options(conf, result_dir):
             options.append(params_str)
 
     # Execution options:
-    if conf['execution_options']['mkfs'] or 'configuration' in conf:
+    if conf['execution_options']['mkfs'] or 'configuration' in conf or 'custom_build' in conf:
             options.append("--mkfs")
     if conf['execution_options']['collect_m0trace']:
         options.append("--m0trace-files")
@@ -292,36 +292,28 @@ def run_worker(conf, result_dir, logdir):
     mv['/tmp/workload.log', f"{result_dir}/{logdir}"] & plumbum.FG
     return result
 
-def sw_update(conf, result_dir, logdir):
+def sw_update(conf, result_dir, logdir, task_id):
     options = ["scripts/sw_update.sh"]
+
+    options.append("--task-id")
+    options.append(task_id)
+
     result = 'SUCCESS'
     if 'custom_build' in conf:
         mv = plumbum.local['mv']
         params = conf['custom_build']
 
-        if 'url' in params:
-            options.append('--update-resource')
-            options.append(params['url'])
-        elif 'update_resource' in params:
-            options.append('--update-resource')
-            options.append(params['update_resource'])
-        else:
-            if 'use_lnet' in params['motr']:
-                if params['motr']['use_lnet']:
-                    options.append('--use-lnet')
-            options.append('-m')
-            options.append(params['motr']['repo'])
-            options.append(params['motr']['branch'])
-            options.append('-s')
-            options.append(params['s3server']['repo'])
-            options.append(params['s3server']['branch'])
-            options.append('-h')
-            options.append(params['hare']['repo'])
-            options.append(params['hare']['branch'])
-            if 'py-utils' in conf['custom_build']:
-               options.append('-u')
-               options.append(params['py-utils']['repo'])
-               options.append(params['py-utils']['branch'])
+        if 'images' in params:
+            for pod_name, docker_img in params['images'].items():
+                options.append('--pod')
+                options.append(pod_name)
+                options.append(docker_img)
+        elif 'sources' in params:
+            for project, repo_branch in params['sources'].items():
+                options.append('--source')
+                options.append(project)
+                options.append(repo_branch['repo'])
+                options.append(repo_branch['branch'])
 
         with plumbum.local.env():
             update = plumbum.local["scripts/e2o.sh"]
@@ -446,7 +438,7 @@ def worker_task(conf_opt, task):
                  failed = True
 
         if not failed:
-             ret = sw_update(conf, result["artifacts_dir"], result["log_dir"])
+             ret = sw_update(conf, result["artifacts_dir"], result["log_dir"], task.id)
              if ret == 'FAILED':
                  result['finish_time'] = str(datetime.now())
                  failed = True

@@ -137,51 +137,38 @@ def get_schema_motr():
             'oneof': [
                 {
                     'schema': {
-                        'url': {'type': 'string', 'empty': False},
+                        'images': {
+                            'type': 'dict',
+                            'required': True,
+                            'schema': {
+                                'cortxcontrol': {'type': 'string', 'required': True, 'empty': False},
+                                'cortxdata':    {'type': 'string', 'required': True, 'empty': False},
+                                'cortxserver':  {'type': 'string', 'required': True, 'empty': False},
+                                'cortxha':      {'type': 'string', 'required': True, 'empty': False},
+                                'cortxclient':  {'type': 'string', 'required': True, 'empty': False}
+                            }
+                        }
                     }
                 },
                 {
                     'schema': {
-                        'update_resource': {'type': 'string', 'empty': False},
+                        'sources': {
+                            'type': 'dict',
+                            'required': True,
+                            'keysrules': {
+                                'type': 'string',
+                                'regex': '^(ha|hare|k8s|management-portal|manager|monitor|motr|motr-apps|multisite|posix|prvsnr|re|rgw|rgw-integration|utils)$'},
+                            'valuesrules': {
+                                'type': 'dict',
+                                'schema': {
+                                    'repo':   {'type': 'string', 'required': True, 'empty': False},
+                                    'branch': {'type': 'string', 'required': True, 'empty': False},
+                                }
+                            }
+                        }
                     }
-                },
-                {
-                'schema': {
-                 'motr': {
-                    'type': 'dict',
-                    'required': False,
-                    'schema': {
-                        'repo':   {'type': 'string', 'empty': False},
-                        'branch': {'type': 'string', 'empty': False},
-                        'use_lnet': {'type': 'boolean', 'required': False, 'empty': False},
-                    }
-                },
-                 's3server': {
-                    'type': 'dict',
-                    'required': False,
-                    'schema': {
-                        'repo':   {'type': 'string', 'empty': False},
-                        'branch': {'type': 'string', 'empty': False},
-                    }
-                },
-                 'hare': {
-                    'type': 'dict',
-                    'required': False,
-                    'schema': {
-                        'repo':   {'type': 'string', 'empty': False},
-                        'branch': {'type': 'string', 'empty': False},
-                    }
-                },
-                 'py-utils': {
-                    'type': 'dict',
-                    'required': False,
-                    'schema': {
-                        'repo':   {'type': 'string', 'empty': False},
-                        'branch': {'type': 'string', 'empty': False},
-                    }
-                  }
-               }
-            }]
+                }
+            ]
         },
         'benchmarks': {
              'type': 'list',

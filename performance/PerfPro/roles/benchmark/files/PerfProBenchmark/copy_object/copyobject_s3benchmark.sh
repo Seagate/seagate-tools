@@ -3,7 +3,7 @@ TOOL_NAME='s3bench'
 ACCESS_KEY=$(grep -A 3 default /root/.aws/credentials | grep aws_access_key_id | cut -d " " -f3)
 SECRET_KEY=$(grep -A 3 default /root/.aws/credentials | grep secret_access_key | cut -d " " -f3)
 BINPATH=/root/PerfProBenchmark/s3bench
-CURRENTPATH=`pwd`
+CURRENTPATH=$(pwd)
 BENCHMARKLOG=$CURRENTPATH/benchmark.log
 #ENDPOINTS=https://s3.seagate.com         
 BUCKETNAME="seagate"
@@ -48,7 +48,7 @@ do
             case "$units" in
                  Mb)   let 'value *= 1024 * 1024'  ;;
                  Kb)   let 'value *= 1024' ;;
-                 b|'')   let 'value += 0'    ;;
+                 # b|'')   let 'value += 0'    ;;
                  *)
                      echo "Unsupported units '$units'" >&2
                  ;;

@@ -48,7 +48,7 @@ do
             case "$units" in
                  Mb)   let 'value *= 1024 * 1024'  ;;
                  Kb)   let 'value *= 1024' ;;
-                 b|'')   let 'value += 0'    ;;
+                 # b|'')   let 'value += 0'    ;;
                  *)
                      echo "Unsupported units '$units'" >&2
                  ;;

@@ -8,7 +8,6 @@ pip3 install PyYAML==5.3.1
 pip3 install pymongo==3.11.0
 """
 
-import pymongo
 from pymongo import MongoClient
 import yaml
 import sys
@@ -21,7 +20,7 @@ Config_path = sys.argv[2]
 
 def makeconfig(name):  #function for connecting with configuration file
 	with open(name) as config_file:
-		configs = yaml.load(config_file, Loader=yaml.FullLoader)
+		configs = yaml.safe_load(config_file)
 	return configs
 
 
@@ -32,7 +31,12 @@ build_url=configs_config.get('BUILD_URL')
 solution=configs_config.get('SOLUTION')
 
 def get_release_info(variable):
-    release_info= urllib.request.urlopen(build_url+'RELEASE.INFO')
+
+    if build_url.lower().startswith('http'):
+        release_info = urllib.request.urlopen(build_url+'RELEASE.INFO')
+    else:
+        raise Exception("bad build_url")
+
     for line in release_info:
         if variable in line.decode("utf-8"):
             strinfo=line.decode("utf-8").strip()

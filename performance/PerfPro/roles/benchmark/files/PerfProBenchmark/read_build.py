@@ -1,4 +1,3 @@
-import os
 import sys
 import yaml
 import urllib.request
@@ -6,13 +5,18 @@ import re
 
 
 conf_yaml = open(sys.argv[1])
-parse_conf = yaml.load(conf_yaml , Loader=yaml.FullLoader)
+parse_conf = yaml.safe_load(conf_yaml)
 build_info=str(parse_conf.get('BUILD_INFO'))
 build_url=parse_conf.get('BUILD_URL')
 
 def get_build_info(variable):
-    build_info= urllib.request.urlopen(build_url+'RELEASE.INFO')
-    for line in build_info:
+
+    if build_url.lower().startswith('http'):
+        release_info = urllib.request.urlopen(build_url+'RELEASE.INFO')
+    else:
+        raise Exception("bad build_url")
+
+   for line in build_info:
         if variable in line.decode("utf-8"):
             strinfo=line.decode("utf-8").strip()
             strip_strinfo=re.split(': ',strinfo)

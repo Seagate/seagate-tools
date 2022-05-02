@@ -1,12 +1,9 @@
-import os
 import sys
 import yaml
-import urllib.request
-import re
 
 
 conf_yaml = open(sys.argv[1])
-parse_conf = yaml.load(conf_yaml , Loader=yaml.FullLoader)
+parse_conf = yaml.safe_load(conf_yaml)
 param=parse_conf.get('END_POINTS')
 
 					

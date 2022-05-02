@@ -1,4 +1,3 @@
-import os
 import sys
 import paramiko
 import yaml
@@ -6,7 +5,7 @@ import re
 import subprocess
 
 conf_yaml = open(sys.argv[1])
-parse_conf = yaml.load(conf_yaml , Loader=yaml.FullLoader)
+parse_conf = yaml.safe_load(conf_yaml)
 
 nodes=parse_conf.get('NODES')
 node1 = nodes[0][1]
@@ -22,7 +21,7 @@ def server(cmd):
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(hostname=node1 ,port='22' , username='root', password=passwd)
     command= cmd
-    stdin, stdout, stderr = ssh.exec_command(command)
+    _, stdout, stderr = ssh.exec_command(command)
     out=stdout.readlines()
     resp=''.join(out)
     return (resp)

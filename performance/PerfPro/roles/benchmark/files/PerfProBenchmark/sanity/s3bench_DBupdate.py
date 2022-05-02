@@ -5,16 +5,12 @@ python3 s3bench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
 Attributes: _id,Log_File,Name,Operation,IOPS,Throughput,Latency,TTFB,Object_Size,HOST
 """
 
-import pymongo
 from pymongo import MongoClient
-import re
 import socket
 import sys
 import os
-from os import listdir
 import yaml
 from datetime import datetime
-import urllib.request
 Main_path = sys.argv[2]
 Config_path = sys.argv[3]
 
@@ -27,7 +23,7 @@ GID = sys.argv[8]
 
 def makeconfig(name):  #function for connecting with configuration file
     with open(name) as config_file:
-        configs = yaml.load(config_file, Loader=yaml.FullLoader)
+        configs = yaml.safe_load(config_file)
     return configs
 
 configs_main = makeconfig(Main_path)
@@ -52,11 +48,11 @@ def makeconnection(collection):  #function for making connection with database
 
 ##Function to find latest iteration
 def get_latest_iteration(query, db_collection):
-    max = 0
+    max_iter = 0
     cursor = db_collection.find(query)
     for record in cursor:
-        if max < record['Iteration']:
-            max = record['Iteration']
+        if max_iter < record['Iteration']:
+            max_iter = record['Iteration']
     return max
 
 ##Function to resolve iteration/overwrite etc in multi-client run

@@ -4,7 +4,6 @@ python3 hsbench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
 
 Task : Push HSBENCH data to mongoDB from user given path and host
 '''
-import pymongo
 from pymongo import MongoClient
 import re 
 import json
@@ -23,56 +22,68 @@ Config_path = sys.argv[3]
 # Function for connecting with configuration file
 def makeconfig(name):  
     with open(name) as config_file:
-        configs = yaml.load(config_file, Loader=yaml.FullLoader)
+        configs = yaml.safe_load(config_file)
     return configs
 
 configs_main = makeconfig(Main_path)
-configs_config= makeconfig(Config_path)
+configs_config = makeconfig(Config_path)
 
-build_info=configs_config.get('BUILD_INFO')
-build_url=configs_config.get('BUILD_URL')
-nodes_list=configs_config.get('NODES')
-clients_list=configs_config.get('CLIENTS')
-pc_full=configs_config.get('PC_FULL')
-overwrite=configs_config.get('OVERWRITE')
-custom=configs_config.get('CUSTOM')
-nodes_num=len(nodes_list)
-clients_num=len(clients_list)
+build_info = configs_config.get('BUILD_INFO')
+build_url = configs_config.get('BUILD_URL')
+nodes_list = configs_config.get('NODES')
+clients_list = configs_config.get('CLIENTS')
+pc_full = configs_config.get('PC_FULL')
+overwrite = configs_config.get('OVERWRITE')
+custom = configs_config.get('CUSTOM')
+nodes_num = len(nodes_list)
+clients_num = len(clients_list)
 
-# Function to get DB details from config files
-'''
-Parameters : input - none
-             returns(Database) - Databbasen name where to push
-                    (string) - build number
-Must have main.yml file already
-'''
 def makeconnection(): 
-    client = MongoClient(configs_main['db_url'])  #connecting with mongodb database
-    db=client[configs_main['db_database']]  #database name=performance 
+
+    """
+    Function to get DB details from config files
+
+    Parameters : input - none
+                 returns(Database) - Database name where to push
+                 (string) - build number
+    Required :   Must have main.yml file already
+    """
+
+    client = MongoClient(configs_main['db_url'])  # connecting with mongodb database
+    db = client[configs_main['db_database']]  # database name = performance 
     return db
 
-# Function to get build release information from URL
-'''
-Parameters : input(Variable) - Variable from RELEASE.INFO of the Build
-             returns(string) - Value of the Variable
-'''
 
 def get_release_info(variable):
-    release_info= urllib.request.urlopen(build_url+'RELEASE.INFO')
+
+    """
+    Function to get build release information from URL
+
+    Parameters : input(Variable) - Variable from RELEASE.INFO of the Build
+                 returns(string) - Value of the Variable
+    """
+
+    if build_url.lower().startswith('http'):
+        release_info = urllib.request.urlopen(build_url+'RELEASE.INFO')
+    else:
+        raise Exception("bad build_url")
+
     for line in release_info:
         if variable in line.decode("utf-8"):
-            strinfo=line.decode("utf-8").strip()
-            strip_strinfo=re.split(': ',strinfo)
-            return(strip_strinfo[1])
+            strinfo = line.decode("utf-8").strip()
+            strip_strinfo = re.split(': ',strinfo)
+            return (strip_strinfo[1])
 
 
-
-# Function to get the files from use entered filepath
-'''
-Parameters : input(String) - file path of the folder
-             returns(list) - list of filtered files in specified folder
-'''
 def get_files(filepath):
+  
+    """ 
+    Function to get the files from use entered filepath
+
+    Parameters : input(String) - file path of the folder
+                 returns(list) - list of filtered files in specified folder  
+    """
+
     files=[]
     for r, _, f in os.walk(filepath):
         for doc in f:
@@ -80,12 +91,16 @@ def get_files(filepath):
                 files.append(os.path.join(r, doc))
     return files
 
-# Function to get bucketops from log files
-'''
-Parameters : input(str) - file name to get data from files
-             returns(dataFrame) - pandas dataframe containing bucketOPs details
-'''
+
 def extract_json(file):
+
+    """
+    Function to get bucketops from log files
+
+    Parameters : input(str) - file name to get data from files
+                 returns(dataFrame) - pandas dataframe containing bucketOPs details
+    """
+
     json_data = []
     keys = ['Mode', 'Seconds', 'Ops', 'Mbps',
             'Iops', 'MinLat', 'AvgLat', 'MaxLat']
@@ -162,16 +177,16 @@ def getconfig():
 
     return (dic)
 
-##Function to find latest iteration
+# Function to find latest iteration
 def get_latest_iteration(query, db, collection):
-    max = 0
+    max_iter = 0
     cursor = db[collection].find(query)
     for record in cursor:
-        if max < record['Iteration']:
-            max = record['Iteration']
-    return max
+        if max_iter < record['Iteration']:
+            max_iter = record['Iteration']
+    return max_iter
 
-##Function to resolve iteration/overwrite etc in multi-client run
+# Function to resolve iteration/overwrite etc in multi-client run
 def check_first_client(query, db, collection, itr):
     query.update(Iteration=itr)
     cursor = db[collection].distinct('HOST', query)
@@ -184,15 +199,19 @@ def check_first_client(query, db, collection, itr):
         return False
     return True
 
-# Function to push data to DB 
-'''
-Parameters : input - (list) list containing file names with specified filter, 
-                     (String) host name, 
+
+def push_data(files, host, db, Build, Version, Branch , OS):
+
+    """
+    Function to push data to DB
+
+    Parameters : input - (list) list containing file names with specified filter,
+                     (String) host name,
                      (Collection) DB collection where to push
                      (String) build number
-             returns - none
-'''
-def push_data(files, host, db, Build, Version, Branch , OS):
+                 returns - none
+    """
+
     find_iteration = True
     first_client = True
     delete_data = True
@@ -222,7 +241,7 @@ def push_data(files, host, db, Build, Version, Branch , OS):
             data = extract_json(doc)
             data.reset_index(inplace=False)
             data_dict = data.to_dict("records")
-        except:
+        except (AttributeError, NameError):
             data_dict = 'NA'
 
         filename = doc 
@@ -316,7 +335,6 @@ def push_data(files, host, db, Build, Version, Branch , OS):
 
         except Exception as exc:
             print(f"Encountered error in file: {filename} , and Exeption is" , exc)
-            Run_Health = "Failed"
 
 
 
@@ -361,6 +379,14 @@ parameters : input - (String) folder path to required files
              returns - none
 '''
 if __name__ == "__main__":
+
+    """
+    Main fucntion
+
+    parameters : input - (String) folder path to required files
+                 returns - none  
+    """
+
     link = sys.argv[1] #input("Enter the file path - ")
     host =  socket.gethostname() #os.uname()[1]
 

@@ -1,6 +1,5 @@
 import paramiko
 import time
-import os
 import yaml
 user_name = "root"
 port =  22
@@ -14,7 +13,7 @@ time_string = now.strftime("%m-%d-%Y-%H:%M:%S")
 
 ###Reading conf file######
 conf_yaml = open('/root/PerfProBenchmark/config.yml')
-parse_conf = yaml.load(conf_yaml , Loader=yaml.FullLoader)
+parse_conf = yaml.safe_load(conf_yaml)
 node1 = parse_conf.get('NODE1')
 node2 = parse_conf.get('NODE2')
 nfs_server=parse_conf.get('NFS_SERVER')
@@ -33,12 +32,12 @@ try:
     ssh_client.connect(node1, port, user_name, passwd)
     stdin, stdout, stderr = ssh_client.exec_command(cmd1)
     output1 = stdout.readlines()
-    id = (output1[2].strip('|\n').strip('|').strip())
+    bundle_id = (output1[2].strip('|\n').strip('|').strip())
 
-    print("Generating link for support bundle for bundle id " + id + " in /tmp/support_bundle")
+    print("Generating link for support bundle for bundle bundle_id " + bundle_id + " in /tmp/support_bundle")
     
-    remotefilepath1 = "{}{}_{}.tar.gz".format(support_bundle_loc,id,node1)
-    remotefilepath2 = "{}{}_{}.tar.gz".format(support_bundle_loc,id,node2)
+    remotefilepath1 = "{}{}_{}.tar.gz".format(support_bundle_loc,bundle_id,node1)
+    remotefilepath2 = "{}{}_{}.tar.gz".format(support_bundle_loc,bundle_id,node2)
 
 
 ### Code for checking tar.gz file  in /var/log/seagate/support_bundle/  #########
@@ -49,15 +48,15 @@ try:
     while time.time() <= endtime:
         try:
             ftp_client.stat(remotefilepath1)
-            print("Generated support bundlle {}_{}.tar.gz".format(id,node1))
-            print("Generated support bundlle {}_{}.tar.gz".format(id,node2))
+            print("Generated support bundlle {}_{}.tar.gz".format(bundle_id,node1))
+            print("Generated support bundlle {}_{}.tar.gz".format(bundle_id,node2))
             break
         except Exception:
-            print("Waiting for sometime as support bundle is being generated for bundle id {}".format(id))
+            print("Waiting for sometime as support bundle is being generated for bundle id {}".format(bundle_id))
             time.sleep(60)
     ftp_client.close()
 
-    print("Copying support bundle for {} at NFS location".format(id))
+    print("Copying support bundle for {} at NFS location".format(bundle_id))
     
     cmd2= "mkdir {}{}_{};cp {} {}{}_{}".format(nfs_loc,node1,time_string,remotefilepath1,nfs_loc,node1,time_string)
     stdin, stdout, stderr = ssh_client.exec_command(cmd2)
@@ -84,11 +83,11 @@ try:
     print('copied support bundle using ' + str(build) + ' for ' + node2 + ' in /PerfPro/support_bundle folder at NFS location')
 
 ### Code for checking status for support bundle id######
-    print("Checking status for support bundle " + id)
-    cmd11 = "cortxcli support_bundle status {}".format(id)
+    print("Checking status for support bundle " + bundle_id)
+    cmd11 = "cortxcli support_bundle status {}".format(bundle_id)
     stdin, stdout, stderr = ssh_client.exec_command(cmd11)
     output11 = stdout.readlines()
-    print("Printing status for bundle id " + id)
+    print("Printing status for bundle id " + bundle_id)
     for op in output11:
         print(op)
 except paramiko.AuthenticationException:

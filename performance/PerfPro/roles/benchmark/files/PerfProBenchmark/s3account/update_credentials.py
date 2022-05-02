@@ -1,6 +1,5 @@
 """This Module will update S3 user credentials in client machine"""
 import sys
-import json
 
 def main(argv):
     access = sys.argv[1] 

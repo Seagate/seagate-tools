@@ -82,7 +82,7 @@ precheck_on_controller_drivers() {
 install_on_controller_drivers() {
    ssh "$USERNAME"@"$CONTROLLER" "$(typeset -f install_cmds); install_cmds"
    # Install on each driver nodes
-   for driver_host in `cat "$DRIVERS_FILE"`
+   for driver_host in $(cat "$DRIVERS_FILE")
    do
      printf "\nInstalling cosbench version $COSBENCH_VERSION to driver node $driver_host\n"
      ssh "$USERNAME"@"$driver_host" "$(typeset -f install_cmds); install_cmds"
@@ -150,7 +150,7 @@ start_cosbench() {
   printf "Starting Controller on node $CONTROLLER\n"
   ssh "$USERNAME"@"$CONTROLLER" "$(typeset -f start_cosbench_controller_cmds); start_cosbench_controller_cmds"
 
-  for driver_host in `cat $DRIVERS_FILE`
+  for driver_host in $(cat "$DRIVERS_FILE")
   do
     printf "Starting driver on $driver_host...\n"
     ssh "$USERNAME"@"$driver_host" "$(typeset -f start_cosbench_driver_cmds); start_cosbench_driver_cmds"

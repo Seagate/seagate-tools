@@ -25,6 +25,6 @@
         color: #6EBE49;
         font-weight: bold;
         font-size: 30px;
-        font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+        font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
     }
 </style>

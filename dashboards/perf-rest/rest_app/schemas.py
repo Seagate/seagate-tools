@@ -30,3 +30,5 @@ config_format = {
     "total_ops": {},
     "total_errors": {}
 }
+
+perf_metrics = ["Throughput", "Latency", "IOPS", "TTFB"]

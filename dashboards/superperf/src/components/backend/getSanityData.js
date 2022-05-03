@@ -1,11 +1,10 @@
 import axios from "axios";
 
-let hostUrl = "http://127.0.0.1:5050/sanity/";
 
 export function fetchDataFromResponse(run_id, endpoint) {
     const params = new URLSearchParams([["run_id", run_id]]);
-    return axios.get(`${hostUrl}${endpoint}`,
-    { params });
+    return axios.get(`${process.env.VUE_APP_REST_URI}${endpoint}`,
+        { params });
 }
 
 
@@ -19,7 +18,7 @@ function getSanityTableMapper(key) {
         "total_ops": "Total Operations",
         "total_errors": "Total Errors"
     };
-    if(key in mapper) {
+    if (key in mapper) {
         return mapper[key];
     }
     else {
@@ -30,10 +29,10 @@ function getSanityTableMapper(key) {
 
 export function getDataForSanityTables(rawData) {
     var results = [];
-    for(var key in rawData) {
+    for (var key in rawData) {
         if (Object.prototype.hasOwnProperty.call(rawData, key)) {
             results.push(
-                Object.assign({}, {"index": getSanityTableMapper(key)}, rawData[key]));
+                Object.assign({}, { "index": getSanityTableMapper(key) }, rawData[key]));
         }
     }
     return results;
@@ -45,15 +44,46 @@ export function splitObjectSize(obj) {
 }
 
 
-export function getHeaderOfSanity(data, subKey){
-    var keys = Object.keys(data["read"][subKey]).reverse();
-    var header = [{ text: "Index", value: "index" }];
-    for(var key in keys) {
-        if (Object.prototype.hasOwnProperty.call(keys, key)) {
-            header.push(
-                { "text": splitObjectSize(keys[key]), "value": keys[key]}
-            );
-        }
+export function getHeaderOfSanityfromObjects(data) {
+    let keys = [];
+    let header = [{ text: "Index", value: "index" }];
+
+    keys = Object.keys(data["read"]["objects"]).reverse();
+    for (let [, value] of Object.entries(keys)) {
+        header.push(
+            { "text": splitObjectSize(value), value }
+        );
     }
+
+    return header;
+}
+
+
+export function getHeaderOfSanityfromBaseline(data) {
+    let keys = [];
+    let header = [{ text: "Index", value: "index" }];
+
+    keys = Object.keys(data["read"]["baseline"]).reverse();
+    for (let [, value] of Object.entries(keys)) {
+        header.push(
+            { "text": splitObjectSize(value), value }
+        );
+    }
+
+    return header;
+}
+
+
+export function getHeaderOfSanityforMaxSessions(data) {
+    let keys = [];
+    let header = [{ text: "Index", value: "index" }];
+
+    keys = Object.keys(data["baseline"]);
+    for (let [, value] of Object.entries(keys)) {
+        header.push(
+            { "text": value, value }
+        );
+    }
+
     return header;
 }

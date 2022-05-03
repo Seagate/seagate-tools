@@ -36,6 +36,9 @@ with open("config.yml") as file:
         sanity_obj_sizes = config["Sanity"]["workload"]["primary"]["object_sizes"]
         sanity_sessions = config["Sanity"]["workload"]["primary"]["sessions"]
 
+        sanity_high_conc_obj_size = config["Sanity"]["workload"]["secondary"]["object_sizes"]
+        sanity_high_conc_sessions = config["Sanity"]["workload"]["secondary"]["sessions"]
+
         db_username = config["Authentication"]["db_username"]
         db_password = config["Authentication"]["db_password"]
     except KeyError:

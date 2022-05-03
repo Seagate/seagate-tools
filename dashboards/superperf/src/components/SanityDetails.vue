@@ -26,27 +26,31 @@
         :DataValuesRead="dataTtfbRead"
         :DataValuesWrite="dataTtfbWrite"
       />
+      <SanityAllMatrixTable
+        TableName="Max Concurrency"
+        :Headers="allHeaders"
+        :DataValues="dataAll"
+      />
     </v-card>
   </v-container>
 </template>
 
 <script>
 import SanityDataTable from "./SanityDataTable.vue";
+import SanityAllMatrixTable from "./SanityAllMatrixTable.vue";
 import * as sanityapi from "./backend/getSanityData.js";
 
 export default {
   name: "SanityDetailsPage",
   components: {
     SanityDataTable,
+    SanityAllMatrixTable,
   },
   data() {
     return {
       run_id: this.$route.query.run_id,
-      queryResultsTput: [],
-      queryResultsLat: [],
-      queryResultsIops: [],
-      queryResultsTtfb: [],
       headers: [],
+      allHeaders: [],
       dataThroughputRead: [],
       dataThroughputWrite: [],
       dataLatencyRead: [],
@@ -55,52 +59,59 @@ export default {
       dataIopsWrite: [],
       dataTtfbRead: [],
       dataTtfbWrite: [],
+      dataAll: [],
     };
   },
   mounted: function () {
     sanityapi
       .fetchDataFromResponse(this.run_id, "throughput")
       .then((response) => {
-        this.queryResultsTput = response.data.result;
-        this.headers = sanityapi.getHeaderOfSanity(this.queryResultsTput, "baseline");
+        let queryResultsTput = response.data.result;
+        this.headers = sanityapi.getHeaderOfSanityfromBaseline(
+          queryResultsTput,
+        );
         this.dataThroughputRead = sanityapi.getDataForSanityTables(
-          this.queryResultsTput["read"]
+          queryResultsTput.read
         );
         this.dataThroughputWrite = sanityapi.getDataForSanityTables(
-          this.queryResultsTput["write"]
+          queryResultsTput.write
         );
       });
 
-    sanityapi
-      .fetchDataFromResponse(this.run_id, "latency")
-      .then((response) => {
-        this.queryResultsLat = response.data.result;
-        this.dataLatencyRead = sanityapi.getDataForSanityTables(
-          this.queryResultsLat["read"]
-        );
-        this.dataLatencyWrite = sanityapi.getDataForSanityTables(
-          this.queryResultsLat["write"]
-        );
-      });
+    sanityapi.fetchDataFromResponse(this.run_id, "latency").then((response) => {
+      let queryResultsLat = response.data.result;
+      this.dataLatencyRead = sanityapi.getDataForSanityTables(
+        queryResultsLat.read
+      );
+      this.dataLatencyWrite = sanityapi.getDataForSanityTables(
+        queryResultsLat.write
+      );
+    });
 
     sanityapi.fetchDataFromResponse(this.run_id, "iops").then((response) => {
-      this.queryResultsIops = response.data.result;
+      let queryResultsIops = response.data.result;
       this.dataIopsRead = sanityapi.getDataForSanityTables(
-        this.queryResultsIops["read"]
+        queryResultsIops.read
       );
       this.dataIopsWrite = sanityapi.getDataForSanityTables(
-        this.queryResultsIops["write"]
+        queryResultsIops.write
       );
     });
 
     sanityapi.fetchDataFromResponse(this.run_id, "ttfb").then((response) => {
-      this.queryResultsTtfb = response.data.result;
+      let queryResultsTtfb = response.data.result;
       this.dataTtfbRead = sanityapi.getDataForSanityTables(
-        this.queryResultsTtfb["read"]
+        queryResultsTtfb.read
       );
       this.dataTtfbWrite = sanityapi.getDataForSanityTables(
-        this.queryResultsTtfb["write"]
+        queryResultsTtfb.write
       );
+    });
+
+    sanityapi.fetchDataFromResponse(this.run_id, "all").then((response) => {
+      let dataAllMetrix = response.data.result;
+      this.allHeaders = sanityapi.getHeaderOfSanityforMaxSessions(dataAllMetrix);
+      this.dataAll = sanityapi.getDataForSanityTables(dataAllMetrix);
     });
   },
 };

@@ -10,5 +10,6 @@ specification:
     repo: https://github.com/Seagate/cortx-k8s
     branch: v0.4.0
   perfline:
-    repo: git@github.com:Seagate/seagate-tools.git
+    #repo: git@github.com:Seagate/seagate-tools.git
+    repo: https://github.com/Seagate/seagate-tools.git
     branch: dps

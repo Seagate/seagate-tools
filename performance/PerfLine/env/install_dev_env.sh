@@ -81,7 +81,7 @@ PL_HOSTS="seagate-tools/performance/PerfLine/inventories/perfline_hosts/hosts"
 yum install -y ansible
 
 rm -rf seagate-tools || true
-yes | git clone -b $branch $repo
+git clone -b $branch $repo
 
 sed -i '/^srvnode-/d' ${PL_HOSTS}
 sed -i '/^client-/d' ${PL_HOSTS}

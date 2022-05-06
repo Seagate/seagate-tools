@@ -140,12 +140,16 @@ def get_schema_motr():
                         'images': {
                             'type': 'dict',
                             'required': True,
-                            'schema': {
-                                'cortxcontrol': {'type': 'string', 'required': True, 'empty': False},
-                                'cortxdata':    {'type': 'string', 'required': True, 'empty': False},
-                                'cortxserver':  {'type': 'string', 'required': True, 'empty': False},
-                                'cortxha':      {'type': 'string', 'required': True, 'empty': False},
-                                'cortxclient':  {'type': 'string', 'required': True, 'empty': False}
+                            'keysrules': {
+                                'type': 'string',
+                                'regex': '^(cortxcontrol|cortxdata|cortxserver|cortxha|cortxclient)$'},
+                            'valuesrules': {
+                                'type': 'dict',
+                                'schema': {
+                                    'image':   {'type': 'string', 'required': True, 'empty': False},
+                                    'motr_patch': {'type': 'string', 'required': False, 'empty': False},
+                                    'hare_patch': {'type': 'string', 'required': False, 'empty': False},
+                                }
                             }
                         }
                     }

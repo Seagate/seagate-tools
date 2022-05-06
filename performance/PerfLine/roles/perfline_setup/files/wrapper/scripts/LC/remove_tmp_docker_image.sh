@@ -31,7 +31,7 @@ function main()
         return 1
     fi
 
-    local docker_image_id="$(docker images | grep "$docker_image_tag" | awk '{print $3}')"
+    local docker_image_id="$(docker images | grep -P "$docker_image_tag" | awk '{print $3}')"
 
     if [[ -n "$docker_image_id" ]]; then
         docker rmi "$docker_image_id" || true

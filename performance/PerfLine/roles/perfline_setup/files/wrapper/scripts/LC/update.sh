@@ -34,6 +34,7 @@ DOCKER_IMAGES_BUILD_TOOLS_DIR="$CORTX_RE_REPO/docker/cortx-deploy"
 
 K8S_SCRIPTS_DIR="$CORTX_K8S_REPO/k8_cortx_cloud"
 SOLUTION_FILE="$K8S_SCRIPTS_DIR/solution.yaml"
+SOLUTION_FILE_BACKUP="$K8S_SCRIPTS_DIR/.perfline__solution.yaml__backup"
 
 EX_SRV="pdsh -R ssh -S -w $NODES"
 PRIMARY_NODE=$(echo "$NODES" | cut -d "," -f1)
@@ -42,6 +43,7 @@ BRANCH="main"
 
 PODS=()
 SOURCES=()
+PATCHED_CORTX_IMAGES=()
 
 function prepare_env() {
     if [ ! -d "$CORTX_SRC_DIR" ]; then
@@ -211,8 +213,20 @@ function pre_req_deployment() {
     $EX_SRV "cd $K8S_SCRIPTS_DIR && ./prereq-deploy-cortx-cloud.sh $DISK"
 }
 
+function save_original_solution_config()
+{
+    # TODO: this function should be a part of
+    # separate 'save_orig_configs.sh' script in the
+    # future version of PerfLine. It is required because
+    # config files changing might be done during both
+    # 'build and deploy' and 'update configs' phase.
+
+    cp -f "$SOLUTION_FILE" "$SOLUTION_FILE_BACKUP"
+}
+
 function update_images_in_solution_yaml()
 {
+    save_original_solution_config
     local args=""
 
     for docker_img in $@; do
@@ -226,6 +240,7 @@ function update_images_in_solution_yaml()
 
 function update_pods_in_solution_yaml()
 {
+    save_original_solution_config
     local pod_args=""
 
     for pod_descr in $@; do
@@ -243,6 +258,67 @@ function pull_docker_images()
     done
 }
 
+function patch_cortx_image()
+{
+    local base_img="$1"
+    local motr_repo="$2"
+    local hare_repo="$3"
+
+    # find an image in the list
+    local patched_img_name=""
+
+    for ((j = 0; j < $((${#PATCHED_CORTX_IMAGES[*]})); j++)); do
+        cortx_img_descr=${PATCHED_CORTX_IMAGES[((j))]}
+        
+        local img=$(echo "$cortx_img_descr" | awk '{print $1}')
+
+        if [[ "$base_img" != "$img" ]]; then
+            continue
+        fi
+
+        local repo=$(echo "$cortx_img_descr" | awk '{print $2}')
+
+        if [[ "$motr_repo" != "$repo" ]]; then
+            continue
+        fi
+
+        repo=$(echo "$cortx_img_descr" | awk '{print $3}')
+
+        if [[ "$hare_repo" != "$repo" ]]; then
+            continue
+        fi
+
+        patched_img_name=$(echo "$cortx_img_descr" | awk '{print $4}')
+        break
+    done
+
+    if [[ -n "$patched_img_name" ]]; then
+        NEW_DOCKER_IMG="$patched_img_name"
+        return
+    fi
+
+    # patch a new cortx image
+    local new_img="${docker_img}_perfline_$(mktemp -u XXXXXXX)_$TASK_ID"
+    local args=""
+
+    if [[ "$motr_repo" != "none" ]]; then
+        args="$args --motr-repo $motr_repo"
+    fi
+
+    if [[ "$hare_repo" != "none" ]]; then
+        args="$args --hare-repo $hare_repo"
+    fi
+
+    $SCRIPT_DIR/build_deploy/patch_cortx_image.sh \
+        --base-image "$base_img" --new-image "$new_img" \
+        --container tmp_perfline_"$TASK_ID" $args
+
+    # save description of new cortx image
+    PATCHED_CORTX_IMAGES+=("$base_img $motr_repo $hare_repo $new_img")
+
+    NEW_DOCKER_IMG="$new_img"
+}
+
 function deploy_pre_built_images()
 {
     local images=""
@@ -254,8 +330,36 @@ function deploy_pre_built_images()
         local pod_name=$(echo "$pod" | awk '{print $1}')
         local docker_img=$(echo "$pod" | awk '{print $2}')
 
-        images="$images $docker_img"
-        args="$args $pod_name=$docker_img"
+        local fields_nr=$(echo "$pod" | awk '{print NF}')
+
+        # check if patching is required
+        if [[ "$fields_nr" -gt 2 ]]; then
+            
+            local motr_repo="none"
+            local hare_repo="none"
+
+            for patch_descr in $(echo "$pod" | cut -f 3- -d ' '); do
+                if echo "$patch_descr" | grep -P '^patch_motr::' > /dev/null; then
+                    motr_repo=$(echo "$patch_descr" | sed 's/patch_motr:://')
+                elif echo "$patch_descr" | grep -P '^patch_hare::' > /dev/null; then
+                    hare_repo=$(echo "$patch_descr" | sed 's/patch_hare:://')
+                fi
+            done;
+
+            NEW_DOCKER_IMG=""
+            patch_cortx_image "$docker_img" "$motr_repo" "$hare_repo"
+
+            if [[ -z "$NEW_DOCKER_IMG" ]]; then
+                echo 'error!'
+                exit 1
+            fi
+
+            args="$args $pod_name=$NEW_DOCKER_IMG"
+
+        else
+            images="$images $docker_img"
+            args="$args $pod_name=$docker_img"
+        fi
     done
 
     pull_docker_images $images
@@ -305,12 +409,39 @@ function validate() {
     fi
 }
 
+function parse_patch_arg()
+{
+    local param="$1"
+    local val="$2"
+
+    if [[ "$param" == "--patch-motr" ]]; then
+        PATCH_ARG="patch_motr::$val"
+    elif [[ "$param" == "--patch-hare" ]]; then
+        PATCH_ARG="patch_hare::$val"
+    else
+        return 1
+    fi
+
+    return 0
+}
+
 while [[ $# -gt 0 ]]; do
     case $1 in
         --pod)
-            PODS+=("$2 $3")
+            pod_descr="$2 $3"
             shift
             shift
+            while true; do
+                PATCH_ARG=""
+                if parse_patch_arg "$2" "$3"; then
+                    pod_descr="$pod_descr $PATCH_ARG"
+                    shift
+                    shift
+                else
+                    break
+                fi
+            done
+            PODS+=("$pod_descr")
             ;;
         --source)
             SOURCES+=("$2 $3 $4")

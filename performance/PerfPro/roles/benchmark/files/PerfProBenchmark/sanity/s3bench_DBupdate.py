@@ -1,7 +1,7 @@
 
 #!/usr/bin/env python3
 """
-python3 s3bench_DBupdate.py <log file path> <main.yaml path> <config.yaml path> 
+python3 s3bench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
 Attributes: _id,Log_File,Name,Operation,IOPS,Throughput,Latency,TTFB,Object_Size,HOST
 """
 
@@ -14,7 +14,7 @@ from datetime import datetime
 Main_path = sys.argv[2]
 Config_path = sys.argv[3]
 
-#collecting runtime entries 
+#collecting runtime entries
 Repository = sys.argv[4]
 Commit_ID = sys.argv[5]
 PR_ID = sys.argv[6]
@@ -40,7 +40,7 @@ clients_num=len(clients_list)
 
 def makeconnection(collection):  #function for making connection with database
     client = MongoClient(configs_main['db_url'])  #connecting with mongodb database
-    db=client[configs_main['db_database']]  #database name=performance 
+    db=client[configs_main['db_database']]  #database name=performance
 #    return db
     col=configs_main.get('SANITY')[collection]
     sanity_col=db[col]
@@ -118,7 +118,7 @@ class s3bench:
                 "Run_State":self.Run_State
                 }
 
-    def insert_update(self,Iteration):# function for inserting and updating mongodb database 
+    def insert_update(self,Iteration):# function for inserting and updating mongodb database
         #db = makeconnection()
         db_data={}
         db_data.update(self.Primary_Set)
@@ -145,7 +145,7 @@ def insertOperations(files,db_collection,run_ID,Config_ID ):  #function for retr
     first_client = True
     delete_data = True
     Run_Health = "Successful"
-    for file in files:    
+    for file in files:
         _, filename = os.path.split(file)
         global nodes_num, clients_num , pc_full, iteration , overwrite, custom
         oplist = ["Write" , "Read" , "GetObjTag", "HeadObj" , "PutObjTag"]
@@ -194,13 +194,13 @@ def insertOperations(files,db_collection,run_ID,Config_ID ):  #function for retr
                         ttfb={"Max":float(lines[count+12].split(":")[1][:-2]),"Avg":float(lines[count+11].split(":")[1][:-2]),"Min":float(lines[count+13].split(":")[1][:-2]),"99p":float(lines[count+10].split(":")[1][:-2])}
                         data = s3bench(filename,opname,iops,throughput,error_count,ops_count,lat,ttfb,obj,db_collection,run_ID,Config_ID,overwrite,sessions,Objects,Run_Health)
 # Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID,overwrite,sessions,Objects,pc_full,custom,Run_Health)
-                    
+ 
                         if find_iteration:
                             iteration_number = get_latest_iteration(data.Primary_Set, db_collection)
                             find_iteration = False
                             # To prevent data of one client getting overwritten/deleted while another client upload data as primary set matches for all client in multi-client run
                             #first_client=check_first_client(data.Primary_Set, db_collection, iteration_number)
-                            #the query needs to be updated hence marking this commented. 
+                            #the query needs to be updated hence marking this commented.
                         if iteration_number == 0:
                             data.insert_update(iteration_number+1)
                         elif not first_client:
@@ -220,7 +220,7 @@ def insertOperations(files,db_collection,run_ID,Config_ID ):  #function for retr
 
         except Exception as e:
             print(f"Encountered error in file: {filename} , and Exeption is" , e)
-            Run_Health = "Failed"           
+            Run_Health = "Failed"
 
 
 def getallfiles(directory,extension):#function to return all file names with perticular extension
@@ -232,7 +232,7 @@ def getallfiles(directory,extension):#function to return all file names with per
     return flist
 
 def insert_run_details(run_details):
-    global Repository, Commit_ID, PR_ID 
+    global Repository, Commit_ID, PR_ID
     run_data={
         "Repository" : Repository ,
         "Commit_ID" : Commit_ID,
@@ -245,7 +245,7 @@ def insert_run_details(run_details):
             print("Sanity Run details recorded \n" + str(run_data))
             result = run_details.find_one(run_data)
             if result:
-                run_ID = result['_id'] 
+                run_ID = result['_id']
         else:
             print("Sanity Run details already present \n" + str(run_data))
             result = run_details.find_one(run_data)
@@ -261,10 +261,10 @@ def insert_config_details(sanity_config , run_ID):
     global User ,GID ,nodes_num, clients_num, nodes_list, clients_list
     nodes=[]
     clients=[]
-    for i in range(len(nodes_list)):
+    for i, _ in enumerate(nodes_list):
         nodes.append(nodes_list[i][i+1])
 
-    for i in range(len(clients_list)):
+    for i, _ in enumerate(clients_list):
         clients.append(clients_list[i][i+1])
 
     config_data={
@@ -314,4 +314,4 @@ def main(argv):
     insertOperations(files,db_collection,run_ID,Config_ID)
 
 if __name__=="__main__":
-    main(sys.argv) 
+    main(sys.argv)

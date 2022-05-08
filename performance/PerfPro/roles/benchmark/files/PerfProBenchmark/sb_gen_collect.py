@@ -35,7 +35,7 @@ try:
     bundle_id = (output1[2].strip('|\n').strip('|').strip())
 
     print("Generating link for support bundle for bundle bundle_id " + bundle_id + " in /tmp/support_bundle")
-    
+ 
     remotefilepath1 = "{}{}_{}.tar.gz".format(support_bundle_loc,bundle_id,node1)
     remotefilepath2 = "{}{}_{}.tar.gz".format(support_bundle_loc,bundle_id,node2)
 

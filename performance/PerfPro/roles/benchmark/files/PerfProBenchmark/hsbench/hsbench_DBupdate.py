@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 '''
-python3 hsbench_DBupdate.py <log file path> <main.yaml path> <config.yaml path> 
+python3 hsbench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
 
 Task : Push HSBENCH data to mongoDB from user given path and host
 '''
 from pymongo import MongoClient
-import re 
+import re
 import json
 import os
 import socket
@@ -20,7 +20,7 @@ Main_path = sys.argv[2]  # database url
 Config_path = sys.argv[3]
 
 # Function for connecting with configuration file
-def makeconfig(name):  
+def makeconfig(name):
     with open(name) as config_file:
         configs = yaml.safe_load(config_file)
     return configs
@@ -38,7 +38,7 @@ custom = configs_config.get('CUSTOM')
 nodes_num = len(nodes_list)
 clients_num = len(clients_list)
 
-def makeconnection(): 
+def makeconnection():
 
     """
     Function to get DB details from config files
@@ -50,7 +50,7 @@ def makeconnection():
     """
 
     client = MongoClient(configs_main['db_url'])  # connecting with mongodb database
-    db = client[configs_main['db_database']]  # database name = performance 
+    db = client[configs_main['db_database']]  # database name = performance
     return db
 
 
@@ -143,10 +143,10 @@ def getconfig():
     nodes=[]
     clients=[]
 
-    for i in range(len(nodes_list)):
+    for i, _ in enumerate(nodes_list):
         nodes.append(nodes_list[i][i+1])
 
-    for i in range(len(clients_list)):
+    for i, _ in enumerate(clients_list):
         clients.append(clients_list[i][i+1])
 
     dic={
@@ -231,7 +231,7 @@ def push_data(files, host, db, Build, Version, Branch , OS):
     Config_ID = "NA"
     if result:
         Config_ID = result['_id'] # foreign key : it will map entry in configurations to results entry
-    
+
     collection=valid_col['db_collection']
 
     for doc in files:
@@ -243,7 +243,7 @@ def push_data(files, host, db, Build, Version, Branch , OS):
         except (AttributeError, NameError):
             data_dict = 'NA'
 
-        filename = doc 
+        filename = doc
         doc = filename.strip(".json")
         attr = re.split("_", doc)
         obj_size = attr[-7]
@@ -261,7 +261,7 @@ def push_data(files, host, db, Build, Version, Branch , OS):
                     if (entry['Mode'] == 'PUT'):
                         operation = 'Write'
                     elif (entry['Mode'] == 'GET'):
-                        operation = 'Read'       
+                        operation = 'Read'
 
                     if(entry['Mode'] == 'PUT' or entry['Mode'] == 'GET') and (entry['IntervalName'] == 'TOTAL'):
                         primary_Set = {
@@ -270,7 +270,7 @@ def push_data(files, host, db, Build, Version, Branch , OS):
                             'Version': Version,
                             'Branch': Branch,
                             'OS': OS,
-                            'Count_of_Servers': nodes_num, 
+                            'Count_of_Servers': nodes_num,
                             'Count_of_Clients': clients_num,
                             'Percentage_full' : pc_full ,
                             'Custom' : str(custom).upper()
@@ -284,7 +284,7 @@ def push_data(files, host, db, Build, Version, Branch , OS):
                             'Sessions' : sessions
                             }
                         
-                        updation_Set = {  
+                        updation_Set = {
                             'HOST' : host,
                             'Config_ID':Config_ID,
                             'IOPS': entry['Iops'],
@@ -292,7 +292,7 @@ def push_data(files, host, db, Build, Version, Branch , OS):
                             'Latency' : entry['AvgLat'],
                             'TTFB' : 'null',
                             'Log_File': doc,
-                            'Bucket_Ops' : data_dict, 
+                            'Bucket_Ops' : data_dict,
                             'Timestamp' : datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                             'Run_State' : run_health
                             }
@@ -352,7 +352,7 @@ def update_mega_chain(build,version, col):
                 {'Title' : 'Main Chain'},
                 {
                     '$set':{
-                    'release':release_chain, 
+                    'release':release_chain,
                     }
             })
             print("...Mega entry has updated with release build ", build)
@@ -365,7 +365,7 @@ def update_mega_chain(build,version, col):
                 {'Title' : 'Main Chain'},
                 {
                     '$set':{
-                    'beta':beta_chain, 
+                    'beta':beta_chain,
                     }
             })
             print("...Mega entry has updated with beta build ", build)
@@ -396,6 +396,6 @@ if __name__ == "__main__":
     db = makeconnection()
     files = get_files(link)
 
-    push_data(files, host, db, Build, Version, Branch , OS) 
+    push_data(files, host, db, Build, Version, Branch , OS)
 
 # End

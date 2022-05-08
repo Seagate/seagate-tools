@@ -1,7 +1,7 @@
 
 #!/usr/bin/env python3
 """
-python3 s3bench_DBupdate.py <log file path> <main.yaml path> <config.yaml path> 
+python3 s3bench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
 Attributes: _id,Log_File,Name,Operation,IOPS,Throughput,Latency,TTFB,Object_Size,HOST
 """
 
@@ -37,7 +37,7 @@ clients_num=len(clients_list)
 
 def makeconnection():  #function for making connection with database
     client = MongoClient(configs_main['db_url'])  #connecting with mongodb database
-    db=client[configs_main['db_database']]  #database name=performance 
+    db=client[configs_main['db_database']]  #database name=performance
     return db
 
 def get_release_info(variable):
@@ -138,7 +138,7 @@ class s3bench:
                 "Run_State":self.Run_State
                 }
 
-    def insert_update(self,Iteration):# function for inserting and updating mongodb database 
+    def insert_update(self,Iteration):# function for inserting and updating mongodb database
         db = makeconnection()
         db_data={}
         db_data.update(self.Primary_Set)
@@ -165,7 +165,7 @@ def insertOperations(files,Build,Version,col,Config_ID,Branch,OS,db): #function 
     first_client = True
     delete_data = True
     Run_Health = "Successful"
-    for file in files:    
+    for file in files:
         _, filename = os.path.split(file)
         global nodes_num, clients_num , pc_full, iteration , overwrite, custom
         oplist = ["Write" , "Read" , "GetObjTag", "HeadObj" , "PutObjTag" , "CopyObject"]
@@ -211,7 +211,7 @@ def insertOperations(files,Build,Version,col,Config_ID,Branch,OS,db): #function 
                         lat={"Max":float(lines[count-4].split(":")[1][:-2]),"Avg":float(lines[count-5].split(":")[1][:-2]),"Min":float(lines[count-3].split(":")[1][:-2])}
                         ttfb={"Max":float(lines[count+12].split(":")[1][:-2]),"Avg":float(lines[count+11].split(":")[1][:-2]),"Min":float(lines[count+13].split(":")[1][:-2])}
                         data = s3bench(filename,opname,iops,throughput,lat,ttfb,obj,Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID,overwrite,sessions,Objects,pc_full,custom,additional_operation,Run_Health)
-                    
+ 
                         if find_iteration:
                             iteration_number = get_latest_iteration(data.Primary_Set, db, col)
                             find_iteration = False
@@ -259,7 +259,7 @@ def update_mega_chain(build,version, col):
                 {'Title' : 'Main Chain'},
                 {
                     '$set':{
-                    'release':release_chain, 
+                    'release':release_chain,
                     }
             })
             print("...Mega entry has updated with release build ", build)
@@ -272,7 +272,7 @@ def update_mega_chain(build,version, col):
                 {'Title' : 'Main Chain'},
                 {
                     '$set':{
-                    'beta':beta_chain, 
+                    'beta':beta_chain,
                     }
             })
             print("...Mega entry has updated with beta build ", build)
@@ -307,10 +307,10 @@ def getconfig():
     nodes=[]
     clients=[]
 
-    for i in range(len(nodes_list)):
+    for i, _ in enumerate(nodes_list):
         nodes.append(nodes_list[i][i+1])
 
-    for i in range(len(clients_list)):
+    for i, _ in enumerate(clients_list):
         clients.append(clients_list[i][i+1])
 
     dic={
@@ -380,6 +380,6 @@ def main(argv):
     insertOperations(files,Build,Version,col['db_collection'],Config_ID,Branch,OS,db)
 
 if __name__=="__main__":
-    main(sys.argv) 
+    main(sys.argv)
 
 #!/usr/bin/env python3

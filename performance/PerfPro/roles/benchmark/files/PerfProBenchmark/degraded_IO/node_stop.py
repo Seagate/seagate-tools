@@ -23,7 +23,7 @@ api_cluster='/api/v2/system/management/cluster'
 api_node='/api/v2/system/management/node'
 api_service='/api/v2/system/management/service'
 
-## Requesting AuthToken 
+## Requesting AuthToken
 ## ---------------------
 print('\nRequest => Auth Token')
 api_url=f'{url}{api_login}'

@@ -19,6 +19,6 @@ if __name__=='__main__':
        # print('=============IO_SIZE: {}============='.format(IO_SIZE))
        # print(IO_SIZE)
        # print(pd.read_table(IO_SIZE))
-        #print(pd.read_csv(IO_SIZE, header=[4,14], squeeze = True)) 
+        #print(pd.read_csv(IO_SIZE, header=[4,14], squeeze = True))
         print(pd.read_csv(IO_SIZE, usecols =["Op-Count","Throughput"], squeeze = True))
 

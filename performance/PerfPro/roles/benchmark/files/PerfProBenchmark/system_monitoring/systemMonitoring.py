@@ -128,10 +128,10 @@ def getconfig():
     nodes=[]
     clients=[]
 
-    for i in range(len(nodes_list)):
+    for i, _ in enumerate(nodes_list):
         nodes.append(nodes_list[i][i+1])
 
-    for i in range(len(clients_list)):
+    for i, _ in enumerate(clients_list):
         clients.append(clients_list[i][i+1])
 
     dic1={
@@ -183,7 +183,7 @@ def adddata(data,device,col):
     Config_ID = "NA"
     result = conf.find_one(dict1)
     if result:
-        Config_ID = result['_id'] # foreign key : it will map entry in configurations to systemresults entry 
+        Config_ID = result['_id'] # foreign key : it will map entry in configurations to systemresults entry
     attr = " ".join( data[2].decode("utf-8").split()).split(" ") #fetching attributes from output lines and storing in a list
     length=len(attr)
     for d in data[3:]:

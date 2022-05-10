@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 python3 s3bench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
@@ -7,19 +6,28 @@ Attributes: _id,Log_File,Name,Operation,IOPS,Throughput,Latency,TTFB,Object_Size
 
 from pymongo import MongoClient
 import socket
+import ast
 import sys
 import os
 import yaml
 from datetime import datetime
+
 Main_path = sys.argv[2]
 Config_path = sys.argv[3]
-
 #collecting runtime entries
 Repository = sys.argv[4]
 Commit_ID = sys.argv[5]
 PR_ID = sys.argv[6]
 User = sys.argv[7]
 GID = sys.argv[8]
+
+sanity_schema = {
+    "motr_repository": "",
+    "rgw_repository": "",
+    "hare_repository": "",
+    "other_repos": [],
+    "PR_ID": " "
+}
 
 def makeconfig(name):  #function for connecting with configuration file
     with open(name) as config_file:
@@ -194,7 +202,7 @@ def insertOperations(files,db_collection,run_ID,Config_ID ):  #function for retr
                         ttfb={"Max":float(lines[count+12].split(":")[1][:-2]),"Avg":float(lines[count+11].split(":")[1][:-2]),"Min":float(lines[count+13].split(":")[1][:-2]),"99p":float(lines[count+10].split(":")[1][:-2])}
                         data = s3bench(filename,opname,iops,throughput,error_count,ops_count,lat,ttfb,obj,db_collection,run_ID,Config_ID,overwrite,sessions,Objects,Run_Health)
 # Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID,overwrite,sessions,Objects,pc_full,custom,Run_Health)
- 
+
                         if find_iteration:
                             iteration_number = get_latest_iteration(data.Primary_Set, db_collection)
                             find_iteration = False
@@ -214,7 +222,7 @@ def insertOperations(files,db_collection,run_ID,Config_ID ):  #function for retr
                             data.insert_update(iteration_number)
                         else :
                             data.insert_update(iteration_number+1)
-                
+
                         count += 9
                 count +=1
 
@@ -231,24 +239,32 @@ def getallfiles(directory,extension):#function to return all file names with per
                 flist.append(os.path.join(path, name))
     return flist
 
-def insert_run_details(run_details):
-    global Repository, Commit_ID, PR_ID
-    run_data={
-        "Repository" : Repository ,
-        "Commit_ID" : Commit_ID,
-        "PR_ID" : PR_ID
-        }
+def insert_run_details(run_details, repo_details, PR_ID):
+    sanity_schema["other_repos"] = list(repo_details)
+    sanity_schema["PR_ID"] = PR_ID
+    for repo in list(repo_details):
+        if repo["category"].lower() == "motr":
+            key = "motr_repository"
+        elif repo["category"].lower() == "rgw":
+            key = "rgw_repository"
+        elif repo["category"].lower() == "hare":
+            key = "hare_repository"
+        else:
+            continue
+
+        sanity_schema[key] = repo["repo"]
+
     try:
-        count_documents= run_details.count_documents(run_data)
+        count_documents= run_details.count_documents(sanity_schema)
         if count_documents == 0:
-            run_details.insert_one(run_data)
-            print("Sanity Run details recorded \n" + str(run_data))
-            result = run_details.find_one(run_data)
+            run_details.insert_one(sanity_schema)
+            print("Sanity Run details recorded \n" + str(sanity_schema))
+            result = run_details.find_one(sanity_schema)
             if result:
                 run_ID = result['_id']
         else:
-            print("Sanity Run details already present \n" + str(run_data))
-            result = run_details.find_one(run_data)
+            print("Sanity Run details already present \n" + str(sanity_schema))
+            result = run_details.find_one(sanity_schema)
             if result:
                 run_ID = result['_id']
     except Exception as e:
@@ -302,16 +318,16 @@ def insert_config_details(sanity_config , run_ID):
 def main(argv):
     dic=argv[1]
     files = getallfiles(dic,".log")#getting all files with log as extension from given directory
-    
+
     run_details = makeconnection('sanity_details_collection')
     sanity_config = makeconnection('sanity_config_collection')
     db_collection = makeconnection('sanity_dbcollection')
 
 #insert DB entries
-    run_ID = insert_run_details(run_details)
+    run_ID = insert_run_details(run_details, list(ast.literal_eval(argv[4])), argv[6])
     Config_ID = insert_config_details(sanity_config , run_ID)
-    
+
     insertOperations(files,db_collection,run_ID,Config_ID)
 
 if __name__=="__main__":
-    main(sys.argv)
+     main(sys.argv)

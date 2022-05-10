@@ -98,7 +98,7 @@
    register: build
    delegate_to: "clientnode-1"
 
- - name: Create perfpro_build<build> directory structure 
+ - name: Create perfpro_build<build> directory structure
    shell: |
      rm -rf /root/PerfProBenchmark/perfpro_build{{ build.stdout }}
      mkdir -p /root/PerfProBenchmark/perfpro_build{{ build.stdout }}
@@ -141,7 +141,7 @@
    when: EXECUTION_TYPE == "normal"
 
 #Performing Sanity PerfPro run
- - name: Create sanity_results directory 
+ - name: Create sanity_results directory
    shell: |
      mkdir -p /root/PerfProBenchmark/sanity_results/
    delegate_to: "{{ item }}"
@@ -151,9 +151,10 @@
  - include: sanity.yml
    when: EXECUTION_TYPE == "sanity"
 
- - name: Inserting DB entries for Sanity run. 
+ - name: Inserting DB entries for Sanity run.
    shell: python3 /root/PerfProBenchmark/sanity/s3bench_DBupdate.py /root/PerfProBenchmark/sanity_results/ /root/PerfProBenchmark/main.yml /root/PerfProBenchmark/config.yml "{{ REPOSITORY }}" "{{ COMMIT_ID }}" "{{ PR_ID }}" "{{ USER }}" "{{ GID }}"
    when: EXECUTION_TYPE == "sanity"
+   delegate_to: "clientnode-1"
 
 #Performing Degraded IO benchmarking
 
@@ -210,7 +211,7 @@
 
  - name: Archiving artifacts to NFS server
    shell: |
-     cd /root/PerfProBenchmark/ 
+     cd /root/PerfProBenchmark/
      python3 /root/PerfProBenchmark/archive_artifacts.py /root/PerfProBenchmark/config.yml perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}
    delegate_to: "clientnode-1"
    when: EXECUTION_TYPE == "normal"

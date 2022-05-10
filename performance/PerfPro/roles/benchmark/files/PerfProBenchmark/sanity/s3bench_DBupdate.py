@@ -61,7 +61,7 @@ def get_latest_iteration(query, db_collection):
     for record in cursor:
         if max_iter < record['Iteration']:
             max_iter = record['Iteration']
-    return max
+    return max_iter
 
 ##Function to resolve iteration/overwrite etc in multi-client run
 def check_first_client(query, db_collection, itr):

@@ -25,13 +25,13 @@ CLUSTER_CONFIG_FILE="/var/lib/hare/cluster.yaml"
 ASSIGNED_IPS=$(ifconfig | grep inet | awk '{print $2}' )
 
 iostat_pid=$(pidof iostat)
-kill "$iostat_pid"
+kill $iostat_pid
 
 while kill -0 "$iostat_pid"; do
     sleep 1
 done
 
-disks=$(python3 - "$CLUSTER_CONFIG_FILE" "$ASSIGNED_IPS" << EOF
+disks=`python3 - $CLUSTER_CONFIG_FILE $ASSIGNED_IPS <<EOF
 import yaml
 import sys
 
@@ -68,11 +68,10 @@ devices = next(d for d in m0servers if next(iter(d)) == 'io_disks')['io_disks'][
 
 # Print block devices
 print(' '.join(devices))
-EOF
-)
+EOF`
 
-md=$(mount | grep -e mero -e m0tr -e motr | awk '{print $1}')
-md_base=$(echo "$md" | awk -F/ '{print $NF}')
+md=`mount | grep -e mero -e m0tr -e motr | awk '{print $1}'`
+md_base=`echo $md | awk -F/ '{print $NF}'`
 md_base=${md_base::-1}
 
 pushd /var/perfline/iostat.$(hostname -s)
@@ -80,12 +79,12 @@ pushd /var/perfline/iostat.$(hostname -s)
 disks_dm=
 > disks.mapping
 for d in $disks; do
-    dm=$(realpath "$d" | xargs basename)
+    dm=`realpath $d | xargs basename`
     disks_dm="$disks_dm $dm"
     echo "IO $d $dm" >> disks.mapping
 done
 
-dm=$(multipath -ll | grep "$md_base" | awk '{print $3}')
+dm=`multipath -ll | grep $md_base | awk '{print $3}'`
 disks_dm="$disks_dm $dm"
 echo "MD $md $dm" >> disks.mapping
 
@@ -99,7 +98,7 @@ for plot in io_rqm iops io_transfer "%util" avgrq-sz avgqu-sz await svctm; do
 	--fig-output iostat.$plot.png plot --subplots $plot
 done
 
-current_node=$(python3 - "$ASSIGNED_IPS" <<EOF
+current_node=`python3 - $ASSIGNED_IPS <<EOF
 import sys
 
 # Get ips from hosts file
@@ -128,8 +127,8 @@ if not is_srv1 and not is_srv2:
 node_name = 'srvnode-1' if is_srv1 else 'srvnode-2'
 
 print(node_name)
-EOF
-)
+EOF`
+
 
 > nodes.mapping
 echo "$current_node $(hostname)" >> nodes.mapping

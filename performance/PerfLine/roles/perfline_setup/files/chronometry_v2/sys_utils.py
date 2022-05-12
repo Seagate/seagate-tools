@@ -325,7 +325,7 @@ class Plot():
         self.hist = hist
         self.ax = ax
 
-    def name(self):
+    def name():
         return self.hist.name
 
 class Figure():

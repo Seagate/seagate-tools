@@ -43,7 +43,7 @@ function parse_s3_cred_file() {
 }
 
 function parse_s3_nodes_map() {
-    local nodes_map="$@"
+    local nodes_map=$@
 
     if [[ -z "$nodes_map" ]]; then
         _err "nodes mapping is not specified"

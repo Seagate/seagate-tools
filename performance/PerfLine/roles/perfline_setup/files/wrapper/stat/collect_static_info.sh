@@ -44,7 +44,7 @@ LNET_INFO=$(lctl list_nids)
 MULTIPATH_INFO=$(multipath -ll)
 GIT_INFO=$(rpm -qa | grep 'cortx-motr\|cortx-hare\|cortx-s3')
 
-python3 - "$CPU_INFO" "$NETWORK_INTERFACES_INFO" "$HOSTNAME" "$MEMORY_SIZE" "$LNET_INFO" "$MULTIPATH_INFO" "$GIT_INFO"<<EOF
+aaa=$(python3 - "$CPU_INFO" "$NETWORK_INTERFACES_INFO" "$HOSTNAME" "$MEMORY_SIZE" "$LNET_INFO" "$MULTIPATH_INFO" "$GIT_INFO"<<EOF
 import yaml
 import sys
 
@@ -82,4 +82,4 @@ with open(GIT_INFO_PATH, 'w+') as file:
     file.writelines(sys.argv[7])
 
 EOF
-
+)

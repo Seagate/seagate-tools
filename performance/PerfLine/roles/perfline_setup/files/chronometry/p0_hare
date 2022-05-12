@@ -69,7 +69,7 @@ _clean() {
 
 _exec() {
     _info "----- ${@#cmd_} -----"
-    $@
+    "$@"
 }
 
 cmd_help() {
@@ -106,7 +106,7 @@ _set_default_m0crate_params() {
 _parse_m0crate_params() {
     shift # delete 'm0crate' part
 
-    for x in $@; do
+    for x in "$@"; do
         eval $x;
     done
 
@@ -149,7 +149,7 @@ cmd_run() {
             rm -f /tmp/128M
             dd if=/dev/urandom of=/tmp/128M bs=1M count=128
             _set_default_m0crate_params
-            _parse_m0crate_params $@
+            _parse_m0crate_params "$@"
 
             if [[ $? -ne 0 ]]; then
                 echo "m0crate parameters parsing failed"
@@ -275,7 +275,7 @@ cmd_dump() {
 
 cmd_db() {
     _info "--- Create db from ${@} ---"
-    python3 "${PERF_DIR}"/addb2db.py --dumps $@
+    python3 "${PERF_DIR}"/addb2db.py --dumps "$@"
 }
 
 cmd_defaults() {

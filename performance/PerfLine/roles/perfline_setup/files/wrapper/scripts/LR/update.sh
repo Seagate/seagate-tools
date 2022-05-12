@@ -540,4 +540,4 @@ while [[ $# -gt 0 ]]; do
 done
 
 validate
-main $@
+main "$@"

@@ -490,7 +490,7 @@ function run_m0crate() {
     mkdir -p "$m0crate_tmp"
 
     $EX_CLI "pushd $m0crate_tmp && APPS=$M0CRATE_APPS \
-        M0_SRC_DIR=\"$MOTR_SRC_DIR\" $SCRIPT_DIR/$P0_SCRIPT run m0crate $@ \
+        M0_SRC_DIR=\"$MOTR_SRC_DIR\" $SCRIPT_DIR/$P0_SCRIPT run m0crate "$@" \
         &> /tmp/m0crate.log && popd"
 
     mv "$m0crate_tmp"/addb* ./
@@ -507,13 +507,13 @@ function run_client() {
 
     case $app in
         m0crate)
-            run_m0crate $@
+            run_m0crate "$@"
             ;;
         sleep)
-            sleep $@
+            sleep "$@"
             ;;
         "exit")
-            exit $@
+            exit "$@"
             ;;
     esac
 }

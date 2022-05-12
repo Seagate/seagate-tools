@@ -44,7 +44,7 @@ function process_parts()
     local dumps_arg=""
     local tmp=""
 
-    for file in $@; do
+    for file in "$@"; do
         local p_size=${PART_SIZES[$file]}
         local start=$((p_size * part_index))
         local end=$((start + p_size))
@@ -65,7 +65,7 @@ function detect_cpu_nr()
 
 function calc_part_sizes()
 {
-    for file in $@; do
+    for file in "$@"; do
         local l_nr=$(wc -l "$file" | awk '{print $1}')
         local p_size=$((l_nr / CPU_NR))
         p_size=$((p_size + 1))
@@ -77,7 +77,7 @@ function start_working_processes()
 {
     local i="0"
     while [[ "$i" -lt "$CPU_NR" ]]; do
-        process_parts $i $@ &
+        process_parts $i "$@" &
         PIDS="$PIDS $!"
         i=$((i + 1))
     done
@@ -85,7 +85,7 @@ function start_working_processes()
 
 function wait_for_completion
 {
-    wait $PIDS
+    wait "$PIDS"
     echo "finished all background processes"
 }
 

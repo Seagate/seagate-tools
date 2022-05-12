@@ -85,7 +85,7 @@ _set_default_m0crate_params() {
 }
 
 _parse_m0crate_params() {
-    for x in $@; do
+    for x in "$@"; do
         eval "$x";
     done
 
@@ -119,7 +119,7 @@ prepare_and_run() {
     rm -f $random_file
     dd if=/dev/urandom of=$random_file bs=1M count=128 &> /dev/null
     _set_default_m0crate_params
-    _parse_m0crate_params "$@"
+    _parse_m0crate_params $@
 
     if [[ -z "$NR_INSTANCES_PER_NODE" ]]; then
         NR_INSTANCES_PER_NODE="1"
@@ -152,5 +152,5 @@ prepare_and_run() {
 
 
 _get_cluster_params
-prepare_and_run $@
+prepare_and_run "$@"
 

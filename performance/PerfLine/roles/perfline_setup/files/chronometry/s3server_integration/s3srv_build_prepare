@@ -55,7 +55,7 @@ function create_include_symlink() {
 }
 
 function delete_symlinks() {
-    for file_path in $@
+    for file_path in "$@"
     do
         echo "UNLINK PATH: ${file_path}"
 	    echo "File name: $(basename -- "$file_path")"

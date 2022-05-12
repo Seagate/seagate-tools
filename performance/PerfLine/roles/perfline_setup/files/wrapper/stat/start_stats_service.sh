@@ -30,7 +30,7 @@ set -x
 # DISKS=`echo "$RESULT" | grep 'IO:' | sed 's/IO://'`
 
 # LC CODE
-DISKS=$(cat /tmp/cortx_disks_map | grep 'IO:' | sed 's/IO://')
+DISKS=`cat /tmp/cortx_disks_map | grep 'IO:' | sed 's/IO://'`
 
 function removing_dir()
 {
@@ -68,7 +68,7 @@ sleep 5
 if [[ "$1" == *"GLANCES"* ]]
 then
     csv_file="/var/perfline/glances.$(hostname -s)/glances.csv"
-    glances --quiet --export csv --export-csv-file "$csv_file" &
+    glances --quiet --export csv --export-csv-file $csv_file &
     echo "Glances collection started"
 fi
 sleep 5

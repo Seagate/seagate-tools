@@ -11,7 +11,7 @@ import sys
 import os
 import yaml
 from datetime import datetime
-import urllib.request
+
 Main_path = sys.argv[2]
 Config_path = sys.argv[3]
 
@@ -30,6 +30,7 @@ clients_list=configs_config.get('CLIENTS')
 pc_full=configs_config.get('PC_FULL')
 overwrite=configs_config.get('OVERWRITE')
 custom=configs_config.get('CUSTOM')
+docker_info=configs_config.get('DOCKER_INFO')
 nodes_num=len(nodes_list)
 clients_num=len(clients_list)
 
@@ -39,19 +40,14 @@ def makeconnection():  #function for making connection with database
     return db
 
 def get_release_info(variable):
-
-    if build_url.lower().startswith('http'):
-        release_info = urllib.request.urlopen(build_url+'RELEASE.INFO')
-    else:
-        raise Exception("bad build_url")
-
-    for line in release_info:
-        if variable in line.decode("utf-8"):
-            strinfo=line.decode("utf-8").strip()
+    release_info=os.popen('docker run --rm -it ' + docker_info +' cat /opt/seagate/cortx/RELEASE.INFO')
+    lines=release_info.readlines()
+    for line in lines:
+        if variable in line:
+            strinfo=line.strip()
             strip_strinfo=re.split(': ',strinfo)
             return(strip_strinfo[1])
 
-iteration_number = 0
 
 # Function to find latest iteration
 def get_latest_iteration(query, db, collection):
@@ -344,14 +340,12 @@ def main(argv):
     files = getallfiles(dic,".log")#getting all files with log as extension from given directory
     db = makeconnection() #getting instance of database
     if build_info == 'RELEASE.INFO':
-        Build=get_release_info('BUILD')
-        Build=Build[1:-1]
-        Version=get_release_info('VERSION')
-        Version=Version[1:-1]
-        Branch=get_release_info('BRANCH')
-        Branch=Branch[1:-1]
-        OS=get_release_info('OS')
-        OS=OS[1:-1]
+        version=get_release_info('VERSION')[1:-1]
+        ver_strip=re.split('-',version)
+        Version=ver_strip[0]
+        Build=ver_strip[1]
+        Branch='main'
+        OS=get_release_info('OS')[1:-1]
     elif build_info == 'USER_INPUT':
         Build=configs_config.get('BUILD')
         Version=configs_config.get('VERSION')

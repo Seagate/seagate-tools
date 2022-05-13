@@ -27,7 +27,7 @@ import json
 import sys
 import datetime
 import yaml
-from jinja2 import Environment, BaseLoader, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader
 
 import pandas as pd
 import csv
@@ -608,7 +608,7 @@ def main():
         home_template = home.read()
 
     loader = FileSystemLoader(searchpath=report_gen_dir + "/templates")
-    home_template = Environment(loader=loader).from_string(home_template)
+    home_template = Environment(loader=loader,autoescape=True).from_string(home_template)
 
     with open(join(report_dir, 'report_page.html'), 'w+') as report:
         report.write(home_template.render(

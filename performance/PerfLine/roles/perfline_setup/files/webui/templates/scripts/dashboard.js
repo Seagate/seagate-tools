@@ -17,7 +17,6 @@ class DashboardTableController
 	let data = this.raw_data;
 
 	// Populate header
-	console.log(data.columns);
 	let header_row = table.insertRow();
 	for (let col of data.columns)
         {
@@ -27,7 +26,6 @@ class DashboardTableController
         }
 
 	// Populate internals
-	console.log(data.data);
 	for (let arr of data.data)
 	{
         let row = table.insertRow();

@@ -198,7 +198,6 @@ function save_s3srv_artifacts() {
     local haproxy_dir="haproxy"
     local log_dir="log"
     local cfg_dir="cfg"
-    local crash_dir="crash"
 
     for srv in $(echo "$NODES" | tr ',' ' '); do
         mkdir -p "$srv"

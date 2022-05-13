@@ -23,8 +23,6 @@ from flask import make_response
 
 from app_global_data import *
 
-from core.utils import tq_task_common_get
-
 from shutil import rmtree
 
 @app.route('/api/results/delete/<string:taskList>')

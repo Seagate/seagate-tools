@@ -26,10 +26,8 @@ declare -A benchmarks
 set -e
 set -x
 
-SCRIPT_NAME=$(echo "$0" | awk -F "/" '{print $NF}')
 SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
-PERFLINE_DIR="$SCRIPT_DIR/../.."
 PUBLIC_DATA_INTERFACE=""
 source "$SCRIPT_DIR/../../perfline.conf"
 

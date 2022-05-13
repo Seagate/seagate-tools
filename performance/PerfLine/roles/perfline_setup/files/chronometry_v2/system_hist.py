@@ -313,6 +313,7 @@ class Figure():
     @staticmethod
     def next_figure():
         Figure.figure_idx = Figure.figure_idx + 1
+        return Figure.figure_idx
 
     def next_color(self):
         color = Figure.COLORS[self.color_idx]

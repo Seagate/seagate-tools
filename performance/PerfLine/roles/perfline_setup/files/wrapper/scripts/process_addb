@@ -24,7 +24,7 @@ set -x
 
 SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
-TOOLS_DIR="$SCRIPT_DIR/../../chronometry"
+TOOLS_DIR="$SCRIPT_DIR/../../chronometry_v2"
 
 function main()
 {
@@ -113,7 +113,7 @@ function process_motr_addb()
 
     # generate motr m0play.db
     if ls dumps* &> /dev/null; then
-        "$TOOLS_DIR"/../chronometry_v2/addb2db_multiprocess.sh --dumps ./dumps*
+        "$TOOLS_DIR"/addb2db_multiprocess.sh --dumps ./dumps*
         local db_filename="m0play.db.$(hostname)"
         mv m0play.db "$db_filename"
         scp dumps* root@"${ARTIF_HOST}":"${ARTIF_DIR}"
@@ -141,7 +141,7 @@ function process_s3_addb()
 
     # generate s3 m0play.db
     if ls dumpc* &> /dev/null; then
-        "$TOOLS_DIR"/../chronometry_v2/addb2db_multiprocess.sh --dumps ./dumpc*
+        "$TOOLS_DIR"/addb2db_multiprocess.sh --dumps ./dumpc*
         scp dumpc* root@"${ARTIF_HOST}":"${ARTIF_DIR}"/$(hostname)
         scp m0play.db root@"${ARTIF_HOST}":"${ARTIF_DIR}"/$(hostname)
     fi
@@ -164,7 +164,7 @@ function process_m0crate_addb()
 
     # generate m0crate m0play.db
     if ls dumpc* &> /dev/null; then
-        "$TOOLS_DIR"/../chronometry_v2/addb2db_multiprocess.sh --dumps ./dumpc*
+        "$TOOLS_DIR"/addb2db_multiprocess.sh --dumps ./dumpc*
         scp dumpc* root@"${ARTIF_HOST}":"${ARTIF_DIR}"
         mv m0play.db m0play."$host".db
         scp m0play."$host".db root@"${ARTIF_HOST}":"${ARTIF_DIR}"

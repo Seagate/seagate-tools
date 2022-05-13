@@ -22,7 +22,6 @@
 set -e
 set -x
 
-SCRIPT_NAME=$(echo "$0" | awk -F "/" '{print $NF}')
 SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 
@@ -261,7 +260,7 @@ function update() {
     local motr_exist=
     local hare_exist=
     local s3_exist=
-    local utils_exis=
+    local utils_exist=
 
     set +e
     pdsh -S -w "$NODES" "ls -1 $RPM_DIR/update/cortx_iso/ | grep cortx-motr-2"

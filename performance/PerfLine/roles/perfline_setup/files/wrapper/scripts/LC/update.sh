@@ -22,7 +22,6 @@
 set -e
 set -x
 
-SCRIPT_NAME=$(echo "$0" | awk -F "/" '{print $NF}')
 SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 
@@ -135,7 +134,7 @@ function build_rpms() {
 
 function build_image() {
     CONTAINER_ID=$(docker ps | grep "release-packages-server" | awk '{ print $1 }')
-    
+
     if [[ -n "$CONTAINER_ID" ]]; then
         docker rm -f "$CONTAINER_ID"
     fi

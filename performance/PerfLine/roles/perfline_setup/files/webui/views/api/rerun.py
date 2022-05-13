@@ -35,7 +35,7 @@ def rerun(taskid: str):
           config = yaml.safe_load(taskfile)
           result = pl_api.add_task(str(config))
           response = make_response(f'{result}')
-      except Exception as e:
+      except FileNotFoundError:
           result = { 'Error': "File not found" }
           response = make_response(f'{result}')
     return response

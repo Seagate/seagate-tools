@@ -191,8 +191,8 @@ def pids_set_to_str(pids_set):
     return result
 
 
-def hist(db_name, plug, range, fmt="svg", out="img.svg", time_unit="us", rows=1, size=(12,4)):
-    stages = yaml.safe_load(range)
+def hist(db_name, plug, _range, fmt="svg", out="img.svg", time_unit="us", rows=1, size=(12,4)):
+    stages = yaml.safe_load(_range)
     plt.figure(figsize=size)
     nr_stages = len(stages)
     columns = nr_stages // rows + (1 if nr_stages % rows > 0 else 0)
@@ -230,4 +230,4 @@ if __name__ == "__main__":
         detect_nodes()
 
     if args.hist_type:
-        hist(args.db, args.hist_type, args.range, args.fmt, args.out, args.time_unit, args.rows, args.size)
+        hist(args.db, args.hist_type, args._range, args.fmt, args.out, args.time_unit, args.rows, args.size)

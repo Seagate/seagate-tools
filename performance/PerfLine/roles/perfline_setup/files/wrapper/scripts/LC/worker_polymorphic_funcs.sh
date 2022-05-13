@@ -188,7 +188,7 @@ function save_m0crate_artifacts()
 
     # create m0play.db if dumpc* files exist
     if ls */*/dumpc* &> /dev/null; then
-        "$TOOLS_DIR"/../chronometry_v2/addb2db_multiprocess.sh --dumps ./*/*/dumpc*
+        "$TOOLS_DIR"/addb2db_multiprocess.sh --dumps ./*/*/dumpc*
         mv m0play.db m0play.m0crate.db
     fi
 }
@@ -382,7 +382,7 @@ function save_motr_addb() {
 
 function generate_motr_m0play() {
     if ls dumps* &> /dev/null; then
-        "$TOOLS_DIR"/../chronometry_v2/addb2db_multiprocess.sh --dumps ./dumps*
+        "$TOOLS_DIR"/addb2db_multiprocess.sh --dumps ./dumps*
 	mv m0play.db m0play.m0d.db
     fi
 }
@@ -436,8 +436,6 @@ function save_motr_artifacts() {
 }
 
 function copy_pods_artifacts() {
-    local path
-    local path_server
     local var_dir="var"
 
     mkdir -p $var_dir

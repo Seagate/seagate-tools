@@ -297,7 +297,7 @@ function save_s3_addb() {
 
 function generate_s3_m0play() {
     if ls dumpc* &> /dev/null; then
-        "$TOOLS_DIR"/../chronometry_v2/addb2db_multiprocess.sh --dumps ./dumpc*
+        "$TOOLS_DIR"/addb2db_multiprocess.sh --dumps ./dumpc*
 	mv m0play.db m0play.s3.db
     fi
 }

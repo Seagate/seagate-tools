@@ -118,8 +118,8 @@ def send_mail(to, status, tid):
     chain = echo[msg] | sendmail[to]
     try:
         chain()
-    except:
-        print(f"Couldn't send email to {to}")
+    except Exception as e:
+        print(f"Couldn't send email to {to}\nError: {e}")
 
 
 def pack_artifacts(path):
@@ -387,12 +387,15 @@ def run_corebenchmark(conf, result_dir, logdir):
     return result
 
 def save_workloadconfig(conf, result_dir):
+    result = 'SUCCESS'
     workload = "{}/workload.yaml".format(result_dir)
     try:
         with open(workload, 'w') as file:
             yaml.dump(conf, file,default_flow_style=False, sort_keys=False)
     except FileNotFoundError as e:
         print(e)
+        result = 'FAILED'
+    return result
 
 @huey.task(context=True)
 def worker_task(conf_opt, task):
@@ -429,7 +432,11 @@ def worker_task(conf_opt, task):
 
         failed = False
 
-        ret = save_workloadconfig(conf, result["artifacts_dir"])
+        if not failed:
+            ret = save_workloadconfig(conf, result["artifacts_dir"])
+            if ret == 'FAILED':
+                 result['finish_time'] = str(datetime.now())
+                 failed = True
 
         if not failed:
             ret = restore_original_configs()

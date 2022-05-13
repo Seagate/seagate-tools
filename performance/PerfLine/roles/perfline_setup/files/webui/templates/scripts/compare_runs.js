@@ -15,18 +15,18 @@ function round_number(value)
         value = +value;
     }
 
-    return value
+    return value;
 }
 
 function compare_with_base_value(base_val, value, metric_name)
 {
     let difference = 0;
     let result = 0;
-    let sign = 1
+    let sign = 1;
 
     for (let m of ["TTFB","ERRORS", "DURATION"])
     {
-        if (metric_name.toUpperCase().indexOf(m) != -1)
+        if (metric_name.toUpperCase().indexOf(m) !== -1)
         {
             sign = -1;
             break;
@@ -35,7 +35,11 @@ function compare_with_base_value(base_val, value, metric_name)
 
     if (isNaN(base_val) || isNaN(value) || base_val === null || value === null)
     {
-        return {result: result, difference: difference};
+        var data = {
+            result: result,
+            difference: difference,
+        };
+        return data;
     }
 
     // string to number
@@ -75,7 +79,7 @@ class BaseTableController
             {
                 for (let metric_name_template of this.displayed_metrics)
                 {
-                    if (key.toUpperCase().indexOf(metric_name_template) != -1)
+                    if (key.toUpperCase().indexOf(metric_name_template) !== -1)
                     {
                         this.metrics.push(key);
                         break;
@@ -112,11 +116,11 @@ class BaseTableController
     workloads_order_equal()
     {
         let same_order = true;
-        let workloads_nr = this.tasks_benchmarks_results[0].benchmarks.length
+        let workloads_nr = this.tasks_benchmarks_results[0].benchmarks.length;
 
         for (let task_data of this.tasks_benchmarks_results)
         {
-            if (task_data.benchmarks.length != workloads_nr)
+            if (task_data.benchmarks.length !== workloads_nr)
             {
                 same_order = false;
                 break;
@@ -124,7 +128,7 @@ class BaseTableController
 
             for (let i = 0; i < workloads_nr; ++i)
             {
-                if (task_data.benchmarks[i].workload != this.tasks_benchmarks_results[0].benchmarks[i].workload)
+                if (task_data.benchmarks[i].workload !== this.tasks_benchmarks_results[0].benchmarks[i].workload)
                 {
                     same_order = false;
                     break;
@@ -147,7 +151,9 @@ class BaseTableController
         for (let i = 0; i < workloads_nr; ++i)
         {
             let workload = this.tasks_benchmarks_results[0].benchmarks[i].workload;
-            let tmp_obj = {workload: workload};
+            let tmp_obj = {
+                workload: workload
+            };
 
             for (let task_data of this.tasks_benchmarks_results)
             {
@@ -200,7 +206,10 @@ class BaseTableController
                 need_next_iteration = false;
                 iteration++;
 
-                let tmp_obj = {workload: workload, iteration: iteration};
+                let tmp_obj = {
+                    workload: workload,
+                    iteration: iteration
+                };
 
                 for (let task_id of this.task_ids)
                 {
@@ -216,7 +225,7 @@ class BaseTableController
                     }
                     else
                     {
-                        tmp_obj[task_id] = null
+                        tmp_obj[task_id] = null;
                     }
                 }
 
@@ -254,7 +263,7 @@ class SummaryTableController extends BaseTableController
     constructor(html_table, raw_data)
     {
         super(html_table, raw_data);
-        this.displayed_metrics = ['ERRORS', 'THROUGHPUT'];
+        this.displayed_metrics = ["ERRORS", "THROUGHPUT"];
     }
 
     create_header_row()
@@ -262,13 +271,13 @@ class SummaryTableController extends BaseTableController
         let row = this.html_table.insertRow();
 
         let cell = row.insertCell();
-        cell.appendChild(document.createTextNode('task id'));
+        cell.appendChild(document.createTextNode("task id"));
 
         for (let task_id of this.task_ids)
         {
             let cell = row.insertCell();
             cell.appendChild(document.createTextNode(task_id));
-            cell.setAttribute('colspan', this.metrics.length);
+            cell.setAttribute("colspan", this.metrics.length);
             cell.setAttribute("class", BLACK_TEXT_CSS);
         }
     }
@@ -278,11 +287,11 @@ class SummaryTableController extends BaseTableController
         let row = this.html_table.insertRow();
 
         let cell = row.insertCell();
-        cell.appendChild(document.createTextNode(''));
+        cell.appendChild(document.createTextNode(""));
 
         for (let task_id of this.task_ids)
         {
-            let md_str = '';
+            let md_str = "";
             for (let md_val in this.tasks_metadata.get(task_id))
             {
                 md_str += `${md_val}: ${this.tasks_metadata.get(task_id)[md_val]}\n`;
@@ -299,7 +308,7 @@ class SummaryTableController extends BaseTableController
         let row = this.html_table.insertRow();
 
         let cell = row.insertCell();
-        cell.appendChild(document.createTextNode('workload'));
+        cell.appendChild(document.createTextNode("workload"));
 
         for (let i = 0; i < this.task_ids.length; ++i)
         {
@@ -333,7 +342,7 @@ class SummaryTableController extends BaseTableController
             for (let metric_name of this.metrics)
             {
                 let cell = row.insertCell();
-                let val  = '---';
+                let val  = "---";
                 let css_class = BLACK_TEXT_CSS;
 
                 let task_results = res[task_id];
@@ -368,7 +377,7 @@ class SummaryTableController extends BaseTableController
     {
         this.prepare_data();
         this.create_header_row();
-        this.create_tasks_metadata_row()
+        this.create_tasks_metadata_row();
         this.create_metrics_row();
 
         for (let res of this.benchmark_results)
@@ -418,7 +427,10 @@ class DetailedTableController extends BaseTableController
                     value = `${value} (${diff.difference}%)`;
                 }
 
-                columns_vals.push({text: value, css_class: css_class});
+                columns_vals.push({
+                    text: value,
+                    css_class: css_class
+                });
             }
         }
 
@@ -433,7 +445,7 @@ class DetailedTableController extends BaseTableController
         cell = row.insertCell();
         let text_node = document.createTextNode(workload_str);
         cell.appendChild(text_node);
-        cell.setAttribute('colspan', this.task_ids.length);
+        cell.setAttribute("colspan", this.task_ids.length);
         cell.setAttribute("class", BLACK_TEXT_CSS);
     }
 
@@ -478,7 +490,7 @@ function create_row(table, columns)
     {
         let cell = row.insertCell();
         let tmp_str = column_text;
-        if (typeof(column_text) == 'object')
+        if (typeof(column_text) == "object")
         {
             tmp_str = column_text.text;
             if (column_text.css_class !== undefined)
@@ -495,21 +507,21 @@ function create_row(table, columns)
 function request_data_from_api(method_name, task_ids)
 {
     let result = null;
-    let get_params = '?';
+    let get_params = "?";
 
     for (let tid of task_ids)
     {
-        get_params += `task_id=${tid}&`
+        get_params += `task_id=${tid}&`;
     }
 
     let http_req = new XMLHttpRequest();
-    http_req.open('GET', `/api/${method_name}${get_params}`, false);
+    http_req.open("GET", `/api/${method_name}${get_params}`, false);
     http_req.onload = () => {
         if (http_req.status === 200)
         {
             result = JSON.parse(http_req.response);
         }
-    }
+    };
     http_req.send();
     return result;
 }
@@ -524,21 +536,19 @@ function request_perf_metrics(task_ids)
     return request_data_from_api("get_perf_metrics", task_ids);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOMContentLoaded event');
+document.addEventListener("DOMContentLoaded", () => {
 
     let task_id_inputs = document.getElementsByName("task_id_value");
     let task_ids = new Array();
 
     for (let tid_input of task_id_inputs)
     {
-        console.log(`found task id: ${tid_input.value}`);
         task_ids.push(tid_input.value);
     }
 
     if (task_ids.length === 0)
     {
-        alert("task list is emply");
+        alert("task list is empty");
         return;
     }
 

@@ -65,12 +65,10 @@ from peewee import IntegerField
 from peewee import SqliteDatabase
 from peewee import Model
 from peewee import chunked
-from typing import List
 from itertools import zip_longest
 from collections import defaultdict
 from tqdm import tqdm
 from plumbum.cmd import wc
-from math import ceil
 import sys
 from os.path import basename
 import re
@@ -573,16 +571,16 @@ def db_consume_data(files, append_db: bool):
 
 
 def db_setup_loggers():
-    format='%(asctime)s %(name)s %(levelname)s %(message)s'
+    fmt='%(asctime)s %(name)s %(levelname)s %(message)s'
     level=logging.INFO
     level_sh=logging.WARN
     logging.basicConfig(filename='logfile.txt',
                         filemode='w',
                         level=level,
-                        format=format)
+                        format=fmt)
 
     sh = logging.StreamHandler()
-    sh.setFormatter(logging.Formatter(format))
+    sh.setFormatter(logging.Formatter(fmt))
     sh.setLevel(level_sh)
     log = logging.getLogger()
     log.addHandler(sh)

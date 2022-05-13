@@ -204,8 +204,8 @@ class trace(object):
             f.done(self)
         return f
 
-    def getcolour(self, str):
-        seed = str + "^" + str
+    def getcolour(self, _str):
+        seed = _str + "^" + _str
         red   = hash(seed + "r") % 90
         green = hash(seed + "g") % 90
         blue  = hash(seed + "b") % 90

@@ -22,7 +22,6 @@
 set -x
 set -e
 
-SCRIPT_NAME=$(echo "$0" | awk -F "/" '{print $NF}')
 SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 source "$SCRIPT_DIR/../perfline.conf"
@@ -84,7 +83,6 @@ function main_build() {
     local s3server_main=
     local hare_main=
     local pyutils_main=
-    local descr_str=""
 
     pushd "$PERFLINE_DIR"/docker/cortx/
 
@@ -113,7 +111,8 @@ function main_build() {
     git checkout main
     git reset --hard
     git pull --rebase
-    pyutils_main=$(git log --format="%H" -n 1 | cut -c1-9)
+    # since below pyutils is not being used in this script currently. Hence we marked it commented.
+    # pyutils_main=$(git log --format="%H" -n 1 | cut -c1-9)
     popd			# from cortx-utils
 
     popd 			# from docker/cortx

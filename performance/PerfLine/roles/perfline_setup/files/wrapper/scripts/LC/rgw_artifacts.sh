@@ -57,10 +57,8 @@ function save_rgw_configs() {
     local pod
     local containers
     local rgw_mapping
-    local service
     local log_dir
     local trace_dir
-    local addb_dir
 
     mkdir -p $config_dir
     pushd $config_dir

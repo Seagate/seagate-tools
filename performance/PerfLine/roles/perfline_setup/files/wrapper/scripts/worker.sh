@@ -25,12 +25,9 @@ declare -A workload_type
 set -e
 set -x
 
-SCRIPT_NAME=$(echo "$0" | awk -F "/" '{print $NF}')
 SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 
-TOOLS_DIR="$SCRIPT_DIR/../../chronometry"
-PERFLINE_DIR="$SCRIPT_DIR/../"
 STAT_DIR="$SCRIPT_DIR/../stat"
 # PUBLIC_DATA_INTERFACE=$(ip addr show | egrep 'data0|enp179s0|enp175s0f0|eth0|p1p1' | grep -Po 'inet \K[\d.]+')
 # shellcheck source=/dev/null
@@ -38,6 +35,7 @@ source "$SCRIPT_DIR/../../perfline.conf"
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/$CLUSTER_TYPE/worker_polymorphic_funcs.sh"
 
+TOOLS_DIR="$SCRIPT_DIR/../../chronometry_v2"
 STAT_COLLECTION=""
 MKFS=""
 EX_SRV="pdsh -R ssh -S -w $NODES"

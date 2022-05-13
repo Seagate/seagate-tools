@@ -41,7 +41,7 @@ def check_IPs(hosts_file_path): # function to check IPs present for all nodes
                try:
                    ips_map['srvnode-{}'.format(match_res.group('node_id'))] = line.split()[0]
                except Exception as e:
-                   pass
+                   print(f"Error: {e}")
     return ips_map
 
 def get_disks(ips_map, ips): # returns disks from cluster config file
@@ -65,7 +65,7 @@ def get_disks(ips_map, ips): # returns disks from cluster config file
 
                 return disks, md_disks, node
         except Exception as e:
-            pass
+            print(f"Error: {e}")
     return None # returns none if not found
 
 

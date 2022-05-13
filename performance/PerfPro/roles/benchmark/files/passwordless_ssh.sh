@@ -13,7 +13,7 @@ expect {
         exp_continue
     }
 
-    "assword:" {
+    "password:" {
         send -- "[lindex $argv 2]\r"
         exp_continue
     }

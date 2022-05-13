@@ -13,7 +13,6 @@ import sys
 import yaml
 from datetime import datetime
 import pandas as pd
-import urllib.request
 
 # Path for yaml files locations
 Main_path = sys.argv[2]  # database url
@@ -35,6 +34,7 @@ clients_list = configs_config.get('CLIENTS')
 pc_full = configs_config.get('PC_FULL')
 overwrite = configs_config.get('OVERWRITE')
 custom = configs_config.get('CUSTOM')
+docker_info = configs_config.get('DOCKER_INFO')
 nodes_num = len(nodes_list)
 clients_num = len(clients_list)
 
@@ -62,17 +62,13 @@ def get_release_info(variable):
     Parameters : input(Variable) - Variable from RELEASE.INFO of the Build
                  returns(string) - Value of the Variable
     """
-
-    if build_url.lower().startswith('http'):
-        release_info = urllib.request.urlopen(build_url+'RELEASE.INFO')
-    else:
-        raise Exception("bad build_url")
-
-    for line in release_info:
-        if variable in line.decode("utf-8"):
-            strinfo = line.decode("utf-8").strip()
-            strip_strinfo = re.split(': ',strinfo)
-            return (strip_strinfo[1])
+    release_info=os.popen('docker run --rm -it ' + docker_info +' cat /opt/seagate/cortx/RELEASE.INFO')
+    lines=release_info.readlines()
+    for line in lines:
+        if variable in line:
+            strinfo=line.strip()
+            strip_strinfo=re.split(': ',strinfo)
+            return(strip_strinfo[1])
 
 
 def get_files(filepath):
@@ -379,12 +375,11 @@ if __name__ == "__main__":
     host =  socket.gethostname() #os.uname()[1]
 
     if build_info == 'RELEASE.INFO':
-        Build=get_release_info('BUILD')
-        Build=Build[1:-1]
-        Version=get_release_info('VERSION')
-        Version=Version[1:-1]
-        Branch=get_release_info('BRANCH')
-        Branch=Branch[1:-1]
+        version=get_release_info('VERSION')[1:-1]
+        ver_strip=re.split('-',version)
+        Version=ver_strip[0]
+        Build=ver_strip[1]
+        Branch='main'
         OS=get_release_info('OS')
         OS=OS[1:-1]
     elif build_info == 'USER_INPUT':

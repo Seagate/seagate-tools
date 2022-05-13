@@ -12,16 +12,17 @@ CLIENTS:
 BUILD_INFO:  # Please select the menthod to collect Build info from given options : RELEASE.INFO / USER_INPUT / FROM_K8
 BUILD_URL: # insert here is RELEASE.INFO is selected.
 # Please insert below details if USER_INPUT is selected.
+DOCKER_INFO:  # add the docker info which is used for perf runs Eg: 'ghcr.io/seagate/cortx-all:2.0.0-770'
 BUILD: 
 VERSION: 
 BRANCH: 
 OS: 
-CLUSTER_PASS: seagate1
+CLUSTER_PASS:  # Please enter the cluser password.
 SOLUTION: lc    # DB collection for uploading data legacy, lc or lr
 EXECUTION_TYPE: normal # execution type can be 'normal' or 'sanity'
 
 # For PerfPro MongoDB related Entries
-END_POINTS: https://s3.seagate.com
+END_POINTS: 
 SYSTEM_STATS: True # If True, enter cluster nodes for installing pkgs, collecting sysstats and uploading sysstats. If Flase, won't enter cluster nodes
 PC_FULL: 0 # Select for system percentage full before test. 
 OVERWRITE: False # select True or False to overwrite the DB entries for same Primary Key

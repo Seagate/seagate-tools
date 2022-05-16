@@ -66,8 +66,14 @@ pushd cortx-re/solutions/kubernetes
 
 ./cluster-setup.sh true
 
+kubectl set env daemonset/calico-node -n kube-system FELIX_IPTABLESBACKEND=NFT
+kubectl set env daemonset/calico-node -n kube-system IP_AUTODETECTION_METHOD=interface=eth3
+
+sleep 120
+
+# exit 0
 # TODO: Currently automated build is used. Use manual and patch solution.example.yaml
-export CORTX_SCRIPTS_BRANCH="v0.4.0" && export SOLUTION_CONFIG_TYPE=automated && ./cortx-deploy.sh --cortx-cluster
+export CORTX_SCRIPTS_BRANCH="v0.5.0" && export SOLUTION_CONFIG_TYPE=automated && ./cortx-deploy.sh --cortx-cluster
 
 ./cortx-deploy.sh --io-sanity
 

@@ -14,6 +14,20 @@ time_string = now.strftime("%m-%d-%Y-%H:%M:%S")
 ###Reading conf file######
 conf_yaml = open('/root/PerfProBenchmark/config.yml')
 parse_conf = yaml.safe_load(conf_yaml)
+
+blocked_operators = [";", "&&", "||"]
+user_inputs = [parse_conf.get('NODE1'), parse_conf.get('NODE2'), parse_conf.get('NFS_SERVER'),
+               parse_conf.get('NFS_EXPORT'), parse_conf.get('BUILD'), parse_conf.get('CLUSTER_PASS')]
+print(user_inputs)
+
+for x in user_inputs:
+    if x is None:
+        continue
+    for y in blocked_operators:
+        if y in x:
+            raise ValueError("Please Sanitize Your Inputs")
+
+
 node1 = parse_conf.get('NODE1')
 node2 = parse_conf.get('NODE2')
 nfs_server=parse_conf.get('NFS_SERVER')

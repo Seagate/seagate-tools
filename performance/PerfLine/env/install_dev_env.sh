@@ -69,9 +69,8 @@ pushd cortx-re/solutions/kubernetes
 kubectl set env daemonset/calico-node -n kube-system FELIX_IPTABLESBACKEND=NFT
 kubectl set env daemonset/calico-node -n kube-system IP_AUTODETECTION_METHOD=interface=eth3
 
-sleep 120
+sleep 30
 
-# exit 0
 # TODO: Currently automated build is used. Use manual and patch solution.example.yaml
 export CORTX_SCRIPTS_BRANCH="v0.5.0" && export SOLUTION_CONFIG_TYPE=automated && ./cortx-deploy.sh --cortx-cluster
 
@@ -82,25 +81,27 @@ popd
 repo=$(yq_linux_386 ".specification.perfline.repo" ${SPEC_FILE})
 branch=$(yq_linux_386 ".specification.perfline.branch" ${SPEC_FILE})
 
-PL_HOSTS="seagate-tools/performance/PerfLine/inventories/perfline_hosts/hosts"
-
 yum install -y ansible
 
 rm -rf seagate-tools || true
 git clone -b $branch $repo
 
+PL_HOSTS="seagate-tools/performance/PerfLine/inventories/perfline_hosts/hosts"
+
 sed -i '/^srvnode-/d' ${PL_HOSTS}
 sed -i '/^client-/d' ${PL_HOSTS}
 
-for i in $(seq $nodes_num) ; do
+host=$(yq_linux_386 ".specification.nodes[0].hostname" ${SPEC_FILE})
+sed -i "/^\[nodes\]/a srvnode-1 ansible_host=$host" ${PL_HOSTS}
+echo $nodes_num
+for i in $(seq 2 $nodes_num) ; do
     idx=$((i-1))
     host=$(yq_linux_386 ".specification.nodes[$idx].hostname" ${SPEC_FILE})
-    sed -i "/^\[nodes\]/a srvnode-$i ansible_host=$host" ${PL_HOSTS}
+    sed -i "/^srvnode-$idx/a srvnode-$i ansible_host=$host" ${PL_HOSTS}
 done
 
 client=$(yq_linux_386 ".specification.nodes[0].hostname" ${SPEC_FILE})
-echo client-1=$client
-sed -i "/^\[client\]/a client-1 ansible_host=$host" ${PL_HOSTS}
+sed -i "/^\[client\]/a client-1 ansible_host=$client" ${PL_HOSTS}
 
 user=$(yq_linux_386 ".specification.nodes[0].username" ${SPEC_FILE})
 pass=$(yq_linux_386 ".specification.nodes[0].password" ${SPEC_FILE})

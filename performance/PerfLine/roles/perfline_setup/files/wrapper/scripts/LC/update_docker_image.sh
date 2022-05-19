@@ -43,7 +43,7 @@ function update_files()
     ssh "$PRIMARY_NODE" "if [[ -d \"$tmp_dir\" ]]; then rm -rf \"$tmp_dir\"; fi"
     ssh "$PRIMARY_NODE" "mkdir $tmp_dir"
 
-    replace_files
+    replace_files || return 1
 
     if [[ -n "$MOTR_PARAMS" ]]; then
         update_motr_config $tmp_dir || return 1
@@ -60,7 +60,15 @@ function replace_files()
         local src=$(echo "$src_dst" | awk '{print $1}')
         local dst=$(echo "$src_dst" | awk '{print $2}')
 
-        # TODO: add error handlers
+        if [[ ! -f "$src" ]]; then
+            echo "src file does not exist: $src"
+            return 1
+        fi
+
+        docker exec "$TMP_CONTAINER_NAME" sh -c "[ -f \"$dst\" ]" || {
+            echo "dst file does not exist: $dst"
+            return 1
+        }
 
         ssh "$PRIMARY_NODE" "docker cp $src $TMP_CONTAINER_NAME:$dst"
 

@@ -1,15 +1,15 @@
 specification:
+  config: auto
   nodes:
     - hostname: ssc-vm-rhev4-2475.colo.seagate.com
       username: root
       password: seagate
-  cortx_re:
-    repo: https://github.com/Seagate/cortx-re
-    branch: main
-  service_framework:
-    repo: https://github.com/Seagate/cortx-k8s
-    branch: v0.5.0
-  perfline:
-    #repo: git@github.com:Seagate/seagate-tools.git
-    repo: https://github.com/Seagate/seagate-tools.git
-    branch: dps
+    - hostname: ssc-vm-rhev4-2526.colo.seagate.com
+      username: root
+      password: seagate
+    - hostname: ssc-vm-rhev4-2578.colo.seagate.com
+      username: root
+      password: seagate
+  durability:
+    sns: 4+2+0
+    dix: 1+2+0

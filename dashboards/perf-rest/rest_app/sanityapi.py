@@ -25,7 +25,7 @@ def get_run_id(uri, query):
     query_results = mongodbapi.find_documents(query, None, uri,
                                               read_config.db_name, read_config.sanity_run_details)
     if query_results[0]:
-        return query_results[1][0]['_id']
+        return query_results[1][0]["_id"]
     else:
         return None
 
@@ -45,35 +45,38 @@ def get_baseline_index(uri):
     query_results = mongodbapi.get_highest_value_document({}, "Baseline", None, uri,
                                                           read_config.db_name, read_config.sanity_results)
     if query_results[0]:
-        return query_results[1][0]['Baseline']
+        return query_results[1][0]["Baseline"]
     else:
         return None
 
 
 def calculate_deviation(value, baseline):
     """Calculates % deviation from value and baseline."""
-    return round((value - baseline) * 100 / baseline, 3)
+    try:
+        return round((value - baseline) * 100 / baseline, 3)
+    except ZeroDivisionError:
+        return round(value * 100, 3)
 
 
 def read_write_routine(**kwargs):
     """Read and Write common code routine to get read and write data from database."""
-    kwargs['query']['Operation'] = 'Read'
-    query_results = mongodbapi.find_documents(kwargs['query'], None, kwargs['uri'],
+    kwargs["query"]["Operation"] = "Read"
+    query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
                                               read_config.db_name, read_config.sanity_results)
-    kwargs['temp_read'][kwargs['obj']] = round(
-        query_results[1][0][kwargs['metrix']], 3)
+    kwargs["temp_read"][kwargs["obj"]] = round(
+        query_results[1][0][kwargs["metrix"]], 3)
 
-    kwargs['query']['Operation'] = 'Write'
-    query_results = mongodbapi.find_documents(kwargs['query'], None, kwargs['uri'],
+    kwargs["query"]["Operation"] = "Write"
+    query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
                                               read_config.db_name, read_config.sanity_results)
-    kwargs['temp_write'][kwargs['obj']] = round(
-        query_results[1][0][kwargs['metrix']], 3)
+    kwargs["temp_write"][kwargs["obj"]] = round(
+        query_results[1][0][kwargs["metrix"]], 3)
 
 
 def get_all_metrics_data(**kwargs):
     """Returns the data for all of the performance metrics"""
-    kwargs['query']['Operation'] = 'Read'
-    query_results = mongodbapi.find_documents(kwargs['query'], None, kwargs['uri'],
+    kwargs["query"]["Operation"] = "Read"
+    query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
                                               read_config.db_name, read_config.sanity_results)
     _temp = {}
     _temp["Read Throughput"] = round(query_results[1][0]["Throughput"], 3)
@@ -82,8 +85,8 @@ def get_all_metrics_data(**kwargs):
     _temp["Read TTFB Avg"] = round(query_results[1][0]["TTFB"]["Avg"], 3)
     _temp["Read TTFB 99%"] = round(query_results[1][0]["TTFB"]["99p"], 3)
 
-    kwargs['query']['Operation'] = 'Write'
-    query_results = mongodbapi.find_documents(kwargs['query'], None, kwargs['uri'],
+    kwargs["query"]["Operation"] = "Write"
+    query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
                                               read_config.db_name, read_config.sanity_results)
 
     _temp["Write Throughput"] = round(query_results[1][0]["Throughput"], 3)
@@ -95,51 +98,51 @@ def get_all_metrics_data(**kwargs):
 
 def read_write_routine_for_params(**kwargs):
     """Read and Write common code routine using params to get read and write data from database."""
-    kwargs['query']['Operation'] = 'Read'
-    query_results = mongodbapi.find_documents(kwargs['query'], None, kwargs['uri'],
+    kwargs["query"]["Operation"] = "Read"
+    query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
                                               read_config.db_name, read_config.sanity_results)
-    kwargs['temp_read'][kwargs['obj']
-                        ] = round(query_results[1][0][kwargs['metrix']][kwargs['param']], 3)
+    kwargs["temp_read"][kwargs["obj"]
+                        ] = round(query_results[1][0][kwargs["metrix"]][kwargs["param"]], 3)
 
-    kwargs['query']['Operation'] = 'Write'
-    query_results = mongodbapi.find_documents(kwargs['query'], None, kwargs['uri'],
+    kwargs["query"]["Operation"] = "Write"
+    query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
                                               read_config.db_name, read_config.sanity_results)
-    kwargs['temp_write'][kwargs['obj']
-                         ] = round(query_results[1][0][kwargs['metrix']][kwargs['param']], 3)
+    kwargs["temp_write"][kwargs["obj"]
+                         ] = round(query_results[1][0][kwargs["metrix"]][kwargs["param"]], 3)
 
 
 def read_write_routine_for_ttfb(**kwargs):
     """Read and Write for TTFB common code routine to get read and write data from database."""
-    kwargs['query']['Operation'] = 'Read'
-    query_results = mongodbapi.find_documents(kwargs['query'], None, kwargs['uri'],
+    kwargs["query"]["Operation"] = "Read"
+    query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
                                               read_config.db_name, read_config.sanity_results)
-    kwargs['temp_read'][kwargs['obj']
-                        ] = round(query_results[1][0][kwargs['metrix']]['Avg'], 3)
+    kwargs["temp_read"][kwargs["obj"]
+                        ] = round(query_results[1][0][kwargs["metrix"]]["Avg"], 3)
 
-    kwargs['temp_write'][kwargs['obj']
-                         ] = round(query_results[1][0][kwargs['metrix']]['99p'], 3)
+    kwargs["temp_write"][kwargs["obj"]
+                         ] = round(query_results[1][0][kwargs["metrix"]]["99p"], 3)
 
 
 def get_summary(results, kwargs):
     _temp = schemas.config_format
-    _temp['objects'][kwargs['obj']] = results['Objects']
-    _temp['total_ops'][kwargs['obj']] = results['Total_Ops']
-    _temp['total_errors'][kwargs['obj']] = results['Total_Errors']
+    _temp["objects"][kwargs["obj"]] = results["Objects"]
+    _temp["total_ops"][kwargs["obj"]] = results["Total_Ops"]
+    _temp["total_errors"][kwargs["obj"]] = results["Total_Errors"]
 
     return _temp
 
 
 def get_summary_params(**kwargs):
     """Data for total ops, total erros, objects of the run to be displayed in summary."""
-    kwargs['query']['Operation'] = 'Read'
-    query_results = mongodbapi.find_documents(kwargs['query'], None, kwargs['uri'],
+    kwargs["query"]["Operation"] = "Read"
+    query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
                                               read_config.db_name, read_config.sanity_results)
-    kwargs['temp_read'] = get_summary(query_results[1][0], kwargs)
+    kwargs["temp_read"] = get_summary(query_results[1][0], kwargs)
 
-    kwargs['query']['Operation'] = 'Write'
-    query_results = mongodbapi.find_documents(kwargs['query'], None, kwargs['uri'],
+    kwargs["query"]["Operation"] = "Write"
+    query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
                                               read_config.db_name, read_config.sanity_results)
-    kwargs['temp_write'] = get_summary(query_results[1][0], kwargs)
+    kwargs["temp_write"] = get_summary(query_results[1][0], kwargs)
 
 
 def get_sanity_config(uri, run_id):

@@ -22,7 +22,6 @@
 set -e
 set -x
 
-SCRIPT_NAME=$(echo "$0" | awk -F "/" '{print $NF}')
 SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 
@@ -91,21 +90,21 @@ function patch_motr_files()
     mkdir -p "$motr_dir"
 
     # install Motr
-    pushd $MOTR_REPO
+    pushd "$MOTR_REPO"
     make DESTDIR="$motr_dir" install
     popd
 
     local src_dir="usr/local/bin"
     local dst_dir="/usr/bin"
 
-    for file in $(ls $motr_dir/$src_dir | grep -v -P 'm0gentestds|m0gccxml2xcode|m0kut|m0ut|m0ub|m0ff2c'); do
+    for file in $(ls "$motr_dir/$src_dir" | grep -v -P 'm0gentestds|m0gccxml2xcode|m0kut|m0ut|m0ub|m0ff2c'); do
         FILES_TO_REPLACE+=("$motr_dir/$src_dir/$file $dst_dir/$file")
     done
 
     src_dir="usr/local/sbin"
     dst_dir="/usr/sbin"
 
-    for file in $(ls $motr_dir/$src_dir | grep -v -P 'm0run'); do
+    for file in $(ls "$motr_dir/$src_dir" | grep -v -P 'm0run'); do
         FILES_TO_REPLACE+=("$motr_dir/$src_dir/$file $dst_dir/$file")
     done
 
@@ -113,7 +112,7 @@ function patch_motr_files()
     src_dir="usr/local/lib"
     dst_dir="/usr/lib64"
 
-    for file in $(ls $motr_dir/$src_dir | grep -v -P '\.la|libmotr-ut|libtestlib|libmotr-xcode-ff2c|pkgconfig'); do
+    for file in $(ls "$motr_dir/$src_dir" | grep -v -P '\.la|libmotr-ut|libtestlib|libmotr-xcode-ff2c|pkgconfig'); do
                 
         # ignore symlinks and directories
         if [[ -h "$motr_dir/$src_dir/$file" || -d "$motr_dir/$src_dir/$file" ]]; then
@@ -139,7 +138,7 @@ function patch_hare_files()
     # install hare
     pushd "$HARE_REPO"
     make install DESTDIR="$hare_dir"
-    sed -i -e 's@^#!.*\.py3venv@#!/usr@' $hare_dir/opt/seagate/cortx/hare/bin/*
+    sed -i -e 's@^#!.*\.py3venv@#!/usr@' "$hare_dir"/opt/seagate/cortx/hare/bin/*
     popd
 
     local items="opt/seagate/cortx/hare/bin opt/seagate/cortx/hare/lib64/python3.6/site-packages/libhax.cpython-36m-x86_64-linux-gnu.so"
@@ -181,7 +180,7 @@ function main()
         files_args="$files_args --file $src_dst"
     done
 
-    $SCRIPT_DIR/../update_docker_image.sh \
+    "$SCRIPT_DIR"/../update_docker_image.sh \
         --nodes "$NODES" \
         --base-image "$BASE_IMAGE" \
         --image "$NEW_IMAGE" \

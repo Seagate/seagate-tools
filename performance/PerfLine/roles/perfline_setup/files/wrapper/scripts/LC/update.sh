@@ -309,7 +309,7 @@ function patch_cortx_image()
         args="$args --hare-repo $hare_repo"
     fi
 
-    $SCRIPT_DIR/build_deploy/patch_cortx_image.sh \
+    "$SCRIPT_DIR"/build_deploy/patch_cortx_image.sh \
         --base-image "$base_img" --new-image "$new_img" \
         --container tmp_perfline_"$TASK_ID" $args
 

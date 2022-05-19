@@ -299,19 +299,19 @@ function patch_cortx_image()
 
     # patch a new cortx image
     local new_img="${docker_img}_perfline_$(mktemp -u XXXXXXX)_$TASK_ID"
-    local args=""
+    local args=()
 
     if [[ "$motr_repo" != "none" ]]; then
-        args="$args --motr-repo $motr_repo"
+        args+=("--motr-repo" "$motr_repo")
     fi
 
     if [[ "$hare_repo" != "none" ]]; then
-        args="$args --hare-repo $hare_repo"
+        args+=("--hare-repo" "$hare_repo")
     fi
 
     "$SCRIPT_DIR"/build_deploy/patch_cortx_image.sh \
         --base-image "$base_img" --new-image "$new_img" \
-        --container tmp_perfline_"$TASK_ID" $args
+        --container tmp_perfline_"$TASK_ID" "${args[@]}"
 
     # save description of new cortx image
     PATCHED_CORTX_IMAGES+=("$base_img $motr_repo $hare_repo $new_img")

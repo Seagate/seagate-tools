@@ -173,18 +173,20 @@ function main()
     fi
 
     # generate a new docker image
-    files_args=""
+    files_args=()
 
     for ((j = 0; j < $((${#FILES_TO_REPLACE[*]})); j++)); do
-        src_dst=${FILES_TO_REPLACE[((j))]}
-        files_args="$files_args --file $src_dst"
+        local src_dst=${FILES_TO_REPLACE[((j))]}
+        local src_file=$(echo "$src_dst" | awk '{print $1}')
+        local dst_file=$(echo "$src_dst" | awk '{print $2}')
+        files_args+=("--file" "$src_file" "$dst_file")
     done
 
     "$SCRIPT_DIR"/../update_docker_image.sh \
         --nodes "$NODES" \
         --base-image "$BASE_IMAGE" \
         --image "$NEW_IMAGE" \
-        --tmp-container "$TMP_CONTAINER_NAME" $files_args
+        --tmp-container "$TMP_CONTAINER_NAME" "${files_args[@]}"
 
 }
 

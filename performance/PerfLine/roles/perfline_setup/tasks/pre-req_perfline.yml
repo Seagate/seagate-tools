@@ -33,7 +33,6 @@
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
-
   - name: "Compress directory files/s3account into files/s3account.tar.gz"
     archive:
       path: "{{ role_path }}/files/s3account"
@@ -75,7 +74,6 @@
        line: "{{ item.variable }}={{ item.value }}"
     with_items:
        - { variable: 'PERFLINE_UI_PORT', value: '{{ perfline_ui_port }}' }
-
 
   - name: "Installing golang version above 1.15 on localhost"
     yum:

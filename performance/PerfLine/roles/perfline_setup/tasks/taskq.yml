@@ -1,49 +1,35 @@
 ---
-  - name: Compress directory files/webui into files/webui.tar.gz
+  - name: "Compress directory files/webui into files/webui.tar.gz"
     archive:
       path: "{{ role_path }}/files/webui"
       dest: "{{ role_path }}/files/webui.tar.gz"
 
-
-  - name: Copy perfline webui scripts
+  - name: "Copy perfline webui scripts"
     unarchive:
       src: "{{ role_path }}/files/webui.tar.gz"
       dest: "{{ PERFLINE_DIR }}"
     delegate_to: "client-1"
 
-  - name: Compress directory files/chronometry into files/chronometry.tar.gz
-    archive:
-      path: "{{ role_path }}/files/chronometry"
-      dest: "{{ role_path }}/files/chronometry.tar.gz"
-
-  - name: Copy perfline chronometry scripts
-    unarchive:
-      src: "{{ role_path }}/files/chronometry.tar.gz"
-      dest: "{{ PERFLINE_DIR }}"
-    delegate_to: "{{ item }}"
-    with_items: "{{ groups['all'] }}"
-
-  - name: Compress directory files/chronometry_v2 into files/chronometry_v2.tar.gz
+  - name: "Compress directory files/chronometry_v2 into files/chronometry_v2.tar.gz"
     archive:
       path: "{{ role_path }}/files/chronometry_v2"
       dest: "{{ role_path }}/files/chronometry_v2.tar.gz"
 
-  - name: Copy perfline chronometry_v2 scripts
+  - name: "Copy perfline chronometry_v2 scripts"
     unarchive:
       src: "{{ role_path }}/files/chronometry_v2.tar.gz"
       dest: "{{ PERFLINE_DIR }}"
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
-
-  - name: Copy perfline.conf file
+  - name: "Copy perfline.conf file"
     copy:
       src: files/perfline.conf
       dest: "{{ PERFLINE_DIR }}"
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
-  - name: Open port for webui
+  - name: "Open port for webui"
     firewalld:
       permanent: yes
       immediate: yes
@@ -56,7 +42,7 @@
     ignore_errors: yes
 
 
-  - name: Install perfline system dependencies
+  - name: "Install perfline system dependencies"
     yum:
       name:
         - gcc
@@ -77,10 +63,11 @@
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
-  - name: Install perfline python dependencies
+  - name: "Install perfline python dependencies"
     pip:
       name:
         - huey == 2.3.0
+        - Glances == 3.2.5
         - plumbum
         - cerberus
         - pandas
@@ -99,8 +86,7 @@
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
-
-  - name: Installing docker packages
+  - name: "Installing docker packages"
     yum:
       name:
         - docker-ce
@@ -187,10 +173,10 @@
     delegate_to: "client-1"
     when: enable_daemon_service == "yes"
 
-  - name: Start {{ PERFLINE_UI_SERVICE_NAME }} service
+  - name: "Start {{ PERFLINE_UI_SERVICE_NAME }} service"
     systemd: state=restarted name={{ PERFLINE_UI_SERVICE_NAME }} daemon_reload=yes
     delegate_to: "client-1"
 
-  - name: Start {{ PERFLINE_SERVICE_NAME }} service
+  - name: "Start {{ PERFLINE_SERVICE_NAME }} service"
     systemd: state=restarted name={{ PERFLINE_SERVICE_NAME }} daemon_reload=yes
     delegate_to: "client-1"

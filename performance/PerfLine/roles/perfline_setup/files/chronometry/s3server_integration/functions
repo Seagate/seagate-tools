@@ -20,7 +20,7 @@
 # -*- coding: utf-8 -*-
 
 
-. ${SCRIPT_DIR}/../common/common_funcs
+. "${SCRIPT_DIR}"/../common/common_funcs
 
 function parse_s3_cred_file() {
     local s3_cred_file=$1
@@ -30,11 +30,11 @@ function parse_s3_cred_file() {
         exit 1
     fi
 
-    S3_CRED_ACCESS_KEY=`cat $s3_cred_file | grep AccessKeyId \
-        | awk -F '=' '{print $2}'`
+    S3_CRED_ACCESS_KEY=$(cat "$s3_cred_file" | grep AccessKeyId \
+        | awk -F '=' '{print $2}')
 
-    S3_CRED_SECRET_KEY=`cat $s3_cred_file | grep SecretKey \
-        | awk -F '=' '{print $2}'`
+    S3_CRED_SECRET_KEY=$(cat "$s3_cred_file" | grep SecretKey \
+        | awk -F '=' '{print $2}')
 
     if [[ -z "$S3_CRED_ACCESS_KEY" || -z "$S3_CRED_SECRET_KEY" ]]; then
         _err "invalid format of S3 credentials file $s3_cred_file"
@@ -43,7 +43,7 @@ function parse_s3_cred_file() {
 }
 
 function parse_s3_nodes_map() {
-    local nodes_map=$@
+    local nodes_map="$@"
 
     if [[ -z "$nodes_map" ]]; then
         _err "nodes mapping is not specified"
@@ -52,7 +52,7 @@ function parse_s3_nodes_map() {
 
     CLI_NODES=""
     for mapping in $nodes_map; do
-        local cli=$(echo $mapping | grep "$(hostname)" | awk -F '=' '{print $2}')
+        local cli=$(echo "$mapping" | grep $(hostname) | awk -F '=' '{print $2}')
         if [[ -z $CLI_NODES ]]; then
             CLI_NODES="$cli"
         else

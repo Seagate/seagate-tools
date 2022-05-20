@@ -7,7 +7,7 @@ It consists of three modules:
 -   webui - Web server based PerfLine UI for interacting with PerfLine
 -   ansible playbook - Ansible based PerfLine Installation
 
-# Prerequisites
+## Prerequisites
 
 PerfLine can be installed from any machine. Below prerequisites must be satisfied to setup PerfLine or deploying PerfLine on a client:
 
@@ -65,7 +65,7 @@ PerfLine can be installed from any machine. Below prerequisites must be satisfie
 
         cluster_pass=
 
-# Installation
+## Installation
 
 1.  When prerequisites are satisfied you need to `# cd` to `PerfLine` directory and run:
     `# ansible-playbook -i inventories/perfline_hosts/hosts run_perfline.yml -v`
@@ -75,7 +75,7 @@ PerfLine can be installed from any machine. Below prerequisites must be satisfie
     2.  results at `/var/perfline`
     3.  log file at `/var/log/perfline.log`
 
-## Multiple Instance of PerfLine
+### Multiple Instance of PerfLine
 
 -   If you want to install PerfLine into non-default directory you can specify `PURPOSE`.
 
@@ -93,14 +93,126 @@ PerfLine can be installed from any machine. Below prerequisites must be satisfie
 
   **Note : In case, if you want to install more than one version of PerfLine on the same cluster then you have to specify `PURPOSE` variable described above and change the value of `perfline_ui_port` variable which is specified in `PerfLine/inventories/perfline_hosts/hosts` file to guarantee that different instances of PerfLine use different ports for UI service.**
 
-# Define own workload
+## Define own workload
 
 As per need, Create a `"<any name of your choice>.yaml"` file inside `/root/perfline/wrapper/workload` directory. An example.yaml is already provided for user's reference.
 
-## Custom build
+## 'Build and deploy' feature
 
-1.  User have an optional feature to update LR Cluster either using URL or can use specific commitID of IO-PATH components.
-2.  User can provide any working git committ hash/ID combination for io-path components as long as user can ensure build won't fail. CORTX build on cluster would be updated accordingly.
+PerfLine allows to deploy a cluster using any prebuilt Cortx docker images (stable/custom).
+Also PerfLine is able to build custom Cortx images in case if user specifies list of commits
+and repos of the source code.
+
+### Deployment the cluster with prebuilt Cortx docker images
+
+User may specify list of PODs and corresponding Cortx images to deploy. In that case
+PerfLine will update PODs and images in the `solution.yaml` file and redeploy the cluster.
+
+Example of `custom_build` section in the `workload.yaml` file:
+
+    custom_build:
+      images:
+        cortxdata:
+          image: ghcr.io/seagate/cortx-all:2.0.0-735
+        cortxcontrol:
+          image: ghcr.io/seagate/cortx-all:2.0.0-735
+        cortxserver:
+          image: ghcr.io/seagate/cortx-rgw:2.0.0-735
+        cortxha:
+          image: ghcr.io/seagate/cortx-all:2.0.0-735
+        cortxclient:
+          image: ghcr.io/seagate/cortx-all:2.0.0-735
+
+User may specify any Cortx images (stable/custom). But at the same time user is responsible for the
+correct choice of them. Cortx images have to be compatible with the current version of Cortx
+framework (cortx-k8s project). And they have to be compatible with the corresponding PODs as well.
+PerfLine doesn't take care about it. In case if specified images are not compatible with framework
+and/or PODs PerfLine task fails.
+
+### Deployment the cluster with 'patched' prebuilt Cortx docker images
+
+From time to time developers want to check how their changes affect the behaviour of the cluster.
+In that case developers may to build custom Cortx images from the source code (using Jenkins job) and then to specify these images as described above.
+But building Cortx from source code takes up to several hours. In order to reduce time for testing patches PerfLine provides 'patch the prebuilt image' feature. An idea of this feature is not to build Cortx images from scratch but replace binary files of Motr/Hare in a prebuilt image with the binary files built by developer itself.
+For example developer has sources of Motr/Hare in the /root directory. Developer builds Motr/Hare projects using `make` commands. It takes less time than building Cortx docker images (especially once Motr/Hare are already build for the first time). As a result of `make` Motr/Hare directories contains binary files. These files will be copied into specified prebuilt Cortx docker image (actually a new temporary image will be created). Then PerfLine will redeploy the cluster.
+
+Example of `custom_build` section in the `workload.yaml` file:
+
+    custom_build:
+      images:
+        cortxdata:
+          image: ghcr.io/seagate/cortx-all:2.0.0-735
+          motr_patch: /root/cortx-motr
+          hare_patch: /root/cortx-hare
+        cortxcontrol:
+          image: ghcr.io/seagate/cortx-all:2.0.0-735
+        cortxserver:
+          image: ghcr.io/seagate/cortx-rgw:2.0.0-735
+        cortxha:
+          image: ghcr.io/seagate/cortx-all:2.0.0-735
+        cortxclient:
+          image: ghcr.io/seagate/cortx-all:2.0.0-735
+
+There is only difference from the previous example. It is `motr_patch`/`hare_patch` fields in the `cortxdata` POD description. In this case PerfLine will generate a new temporary docker image based on `ghcr.io/seagate/cortx-all:2.0.0-735`. PerfLine will replace all Motr/Hare binary files in the temporary image with files located in the `/root/cortx-motr` and `/root/cortx-hare` directories. Then PerfLine will copy the image to all nodes and redeploy the cluster.
+
+**Note : User is responsible for building Motr/Hare manually before scheduling a PerfLine task. Also user is responsible for providing compatibility between Motr/Hare and other components/files in the base Cortx docker image. PerfLine doesn't provide any guarantee.**
+
+Temporary Cortx docker images are being used for deployment the cluster. Once task is finished all temporary images will be removed by PerfLine automtically.
+
+### Building Cortx docker images from the source code
+
+PerfLine is able to build custom Cortx images from the source code and use them for deployment the cluster.
+In order to build Cortx images user has to provide list of commits/repos for required Cortx components.
+
+For example:
+
+    custom_build:
+      sources:
+        motr:
+          repo: "https://github.com/Seagate/cortx-motr.git"
+          branch: 7d8c1957
+        rgw:
+          repo: "https://github.com/Seagate/cortx-rgw.git"
+          branch: 107dce0a93f84722936f2dd10bb5273402d45772
+        rgw-integration:
+          repo: https://github.com/Seagate/cortx-rgw-integration.git
+          branch: 04b3de2df1b8ebf4711e5984dd9908b62fa579a1
+        hare:
+          repo: "https://github.com/Seagate/cortx-hare.git"
+          branch: e405edf
+        utils:
+          repo: https://github.com/Seagate/cortx-utils.git
+          branch: 27067f11608ddd2a7b5b5b0a7e5266b9472323a6
+        prvsnr:
+          repo: https://github.com/Seagate/cortx-prvsnr.git
+          branch: 9c2b067d0621b65e83ba2216490039d8dfa3862c
+
+List of projects in the `sources` section may include any set of Cortx submodules (cortx-motr/cortx-hare/cortx-rgw/etc). Full list of Cortx submodules can be found [here](https://github.com/Seagate/cortx).
+Each project description in the `sources` section has to include `repo` field and `branch` field.
+`repo` field can be either an URL for a remote git repo or path to local directory on the primary PerfLine node. For example:
+
+    custom_build:
+      sources:
+        motr:
+          repo: "/root/cortx-motr"
+          branch: "my_feature_branch"
+
+In the above example Motr repo specified as a local path. This local repo (on the primary PerfLine node) will be used as source code for Motr building.
+
+`branch` field can contain either commit hash or branch name. For example:
+
+    custom_build:
+      sources:
+        motr:
+          repo: "https://github.com/Seagate/cortx-motr.git"
+          branch: 7d8c1957
+        rgw:
+          repo: "https://github.com/Seagate/cortx-rgw.git"
+          branch: my_feature_branch
+
+In the above example Motr commit is represented by commit hash and RGW commit is represented by branch name. PerfLine will checkout specified commits/branches during 'build' phase execution.
+
+**Note : User is responsible for compatibility all Cortx components with each other.**
 
 ## Workload
 
@@ -183,7 +295,7 @@ For ex:
     Ex:
     addb_duration: 5min
 
-# Starting workload
+## Starting workload
 
 Workload can be started only from client_node machine
 For starting workload on a cluster you need to run tasks, which describing amount/size of files you want to upload/download and how many clients will perform load.
@@ -197,9 +309,9 @@ or
 
 `# python3 perfline.py  -a < workload/<example>.yaml`
 
-# Additional info
+## Additional info
 
-## Webui
+### Webui
 
 After successful execution of ansible playbook, you should be able to access webui page from browser at `"http://<client_ip>:8005"`.
 
@@ -217,17 +329,17 @@ After successful execution of ansible playbook, you should be able to access web
 
 -   If you have different `PUBLIC_DATA_INTERFACE_NAME` other than `data0|enp179s0|enp175s0f0|eth0` interface, then you have to provide `PUBLIC_DATA_INTERFACE_NAME` in `roles/perfline_setup/vars/main.yml`. These interface name will be going to use by iperf workload only.
 
-# Daemon services
+## Daemon services
 
 This feature will allow user to run nightly build, test and run perfline workload for subsequent build number till date. It would be required to specify the build number to `/root/perfline/wrapper/.latest_stable_build` on client server. It's a one time activity. It will take the list of build above it and including "BUILDNO" value.
 
     BUILDNO=307
 
-# DISCLAIMER / WARNING
+## DISCLAIMER / WARNING
 
 PerfLine is a tool, not a service, which is available to users to install and use at their own setups/machines. For multi-user use, PerfLine provide all required infrastructure with task/run queues and optional email notifications. But, It is outside scope of PerfLine to ensure that nothing runs outside of PerfLine infrastructure on user machines, when PerfLine is executing tasks/runs. This islolation is necessary for accurate data measurements / artifacts collection and must be ensured by user. If not ensured, results might have data which is adulterated unintentionally and accuracy compromised due to user machines being shared and used in parallel to PerfLine.
 
-# Known Issues
+## Known Issues
 
 Description:
 

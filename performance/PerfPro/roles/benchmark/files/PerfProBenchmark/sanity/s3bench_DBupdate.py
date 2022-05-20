@@ -1,33 +1,37 @@
-
 #!/usr/bin/env python3
 """
-python3 s3bench_DBupdate.py <log file path> <main.yaml path> <config.yaml path> 
+python3 s3bench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
 Attributes: _id,Log_File,Name,Operation,IOPS,Throughput,Latency,TTFB,Object_Size,HOST
 """
 
-import pymongo
 from pymongo import MongoClient
-import re
 import socket
+import ast
 import sys
 import os
-from os import listdir
 import yaml
 from datetime import datetime
-import urllib.request
+
 Main_path = sys.argv[2]
 Config_path = sys.argv[3]
-
-#collecting runtime entries 
+#collecting runtime entries
 Repository = sys.argv[4]
 Commit_ID = sys.argv[5]
 PR_ID = sys.argv[6]
 User = sys.argv[7]
 GID = sys.argv[8]
 
+sanity_schema = {
+    "motr_repository": "",
+    "rgw_repository": "",
+    "hare_repository": "",
+    "other_repos": [],
+    "PR_ID": " "
+}
+
 def makeconfig(name):  #function for connecting with configuration file
     with open(name) as config_file:
-        configs = yaml.load(config_file, Loader=yaml.FullLoader)
+        configs = yaml.safe_load(config_file)
     return configs
 
 configs_main = makeconfig(Main_path)
@@ -44,7 +48,7 @@ clients_num=len(clients_list)
 
 def makeconnection(collection):  #function for making connection with database
     client = MongoClient(configs_main['db_url'])  #connecting with mongodb database
-    db=client[configs_main['db_database']]  #database name=performance 
+    db=client[configs_main['db_database']]  #database name=performance
 #    return db
     col=configs_main.get('SANITY')[collection]
     sanity_col=db[col]
@@ -52,12 +56,12 @@ def makeconnection(collection):  #function for making connection with database
 
 ##Function to find latest iteration
 def get_latest_iteration(query, db_collection):
-    max = 0
+    max_iter = 0
     cursor = db_collection.find(query)
     for record in cursor:
-        if max < record['Iteration']:
-            max = record['Iteration']
-    return max
+        if max_iter < record['Iteration']:
+            max_iter = record['Iteration']
+    return max_iter
 
 ##Function to resolve iteration/overwrite etc in multi-client run
 def check_first_client(query, db_collection, itr):
@@ -122,7 +126,7 @@ class s3bench:
                 "Run_State":self.Run_State
                 }
 
-    def insert_update(self,Iteration):# function for inserting and updating mongodb database 
+    def insert_update(self,Iteration):# function for inserting and updating mongodb database
         #db = makeconnection()
         db_data={}
         db_data.update(self.Primary_Set)
@@ -149,7 +153,7 @@ def insertOperations(files,db_collection,run_ID,Config_ID ):  #function for retr
     first_client = True
     delete_data = True
     Run_Health = "Successful"
-    for file in files:    
+    for file in files:
         _, filename = os.path.split(file)
         global nodes_num, clients_num , pc_full, iteration , overwrite, custom
         oplist = ["Write" , "Read" , "GetObjTag", "HeadObj" , "PutObjTag"]
@@ -198,13 +202,13 @@ def insertOperations(files,db_collection,run_ID,Config_ID ):  #function for retr
                         ttfb={"Max":float(lines[count+12].split(":")[1][:-2]),"Avg":float(lines[count+11].split(":")[1][:-2]),"Min":float(lines[count+13].split(":")[1][:-2]),"99p":float(lines[count+10].split(":")[1][:-2])}
                         data = s3bench(filename,opname,iops,throughput,error_count,ops_count,lat,ttfb,obj,db_collection,run_ID,Config_ID,overwrite,sessions,Objects,Run_Health)
 # Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID,overwrite,sessions,Objects,pc_full,custom,Run_Health)
-                    
+
                         if find_iteration:
                             iteration_number = get_latest_iteration(data.Primary_Set, db_collection)
                             find_iteration = False
                             # To prevent data of one client getting overwritten/deleted while another client upload data as primary set matches for all client in multi-client run
                             #first_client=check_first_client(data.Primary_Set, db_collection, iteration_number)
-                            #the query needs to be updated hence marking this commented. 
+                            #the query needs to be updated hence marking this commented.
                         if iteration_number == 0:
                             data.insert_update(iteration_number+1)
                         elif not first_client:
@@ -218,13 +222,13 @@ def insertOperations(files,db_collection,run_ID,Config_ID ):  #function for retr
                             data.insert_update(iteration_number)
                         else :
                             data.insert_update(iteration_number+1)
-                
+
                         count += 9
                 count +=1
 
         except Exception as e:
             print(f"Encountered error in file: {filename} , and Exeption is" , e)
-            Run_Health = "Failed"           
+            Run_Health = "Failed"
 
 
 def getallfiles(directory,extension):#function to return all file names with perticular extension
@@ -235,24 +239,32 @@ def getallfiles(directory,extension):#function to return all file names with per
                 flist.append(os.path.join(path, name))
     return flist
 
-def insert_run_details(run_details):
-    global Repository, Commit_ID, PR_ID 
-    run_data={
-        "Repository" : Repository ,
-        "Commit_ID" : Commit_ID,
-        "PR_ID" : PR_ID
-        }
-    try:
-        count_documents= run_details.count_documents(run_data)
-        if count_documents == 0:
-            run_details.insert_one(run_data)
-            print("Sanity Run details recorded \n" + str(run_data))
-            result = run_details.find_one(run_data)
-            if result:
-                run_ID = result['_id'] 
+def insert_run_details(run_details, repo_details, PR_ID):
+    sanity_schema["other_repos"] = list(repo_details)
+    sanity_schema["PR_ID"] = PR_ID
+    for repo in list(repo_details):
+        if repo["category"].lower() == "motr":
+            key = "motr_repository"
+        elif repo["category"].lower() == "rgw":
+            key = "rgw_repository"
+        elif repo["category"].lower() == "hare":
+            key = "hare_repository"
         else:
-            print("Sanity Run details already present \n" + str(run_data))
-            result = run_details.find_one(run_data)
+            continue
+
+        sanity_schema[key] = repo["repo"]
+
+    try:
+        count_documents= run_details.count_documents(sanity_schema)
+        if count_documents == 0:
+            run_details.insert_one(sanity_schema)
+            print("Sanity Run details recorded \n" + str(sanity_schema))
+            result = run_details.find_one(sanity_schema)
+            if result:
+                run_ID = result['_id']
+        else:
+            print("Sanity Run details already present \n" + str(sanity_schema))
+            result = run_details.find_one(sanity_schema)
             if result:
                 run_ID = result['_id']
     except Exception as e:
@@ -265,10 +277,10 @@ def insert_config_details(sanity_config , run_ID):
     global User ,GID ,nodes_num, clients_num, nodes_list, clients_list
     nodes=[]
     clients=[]
-    for i in range(len(nodes_list)):
+    for i, _ in enumerate(nodes_list):
         nodes.append(nodes_list[i][i+1])
 
-    for i in range(len(clients_list)):
+    for i, _ in enumerate(clients_list):
         clients.append(clients_list[i][i+1])
 
     config_data={
@@ -306,16 +318,16 @@ def insert_config_details(sanity_config , run_ID):
 def main(argv):
     dic=argv[1]
     files = getallfiles(dic,".log")#getting all files with log as extension from given directory
-    
+
     run_details = makeconnection('sanity_details_collection')
     sanity_config = makeconnection('sanity_config_collection')
     db_collection = makeconnection('sanity_dbcollection')
 
 #insert DB entries
-    run_ID = insert_run_details(run_details)
+    run_ID = insert_run_details(run_details, list(ast.literal_eval(argv[4])), argv[6])
     Config_ID = insert_config_details(sanity_config , run_ID)
-    
+
     insertOperations(files,db_collection,run_ID,Config_ID)
 
 if __name__=="__main__":
-    main(sys.argv) 
+     main(sys.argv)

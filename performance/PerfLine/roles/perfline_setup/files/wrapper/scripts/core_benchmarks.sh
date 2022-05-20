@@ -26,10 +26,8 @@ declare -A benchmarks
 set -e
 set -x
 
-SCRIPT_NAME=`echo $0 | awk -F "/" '{print $NF}'`
-SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
-PERFLINE_DIR="$SCRIPT_DIR/../.."
 PUBLIC_DATA_INTERFACE=""
 source "$SCRIPT_DIR/../../perfline.conf"
 
@@ -40,9 +38,9 @@ COUNT=0
 
 function public_interface_name() {
     if [[ -z "$PUBLIC_DATA_INTERFACE_NAME" ]]; then
-        PUBLIC_DATA_INTERFACE=$(ip addr show | egrep 'data0|enp179s0|enp175s0f0|eth0' | grep -Po 'inet \K[\d.]+')
+        PUBLIC_DATA_INTERFACE=$(ip addr show | grep -E 'data0|enp179s0|enp175s0f0|eth0' | grep -Po 'inet \K[\d.]+')
     else
-        PUBLIC_DATA_INTERFACE=$(ip addr show | egrep "$PUBLIC_DATA_INTERFACE_NAME" | grep -Po 'inet \K[\d.]+')
+        PUBLIC_DATA_INTERFACE=$(ip addr show | grep -E "$PUBLIC_DATA_INTERFACE_NAME" | grep -Po 'inet \K[\d.]+')
     fi
 }
 
@@ -84,59 +82,59 @@ function stop_measuring_benchmark_time()
 
 function pushd_to_results_dir() {
     echo "go to results folder"
-    pushd $RESULTS_DIR
+    pushd "$RESULTS_DIR"
 }
 
 function custom_benchmark()
 {
-    mkdir -p $CORE_BENCHMARK
-    pushd $CORE_BENCHMARK
-    START_TIME=`date +%s000000000`
-    eval $CUSTOM_BENCHMARKS | tee custom-benchmark-$CUSTOM_COUNT-$(date +"%F_%T.%3N").log
+    mkdir -p "$CORE_BENCHMARK"
+    pushd "$CORE_BENCHMARK"
+    START_TIME=$(date +%s000000000)
+    eval "$CUSTOM_BENCHMARKS" | tee custom-benchmark-"$CUSTOM_COUNT"-"$(date +"%F_%T.%3N")".log
     ((CUSTOM_COUNT=CUSTOM_COUNT+1))
     STATUS=${PIPESTATUS[0]}
-    STOP_TIME=`date +%s000000000`
+    STOP_TIME=$(date +%s000000000)
     sleep 30
     popd			# $CORE_BENCHMARK
 }
 
 function fio_workloads()
 {
-   mkdir -p $CORE_BENCHMARK
-   pushd $CORE_BENCHMARK
-   START_TIME=`date +%s000000000`
+   mkdir -p "$CORE_BENCHMARK"
+   pushd "$CORE_BENCHMARK"
+   START_TIME=$(date +%s000000000)
    echo "Fio workload triggered on $NODES"
    $EX_SRV "$SCRIPT_DIR/run_fiobenchmark.sh $FIO_PARAMS"
    STATUS=${PIPESTATUS[0]}
-   STOP_TIME=`date +%s000000000`
+   STOP_TIME=$(date +%s000000000)
    sleep 120
    popd
 }
 
 function run_lnet_workloads()
 {
-    mkdir -p $CORE_BENCHMARK
-    pushd $CORE_BENCHMARK
-    START_TIME=`date +%s000000000`
-    ssh $PRIMARY_NODE "$SCRIPT_DIR/lnet_workload.sh $NODES $LNET_OPS" | tee $LNET_WORKLOG-$(date +"%F_%T.%3N").log
+    mkdir -p "$CORE_BENCHMARK"
+    pushd "$CORE_BENCHMARK"
+    START_TIME=$(date +%s000000000)
+    ssh "$PRIMARY_NODE" "$SCRIPT_DIR/lnet_workload.sh $NODES $LNET_OPS" | tee "$LNET_WORKLOG"-"$(date +"%F_%T.%3N")".log
     STATUS=${PIPESTATUS[0]}
-    STOP_TIME=`date +%s000000000`
+    STOP_TIME=$(date +%s000000000)
     popd
 }
 
 function iperf_workload()
 {
-    mkdir -p $CORE_BENCHMARK
-    pushd $CORE_BENCHMARK
-    START_TIME=`date +%s000000000`
-    iperf -s | tee $(hostname)_iperf-$(date +"%F_%T.%3N").log &
+    mkdir -p "$CORE_BENCHMARK"
+    pushd "$CORE_BENCHMARK"
+    START_TIME=$(date +%s000000000)
+    iperf -s | tee $(hostname)_iperf-"$(date +"%F_%T.%3N")".log &
     for node in ${NODES//,/ }
     do
-        ssh $node "iperf3 -c $PUBLIC_DATA_INTERFACE $IPERF_PARAMS" > $node-iperf_workload-$(date +"%F_%T.%3N").log
+        ssh "$node" "iperf3 -c $PUBLIC_DATA_INTERFACE $IPERF_PARAMS" > "$node"-iperf_workload-"$(date +"%F_%T.%3N")".log
     done
     pkill iperf3
     STATUS=${PIPESTATUS[0]}
-    STOP_TIME=`date +%s000000000`
+    STOP_TIME=$(date +%s000000000)
     popd
 }
 
@@ -153,7 +151,7 @@ function main() {
     pushd_to_results_dir
 
     public_interface_name
-    for key in ${!benchmark_type[@]}; do
+    for key in "${!benchmark_type[@]}"; do
         case "${benchmark_type[${key}]}" in
              "custom")
                 echo "Start custom benchmarkss"
@@ -184,7 +182,7 @@ function main() {
     # Stop workload time execution measuring
     stop_measuring_benchmark_time
 
-    exit $STATUS
+    exit "$STATUS"
 }
 
 echo "parameters: $@"

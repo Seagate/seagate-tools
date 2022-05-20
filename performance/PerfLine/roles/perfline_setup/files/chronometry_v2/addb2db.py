@@ -56,22 +56,22 @@
 
 import argparse
 import logging
+from sqlite3 import OperationalError
 import yaml
 import numpy
 import time
-from peewee import *
-from typing import List
+from peewee import TextField
+from peewee import IntegerField
+from peewee import SqliteDatabase
+from peewee import Model
+from peewee import chunked
 from itertools import zip_longest
 from collections import defaultdict
 from tqdm import tqdm
 from plumbum.cmd import wc
-from math import ceil
 import sys
-from functools import partial
-from os.path import basename, splitext
+from os.path import basename
 import re
-from dateutil.parser import parse as dtparse
-from datetime import datetime
 import json
 
 
@@ -484,7 +484,7 @@ class AddbDumpIterator:
 
         for raw_record in data_chunk:
             tmp = fd_consume_record(raw_record)
-            if type(tmp) == list:
+            if isinstance(tmp, list):
                 results.extend(tmp)
             else:
                 results.append(tmp)
@@ -571,16 +571,16 @@ def db_consume_data(files, append_db: bool):
 
 
 def db_setup_loggers():
-    format='%(asctime)s %(name)s %(levelname)s %(message)s'
+    fmt='%(asctime)s %(name)s %(levelname)s %(message)s'
     level=logging.INFO
     level_sh=logging.WARN
     logging.basicConfig(filename='logfile.txt',
                         filemode='w',
                         level=level,
-                        format=format)
+                        format=fmt)
 
     sh = logging.StreamHandler()
-    sh.setFormatter(logging.Formatter(format))
+    sh.setFormatter(logging.Formatter(fmt))
     sh.setLevel(level_sh)
     log = logging.getLogger()
     log.addHandler(sh)

@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
 """
-python3 cosbench_DBupdate.py <log file path> <main.yaml path> <config.yaml path> 
+python3 cosbench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
 Attributes:
 _id,Log_File,Name,Operation,IOPS,Throughput,Latency,TTFB,Object_Size,HOST,Objects,Buckets,Session
 """
 
 import csv
-import pymongo
 from pymongo import MongoClient
 import re
 import socket
 import sys
 import os
-from os import listdir
 import yaml
 from datetime import datetime
 import urllib.request
@@ -22,7 +20,7 @@ Config_path = sys.argv[3]
 
 def makeconfig(name):  # function for connecting with configuration file
     with open(name) as config_file:
-        configs = yaml.load(config_file, Loader=yaml.FullLoader)
+        configs = yaml.safe_load(config_file)
     return configs
 
 
@@ -48,7 +46,12 @@ def makeconnection():  # function for making connection with database
 
 
 def get_release_info(variable):
-    release_info= urllib.request.urlopen(build_url+'RELEASE.INFO')
+
+    if build_url.lower().startswith('http'):
+        release_info = urllib.request.urlopen(build_url+'RELEASE.INFO')
+    else:
+        raise Exception("bad build_url")
+
     for line in release_info:
         if variable in line.decode("utf-8"):
             strinfo=line.decode("utf-8").strip()
@@ -57,12 +60,12 @@ def get_release_info(variable):
 
 ##Function to find latest iteration
 def get_latest_iteration(query, db, collection):
-    max = 0
+    max_iter = 0
     cursor = db[collection].find(query)
     for record in cursor:
-        if max < record['Iteration']:
-            max = record['Iteration']
-    return max
+        if max_iter < record['Iteration']:
+            max_iter = record['Iteration']
+    return max_iter
 
 ##Function to resolve iteration/overwrite etc in multi-client run
 def check_first_client(query, db, collection, itr):
@@ -101,7 +104,7 @@ def insert_data(files,Build,Version,Config_ID,db,col,Branch,OS):  # function for
                                 Objsize = int(re.split('m|M', obj)[0])
                             if('k' in obj) or ('K' in obj):
                                 Objsize = float(re.split('k|K', obj)[0])*0.001
-    
+ 
                             iops = float(row[13])
                             throughput = iops*Objsize
                             lat = {"Max": float(row[12]), "Avg": float(row[5])}
@@ -112,30 +115,30 @@ def insert_data(files,Build,Version,Config_ID,db,col,Branch,OS):  # function for
                             objects= int(re.split(" ", attr[3])[1])
                             sessions= int(re.split(" ", attr[4])[1])
                             primary_Set = {
-                                "Name": "Cosbench", 
-                                "Build": Build, 
+                                "Name": "Cosbench",
+                                "Build": Build,
                                 "Version": Version,
                                 "Branch": Branch ,
-                                "OS": OS, 
+                                "OS": OS,
                                 "Count_of_Servers": nodes_num ,
-                                "Count_of_Clients": clients_num , 
-                                "Percentage_full" : pc_full ,
+                                "Count_of_Clients": clients_num,
+                                "Percentage_full" : pc_full,
                                 "Custom" : str(custom).upper()
                                 }
                             runconfig_Set = {
                                 "Operation": "".join(operation[0].upper() + operation[1:].lower()) ,
                                 "Object_Size": str(obj_size.replace(" ","").upper()),
                                 "Buckets": buckets,
-                                "Objects": objects, 
+                                "Objects": objects,
                                 "Sessions": sessions
                                 }
                             updation_Set = {
-                                "HOST": socket.gethostname(), 
-                                "Config_ID": Config_ID, 
-                                "IOPS": iops, 
-                                "Throughput": throughput, 
-                                "Latency": lat, 
-                                "Log_File": filename, 
+                                "HOST": socket.gethostname(),
+                                "Config_ID": Config_ID,
+                                "IOPS": iops,
+                                "Throughput": throughput,
+                                "Latency": lat,
+                                "Log_File": filename,
                                 "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                                 "Run_State": Run_Health
                                 }
@@ -200,7 +203,7 @@ def update_mega_chain(build, version, col):
                 {'Title' : 'Main Chain'},
                 {
                     '$set':{
-                    'release':release_chain, 
+                    'release':release_chain,
                     }
             })
             print("...Mega entry has updated with release build ", build)
@@ -213,7 +216,7 @@ def update_mega_chain(build, version, col):
                     {'Title' : 'Main Chain'},
                     {
                         '$set':{
-                        'beta':beta_chain, 
+                        'beta':beta_chain,
                         }
                 })
             print("...Mega entry has updated with beta build ", build)
@@ -248,10 +251,10 @@ def getconfig():
     nodes=[]
     clients=[]
 
-    for i in range(len(nodes_list)):
+    for i, _ in enumerate(nodes_list):
         nodes.append(nodes_list[i][i+1])
 
-    for i in range(len(clients_list)):
+    for i, _ in enumerate(clients_list):
         clients.append(clients_list[i][i+1])
 
     dic={

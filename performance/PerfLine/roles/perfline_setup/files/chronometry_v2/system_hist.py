@@ -16,7 +16,6 @@
 
 import pandas as pd
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpl_patches
 from pandas.io import sql
@@ -303,7 +302,7 @@ class Plot():
         self.hist = hist
         self.ax = ax
 
-    def name():
+    def name(self):
         return self.hist.name
 
 class Figure():
@@ -314,6 +313,7 @@ class Figure():
     @staticmethod
     def next_figure():
         Figure.figure_idx = Figure.figure_idx + 1
+        return Figure.figure_idx
 
     def next_color(self):
         color = Figure.COLORS[self.color_idx]

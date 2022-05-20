@@ -27,10 +27,10 @@ RGW_ARTIFACTS_DIR="rgw"
 function create_s3_account()
 {
     # Currently accesskey/secretkey are hardcoded in the cortx-k8s framework (v0.1.0)
-    ssh $PRIMARY_NODE 'echo AccountId = 000, CanonicalId = 000, RootUserName = 000, AccessKeyId = sgiamadmin, SecretKey = ldapadmin > s3user.txt'
+    ssh "$PRIMARY_NODE" 'echo AccountId = 000, CanonicalId = 000, RootUserName = 000, AccessKeyId = sgiamadmin, SecretKey = ldapadmin > s3user.txt'
 
     # configure aws utility
-    ssh $PRIMARY_NODE "$SCRIPT_DIR/../../s3account/lc_setup_aws.sh"
+    ssh "$PRIMARY_NODE" "$SCRIPT_DIR/../../s3account/lc_setup_aws.sh"
 }
 
 function save_s3app_configs()
@@ -57,32 +57,30 @@ function save_rgw_configs() {
     local pod
     local containers
     local rgw_mapping
-    local service
     local log_dir
     local trace_dir
-    local addb_dir
 
     mkdir -p $config_dir
     pushd $config_dir
 
-    for srv in $(echo $NODES | tr ',' ' '); do
-        pod=`ssh $PRIMARY_NODE "kubectl get pod -o wide" | grep $srv | grep $CORTX_SERVER_POD_PREFIX | awk '{print $1}'`
-        containers=`ssh $PRIMARY_NODE "kubectl get pods $pod -o jsonpath='{.spec.containers[*].name}'" | tr ' ' '\n' | grep rgw`
-        mkdir -p $srv
-        pushd $srv
+    for srv in $(echo "$NODES" | tr ',' ' '); do
+        pod=$(ssh "$PRIMARY_NODE" "kubectl get pod -o wide" | grep "$srv" | grep "$CORTX_SERVER_POD_PREFIX" | awk '{print $1}')
+        containers=$(ssh "$PRIMARY_NODE" "kubectl get pods $pod -o jsonpath='{.spec.containers[*].name}'" | tr ' ' '\n' | grep rgw)
+        mkdir -p "$srv"
+        pushd "$srv"
 
         for cont in $containers ; do
-            mkdir -p $cont
-            pushd $cont
+            mkdir -p "$cont"
+            pushd "$cont"
 
             # Copy config
-            local conf_file=$(ssh $PRIMARY_NODE "kubectl exec $pod -c $cont -- ps auxww" | grep radosgw | tr ' ' '\n' | grep '\.conf$')
+            local conf_file=$(ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- ps auxww" | grep radosgw | tr ' ' '\n' | grep '\.conf$')
 
             if [[ -n "$conf_file" ]]; then
-                local conf_filename=$(echo $conf_file | awk -F "/" '{print $NF}')
-                ssh $PRIMARY_NODE "kubectl exec $pod -c $cont -- cat $conf_file" > $conf_filename
+                local conf_filename=$(echo "$conf_file" | awk -F "/" '{print $NF}')
+                ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- cat $conf_file" > "$conf_filename"
 
-                local log_file=$(cat $conf_filename | grep 'log file' | sed 's/log file\s*=\s*//' | head -1)
+                local log_file=$(cat "$conf_filename" | grep 'log file' | sed 's/log file\s*=\s*//' | head -1)
                 log_dir="${log_file%/*}"
                 trace_dir="$log_dir/motr_trace_files"
                 rgw_mapping="${srv} ${pod} ${cont} FID ${trace_dir} ADDB_DIR ${log_dir}\n${rgw_mapping}"
@@ -130,17 +128,17 @@ function save_rgw_logs() {
     local lines_n
     local log_dir
 
-    lines_n=`cat ../rgw_map | wc -l`
-    for i in $(seq 1 $lines_n) ; do
-        read hostname pod cont serv trace addb log <<< `awk "NR==$i" ../rgw_map`
-        mkdir -p $hostname
-        pushd $hostname
+    lines_n=$(cat ../rgw_map | wc -l)
+    for i in $(seq 1 "$lines_n") ; do
+        read hostname pod cont serv trace addb log <<< $(awk "NR==$i" ../rgw_map)
+        mkdir -p "$hostname"
+        pushd "$hostname"
 
-        log_dir=$(echo $log | sed 's|/etc/cortx/||')
+        log_dir=$(echo "$log" | sed 's|/etc/cortx/||')
         log_dir="$LOCAL_MOUNT_POINT/var/$log_dir"
 
         if [[ -d "$log_dir" ]]; then
-            cp $log_dir/*.log ./
+            cp "$log_dir"/*.log ./
         fi
 
         popd
@@ -160,30 +158,30 @@ function save_rgw_traces()
     local files
 
     set +e
-    lines_n=`cat ../rgw_map | wc -l`
-    for i in $(seq 1 $lines_n) ; do
-        read hostname pod cont serv trace addb log <<< `awk "NR==$i" ../rgw_map`
+    lines_n=$(cat ../rgw_map | wc -l)
+    for i in $(seq 1 "$lines_n") ; do
+        read hostname pod cont serv trace addb log <<< $(awk "NR==$i" ../rgw_map)
 
-        local trace_dir=$(echo $trace | sed 's|/etc/cortx/||')
+        local trace_dir=$(echo "$trace" | sed 's|/etc/cortx/||')
         trace_dir="/share/var/$trace_dir"
 
-        files=`( ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME ls -1 $trace_dir" ) | grep m0trace | grep -v txt`
+        files=$( ssh "$PRIMARY_NODE" "docker exec $DOCKER_CONTAINER_NAME ls -1 $trace_dir" | grep m0trace | grep -v txt)
         for file in $files; do
-            ssh $PRIMARY_NODE "docker exec $DOCKER_CONTAINER_NAME m0trace -i $trace_dir/$file -o $trace_dir/$file.txt"
+            ssh "$PRIMARY_NODE" "docker exec $DOCKER_CONTAINER_NAME m0trace -i $trace_dir/$file -o $trace_dir/$file.txt"
         done
     done
 
     # Copy traces to results folder
-    for i in $(seq 1 $lines_n) ; do
-        read hostname pod cont serv trace addb log <<< `awk "NR==$i" ../rgw_map`
-        mkdir -p $hostname
-        pushd $hostname
+    for i in $(seq 1 "$lines_n") ; do
+        read hostname pod cont serv trace addb log <<< $(awk "NR==$i" ../rgw_map)
+        mkdir -p "$hostname"
+        pushd "$hostname"
 
-        local trace_dir=$(echo $trace | sed 's|/etc/cortx/||')
+        local trace_dir=$(echo "$trace" | sed 's|/etc/cortx/||')
         trace_dir="$LOCAL_MOUNT_POINT/var/$trace_dir"
 
         if [[ -d "$trace_dir" ]]; then
-            cp $trace_dir/m0trace.*.txt ./
+            cp "$trace_dir"/m0trace.*.txt ./
         fi
 
         popd

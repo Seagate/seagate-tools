@@ -22,9 +22,9 @@
 set -e
 set -x
 
-SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
-TOOLS_DIR="$SCRIPT_DIR/../../chronometry"
+TOOLS_DIR="$SCRIPT_DIR/../../chronometry_v2"
 
 function main()
 {
@@ -41,7 +41,7 @@ function main()
             return 1
         fi
 
-        process_m0crate_addb $M0CRATE_WORKDIR
+        process_m0crate_addb "$M0CRATE_WORKDIR"
     else
         echo "unsupported app: $app"
     fi
@@ -90,11 +90,11 @@ function process_motr_addb()
 {
     local host="$(hostname -s)"
 
-    MOTR_ADDB_DIR=$($SCRIPT_DIR/find_motr_addb_location.sh)
+    MOTR_ADDB_DIR=$("$SCRIPT_DIR"/find_motr_addb_location.sh)
 
     local tmp_dir="$MOTR_ADDB_DIR/$(mktemp -u addb_tmp_XXXXXXX)"
-    mkdir $tmp_dir
-    pushd $tmp_dir
+    mkdir "$tmp_dir"
+    pushd "$tmp_dir"
 
     for ios_fid in $IO_SERVICES; do
        local ios_dir="$MOTR_ADDB_DIR/m0d-$ios_fid"
@@ -106,22 +106,22 @@ function process_motr_addb()
         local ios_addb_stobs="$ios_dir/addb-stobs-*/o/100000000000000:2"
 
         for addb_stob in $ios_addb_stobs; do
-            pid=$(echo $addb_stob | sed -E 's/.*addb-stobs-([0-9]+)[/].*/\1/')
-            m0addb2dump -f -- "$addb_stob" > ./dumps_${host}_${pid}.txt
+            pid=$(echo "$addb_stob" | sed -E 's/.*addb-stobs-([0-9]+)[/].*/\1/')
+            m0addb2dump -f -- "$addb_stob" > ./dumps_"${host}"_"${pid}".txt
         done
     done
 
     # generate motr m0play.db
     if ls dumps* &> /dev/null; then
-        $TOOLS_DIR/../chronometry_v2/addb2db_multiprocess.sh --dumps ./dumps*
+        "$TOOLS_DIR"/addb2db_multiprocess.sh --dumps ./dumps*
         local db_filename="m0play.db.$(hostname)"
-        mv m0play.db $db_filename
-        scp dumps* root@${ARTIF_HOST}:${ARTIF_DIR}
-        scp $db_filename root@${ARTIF_HOST}:${ARTIF_DIR}
+        mv m0play.db "$db_filename"
+        scp dumps* root@"${ARTIF_HOST}":"${ARTIF_DIR}"
+        scp "$db_filename" root@"${ARTIF_HOST}":"${ARTIF_DIR}"
     fi
 
     popd
-    rm -rf $tmp_dir
+    rm -rf "$tmp_dir"
 }
 
 function process_s3_addb()
@@ -130,24 +130,24 @@ function process_s3_addb()
     local s3_addb_dir="/var/log/seagate/motr"
 
     local tmp_dir="$s3_addb_dir/$(mktemp -u addb_tmp_XXXXXXX)"
-    mkdir $tmp_dir
-    pushd $tmp_dir
+    mkdir "$tmp_dir"
+    pushd "$tmp_dir"
 
     for addb_stob in /var/log/seagate/motr/s3server*/addb*/o/100000000000000:2; do
-        pid=$(echo $addb_stob | sed -E 's/.*addb_([0-9]+)[/].*/\1/')
+        pid=$(echo "$addb_stob" | sed -E 's/.*addb_([0-9]+)[/].*/\1/')
         m0addb2dump -f -p /opt/seagate/cortx/s3/addb-plugin/libs3addbplugin.so \
-            -- "$addb_stob" > ./dumpc_${host}_${pid}.txt
+            -- "$addb_stob" > ./dumpc_"${host}"_"${pid}".txt
     done
 
     # generate s3 m0play.db
     if ls dumpc* &> /dev/null; then
-        $TOOLS_DIR/../chronometry_v2/addb2db_multiprocess.sh --dumps ./dumpc*
-        scp dumpc* root@${ARTIF_HOST}:${ARTIF_DIR}/$(hostname)
-        scp m0play.db root@${ARTIF_HOST}:${ARTIF_DIR}/$(hostname)
+        "$TOOLS_DIR"/addb2db_multiprocess.sh --dumps ./dumpc*
+        scp dumpc* root@"${ARTIF_HOST}":"${ARTIF_DIR}"/$(hostname)
+        scp m0play.db root@"${ARTIF_HOST}":"${ARTIF_DIR}"/$(hostname)
     fi
 
     popd
-    rm -rf $tmp_dir
+    rm -rf "$tmp_dir"
 }
 
 function process_m0crate_addb()
@@ -155,19 +155,19 @@ function process_m0crate_addb()
     local m0crate_workdir="$1"
     local host="$(hostname -s)"
 
-    pushd $m0crate_workdir
+    pushd "$m0crate_workdir"
 
-    for addb_stob in $m0crate_workdir/addb*/o/100000000000000:2; do
-        pid=$(echo $addb_stob | sed -E 's/.*addb_([0-9]+)[/].*/\1/')
-        m0addb2dump -f -- "$addb_stob" > ./dumpc_${host}_${pid}.txt
+    for addb_stob in "$m0crate_workdir"/addb*/o/100000000000000:2; do
+        pid=$(echo "$addb_stob" | sed -E 's/.*addb_([0-9]+)[/].*/\1/')
+        m0addb2dump -f -- "$addb_stob" > ./dumpc_"${host}"_"${pid}".txt
     done
 
     # generate m0crate m0play.db
     if ls dumpc* &> /dev/null; then
-        $TOOLS_DIR/../chronometry_v2/addb2db_multiprocess.sh --dumps ./dumpc*
-        scp dumpc* root@${ARTIF_HOST}:${ARTIF_DIR}
-        mv m0play.db m0play.$host.db
-        scp m0play.$host.db root@${ARTIF_HOST}:${ARTIF_DIR}
+        "$TOOLS_DIR"/addb2db_multiprocess.sh --dumps ./dumpc*
+        scp dumpc* root@"${ARTIF_HOST}":"${ARTIF_DIR}"
+        mv m0play.db m0play."$host".db
+        scp m0play."$host".db root@"${ARTIF_HOST}":"${ARTIF_DIR}"
     fi
 
     popd

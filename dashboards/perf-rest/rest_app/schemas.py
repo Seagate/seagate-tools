@@ -24,3 +24,11 @@ results_format = {
     "difference": {},
     "deviation": {}
 }
+
+config_format = {
+    "objects": {},
+    "total_ops": {},
+    "total_errors": {}
+}
+
+perf_metrics = ["Throughput", "Latency", "IOPS", "TTFB"]

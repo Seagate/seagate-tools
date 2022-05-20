@@ -16,14 +16,10 @@
 
 import pandas as pd
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpl_patches
 from pandas.io import sql
 import sqlite3
-import gc
-import sys
-import argparse
 import re
 
 class Connection():
@@ -329,7 +325,7 @@ class Plot():
         self.hist = hist
         self.ax = ax
 
-    def name():
+    def name(self):
         return self.hist.name
 
 class Figure():

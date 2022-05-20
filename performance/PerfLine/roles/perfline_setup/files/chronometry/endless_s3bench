@@ -23,10 +23,10 @@
 set -e
 #set -x
 
-SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 
-. ${SCRIPT_DIR}/common/remote_execution
+. "${SCRIPT_DIR}"/common/remote_execution
 
 SRV_CLI_MAP=$1
 WORKLOAD=$2
@@ -44,7 +44,7 @@ function main()
         sleep 20
         echo -e "============== start iteration $iter ($(date)) ================\n"
         set +e
-        $EX_SRV $SCRIPT_DIR/s3server_integration/s3cli_s3bench \"$SRV_CLI_MAP\" \"$WORKLOAD\"
+        $EX_SRV "$SCRIPT_DIR"/s3server_integration/s3cli_s3bench "$SRV_CLI_MAP" "$WORKLOAD"
         set -e
         echo -e "============== end iteration $iter ($(date)) ================\n\n"
         iter=$((iter+1))

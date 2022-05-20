@@ -10,17 +10,15 @@ object_size=""
 no_of_workers=""
 workload_type=""
 run_time_in_seconds="600"
-CURRENTPATH=`pwd`
+CURRENTPATH=$(pwd)
 BENCHMARKLOG=$CURRENTPATH/benchmark.log
-HOSTNAME=`hostname`
-TIMESTAMP=`date +'%Y-%m-%d_%H:%M:%S'`
+HOSTNAME=$(hostname)
 size=
-MAIN="/root/PerfProBenchmark/main.yml"
 CONFIG="/root/PerfProBenchmark/config.yml"
 #ITERATION=$(yq -r .ITERATION $CONFIG)
 
-BUILD=`python3 /root/PerfProBenchmark/read_build.py $CONFIG 2>&1`
-ENDPOINTS=`python3 /root/PerfProBenchmark/get_param.py $CONFIG`
+BUILD=$(python3 /root/PerfProBenchmark/read_build.py $CONFIG 2>&1)
+ENDPOINTS=$(python3 /root/PerfProBenchmark/get_param.py $CONFIG)
 RESULT_DIR=/root/PerfProBenchmark/perfpro_build$BUILD/results
 
 validate_args() {
@@ -56,7 +54,7 @@ config_s3workloads() {
                     TOOL_DIR=$BENCHMARKLOG/$TOOL_NAME/numclients_$clients/buckets_$bucket/$io_size
                     mkdir -p "$TOOL_DIR"
                     workload_file=$TOOL_DIR/workloads_workers_$clients\_sample_$sample\_size_$io_size
-                    size=$(echo "$io_size" | sed 's/[a-zA-Z]//g' )
+                    size="$(echo "${io_size//[a-zA-Z]/}")"
                     obj_type=$(echo "$io_size" | sed 's/[0-9]*//g' | sed 's/b/B/g' )
                     echo "no_of_workers=$clients" > "$workload_file"
                     echo "no_of_objects=$sample" >> "$workload_file"
@@ -67,12 +65,12 @@ config_s3workloads() {
                     echo "run_time_in_seconds=$run_time_in_seconds" >> "$workload_file"                   
                     sh configure.sh "$ENDPOINTS"
                     sh run-test.sh --s3setup s3setup.properties --controller "$HOSTNAME" --workload "$workload_file" >> "$TOOL_DIR"/workloads 
-                    check_completion `tail -n 3 "$TOOL_DIR"/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' '`
+                    check_completion $(tail -n 3 "$TOOL_DIR"/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' ')
                     echo "Cosbench Triggered for worker: $clients sample: $sample obj_size:$io_size bucket:$bucket"
                     sleep 20
-                    for i in `cat "$TOOL_DIR"/workloads | grep Accepted | cut -d ":" -f2 | tr -d ' '`; 
+                    for i in "$(grep Accepted  "$TOOL_DIR"/workloads | cut -d ":" -f2 | tr -d ' ')"; 
                     do 
-                      cp -r ~/cos/archive/$i* "$TOOL_DIR"/;
+                      cp -r ~/cos/archive/"$i"* "$TOOL_DIR"/;
                     done
                     
                     
@@ -128,10 +126,10 @@ done
 validate_args
 # It will configure Cosbenchmark it's not available
 #
-./installCosbench.sh `hostname`
+./installCosbench.sh $(hostname)
 #
 if [ ! -d "$BENCHMARKLOG" ]; then
-    mkdir "$BENCHMARKLOG'
+    mkdir "$BENCHMARKLOG"
     config_s3workloads
     cp -r "$BENCHMARKLOG"/"$TOOL_NAME" "$RESULT_DIR"/   
 else

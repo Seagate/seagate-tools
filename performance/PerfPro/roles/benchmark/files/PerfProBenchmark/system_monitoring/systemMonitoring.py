@@ -11,13 +11,11 @@ pip3 install pymongo==3.11.0
 
 import subprocess
 import sys
-import pymongo
 from pymongo import MongoClient
 import yaml
 import time
 import socket
 import os
-import json
 from datetime import datetime
 import urllib.request
 import re
@@ -52,7 +50,7 @@ def addbackup(dataentry):
 """
 def makeconfig(name):  #function for connecting with configuration file
         with open(name) as config_file:
-                configs = yaml.load(config_file, Loader=yaml.FullLoader)
+                configs = yaml.safe_load(config_file)
         return configs
 
 configs_config = makeconfig(Config_path)  # getting instance  of config file
@@ -64,7 +62,12 @@ custom=configs_config.get('CUSTOM')
 solution=configs_config.get('SOLUTION')
 
 def get_release_info(variable):
-    release_info= urllib.request.urlopen(build_url+'RELEASE.INFO')
+
+    if build_url.lower().startswith('http'):
+        release_info = urllib.request.urlopen(build_url+'RELEASE.INFO')
+    else:
+        raise Exception("bad build_url")
+
     for line in release_info:
         if variable in line.decode("utf-8"):
             strinfo=line.decode("utf-8").strip()
@@ -125,10 +128,10 @@ def getconfig():
     nodes=[]
     clients=[]
 
-    for i in range(len(nodes_list)):
+    for i, _ in enumerate(nodes_list):
         nodes.append(nodes_list[i][i+1])
 
-    for i in range(len(clients_list)):
+    for i, _ in enumerate(clients_list):
         clients.append(clients_list[i][i+1])
 
     dic1={
@@ -161,13 +164,13 @@ def getconfig():
 
 ##Function to find latest iteration
 def get_latest_iteration(query):
-    max = 0
+    max_iter = 0
     col=makeconnection('db_collection')
     cursor = col.find(query)
     for record in cursor:
-        if max < record['Iteration']:
-            max = record['Iteration']
-    return max
+        if max_iter < record['Iteration']:
+            max_iter = record['Iteration']
+    return max_iter
 
 
 
@@ -180,7 +183,7 @@ def adddata(data,device,col):
     Config_ID = "NA"
     result = conf.find_one(dict1)
     if result:
-        Config_ID = result['_id'] # foreign key : it will map entry in configurations to systemresults entry 
+        Config_ID = result['_id'] # foreign key : it will map entry in configurations to systemresults entry
     attr = " ".join( data[2].decode("utf-8").split()).split(" ") #fetching attributes from output lines and storing in a list
     length=len(attr)
     for d in data[3:]:
@@ -250,7 +253,7 @@ def addReport(): #function for getting system report accoordiing to 'cmd' argume
 
     for c in cmd:
         c[1].kill()
-        out,err = c[1].communicate()
+        out,_ = c[1].communicate()
         outs = out.splitlines()
         print("\n"+c[2]+"\n")
         adddata(outs,c[2],col)

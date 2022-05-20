@@ -19,7 +19,6 @@
 #
 # -*- coding: utf-8 -*-
 
-import os
 from flask import make_response, request, render_template
 
 from app_global_data import *

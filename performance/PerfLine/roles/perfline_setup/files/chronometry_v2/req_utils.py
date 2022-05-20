@@ -103,7 +103,7 @@ def draw_queue_line(queue, offset):
                      [offset+y/mx for y in _min],
                      [offset+y/mx for y in _max], color='green', alpha=0.2)
 
-    for x,y,nr,i,a,d in zip(xdata, ydata, qnr, _min, _max, dev ):
+    for x,y,_,_,a,_ in zip(xdata, ydata, qnr, _min, _max, dev ):
         plt.text(x,offset+y/mx, f"{round(y,2)} |{round(a,2)}|")
 
 def draw_timelines(time_table, queue_table, client_start_time, queue_start_time,
@@ -258,7 +258,7 @@ def graph_add_relations(graph: Digraph, relations, schema):
     '''
 
     stash=[]
-    for rel,fr,to,map,flags in schema:
+    for rel,fr,to,_map,flags in schema:
         layer_ids=set([(r[rel], r['cli_pid'], r['srv_pid']) for r in relations if r[rel] is not None])
         for lid_rec in layer_ids:
             lid = lid_rec[0]
@@ -273,7 +273,7 @@ def graph_add_relations(graph: Digraph, relations, schema):
                     graph.edge(f"{lid}", f"{tid}")
                 continue
 
-            cursor = DB.execute_sql(f"SELECT {to} FROM {map} WHERE {fr}={lid} and pid={pid}")
+            cursor = DB.execute_sql(f"SELECT {to} FROM {_map} WHERE {fr}={lid} and pid={pid}")
             for (tid,) in cursor:
                 graph.edge(f"{lid}", f"{tid}")
                 if "s" in flags:

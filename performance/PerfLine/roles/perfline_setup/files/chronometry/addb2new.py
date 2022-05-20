@@ -59,7 +59,12 @@ import logging
 import yaml
 import numpy
 import time
-from peewee import *
+from sqlite3 import OperationalError
+from peewee import TextField
+from peewee import IntegerField
+from peewee import SqliteDatabase
+from peewee import Model
+from peewee import chunked
 from typing import List
 import multiprocessing
 from itertools import zip_longest

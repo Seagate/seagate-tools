@@ -22,4 +22,7 @@ perfline_ui_port=8005
 
 
 # Disk input would be required for LC setup
-disk=
+disk=""
+
+cortx_re_repo="/root/cortx-re"
+cortx_build_image="ghcr.io/seagate/cortx-build:rockylinux-8.4"

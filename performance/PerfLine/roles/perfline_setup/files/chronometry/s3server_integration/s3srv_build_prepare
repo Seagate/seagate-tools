@@ -22,7 +22,7 @@
 set -x
 set -e
 
-SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 
 if [[ -z "$MOTR_SRC_DIR" ]]; then
@@ -41,7 +41,7 @@ function create_symlinks() {
     for file_path in $@
     do
         echo "creating symlink for $file_path"
-        local filename=`basename ${file_path}`
+        local filename=$(basename "${file_path}")
         ln -s "${file_path}" "${SYMLINK_DIR}/${filename}"
     done
 }
@@ -58,19 +58,19 @@ function delete_symlinks() {
     for file_path in $@
     do
         echo "UNLINK PATH: ${file_path}"
-	    echo "File name: $(basename -- $file_path)"
-        find ${SYMLINK_DIR} -lname ${file_path} -exec unlink {} \;
+	    echo "File name: $(basename -- "$file_path")"
+        find ${SYMLINK_DIR} -lname "${file_path}" -exec unlink {} \;
     done
 }
 
 function delete_include_symlink() {
     local link_path=""
     for p in "${MOTR_SRC_DIR}" "${GALOIS_INCLUDE_DIR}"; do
-        link_path=`find ${INCLUDE_DIR} -lname ${p}`
+        link_path=$(find ${INCLUDE_DIR} -lname "${p}")
         echo "DEBUG: delete link_path $p"
         if [[ -n "$link_path" ]]; then
             echo "delete symlink: ${link_path}"
-            unlink ${link_path}
+            unlink "${link_path}"
         else
             echo "not found symlink to motr include"
         fi
@@ -81,11 +81,11 @@ if [[ "$1" == "del_symlinks" ]]; then
     echo "delete_include_symlink"
     delete_include_symlink
     echo "delete_symlinks ${MOTR_LIBS}"
-    delete_symlinks ${MOTR_LIBS}
+    delete_symlinks "${MOTR_LIBS}"
     echo "delete_symlinks ${MOTR_HELPERS_LIBS}"
-    delete_symlinks ${MOTR_HELPERS_LIBS}
+    delete_symlinks "${MOTR_HELPERS_LIBS}"
 elif [[ "$1" == "create_symlinks" ]]; then
     create_include_symlink
-    create_symlinks ${MOTR_LIBS}
-    create_symlinks ${MOTR_HELPERS_LIBS}
+    create_symlinks "${MOTR_LIBS}"
+    create_symlinks "${MOTR_HELPERS_LIBS}"
 fi

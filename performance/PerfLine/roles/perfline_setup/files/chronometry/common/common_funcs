@@ -33,20 +33,20 @@ _log() {
         info) printf "${green}INFO: "  >&2 ;;
         *)    printf "${green}INFO: "  >&2 ;;
     esac
-    echo $@ >&2
+    echo "$@" >&2
     printf "${nc}" >&2
 }
 
 _warn() {
-    _log warn $@
+    _log warn "$@"
 }
 
 _err() {
-    _log err $@
+    _log err "$@"
 }
 
 _info() {
-    _log info $@
+    _log info "$@"
 }
 
 _check_root() {

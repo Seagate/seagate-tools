@@ -30,15 +30,15 @@ stop_and_exit()
     local rc=$2
 
     # Stop Huey gracefully
-    kill -2 $pid
-    wait $pid
+    kill -2 "$pid"
+    wait "$pid"
 
-    if [ $rc -eq 0 ]; then
+    if [ "$rc" -eq 0 ]; then
         echo "test status: SUCCESS"
     else
         echo "test status: FAILURE $rc" >&2
     fi
-    exit $rc
+    exit "$rc"
 }
 
 SCRIPT=task_queue.py
@@ -64,22 +64,22 @@ all_enqueued=$(python3 $SCRIPT -l | wc -l)
 [[ all_enqueued -eq 10 ]] || stop_and_exit $pidHuey 1
 
 # Cancel pending tasks
-canceled1=$(python3 $SCRIPT -d ${tasks[1]%% *})
-[[ -n "$(echo $canceled1 | grep 'REVOKED')" ]] || stop_and_exit $pidHuey 1
+canceled1=$(python3 $SCRIPT -d "${tasks[1]%% *}")
+[[ -n "$(echo "$canceled1" | grep 'REVOKED')" ]] || stop_and_exit $pidHuey 1
 
-canceled2=$(python3 $SCRIPT -d ${tasks[8]%% *})
-[[ -n "$(echo $canceled2 | grep 'REVOKED')" ]] || stop_and_exit $pidHuey 1
+canceled2=$(python3 $SCRIPT -d "${tasks[8]%% *}")
+[[ -n "$(echo "$canceled2" | grep 'REVOKED')" ]] || stop_and_exit $pidHuey 1
 
-canceled3=$(python3 $SCRIPT -d ${tasks[3]%% *})
-[[ -n "$(echo $canceled3 | grep 'REVOKED')" ]] || stop_and_exit $pidHuey 1
+canceled3=$(python3 $SCRIPT -d "${tasks[3]%% *}")
+[[ -n "$(echo "$canceled3" | grep 'REVOKED')" ]] || stop_and_exit $pidHuey 1
 
 # Add one more
 another_task="$(python3 $SCRIPT -a < $CONF_YAML)"
 
 # Abort running task
 running=$(python3 $SCRIPT -l | grep "RUNNING")
-aborted=$(python3 $SCRIPT -d ${running%% *})
-[[ -n "$(echo $aborted | grep 'ABORTED')" ]] || stop_and_exit $pidHuey 1
+aborted=$(python3 $SCRIPT -d "${running%% *}")
+[[ -n "$(echo "$aborted" | grep 'ABORTED')" ]] || stop_and_exit $pidHuey 1
 
 sec=0
 while [[ $(python3 $SCRIPT -r | wc -l) -ne 11 ]]; do

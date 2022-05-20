@@ -69,6 +69,6 @@ function check_required_params() {
     fi
 }
 
-parse_parameters $@
+parse_parameters "$@"
 check_required_params
-patch_file $MOTR_ROLE_MAPPINGS_FILE
+patch_file "$MOTR_ROLE_MAPPINGS_FILE"

@@ -28,8 +28,8 @@ function commit_cmp() {
     local short_len=7
 
     if [[ "${#commit_a}" != "${#commit_b}" ]]; then
-        commit_a=`echo $commit_a | cut -c1-${short_len}`
-        commit_b=`echo $commit_b | cut -c1-${short_len}`
+        commit_a=$(echo "$commit_a" | cut -c1-${short_len})
+        commit_b=$(echo "$commit_b" | cut -c1-${short_len})
     fi
 
     if [[ "$commit_a" == "$commit_b" ]]; then
@@ -61,7 +61,7 @@ function check_motr_version() {
     echo "git_commit: [$git_commit]"
     echo "configure_opts: [$configure_opts]"
 
-    if ! commit_cmp $git_commit $required_git_commit; then
+    if ! commit_cmp "$git_commit" "$required_git_commit"; then
         echo "current git commit isn't equal to required one"
         return 1
     fi
@@ -103,7 +103,7 @@ function check_s3server_version() {
         return 1
     fi
 
-    if ! commit_cmp $saved_git_commit $required_git_commit; then
+    if ! commit_cmp "$saved_git_commit" "$required_git_commit"; then
         echo "current git commit isn't equal to required one"
         return 1
     fi

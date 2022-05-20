@@ -1,17 +1,15 @@
 
 #!/usr/bin/env python3
 """
-python3 s3bench_DBupdate.py <log file path> <main.yaml path> <config.yaml path> 
+python3 s3bench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
 Attributes: _id,Log_File,Name,Operation,IOPS,Throughput,Latency,TTFB,Object_Size,HOST
 """
 
-import pymongo
 from pymongo import MongoClient
 import re
 import socket
 import sys
 import os
-from os import listdir
 import yaml
 from datetime import datetime
 import urllib.request
@@ -20,7 +18,7 @@ Config_path = sys.argv[3]
 
 def makeconfig(name):  #function for connecting with configuration file
     with open(name) as config_file:
-        configs = yaml.load(config_file, Loader=yaml.FullLoader)
+        configs = yaml.safe_load(config_file)
     return configs
 
 configs_main = makeconfig(Main_path)
@@ -39,11 +37,16 @@ clients_num=len(clients_list)
 
 def makeconnection():  #function for making connection with database
     client = MongoClient(configs_main['db_url'])  #connecting with mongodb database
-    db=client[configs_main['db_database']]  #database name=performance 
+    db=client[configs_main['db_database']]  #database name=performance
     return db
 
 def get_release_info(variable):
-    release_info= urllib.request.urlopen(build_url+'RELEASE.INFO')
+
+    if build_url.lower().startswith('http'):
+        release_info = urllib.request.urlopen(build_url+'RELEASE.INFO')
+    else:
+        raise Exception("bad build_url")
+
     for line in release_info:
         if variable in line.decode("utf-8"):
             strinfo=line.decode("utf-8").strip()
@@ -54,12 +57,12 @@ iteration_number = 0
 
 ##Function to find latest iteration
 def get_latest_iteration(query, db, collection):
-    max = 0
+    max_iter = 0
     cursor = db[collection].find(query)
     for record in cursor:
-        if max < record['Iteration']:
-            max = record['Iteration']
-    return max
+        if max_iter < record['Iteration']:
+            max_iter = record['Iteration']
+    return max_iter
 
 ##Function to resolve iteration/overwrite etc in multi-client run
 def check_first_client(query, db, collection, itr):
@@ -135,7 +138,7 @@ class s3bench:
                 "Run_State":self.Run_State
                 }
 
-    def insert_update(self,Iteration):# function for inserting and updating mongodb database 
+    def insert_update(self,Iteration):# function for inserting and updating mongodb database
         db = makeconnection()
         db_data={}
         db_data.update(self.Primary_Set)
@@ -162,7 +165,7 @@ def insertOperations(files,Build,Version,col,Config_ID,Branch,OS,db): #function 
     first_client = True
     delete_data = True
     Run_Health = "Successful"
-    for file in files:    
+    for file in files:
         _, filename = os.path.split(file)
         global nodes_num, clients_num , pc_full, iteration , overwrite, custom
         oplist = ["Write" , "Read" , "GetObjTag", "HeadObj" , "PutObjTag" , "CopyObject"]
@@ -208,7 +211,7 @@ def insertOperations(files,Build,Version,col,Config_ID,Branch,OS,db): #function 
                         lat={"Max":float(lines[count-4].split(":")[1][:-2]),"Avg":float(lines[count-5].split(":")[1][:-2]),"Min":float(lines[count-3].split(":")[1][:-2])}
                         ttfb={"Max":float(lines[count+12].split(":")[1][:-2]),"Avg":float(lines[count+11].split(":")[1][:-2]),"Min":float(lines[count+13].split(":")[1][:-2])}
                         data = s3bench(filename,opname,iops,throughput,lat,ttfb,obj,Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID,overwrite,sessions,Objects,pc_full,custom,additional_operation,Run_Health)
-                    
+ 
                         if find_iteration:
                             iteration_number = get_latest_iteration(data.Primary_Set, db, col)
                             find_iteration = False
@@ -256,7 +259,7 @@ def update_mega_chain(build,version, col):
                 {'Title' : 'Main Chain'},
                 {
                     '$set':{
-                    'release':release_chain, 
+                    'release':release_chain,
                     }
             })
             print("...Mega entry has updated with release build ", build)
@@ -269,7 +272,7 @@ def update_mega_chain(build,version, col):
                 {'Title' : 'Main Chain'},
                 {
                     '$set':{
-                    'beta':beta_chain, 
+                    'beta':beta_chain,
                     }
             })
             print("...Mega entry has updated with beta build ", build)
@@ -304,10 +307,10 @@ def getconfig():
     nodes=[]
     clients=[]
 
-    for i in range(len(nodes_list)):
+    for i, _ in enumerate(nodes_list):
         nodes.append(nodes_list[i][i+1])
 
-    for i in range(len(clients_list)):
+    for i, _ in enumerate(clients_list):
         clients.append(clients_list[i][i+1])
 
     dic={
@@ -377,6 +380,6 @@ def main(argv):
     insertOperations(files,Build,Version,col['db_collection'],Config_ID,Branch,OS,db)
 
 if __name__=="__main__":
-    main(sys.argv) 
+    main(sys.argv)
 
 #!/usr/bin/env python3

@@ -22,36 +22,65 @@
 set -e
 set -x
 
-SCRIPT_NAME=`echo $0 | awk -F "/" '{print $NF}'`
-SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_NAME=$(echo "$0" | awk -F "/" '{print $NF}')
+SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
+
+EX_PDSH="pdsh -R ssh -S -w"
+
+FILES_TO_REPLACE=()
 
 
 function create_tmp_container()
 {
-    ssh $PRIMARY_NODE "docker run --rm -d --name $TMP_CONTAINER_NAME $BASE_IMAGE sleep infinity" || return 1
+    ssh "$PRIMARY_NODE" "docker run --rm -d --name $TMP_CONTAINER_NAME $BASE_IMAGE sleep infinity" || return 1
 }
 
 function update_files()
 {
     local tmp_dir="/tmp/perfline_tmp_files"
 
-    ssh $PRIMARY_NODE "if [[ -d \"$tmp_dir\" ]]; then rm -rf \"$tmp_dir\"; fi"
-    ssh $PRIMARY_NODE "mkdir $tmp_dir"
+    ssh "$PRIMARY_NODE" "if [[ -d \"$tmp_dir\" ]]; then rm -rf \"$tmp_dir\"; fi"
+    ssh "$PRIMARY_NODE" "mkdir $tmp_dir"
+
+    replace_files || return 1
 
     if [[ -n "$MOTR_PARAMS" ]]; then
         update_motr_config $tmp_dir || return 1
     fi
 
-    ssh $PRIMARY_NODE "rm -rf \"$tmp_dir\""
+    ssh "$PRIMARY_NODE" "rm -rf \"$tmp_dir\""
+}
+
+function replace_files()
+{
+    for ((i = 0; i < $((${#FILES_TO_REPLACE[*]})); i++)); do
+        local src_dst=${FILES_TO_REPLACE[((i))]}
+
+        local src=$(echo "$src_dst" | awk '{print $1}')
+        local dst=$(echo "$src_dst" | awk '{print $2}')
+
+        if [[ ! -f "$src" ]]; then
+            echo "src file does not exist: $src"
+            return 1
+        fi
+
+        docker exec "$TMP_CONTAINER_NAME" sh -c "[ -f \"$dst\" ]" || {
+            echo "dst file does not exist: $dst"
+            return 1
+        }
+
+        ssh "$PRIMARY_NODE" "docker cp $src $TMP_CONTAINER_NAME:$dst"
+
+    done
 }
 
 function update_motr_config()
 {
     local tmp_dir="$1"
 
-    ssh $PRIMARY_NODE "docker cp $TMP_CONTAINER_NAME:/etc/sysconfig/motr $tmp_dir/motr" || return 1
-    ssh $PRIMARY_NODE "docker cp $TMP_CONTAINER_NAME:/opt/seagate/cortx/motr/conf/motr.conf $tmp_dir/motr.conf" || return 1
+    ssh "$PRIMARY_NODE" "docker cp $TMP_CONTAINER_NAME:/etc/sysconfig/motr $tmp_dir/motr" || return 1
+    ssh "$PRIMARY_NODE" "docker cp $TMP_CONTAINER_NAME:/opt/seagate/cortx/motr/conf/motr.conf $tmp_dir/motr.conf" || return 1
 
     local params=""
 
@@ -59,47 +88,55 @@ function update_motr_config()
         params="$params --param $motr_param"
 
         # remove param from motr.conf file
-        local param_name=$(echo $motr_param | awk -F '=' '{print $1}')
-        ssh $PRIMARY_NODE "sed -i '/$param_name/d' $tmp_dir/motr.conf"
+        local param_name=$(echo "$motr_param" | awk -F '=' '{print $1}')
+        ssh "$PRIMARY_NODE" "sed -i '/$param_name/d' $tmp_dir/motr.conf"
     done
 
     # update /etc/sysconfig/motr values
-    ssh $PRIMARY_NODE "$SCRIPT_DIR/../conf_customization/customize_motr_conf.py \
-      -s $tmp_dir/motr -d $tmp_dir/motr $params" || return 1
+    ssh "$PRIMARY_NODE" "$SCRIPT_DIR/../conf_customization/customize_motr_conf.py \
+      -s \$tmp_dir/motr -d $tmp_dir/motr $params" || return 1
 
-    ssh $PRIMARY_NODE "docker cp $tmp_dir/motr $TMP_CONTAINER_NAME:/etc/sysconfig/motr"
-    ssh $PRIMARY_NODE "docker cp $tmp_dir/motr.conf $TMP_CONTAINER_NAME:/opt/seagate/cortx/motr/conf/motr.conf"
+    ssh "$PRIMARY_NODE" "docker cp $tmp_dir/motr $TMP_CONTAINER_NAME:/etc/sysconfig/motr"
+    ssh "$PRIMARY_NODE" "docker cp $tmp_dir/motr.conf $TMP_CONTAINER_NAME:/opt/seagate/cortx/motr/conf/motr.conf"
 }
 
 function commit_image()
 {
-    local cont_id=$(ssh $PRIMARY_NODE docker ps | grep $TMP_CONTAINER_NAME | awk '{print $1}')
-    ssh $PRIMARY_NODE "docker commit $cont_id $NEW_IMAGE" || return 1
+    local cont_id=$(ssh "$PRIMARY_NODE" docker ps | grep $TMP_CONTAINER_NAME | awk '{print $1}')
+    ssh "$PRIMARY_NODE" "docker commit $cont_id $NEW_IMAGE" || return 1
 }
 
 function stop_tmp_container()
 {
-    ssh $PRIMARY_NODE "docker stop $TMP_CONTAINER_NAME" || return 1
+    ssh "$PRIMARY_NODE" "docker stop $TMP_CONTAINER_NAME" || return 1
 }
 
 function save_image()
 {
-    ssh $PRIMARY_NODE "docker save --output $NEW_IMAGE_TAR $NEW_IMAGE" || return 1
+    ssh "$PRIMARY_NODE" "docker save --output $NEW_IMAGE_TAR $NEW_IMAGE" || return 1
 }
 
 function copy_to_nodes()
 {
-    pdsh -S -w $OTHER_NODES "scp $PRIMARY_NODE:$NEW_IMAGE_TAR $NEW_IMAGE_TAR" || return 1
+    if [[ -z "$OTHER_NODES" ]]; then
+        return
+    fi
+
+    $EX_PDSH "$OTHER_NODES" "scp $PRIMARY_NODE:$NEW_IMAGE_TAR $NEW_IMAGE_TAR" || return 1
 }
 
 function load_image_on_nodes()
 {
-    pdsh -S -w $OTHER_NODES "docker load --input $NEW_IMAGE_TAR" || return 1
+    if [[ -z "$OTHER_NODES" ]]; then
+        return
+    fi
+
+    $EX_PDSH "$OTHER_NODES" "docker load --input $NEW_IMAGE_TAR" || return 1
 }
 
 function remove_image_tar()
 {
-    pdsh -S -w $NODES "rm -f $NEW_IMAGE_TAR" || return 1
+    $EX_PDSH "$NODES" "rm -f $NEW_IMAGE_TAR" || return 1
 }
 
 function parse_params()
@@ -126,6 +163,11 @@ function parse_params()
                 MOTR_PARAMS="$MOTR_PARAMS $2"
                 shift
                 ;;
+            --file)
+                FILES_TO_REPLACE+=("$2 $3")
+                shift
+                shift
+                ;;
             *)
                 echo "unsupported parameter $1"
                 exit 1
@@ -146,11 +188,11 @@ function check_params()
 
 function main()
 {
-    parse_params $@
+    parse_params "$@"
     check_params
-    local primary_other=$(echo $NODES | sed 's/,/ /')
-    local PRIMARY_NODE=$(echo $primary_other | awk '{print $1}')
-    local OTHER_NODES=$(echo $primary_other | awk '{print $2}')
+    local primary_other=$(echo "$NODES" | sed 's/,/ /')
+    local PRIMARY_NODE=$(echo "$primary_other" | awk '{print $1}')
+    local OTHER_NODES=$(echo "$primary_other" | awk '{print $2}')
 
     NEW_IMAGE_TAR="/root/cortx-all_perfline_tmp.tar"
 
@@ -170,9 +212,9 @@ function main()
 
 function cleanup()
 {
-    ssh $PRIMARY_NODE "docker ps | grep $TMP_CONTAINER_NAME" && stop_tmp_container
+    ssh "$PRIMARY_NODE" "docker ps | grep $TMP_CONTAINER_NAME" && stop_tmp_container
     remove_image_tar
 }
 
-main $@
+main "$@"
 exit $?

@@ -4,6 +4,7 @@
 ```shell
 npm install
 ```
+Update .env.development and .env.production files with "VUE_APP_REST_URI" as a host URL of REST Server.
 
 ### Compiles and hot-reloads for development
 ```shell

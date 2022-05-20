@@ -22,7 +22,7 @@
 import argparse
 import sys
 import yaml
-
+import ast
 
 def parse_args():
     parser = argparse.ArgumentParser(prog=sys.argv[0],
@@ -78,7 +78,7 @@ def write_dst_config(cdf_data, dst_config_path):
 
 
 def override_param(conf_data, section_name, param_name, param_val_str):
-    param_val = eval(param_val_str)
+    param_val = ast.literal_eval(param_val_str)
     print(f'overriding {section_name}:{param_name} to {param_val_str}')
     conf_data[section_name][param_name] = param_val
 

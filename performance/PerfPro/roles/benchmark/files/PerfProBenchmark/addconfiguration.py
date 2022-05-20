@@ -8,7 +8,6 @@ pip3 install PyYAML==5.3.1
 pip3 install pymongo==3.11.0
 """
 
-import pymongo
 from pymongo import MongoClient
 import yaml
 import sys
@@ -21,7 +20,7 @@ Config_path = sys.argv[2]
 
 def makeconfig(name):  #function for connecting with configuration file
 	with open(name) as config_file:
-		configs = yaml.load(config_file, Loader=yaml.FullLoader)
+		configs = yaml.safe_load(config_file)
 	return configs
 
 
@@ -32,7 +31,12 @@ build_url=configs_config.get('BUILD_URL')
 solution=configs_config.get('SOLUTION')
 
 def get_release_info(variable):
-    release_info= urllib.request.urlopen(build_url+'RELEASE.INFO')
+
+    if build_url.lower().startswith('http'):
+        release_info = urllib.request.urlopen(build_url+'RELEASE.INFO')
+    else:
+        raise Exception("bad build_url")
+
     for line in release_info:
         if variable in line.decode("utf-8"):
             strinfo=line.decode("utf-8").strip()
@@ -88,35 +92,35 @@ def storeconfigurations():
     nodes=[]
     clients=[]
 
-    for i in range(len(nodes_list)):
+    for i, _ in enumerate(nodes_list):
         nodes.append(nodes_list[i][i+1])
 
-    for i in range(len(clients_list)):
+    for i, _ in enumerate(clients_list):
         clients.append(clients_list[i][i+1])
 
     dic={
-        'NODES' :str(nodes) , 
-        'CLIENTS' : str(clients) ,
-        'BUILD_INFO': build_info ,
-        'BUILD_URL': build_url ,
-        'BUILD': build ,
-        'VERSION': version ,
-        'BRANCH': branch ,
-        'OS': os ,
+        'NODES' :str(nodes),
+        'CLIENTS' : str(clients),
+        'BUILD_INFO': build_info,
+        'BUILD_URL': build_url,
+        'BUILD': build,
+        'VERSION': version,
+        'BRANCH': branch,
+        'OS': os,
         'EXECUTION_TYPE': execution_type,
-        'CLUSTER_PASS': cluster_pass ,
-        'SOLUTION' : solution ,
-        'END_POINTS' : end_points ,
-        'SYSTEM_STATS' : system_stats ,
-        'PC_FULL' : pc_full ,
-        'CUSTOM' : custom ,
-        'OVERWRITE' : overwrite ,
-        'DEGRADED_IO' : degraded_IO ,
-        'COPY_OBJECT' : copy_object ,
-        'NFS_SERVER': nfs_serv ,
-        'NFS_EXPORT' : nfs_exp ,
-        'NFS_MOUNT_POINT' : nfs_mp , 
-        'NFS_FOLDER' : nfs_fol 
+        'CLUSTER_PASS': cluster_pass,
+        'SOLUTION' : solution,
+        'END_POINTS' : end_points,
+        'SYSTEM_STATS' : system_stats,
+        'PC_FULL' : pc_full,
+        'CUSTOM' : custom,
+        'OVERWRITE' : overwrite,
+        'DEGRADED_IO' : degraded_IO,
+        'COPY_OBJECT' : copy_object,
+        'NFS_SERVER': nfs_serv,
+        'NFS_EXPORT' : nfs_exp,
+        'NFS_MOUNT_POINT' : nfs_mp,
+        'NFS_FOLDER' : nfs_fol
         }
     col = makeconnection('config_collection')
     try:
@@ -135,4 +139,4 @@ def storeconfigurations():
 def main(argv):
     storeconfigurations()
 if __name__=="__main__":
-    main(sys.argv) 
+    main(sys.argv)

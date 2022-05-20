@@ -3,7 +3,7 @@
     archive:
       path: "{{ role_path }}/files/webui"
       dest: "{{ role_path }}/files/webui.tar.gz"
-   
+
 
   - name: Copy perfline webui scripts
     unarchive:
@@ -15,14 +15,14 @@
     archive:
       path: "{{ role_path }}/files/chronometry"
       dest: "{{ role_path }}/files/chronometry.tar.gz"
-   
+
   - name: Copy perfline chronometry scripts
     unarchive:
       src: "{{ role_path }}/files/chronometry.tar.gz"
       dest: "{{ PERFLINE_DIR }}"
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
- 
+
   - name: Compress directory files/chronometry_v2 into files/chronometry_v2.tar.gz
     archive:
       path: "{{ role_path }}/files/chronometry_v2"
@@ -35,7 +35,7 @@
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
-  
+
   - name: Copy perfline.conf file
     copy:
       src: files/perfline.conf
@@ -44,7 +44,7 @@
     with_items: "{{ groups['all'] }}"
 
   - name: Open port for webui
-    firewalld: 
+    firewalld:
       permanent: yes
       immediate: yes
       port: "{{ item.port }}/{{ item.proto }}"
@@ -54,7 +54,7 @@
     with_items:
        - { port: "{{ perfline_ui_port }}", proto: "tcp", state: "enabled", zone: "management-zone" }
     ignore_errors: yes
-    
+
 
   # - name: Copying local.repo in "/etc/yum.repo.d/" location
   #   copy:
@@ -129,15 +129,15 @@
       block: |
                 [Unit]
                 Description=web ui for perfline
-                
+
                 [Service]
                 Type=simple
                 WorkingDirectory={{ PERFLINE_DIR }}/webui
                 ExecStart=/usr/bin/python3.6 {{ PERFLINE_DIR }}/webui/server.py
-                
+
                 [Install]
                 WantedBy=multi-user.target
-    delegate_to: "client-1" 
+    delegate_to: "client-1"
 
   - name: "Coping a block of statement in perfline.service file"
     blockinfile:
@@ -146,13 +146,13 @@
       block: |
                 [Unit]
                 Description=Perfline service
-                
+
                 [Service]
                 Type=simple
                 Restart=always
                 WorkingDirectory={{ PERFLINE_DIR }}/wrapper
                 ExecStart=/usr/bin/bash {{ PERFLINE_DIR }}/wrapper/run_pl
-                
+
                 [Install]
                 WantedBy=multi-user.target
     delegate_to: "client-1"
@@ -184,11 +184,11 @@
                 [Unit]
                 Description=Triggered perfline_daemon based on calendar value
                 Requires={{ PERFLINE_DAEMON_SERVICE_NAME }}.service
-                
+
                 [Timer]
                 Unit={{ PERFLINE_DAEMON_SERVICE_NAME }}.service
                 OnCalendar=Fri *-*-* 00:00:00
-                
+
                 [Install]
                 WantedBy=timers.target
     delegate_to: "client-1"

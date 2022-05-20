@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 """
-python3 s3bench_DBupdate.py <log file path> <main.yaml path> <config.yaml path> 
+python3 s3bench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
 Attributes: _id,Log_File,Name,Operation,IOPS,Throughput,Latency,TTFB,Object_Size,HOST
 """
 
-import pymongo
 from pymongo import MongoClient
 import re
 import socket
 import sys
 import os
-from os import listdir
 import yaml
 from datetime import datetime
 import urllib.request
@@ -19,7 +17,7 @@ Config_path = sys.argv[3]
 
 def makeconfig(name):  #function for connecting with configuration file
     with open(name) as config_file:
-        configs = yaml.load(config_file, Loader=yaml.FullLoader)
+        configs = yaml.safe_load(config_file)
     return configs
 
 configs_main = makeconfig(Main_path)
@@ -37,11 +35,16 @@ clients_num=len(clients_list)
 
 def makeconnection():  #function for making connection with database
     client = MongoClient(configs_main['db_url'])  #connecting with mongodb database
-    db=client[configs_main['db_database']]  #database name=performance 
+    db=client[configs_main['db_database']]  #database name=performance
     return db
 
 def get_release_info(variable):
-    release_info= urllib.request.urlopen(build_url+'RELEASE.INFO')
+
+    if build_url.lower().startswith('http'):
+        release_info = urllib.request.urlopen(build_url+'RELEASE.INFO')
+    else:
+        raise Exception("bad build_url")
+
     for line in release_info:
         if variable in line.decode("utf-8"):
             strinfo=line.decode("utf-8").strip()
@@ -50,16 +53,16 @@ def get_release_info(variable):
 
 iteration_number = 0
 
-##Function to find latest iteration
+# Function to find latest iteration
 def get_latest_iteration(query, db, collection):
-    max = 0
+    max_iter = 0
     cursor = db[collection].find(query)
     for record in cursor:
-        if max < record['Iteration']:
-            max = record['Iteration']
-    return max
+        if max_iter < record['Iteration']:
+            max_iter = record['Iteration']
+    return max_iter
 
-##Function to resolve iteration/overwrite etc in multi-client run
+# Function to resolve iteration/overwrite etc in multi-client run
 def check_first_client(query, db, collection, itr):
     query.update(Iteration=itr)
     cursor = db[collection].distinct('HOST', query)
@@ -131,7 +134,7 @@ class s3bench:
                 "Run_State":self.Run_State
                 }
 
-    def insert_update(self,Iteration):# function for inserting and updating mongodb database 
+    def insert_update(self,Iteration):# function for inserting and updating mongodb database
         db = makeconnection()
         db_data={}
         db_data.update(self.Primary_Set)
@@ -158,8 +161,8 @@ def insertOperations(files,Build,Version,col,Config_ID,Branch,OS,db): #function 
     first_client = True
     delete_data = True
     Run_Health = "Successful"
-#    try: 
-    for file in files:    
+#    try:
+    for file in files:
         _, filename = os.path.split(file)
         global nodes_num, clients_num , pc_full, iteration , overwrite, custom
         oplist = ["Write" , "Read" , "GetObjTag", "HeadObj" , "PutObjTag"]
@@ -204,7 +207,7 @@ def insertOperations(files,Build,Version,col,Config_ID,Branch,OS,db): #function 
                         lat={"Max":float(lines[count-4].split(":")[1][:-2]),"Avg":float(lines[count-5].split(":")[1][:-2]),"Min":float(lines[count-3].split(":")[1][:-2])}
                         ttfb={"Max":float(lines[count+12].split(":")[1][:-2]),"Avg":float(lines[count+11].split(":")[1][:-2]),"Min":float(lines[count+13].split(":")[1][:-2]),"99p":float(lines[count+10].split(":")[1][:-2])}
                         data = s3bench(filename,opname,iops,throughput,lat,ttfb,obj,Build,Version,Branch,OS,nodes_num,clients_num,col,Config_ID,overwrite,sessions,Objects,pc_full,custom,Run_Health)
-                    
+ 
                         if find_iteration:
                             iteration_number = get_latest_iteration(data.Primary_Set, db, col)
                             find_iteration = False
@@ -230,23 +233,7 @@ def insertOperations(files,Build,Version,col,Config_ID,Branch,OS,db): #function 
 
         except Exception as e:
             print(f"Encountered error in file: {filename} , and Exeption is" , e)
-            Run_Health = "Failed"           
-            '''print(filename,obj,sessions,Objects)
-            #iteration_number = get_latest_iteration(data.Primary_Set, db, col)
-            if overwrite == True: 
-                iteration=iteration_number
-            else:
-                iteration=iteration_number+1
-            query=data.Primary_Set.copy()
-            query.update(Object_Size=obj)
-            query.update(Objects=Objects)
-            query.update(Sessions=sessions)
-            query.update(Iteration=iteration)
-            print(query)
-            db[col].update_many(query , {"$set" : {"Run_State" : Run_Health}})
-            results=db[col].find(query) 
-            for result in results:
-                print(result)'''
+            Run_Health = "Failed"
 
 
 def getallfiles(directory,extension):#function to return all file names with perticular extension
@@ -269,7 +256,7 @@ def update_mega_chain(build,version, col):
                 {'Title' : 'Main Chain'},
                 {
                     '$set':{
-                    'release':release_chain, 
+                    'release':release_chain,
                     }
             })
             print("...Mega entry has updated with release build ", build)
@@ -282,7 +269,7 @@ def update_mega_chain(build,version, col):
                 {'Title' : 'Main Chain'},
                 {
                     '$set':{
-                    'beta':beta_chain, 
+                    'beta':beta_chain,
                     }
             })
             print("...Mega entry has updated with beta build ", build)
@@ -317,10 +304,10 @@ def getconfig():
     nodes=[]
     clients=[]
 
-    for i in range(len(nodes_list)):
+    for i, _ in enumerate(nodes_list):
         nodes.append(nodes_list[i][i+1])
 
-    for i in range(len(clients_list)):
+    for i, _ in enumerate(clients_list):
         clients.append(clients_list[i][i+1])
 
     dic={
@@ -358,10 +345,10 @@ def main(argv):
     db = makeconnection() #getting instance of database
     if build_info == 'RELEASE.INFO':
         Build=get_release_info('BUILD')
-        Build=Build[1:-1]    
+        Build=Build[1:-1]
         Version=get_release_info('VERSION')
         Version=Version[1:-1]
-        Branch=get_release_info('BRANCH')    
+        Branch=get_release_info('BRANCH')
         Branch=Branch[1:-1]
         OS=get_release_info('OS')
         OS=OS[1:-1]
@@ -381,11 +368,11 @@ def main(argv):
     else:
         print("Error! Can not find suitable collection to upload data")
 
-    result = db[col['config_collection']].find_one(dic) # find entry from configurations collection 
+    result = db[col['config_collection']].find_one(dic) # find entry from configurations collection
     Config_ID = "NA"
     if result:
         Config_ID = result['_id'] # foreign key : it will map entry in configurations to results entry
     insertOperations(files,Build,Version,col['db_collection'],Config_ID,Branch,OS,db)
 
 if __name__=="__main__":
-    main(sys.argv) 
+    main(sys.argv)

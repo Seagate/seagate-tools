@@ -17,7 +17,7 @@
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 
-from . import mongodbapi, read_config
+from . import mongodbapi, read_config, schemas
 
 
 def get_run_id(uri, query):
@@ -43,7 +43,7 @@ def get_run_results_from_id(uri, run_id):
 def get_baseline_index(uri):
     """Get Baseline index of latest baseline in database."""
     query_results = mongodbapi.get_highest_value_document({}, "Baseline", None, uri,
-                        read_config.db_name, read_config.sanity_results)
+                                                          read_config.db_name, read_config.sanity_results)
     if query_results[0]:
         return query_results[1][0]['Baseline']
     else:
@@ -60,12 +60,37 @@ def read_write_routine(**kwargs):
     kwargs['query']['Operation'] = 'Read'
     query_results = mongodbapi.find_documents(kwargs['query'], None, kwargs['uri'],
                                               read_config.db_name, read_config.sanity_results)
-    kwargs['temp_read'][kwargs['obj']] = round(query_results[1][0][kwargs['metrix']], 3)
+    kwargs['temp_read'][kwargs['obj']] = round(
+        query_results[1][0][kwargs['metrix']], 3)
 
     kwargs['query']['Operation'] = 'Write'
     query_results = mongodbapi.find_documents(kwargs['query'], None, kwargs['uri'],
                                               read_config.db_name, read_config.sanity_results)
-    kwargs['temp_write'][kwargs['obj']] = round(query_results[1][0][kwargs['metrix']], 3)
+    kwargs['temp_write'][kwargs['obj']] = round(
+        query_results[1][0][kwargs['metrix']], 3)
+
+
+def get_all_metrics_data(**kwargs):
+    """Returns the data for all of the performance metrics"""
+    kwargs['query']['Operation'] = 'Read'
+    query_results = mongodbapi.find_documents(kwargs['query'], None, kwargs['uri'],
+                                              read_config.db_name, read_config.sanity_results)
+    _temp = {}
+    _temp["Read Throughput"] = round(query_results[1][0]["Throughput"], 3)
+    _temp["Read IOPS"] = round(query_results[1][0]["IOPS"], 3)
+    _temp["Read Latency"] = round(query_results[1][0]["Latency"]["Avg"], 3)
+    _temp["Read TTFB Avg"] = round(query_results[1][0]["TTFB"]["Avg"], 3)
+    _temp["Read TTFB 99%"] = round(query_results[1][0]["TTFB"]["99p"], 3)
+
+    kwargs['query']['Operation'] = 'Write'
+    query_results = mongodbapi.find_documents(kwargs['query'], None, kwargs['uri'],
+                                              read_config.db_name, read_config.sanity_results)
+
+    _temp["Write Throughput"] = round(query_results[1][0]["Throughput"], 3)
+    _temp["Write IOPS"] = round(query_results[1][0]["IOPS"], 3)
+    _temp["Write Latency"] = round(query_results[1][0]["Latency"]["Avg"], 3)
+
+    return _temp
 
 
 def read_write_routine_for_params(**kwargs):
@@ -93,6 +118,28 @@ def read_write_routine_for_ttfb(**kwargs):
 
     kwargs['temp_write'][kwargs['obj']
                          ] = round(query_results[1][0][kwargs['metrix']]['99p'], 3)
+
+
+def get_summary(results, kwargs):
+    _temp = schemas.config_format
+    _temp['objects'][kwargs['obj']] = results['Objects']
+    _temp['total_ops'][kwargs['obj']] = results['Total_Ops']
+    _temp['total_errors'][kwargs['obj']] = results['Total_Errors']
+
+    return _temp
+
+
+def get_summary_params(**kwargs):
+    """Data for total ops, total erros, objects of the run to be displayed in summary."""
+    kwargs['query']['Operation'] = 'Read'
+    query_results = mongodbapi.find_documents(kwargs['query'], None, kwargs['uri'],
+                                              read_config.db_name, read_config.sanity_results)
+    kwargs['temp_read'] = get_summary(query_results[1][0], kwargs)
+
+    kwargs['query']['Operation'] = 'Write'
+    query_results = mongodbapi.find_documents(kwargs['query'], None, kwargs['uri'],
+                                              read_config.db_name, read_config.sanity_results)
+    kwargs['temp_write'] = get_summary(query_results[1][0], kwargs)
 
 
 def get_sanity_config(uri, run_id):

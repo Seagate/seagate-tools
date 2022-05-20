@@ -19,7 +19,7 @@
 #
 # -*- coding: utf-8 -*-
 
-from os.path import isdir, join, isfile, isdir
+from os.path import join, isfile
 from os import listdir
 import json
 import gzip
@@ -108,7 +108,7 @@ def get_tasks_metadata():
         try:
             task_md = parse_perfline_metadata(task_id)
             data.append({"task_id": task_id, "metadata": task_md})
-        except:
+        except Exception as e:
             print(f'error: {e}')
 
     if len(data) == 0:

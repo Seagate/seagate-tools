@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
 import pandas as pd
-import glob
 import os
 import sys
-from datetime import datetime
 
 def extractFile(filepath):
     files=[]
-    for r, d, f in os.walk(filepath):
+    for r, _, f in os.walk(filepath):
         for file in f:
             if 'loadtype.csv' in file:
                 files.append(os.path.join(r, file))
@@ -21,6 +19,6 @@ if __name__=='__main__':
        # print('=============IO_SIZE: {}============='.format(IO_SIZE))
        # print(IO_SIZE)
        # print(pd.read_table(IO_SIZE))
-        #print(pd.read_csv(IO_SIZE, header=[4,14], squeeze = True)) 
+        #print(pd.read_csv(IO_SIZE, header=[4,14], squeeze = True))
         print(pd.read_csv(IO_SIZE, usecols =["Op-Count","Throughput"], squeeze = True))
 

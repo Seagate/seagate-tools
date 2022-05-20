@@ -3,28 +3,33 @@
     <v-card v-if="headers && headers.length > 0">
       <SanityDataTable
         TableName="Throughput (MBps)"
-        v-if="data_throughput_write && data_throughput_write.length > 0"
+        v-if="dataThroughputWrite && dataThroughputWrite.length > 0"
         :Headers="headers"
-        :DataValuesRead="data_throughput_read"
-        :DataValuesWrite="data_throughput_write"
+        :DataValuesRead="dataThroughputRead"
+        :DataValuesWrite="dataThroughputWrite"
       />
       <SanityDataTable
         TableName="Latency (ms)"
         :Headers="headers"
-        :DataValuesRead="data_latency_read"
-        :DataValuesWrite="data_latency_write"
+        :DataValuesRead="dataLatencyRead"
+        :DataValuesWrite="dataLatencyWrite"
       />
       <SanityDataTable
         TableName="IOPS"
         :Headers="headers"
-        :DataValuesRead="data_iops_read"
-        :DataValuesWrite="data_iops_write"
+        :DataValuesRead="dataIopsRead"
+        :DataValuesWrite="dataIopsWrite"
       />
       <SanityDataTable
         TableName="TTFB (ms)"
         :Headers="headers"
-        :DataValuesRead="data_ttfb_read"
-        :DataValuesWrite="data_ttfb_write"
+        :DataValuesRead="dataTtfbRead"
+        :DataValuesWrite="dataTtfbWrite"
+      />
+      <SanityAllMatrixTable
+        TableName="Max Concurrency"
+        :Headers="allHeaders"
+        :DataValues="dataAll"
       />
     </v-card>
   </v-container>
@@ -32,76 +37,81 @@
 
 <script>
 import SanityDataTable from "./SanityDataTable.vue";
+import SanityAllMatrixTable from "./SanityAllMatrixTable.vue";
 import * as sanityapi from "./backend/getSanityData.js";
 
 export default {
   name: "SanityDetailsPage",
   components: {
     SanityDataTable,
+    SanityAllMatrixTable,
   },
-  data: () => ({
-    run_id: null,
-    query_results_tput: [],
-    query_results_lat: [],
-    query_results_iops: [],
-    query_results_ttfb: [],
-    headers: [],
-    data_throughput_read: [],
-    data_throughput_write: [],
-    data_latency_read: [],
-    data_latency_write: [],
-    data_iops_read: [],
-    data_iops_write: [],
-    data_ttfb_read: [],
-    data_ttfb_write: [],
-  }),
+  data() {
+    return {
+      run_id: this.$route.query.run_id,
+      headers: [],
+      allHeaders: [],
+      dataThroughputRead: [],
+      dataThroughputWrite: [],
+      dataLatencyRead: [],
+      dataLatencyWrite: [],
+      dataIopsRead: [],
+      dataIopsWrite: [],
+      dataTtfbRead: [],
+      dataTtfbWrite: [],
+      dataAll: [],
+    };
+  },
   mounted: function () {
-    this.run_id = this.$route.query.run_id;
-    console.log(this.$route.query.id);
     sanityapi
-      .fetch_data_from_respose(this.run_id, "throughput")
+      .fetchDataFromResponse(this.run_id, "throughput")
       .then((response) => {
-        this.query_results_tput = response.data.result;
-        this.headers = sanityapi.get_header_of_sanity(this.query_results_tput);
-        this.data_throughput_read = sanityapi.get_data_for_sanity_tables(
-          this.query_results_tput["read"]
+        let queryResultsTput = response.data.result;
+        this.headers = sanityapi.getHeaderOfSanityfromBaseline(
+          queryResultsTput,
         );
-        console.log(this.data_throughput_read);
-        this.data_throughput_write = sanityapi.get_data_for_sanity_tables(
-          this.query_results_tput["write"]
+        this.dataThroughputRead = sanityapi.getDataForSanityTables(
+          queryResultsTput.read
+        );
+        this.dataThroughputWrite = sanityapi.getDataForSanityTables(
+          queryResultsTput.write
         );
       });
 
-    sanityapi
-      .fetch_data_from_respose(this.run_id, "latency")
-      .then((response) => {
-        this.query_results_lat = response.data.result;
-        this.data_latency_read = sanityapi.get_data_for_sanity_tables(
-          this.query_results_lat["read"]
-        );
-        this.data_latency_write = sanityapi.get_data_for_sanity_tables(
-          this.query_results_lat["write"]
-        );
-      });
-
-    sanityapi.fetch_data_from_respose(this.run_id, "iops").then((response) => {
-      this.query_results_iops = response.data.result;
-      this.data_iops_read = sanityapi.get_data_for_sanity_tables(
-        this.query_results_iops["read"]
+    sanityapi.fetchDataFromResponse(this.run_id, "latency").then((response) => {
+      let queryResultsLat = response.data.result;
+      this.dataLatencyRead = sanityapi.getDataForSanityTables(
+        queryResultsLat.read
       );
-      this.data_iops_write = sanityapi.get_data_for_sanity_tables(
-        this.query_results_iops["write"]
+      this.dataLatencyWrite = sanityapi.getDataForSanityTables(
+        queryResultsLat.write
       );
     });
 
-    sanityapi.fetch_data_from_respose(this.run_id, "ttfb").then((response) => {
-      this.query_results_ttfb = response.data.result;
-      this.data_ttfb_read = sanityapi.get_data_for_sanity_tables(
-        this.query_results_ttfb["read"]
+    sanityapi.fetchDataFromResponse(this.run_id, "iops").then((response) => {
+      let queryResultsIops = response.data.result;
+      this.dataIopsRead = sanityapi.getDataForSanityTables(
+        queryResultsIops.read
       );
-      this.data_ttfb_write = sanityapi.get_data_for_sanity_tables(
-        this.query_results_ttfb["write"]
+      this.dataIopsWrite = sanityapi.getDataForSanityTables(
+        queryResultsIops.write
       );
+    });
+
+    sanityapi.fetchDataFromResponse(this.run_id, "ttfb").then((response) => {
+      let queryResultsTtfb = response.data.result;
+      this.dataTtfbRead = sanityapi.getDataForSanityTables(
+        queryResultsTtfb.read
+      );
+      this.dataTtfbWrite = sanityapi.getDataForSanityTables(
+        queryResultsTtfb.write
+      );
+    });
+
+    sanityapi.fetchDataFromResponse(this.run_id, "all").then((response) => {
+      let dataAllMetrix = response.data.result;
+      this.allHeaders = sanityapi.getHeaderOfSanityforMaxSessions(dataAllMetrix);
+      this.dataAll = sanityapi.getDataForSanityTables(dataAllMetrix);
     });
   },
 };

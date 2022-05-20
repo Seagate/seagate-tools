@@ -25,16 +25,16 @@ set -x
 SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 
-rm -rf /var/perfline/hw.$(hostname -s) || true
-mkdir /var/perfline/hw.$(hostname -s)
-rm -rf /var/perfline/network.$(hostname -s) || true
-mkdir /var/perfline/network.$(hostname -s)
-rm -rf /var/perfline/5u84.$(hostname -s) || true
-mkdir /var/perfline/5u84.$(hostname -s)
+rm -rf /var/perfline/hw."$(hostname -s)" || true
+mkdir /var/perfline/hw."$(hostname -s)"
+rm -rf /var/perfline/network."$(hostname -s)" || true
+mkdir /var/perfline/network."$(hostname -s)"
+rm -rf /var/perfline/5u84."$(hostname -s)" || true
+mkdir /var/perfline/5u84."$(hostname -s)"
 # ${SCRIPT_DIR}/5u84stats.sh /var/perfline/5u84.$(hostname -s)
 
-cp /etc/modprobe.d/lnet.conf /var/perfline/network.$(hostname -s)/lnet.conf
-cp /etc/multipath.conf /var/perfline/network.$(hostname -s)/multipath.conf
+cp /etc/modprobe.d/lnet.conf /var/perfline/network."$(hostname -s)"/lnet.conf
+cp /etc/multipath.conf /var/perfline/network."$(hostname -s)"/multipath.conf
 
 CPU_INFO=$(lscpu)
 NETWORK_INTERFACES_INFO=$(ip a)
@@ -44,7 +44,7 @@ LNET_INFO=$(lctl list_nids)
 MULTIPATH_INFO=$(multipath -ll)
 GIT_INFO=$(rpm -qa | grep 'cortx-motr\|cortx-hare\|cortx-s3')
 
-aaa=`python3 - "$CPU_INFO" "$NETWORK_INTERFACES_INFO" "$HOSTNAME" "$MEMORY_SIZE" "$LNET_INFO" "$MULTIPATH_INFO" "$GIT_INFO"<<EOF
+python3 - "$CPU_INFO" "$NETWORK_INTERFACES_INFO" "$HOSTNAME" "$MEMORY_SIZE" "$LNET_INFO" "$MULTIPATH_INFO" "$GIT_INFO"<<EOF
 import yaml
 import sys
 
@@ -81,4 +81,5 @@ with open(MULTIPATH_PATH, 'w+') as file:
 with open(GIT_INFO_PATH, 'w+') as file:
     file.writelines(sys.argv[7])
 
-EOF`
+EOF
+

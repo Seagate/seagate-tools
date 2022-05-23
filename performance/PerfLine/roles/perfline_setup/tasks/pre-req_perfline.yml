@@ -66,6 +66,9 @@
        - { variable: 'DISK', value: '{{ disk }}' }
        - { variable: 'CORTX_RE_REPO', value: '{{ cortx_re_repo }}'}
        - { variable: 'CORTX_BUILD_IMAGE', value: '{{ cortx_build_image }}'}
+       - { variable: 'BACKUP_NFS_LOCATION', value: '{{ backup_nfs_location }}'}
+       - { variable: 'STORAGE_CONTROLLER_LOGIN', value: '{{ storage_controller_login }}'}
+       - { variable: 'STORAGE_CONTROLLER_PASSWORD', value: '{{ storage_controller_password }}'}
 
   - name: "Updating numeric values of a variables in perfline.conf"
     lineinfile:
@@ -89,12 +92,3 @@
        dest: "{{ PERFLINE_DIR }}/bin/s3bench_perfline"
        mode: '0751'
     delegate_to: "client-1"
-
-
-
-  - name: "Installing cortx-s3iamcli"
-    yum:
-      name: cortx-s3iamcli
-      state: present
-    delegate_to: "client-1"
-

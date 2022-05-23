@@ -27,3 +27,7 @@ disk=""
 
 cortx_re_repo="/root/cortx-re"
 cortx_build_image="ghcr.io/seagate/cortx-build:rockylinux-8.4"
+backup_nfs_location=''
+# Username and password for storage controller
+storage_controller_login=''
+storage_controller_password=''

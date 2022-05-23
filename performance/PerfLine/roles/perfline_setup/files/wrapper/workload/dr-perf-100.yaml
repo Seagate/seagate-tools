@@ -30,7 +30,7 @@ common:
 # # to build/deploy custom version of Cortx components. Either of the option
 # # you have to choose like Only URL or commitID of motr, s3server and hare.
 custom_build:
-  url: http://cortx-storage.colo.seagate.com/releases/cortx/github/stable/centos-7.8.2003/272
+  url:
   motr:
     repo: "https://github.com/Seagate/cortx-motr.git"
     branch: b64b1bba

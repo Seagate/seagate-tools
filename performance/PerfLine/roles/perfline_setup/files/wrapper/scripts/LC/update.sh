@@ -269,7 +269,7 @@ function patch_cortx_image()
 
     for ((j = 0; j < $((${#PATCHED_CORTX_IMAGES[*]})); j++)); do
         cortx_img_descr=${PATCHED_CORTX_IMAGES[((j))]}
-        
+
         local img=$(echo "$cortx_img_descr" | awk '{print $1}')
 
         if [[ "$base_img" != "$img" ]]; then
@@ -334,7 +334,7 @@ function deploy_pre_built_images()
 
         # check if patching is required
         if [[ "$fields_nr" -gt 2 ]]; then
-            
+
             local motr_repo="none"
             local hare_repo="none"
 

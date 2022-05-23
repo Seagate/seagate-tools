@@ -13,7 +13,7 @@ ansible_user=root
 ha_type=
 ansible_ssh_common_args='-o StrictHostKeyChecking=no'
 
-cluster_pass=seagate1
+cluster_pass=
 
 enable_daemon_service='no'
 
@@ -27,3 +27,7 @@ disk=""
 
 cortx_re_repo="/root/cortx-re"
 cortx_build_image="ghcr.io/seagate/cortx-build:rockylinux-8.4"
+backup_nfs_location=''
+# Username and password for storage controller
+storage_controller_login=''
+storage_controller_password=''

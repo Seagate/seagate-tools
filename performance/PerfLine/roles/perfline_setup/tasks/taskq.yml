@@ -41,13 +41,6 @@
        - { port: "{{ perfline_ui_port }}", proto: "tcp", state: "enabled", zone: "management-zone" }
     ignore_errors: yes
 
-  - name: "Copying local.repo in '/etc/yum.repo.d/' location"
-    copy:
-      src: files/local.repo
-      dest: /etc/yum.repos.d/
-    delegate_to: "{{ item }}"
-    with_items: "{{ groups['nodes'] }}"
-
   - name: "Install perfline system dependencies"
     yum:
       name:

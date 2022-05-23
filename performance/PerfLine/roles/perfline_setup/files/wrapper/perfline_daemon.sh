@@ -27,11 +27,12 @@ SCRIPT_DIR="${SCRIPT_PATH%/*}"
 source "$SCRIPT_DIR/../perfline.conf"
 source "$SCRIPT_DIR/.latest_stable_build"
 
-# Stable builds link for CentOS7.8
-# STABLE_BUILD_URL="http://cortx-storage.colo.seagate.com/releases/cortx/github/stable/centos-7.8.2003/"
-
+# Perfline daemon tool had designed to execute perfline workload for multiple build in single run
+# which will generate result artifacts for each build.
+# Currenlty this feature is not support for kubernetes cluster or docker images.
+# This can be fix in upcoming sprint.
 # Stable builds link for CentOS7.9
-STABLE_BUILD_URL="http://cortx-storage.colo.seagate.com/releases/cortx/github/stable/centos-7.9.2009/"
+STABLE_BUILD_URL=""
 
 STABLE_WORKLOAD_DIR="$PERFLINE_DIR/wrapper/workload/daemon_runs/stable"
 MAIN_WORKLOAD_DIR="$PERFLINE_DIR/wrapper/workload/daemon_runs/main"

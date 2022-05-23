@@ -41,7 +41,6 @@
        - { port: "{{ perfline_ui_port }}", proto: "tcp", state: "enabled", zone: "management-zone" }
     ignore_errors: yes
 
-
   - name: "Install perfline system dependencies"
     yum:
       name:

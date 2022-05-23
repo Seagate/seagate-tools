@@ -27,9 +27,10 @@ SCRIPT_DIR="${SCRIPT_PATH%/*}"
 source "$SCRIPT_DIR/../perfline.conf"
 source "$SCRIPT_DIR/.latest_stable_build"
 
-# Stable builds link for CentOS7.8
-# STABLE_BUILD_URL=""
-
+# Perfline daemon tool had designed to execute perfline workload for multiple build in single run
+# which will generate result artifacts for each build.
+# Currenlty this feature is not support for kubernetes cluster or docker images.
+# This can be fix in upcoming sprint.
 # Stable builds link for CentOS7.9
 STABLE_BUILD_URL=""
 

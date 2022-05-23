@@ -2,7 +2,7 @@
   pip:
      name:
        - pyaml==20.4.0
-       - paramiko==2.7.2
+       - paramiko==2.10.4
      executable: pip3
   delegate_to: "clientnode-1"
 

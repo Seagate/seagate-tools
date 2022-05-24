@@ -359,7 +359,7 @@ def get_benchmark_data(data_needed_for_query):  # pylint: disable=too-many-branc
                 temp_data.append(round_off(cursor['avg_ttfb_avg']*1000))
                 temp_data.append(round_off(cursor['avg_ttfb_99p']*1000))
         else:
-            temp_data.append(round_off(cursor['avg_lat']))
+            temp_data.append(round_off(cursor['avg_lat_avg']))
 
         skipttfb = False
 
@@ -586,8 +586,7 @@ def plot_graphs_with_given_data(fig, fig_all, x_data, y_data, plot_data):
         y=y_data,
         hovertemplate='<br>%{x}, %{y}<br>' + '<b>{} - {} {}</b><extra></extra>'.format(
             plot_data['operation'], plot_data['option'], plot_data['custom']),
-        connectgaps=True,
-        # line={'color': plot_data['pallete'][plot_data['operation']]}
+        connectgaps=True
     )
 
     fig.add_trace(trace)

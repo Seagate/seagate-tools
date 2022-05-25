@@ -53,11 +53,18 @@ custom_build:
 # image for each POD
 custom_build:
   images:
-    cortxcontrol: ghcr.io/seagate/cortx-all:2.0.0-671-06402
-    cortxdata: ghcr.io/seagate/cortx-all:2.0.0-671-06402
-    cortxserver: ghcr.io/seagate/cortx-rgw:2.0.0-671-06402
-    cortxha: ghcr.io/seagate/cortx-all:2.0.0-671-06402
-    cortxclient: ghcr.io/seagate/cortx-all:2.0.0-671-06402
+    cortxdata:
+      image: ghcr.io/seagate/cortx-all:2.0.0-735
+      motr_patch: /root/cortx-motr
+      hare_patch: /root/cortx-hare
+    cortxcontrol:
+      image: ghcr.io/seagate/cortx-all:2.0.0-735
+    cortxserver:
+      image: ghcr.io/seagate/cortx-rgw:2.0.0-735
+    cortxha:
+      image: ghcr.io/seagate/cortx-all:2.0.0-735
+    cortxclient:
+      image: ghcr.io/seagate/cortx-all:2.0.0-735
 
 # Optional section. if this section exists PerfLine will
 # change software configurations before starting the cluster.

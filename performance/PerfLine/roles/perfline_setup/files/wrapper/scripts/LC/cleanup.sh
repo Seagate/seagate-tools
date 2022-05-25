@@ -53,6 +53,10 @@ function remove_custom_docker_image()
 {
     local docker_image_tag="${CUSTOM_DOCKER_IMAGE_TAG_PREFIX}${TASK_ID}"
     pdsh -R ssh -S -w "$NODES" "$SCRIPT_DIR"/remove_tmp_docker_image.sh "$docker_image_tag"
+
+    # remove "patched" cortx images
+    local patched_cortx_img_regex="${CUSTOM_DOCKER_IMAGE_TAG_PREFIX}[a-zA-Z0-9]+_$TASK_ID"
+    pdsh -R ssh -S -w "$NODES" "$SCRIPT_DIR"/remove_tmp_docker_image.sh "$patched_cortx_img_regex"
 }
 
 function main()

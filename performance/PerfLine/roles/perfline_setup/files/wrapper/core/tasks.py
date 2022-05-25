@@ -304,10 +304,19 @@ def sw_update(conf, result_dir, logdir, task_id):
         params = conf['custom_build']
 
         if 'images' in params:
-            for pod_name, docker_img in params['images'].items():
+            for pod_name, docker_img_descr in params['images'].items():
                 options.append('--pod')
                 options.append(pod_name)
-                options.append(docker_img)
+                options.append(docker_img_descr['image'])
+
+                if 'motr_patch' in docker_img_descr:
+                    options.append('--patch-motr')
+                    options.append(docker_img_descr['motr_patch'])
+
+                if 'hare_patch' in docker_img_descr:
+                    options.append('--patch-hare')
+                    options.append(docker_img_descr['hare_patch'])
+
         elif 'sources' in params:
             for project, repo_branch in params['sources'].items():
                 options.append('--source')

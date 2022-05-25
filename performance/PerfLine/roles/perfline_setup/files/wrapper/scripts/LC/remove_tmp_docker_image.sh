@@ -24,17 +24,17 @@ set -x
 
 function main()
 {
-    local docker_image_tag="$1"
+    local docker_image_tag_regex="$1"
 
-    if [[ -z "$docker_image_tag" ]]; then
-        echo 'missed docker image tag'
+    if [[ -z "$docker_image_tag_regex" ]]; then
+        echo 'missed docker image tag regex'
         return 1
     fi
 
-    local docker_image_id="$(docker images | grep "$docker_image_tag" | awk '{print $3}')"
+    local docker_image_ids="$(docker images | grep -P "$docker_image_tag_regex" | awk '{print $3}')"
 
-    if [[ -n "$docker_image_id" ]]; then
-        docker rmi "$docker_image_id" || true
+    if [[ -n "$docker_image_ids" ]]; then
+        docker rmi $docker_image_ids || true
     fi
 }
 

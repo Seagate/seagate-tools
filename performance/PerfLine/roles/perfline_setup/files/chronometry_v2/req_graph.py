@@ -19,7 +19,9 @@
 #
 # -*- coding: utf-8 -*-
 
-from addb2db import *
+from addb2db import re, attr, relation, request, argparse, \
+    db_init, db_connect, db_close
+
 from req_utils import query2dlist
 import sys
 from graphviz import Digraph

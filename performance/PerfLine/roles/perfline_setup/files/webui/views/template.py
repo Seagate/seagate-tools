@@ -21,7 +21,7 @@
 
 from flask import send_from_directory
 
-from app_global_data import *
+from app_global_data import app
 
 
 @app.route('/templates/<path:path>')

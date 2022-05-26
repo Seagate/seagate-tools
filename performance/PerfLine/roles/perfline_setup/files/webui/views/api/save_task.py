@@ -25,7 +25,7 @@ import yaml
 from os.path import isdir, join
 from flask import request, make_response
 
-from app_global_data import *
+from app_global_data import app, VALIDATOR, WORKLOAD_DIR, HIGHEST_WEBUI_PRIO, LOWEST_PRIO
 sys.path.insert(0, VALIDATOR)
 import validator as vr
 

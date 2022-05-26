@@ -21,7 +21,7 @@
 
 from flask import render_template
 
-from app_global_data import *
+from app_global_data import app, WORKLOAD_DIR, LOWEST_PRIO, HIGHEST_WEBUI_PRIO
 from core.utils import get_list_of_files
 
 

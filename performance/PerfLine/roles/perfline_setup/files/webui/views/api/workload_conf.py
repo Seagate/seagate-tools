@@ -23,7 +23,7 @@ import json
 import gzip
 from flask import make_response, jsonify
 
-from app_global_data import *
+from app_global_data import app, WORKLOAD_DIR
 from core.utils import get_list_of_files
 
 

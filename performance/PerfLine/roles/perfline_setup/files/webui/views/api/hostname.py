@@ -21,7 +21,7 @@
 
 from flask import jsonify
 
-from app_global_data import *
+from app_global_data import app, hostname
 
 
 @app.route('/api/tqhost')

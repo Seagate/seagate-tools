@@ -41,12 +41,12 @@ exec(open("{}/../../../perfline.conf".format(sys.argv[2])).read())
 
 
 def replace_spaces_for_html(line):
-    line = line.replace(' ', '&nbsp')
+    line = line.replace(' ', ' ')
     return line
 
 
 def list_replace_spaces_for_html(lines):
-    lines = [line.replace(' ', '&nbsp') for line in lines]
+    lines = [line.replace(' ', ' ') for line in lines]
     return lines
 
 
@@ -292,7 +292,7 @@ def parse_report_info(report_dir):
     iperf_rw_stat = {}
     if isdir(workload_dir):
        iperf_log_list = fnmatch.filter(listdir(workload_dir), '*iperf_workload.log')
-       for index in range(len(iperf_log_list)):
+       for index, _ in enumerate(iperf_log_list):
           iperf_log = join(workload_dir,iperf_log_list[index])
           if isfile(iperf_log):
               temp = 'srvnode-{}'.format(index + 1)
@@ -303,7 +303,7 @@ def parse_report_info(report_dir):
     m0crate_dir = join(report_dir, 'm0crate')
     m0crate_rw_stats = {}
     if isdir(m0crate_dir):
-        for dir_path, dirs, files in walk(m0crate_dir):
+        for dir_path, _, files in walk(m0crate_dir):
             m0crate_logs = list(filter(lambda f_name: f_name.endswith('.log'), files))
             workload_filenames.extend(m0crate_logs)
 

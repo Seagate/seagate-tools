@@ -21,7 +21,7 @@
 
 from flask import make_response, request
 
-from app_global_data import *
+from app_global_data import app, HIGHEST_WEBUI_PRIO, LOWEST_PRIO
 from core import pl_api
 import yaml
 

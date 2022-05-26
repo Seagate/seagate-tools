@@ -23,7 +23,8 @@ import json
 import gzip
 from flask import make_response
 
-from app_global_data import *
+from app_global_data import cache, app, artifacts_dirs, \
+    backup_artifacts_dirs, all_artif_dirs
 
 from core.utils import tq_task_common_get
 

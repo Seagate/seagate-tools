@@ -23,7 +23,7 @@ import os
 from os.path import join, isdir
 from flask import send_file
 
-from app_global_data import *
+from app_global_data import app, cache
 
 
 @app.route('/report/<string:tid>/dstat_imgs/<string:node_id>/<string:img_type>')

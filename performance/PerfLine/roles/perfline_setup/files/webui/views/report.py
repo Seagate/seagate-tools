@@ -23,7 +23,7 @@ import os
 from os.path import isdir, join, isfile
 from flask import send_file
 
-from app_global_data import *
+from app_global_data import report_resource_map, app, cache
 
 
 # TODO: check if this function really needed and delete this bad code!
@@ -41,7 +41,7 @@ def define_path_for_report_imgs(tid, location):
             path_to_workload) if isfile(join(path_to_workload, f))})
 
     if isdir(path_to_m0crate_logs):
-        for dir_path, dirs, files in os.walk(path_to_m0crate_logs):
+        for dir_path, _, files in os.walk(path_to_m0crate_logs):
             m0crate_logs_filtered = filter(lambda f_name: f_name.endswith('.log'), files)
 
             for f in m0crate_logs_filtered:

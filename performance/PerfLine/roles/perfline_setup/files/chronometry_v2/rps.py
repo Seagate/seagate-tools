@@ -19,7 +19,11 @@ from pandas.io import sql
 import gc
 import sys
 import argparse
-from sys_utils import *
+from sys_utils import Figure, Queue, RPS, Layer, Relation, XIDRelation, \
+    S3, MOTR_REQ, CRPC, SRPC, CAS, FOM, STIO, BETX,  S3PUT_FILTER, DIX, \
+    Connection, S3GET_FILTER, S3_TO_CLIENT, IOO, CLIENT_TO_IOO, COB, \
+    IOO_TO_CRPC, CLIENT_TO_COB, CLIENT_TO_DIX, DIX_TO_MDIX, DIX_TO_CAS, \
+    COB_TO_CRPC, CAS_TO_CRPC, SRPC_TO_FOM, FOM_TO_STIO, FOM_TO_TX
 
 class LocalFigure():
     def __init__(self, fig):
@@ -49,7 +53,8 @@ class Handler():
         self.avg_window = avg_window
         self.fiter = fiter
 
-    def draw_layer(self, fig, ypos, layer, start, stop, avg, pids,
+    @staticmethod
+    def draw_layer(fig, ypos, layer, start, stop, avg, pids,
                    sharex=None, samex=False):
         queue = Queue(layer, start, stop, pids=pids)
         rps_in = RPS(layer, start, color='green',

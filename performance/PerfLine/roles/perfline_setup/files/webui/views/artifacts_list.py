@@ -22,7 +22,7 @@
 import os
 from flask import render_template
 
-from app_global_data import *
+from app_global_data import app, cache
 
 
 @app.route('/artifacts/<uuid:task_id>')

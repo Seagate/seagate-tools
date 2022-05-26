@@ -194,7 +194,7 @@ function save_s3srv_logs() {
     popd            # haproxy
 
     # Copy auth server logs
-    local auth_logs="/var/log/cortx/auth"
+    # local auth_logs="/var/log/cortx/auth"
     mkdir -p auth
     pushd auth
     cp -r "$LOCAL_MOUNT_POINT"/var/log/auth ./

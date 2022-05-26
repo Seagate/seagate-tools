@@ -88,7 +88,8 @@ class AsyncWorker:
 
         print("worker thread finished now")
 
-    def __process_item(self, item):
+    @staticmethod
+    def __process_item(item):
         print(f"processing: {item}")
         action = item['action']
 

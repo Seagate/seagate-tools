@@ -146,7 +146,8 @@ class Histogram():
             self.scale = self.MICROSECOND_SCALE
         self.name = f"{self.layer.layer_type.name}: {self.start_states} -> {self.stop_states}, {self.scale_name}"
 
-    def __process_states(self, df, states, inverse=False):
+    @staticmethod
+    def __process_states(df, states, inverse=False):
         acc = pd.DataFrame()
         for s in states:
             tmp = df[(df.state == s)]
@@ -207,7 +208,6 @@ class Histogram():
         ax.legend(handles, labels, loc='upper right', prop={'size': 8},
                   fancybox=True, framealpha=0.7,
                   handlelength=0, handletextpad=0)
-
 
     def name(self):
         return self.name
@@ -411,7 +411,8 @@ class Queue():
         self.label = ''
         self.pids = pids
 
-    def __df_prepare(self, df, states, val, rule='first'):
+    @staticmethod
+    def __df_prepare(df, states, val, rule='first'):
         df = df[(df.state.isin(states))]
         df.drop_duplicates(subset=['pid', 'id', 'state'],
                            keep=rule, inplace=True)
@@ -605,7 +606,7 @@ class Attr():
 
     def read(self):
         if self.df is None:
-            query = f'select * from attr where'
+            query = 'select * from attr where'
             for i, attr in enumerate(self.attrs):
                 query = query + f" name='{attr}' "
                 if i != (len(self.attrs) - 1):

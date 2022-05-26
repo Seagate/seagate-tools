@@ -23,7 +23,7 @@ import re
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-from addb2db import *
+from addb2db import queues, attr, DB
 from playhouse.shortcuts import model_to_dict
 from typing import List, Dict
 from graphviz import Digraph

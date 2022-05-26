@@ -22,7 +22,8 @@
 import os
 from flask import make_response
 
-from app_global_data import *
+from app_global_data import app, backup_artifacts_dirs, cache, \
+    async_worker, all_artif_dirs
 
 
 @app.route('/api/task/backup_tasks/<string:task_id_list>')
@@ -54,7 +55,7 @@ def backup_task(task_id_list):
 
         if not cache.has(task_id):
             task_status['status'] = 'failed'
-            task_status['error_message'] = f'task does not exist'
+            task_status['error_message'] = 'task does not exist'
             result['status'] = 'failed'
         else:
 

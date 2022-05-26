@@ -22,7 +22,7 @@
 import sys
 import yaml
 import logging
-from addb2db import *
+from addb2db import DB, defaultdict, argparse, db_close, db_init, db_connect
 import matplotlib.pyplot as plt
 from itertools import zip_longest as zipl
 

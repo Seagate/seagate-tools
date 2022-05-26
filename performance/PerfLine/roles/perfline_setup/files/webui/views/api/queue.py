@@ -24,7 +24,7 @@ import gzip
 import yaml
 from flask import make_response
 
-from app_global_data import *
+from app_global_data import app
 from core import pl_api
 from core.utils import tq_task_common_get
 

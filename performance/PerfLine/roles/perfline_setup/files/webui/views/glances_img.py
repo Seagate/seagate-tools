@@ -21,7 +21,7 @@
 
 from flask import send_file
 
-from app_global_data import *
+from app_global_data import app, cache
 
 
 @app.route('/report/<string:tid>/glances_imgs/<string:filename>')

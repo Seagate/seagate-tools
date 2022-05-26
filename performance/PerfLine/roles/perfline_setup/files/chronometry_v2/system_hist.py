@@ -139,7 +139,8 @@ class Histogram():
         self.hist = None
         self.name = f"{self.layer.layer_type.name}: {self.start_states} -> {self.stop_states}, ms"
 
-    def __process_states(self, df, states, inverse=False):
+    @staticmethod
+    def __process_states(df, states, inverse=False):
         acc = pd.DataFrame()
         for s in states:
             tmp = df[(df.state == s)]
@@ -171,7 +172,7 @@ class Histogram():
         textstr = df.describe().to_string()
         text = textstr.split('\n')
         textstr = ''
-        for i in range(len(text)):
+        for i, _ in enumerate(text):
             t = text[i].split(' ')
             textstr = textstr + t[0] + ": " + t[-1]
             if i < (len(text) - 1):

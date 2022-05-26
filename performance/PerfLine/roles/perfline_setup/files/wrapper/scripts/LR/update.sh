@@ -372,7 +372,7 @@ function pcs_cluster_start() {
 
 function pcs_cluster_reinit() {
     NUM_PCS_BOOTSTRAP_ATTEMPTS=3
-    for i in {1..$NUM_PCS_BOOTSTRAP_ATTEMPTS};
+    for _ in {1..$NUM_PCS_BOOTSTRAP_ATTEMPTS};
     do
        pdsh -S -w "$NODES" "systemctl status haproxy" | grep Active
        if is_cluster_online "$PRIMARY_NODE"; then

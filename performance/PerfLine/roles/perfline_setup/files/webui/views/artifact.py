@@ -21,7 +21,7 @@
 
 from flask import send_from_directory, make_response
 
-from app_global_data import *
+from app_global_data import app, cache
 
 @app.route('/log/<uuid:task_id>/<path:subpath>')
 @app.route('/artifacts/<uuid:task_id>/<path:subpath>')

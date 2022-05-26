@@ -24,7 +24,7 @@ import gzip
 import csv
 from flask import make_response, request
 
-from app_global_data import *
+from app_global_data import app, cache
 
 
 def find_fields_indexes(csv_header):

@@ -19,7 +19,10 @@ from pandas.io import sql
 import gc
 import sys
 import argparse
-from sys_utils import *
+from sys_utils import Figure, Layer, Relation, XIDRelation, Connection, S3, \
+    MOTR_REQ, CRPC, SRPC, FOM, STIO, S3PUT_FILTER, S3GET_FILTER, Attr, MBPS, \
+    S3_TO_CLIENT, IOO, CLIENT_TO_IOO, IOO_TO_CRPC, COB_TO_CRPC, CAS_TO_CRPC, \
+    SRPC_TO_FOM, FOM_TO_STIO
 
 class LocalFigure():
     def __init__(self, fig):
@@ -66,7 +69,8 @@ class Handler():
         if self.per_process and self.server:
             self.server_process = dict()
 
-    def draw_layer(self, fig, ypos, mbps, avg, pids=None,
+    @staticmethod
+    def draw_layer(fig, ypos, mbps, avg, pids=None,
                    sharex=None, samex=False):
         ax = fig.add(mbps, ypos, 0, sharex=sharex)
         return ax

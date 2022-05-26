@@ -21,7 +21,7 @@
 
 from flask import make_response, request, render_template
 
-from app_global_data import *
+from app_global_data import app
 
 
 @app.route('/compare_runs')

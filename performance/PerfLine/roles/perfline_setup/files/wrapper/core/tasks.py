@@ -128,9 +128,6 @@ def pack_artifacts(path):
     archive_dir = path.split('/')[-1]
     tar[f"-cJvf {parent_dir}/{archive_dir}.tar.xz -C {parent_dir} {archive_dir}".split(
         " ")] & plumbum.FG
-    print(f"Rm path: {path}")
-    rm = plumbum.local["rm"]
-    # rm[f"-rf {path}".split(" ")]()
 
 
 def update_configs(conf, result_dir, logdir, task_id):

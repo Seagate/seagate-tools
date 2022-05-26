@@ -57,7 +57,7 @@ def get_hosts_pids(db_connection):
     hosts_df = pids_df[ ['hostname'] ].drop_duplicates()
     result = []
 
-    for index, row in hosts_df.iterrows():
+    for _, row in hosts_df.iterrows():
         hostname = row['hostname']
         host_pids_df = pids_df[ pids_df.hostname == hostname ][ ['pid'] ]
         result.append( (hostname, host_pids_df) )
@@ -228,8 +228,7 @@ def client_req_queue(conn, ax, hosts, time_interval, show_title):
         plot(queue(reads_host, start, stop, label="Read"), ax=ax[i], color='g')
 
 def crpc_writev_req(conn):
-    query = f'''
-    SELECT
+    query = f'''SELECT
     crpc.time as time, crpc.pid as pid, crpc.id as id, crpc.state as state
     FROM request crpc
     JOIN attr ON crpc.pid=attr.pid and crpc.id=attr.entity_id
@@ -243,8 +242,7 @@ def crpc_writev_req(conn):
     return df
 
 def crpc_readv_req(conn):
-    query = f'''
-    SELECT
+    query = f'''SELECT
     crpc.time as time, crpc.pid as pid, crpc.id as id, crpc.state as state
     FROM request crpc
     JOIN attr ON crpc.pid=attr.pid and crpc.id=attr.entity_id

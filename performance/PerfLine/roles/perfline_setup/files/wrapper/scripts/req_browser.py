@@ -51,7 +51,7 @@ def find_s3reqs_by_op(op_name, s3df, reldf, workload_time_parts_nr, req_nr):
         timestamp = start_timestamp + (workload_duration_part * i)
         s3_tmp = s3reqs[s3reqs['time'] >= timestamp]
 
-        for index, row in s3_tmp.head(n=req_nr).iterrows():
+        for _, row in s3_tmp.head(n=req_nr).iterrows():
             s3pid = row['pid']
             s3id = row['id']
 
@@ -59,7 +59,7 @@ def find_s3reqs_by_op(op_name, s3df, reldf, workload_time_parts_nr, req_nr):
 
             print("time:{} s3_op:{} s3_pid:{} s3_reqid:{}".format(percentage, op_name, s3pid, s3id))
             s3req_rels = reldf[(reldf.pid1 == s3pid) & (reldf.mid1 == s3id)]
-            for j, rr in s3req_rels.iterrows():
+            for _, rr in s3req_rels.iterrows():
                 print("time:{} s3_op:{} s3_pid:{} s3_reqid:{} cli_pid:{} cli_reqid:{}".format(
                     percentage, op_name, s3pid, s3id, rr['pid2'], rr['mid2']))
 

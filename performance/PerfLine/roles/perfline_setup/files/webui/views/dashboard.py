@@ -23,7 +23,7 @@ import os
 import gzip
 from flask import send_file, request, make_response
 
-from app_global_data import *
+from app_global_data import app, night_daemon_dirs
 
 
 @app.route('/dashboard/logo')

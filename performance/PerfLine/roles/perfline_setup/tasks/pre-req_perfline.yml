@@ -13,6 +13,13 @@
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
+  - name: "Creating directory for tasks locks {{ LOCK_DIR }}"
+    file:
+      path: '{{ LOCK_DIR }}'
+      state: directory
+    delegate_to: "{{ item }}"
+    with_items: "{{ groups['all'] }}"
+
   - name: "Creating perfline directory {{ PERFLINE_DIR }}"
     file:
       path: "{{ PERFLINE_DIR }}/bin"
@@ -63,6 +70,7 @@
        - { variable: 'LOGFILE', value: '{{ PERFLINE_LOGFILE }}'}
        - { variable: 'ARTIFACTS_DIR', value: '{{ ARTIFACTS_DIR }}'}
        - { variable: 'NIGHT_ARTIFACTS', value: '{{ NIGHT_ARTIFACTS }}'}
+       - { variable: 'LOCK_DIR', value: '{{ LOCK_DIR }}'}
        - { variable: 'PUBLIC_DATA_INTERFACE_NAME', value: '{{ PUBLIC_DATA_INTERFACE_NAME }}'}
        - { variable: 'DISK', value: '{{ disk }}' }
        - { variable: 'CORTX_RE_REPO', value: '{{ cortx_re_repo }}'}

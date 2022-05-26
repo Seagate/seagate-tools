@@ -83,7 +83,7 @@ function main_build() {
     local motr_main=
     local s3server_main=
     local hare_main=
-    local pyutils_main=
+    # local pyutils_main=
 
     pushd "$PERFLINE_DIR"/docker/cortx/
 

@@ -21,7 +21,7 @@
 
 from flask import send_file
 
-from app_global_data import *
+from app_global_data import app, report_resource_map
 
 
 @app.route('/report/<string:tid>/workload/<string:filename>')

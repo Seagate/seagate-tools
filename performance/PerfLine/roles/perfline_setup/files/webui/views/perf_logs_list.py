@@ -22,7 +22,7 @@
 import os
 from flask import render_template, make_response
 
-from app_global_data import *
+from app_global_data import app, cache
 
 
 @app.route('/log/<uuid:task_id>')

@@ -21,7 +21,7 @@
 
 
 from core import pl_api
-from app_global_data import *
+from app_global_data import app, cache, all_artif_dirs, async_worker, PERFLINE_UI_PORT
 from views import *
 from views.api import *
 

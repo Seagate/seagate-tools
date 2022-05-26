@@ -87,7 +87,7 @@ def plot_main(df, filename, size, sessions):
     commit_domain = df[['motr', 's3server']].drop_duplicates()
 
     dots = []
-    for index, row in commit_domain.iterrows():
+    for _, row in commit_domain.iterrows():
         fd = df[(df['motr'] == row['motr']) & (df['s3server'] == row['s3server'])]
         writes = fd['Write Throughput (MB/s)'].tolist()
         reads = fd['Read Throughput (MB/s)'].tolist()
@@ -152,7 +152,7 @@ def main():
         exit(2)
 
     tasks = []
-    for i,d in enumerate(dirs):
+    for d in dirs:
         task = TaskInfo(d)
         task.read()
         tasks.append(task)

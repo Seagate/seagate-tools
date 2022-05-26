@@ -25,7 +25,7 @@ import uuid
 import gzip
 from flask import request, make_response
 
-from app_global_data import *
+from app_global_data import app, LOGFILE
 
 
 logcookies = {}

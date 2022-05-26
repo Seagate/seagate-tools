@@ -23,10 +23,9 @@ from os.path import join, isfile
 from os import listdir
 import json
 import gzip
-from flask import make_response
-from flask import request
+from flask import make_response, request
 
-from app_global_data import *
+from app_global_data import app, cache
 
 
 def parse_commit_info(line):

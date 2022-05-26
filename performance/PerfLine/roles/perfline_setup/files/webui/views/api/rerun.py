@@ -22,7 +22,7 @@
 import yaml
 from flask import make_response
 
-from app_global_data import *
+from app_global_data import app, cache
 from core import pl_api
 
 

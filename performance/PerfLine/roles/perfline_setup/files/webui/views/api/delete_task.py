@@ -21,7 +21,7 @@
 
 from flask import make_response
 
-from app_global_data import *
+from app_global_data import app, cache, all_artif_dirs
 
 from shutil import rmtree
 

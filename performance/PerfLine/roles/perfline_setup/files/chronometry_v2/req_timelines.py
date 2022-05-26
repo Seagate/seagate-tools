@@ -19,7 +19,7 @@
 #
 # -*- coding: utf-8 -*-
 
-from addb2db import *
+from addb2db import relation, request, argparse, db_init, db_connect, db_close
 from req_utils import query2dlist, prepare_time_table, draw_timelines, times_tag_append
 import sys
 

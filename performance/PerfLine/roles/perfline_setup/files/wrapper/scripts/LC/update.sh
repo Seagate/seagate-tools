@@ -107,7 +107,6 @@ function checkout() {
 }
 
 function build_rpms() {
-    local repo_3rd_party="http://cortx-storage.colo.seagate.com/releases/cortx/third-party-deps/rockylinux/rockylinux-8.4-2.0.0-latest/"
     local rpmbuild_dir="$DOCKER_BUILD_DIR/rpmbuild"
 
     # 'Clean' phase
@@ -128,10 +127,7 @@ function build_rpms() {
         -v "$rpmbuild_dir":/root/rpmbuild \
         -v "$RPM_DIR":/var/artifacts \
         -v "$CORTX_SRC_DIR":/cortx-workspace \
-        $CORTX_BUILD_IMAGE sh -c "yum-config-manager --add-repo=$repo_3rd_party \
-            && yum --nogpgcheck -y --disablerepo='baseos' --disablerepo='powertools' \
-            install libfabric libfabric-devel \
-            && make cortx-all-rockylinux-image"
+        "$CORTX_BUILD_IMAGE" make cortx-all-rockylinux-image
 }
 
 function build_image() {

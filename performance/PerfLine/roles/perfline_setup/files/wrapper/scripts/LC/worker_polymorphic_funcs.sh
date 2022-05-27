@@ -257,7 +257,7 @@ function prepare_cluster() {
     ssh "$PRIMARY_NODE" 'sed -i "/seagate/d" /etc/hosts'
     for node in ${NODES//,/ };
     do
-        local ip=$(ssh "$PRIMARY_NODE" "kubectl get pod -o wide | grep $node | grep $CORTX_SERVER_POD_PREFIX" | awk '{print $6}')
+        local ip=$(ssh "$PRIMARY_NODE" "kubectl get pods -o custom-columns=NAME:.metadata.name,NODE:.spec.nodeName,IP:.status.podIP | grep $node | grep $CORTX_SERVER_POD_PREFIX" | awk '{print $3}')
         ((i=i+1))
         if [ -z "$ip" ]; then
            echo "s3 ip detection failed"

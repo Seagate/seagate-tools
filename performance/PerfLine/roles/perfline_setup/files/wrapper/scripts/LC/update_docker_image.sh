@@ -26,6 +26,10 @@ SCRIPT_NAME=$(echo "$0" | awk -F "/" '{print $NF}')
 SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 
+EX_PDSH="pdsh -R ssh -S -w"
+
+FILES_TO_REPLACE=()
+
 
 function create_tmp_container()
 {
@@ -39,11 +43,36 @@ function update_files()
     ssh "$PRIMARY_NODE" "if [[ -d \"$tmp_dir\" ]]; then rm -rf \"$tmp_dir\"; fi"
     ssh "$PRIMARY_NODE" "mkdir $tmp_dir"
 
+    replace_files || return 1
+
     if [[ -n "$MOTR_PARAMS" ]]; then
         update_motr_config $tmp_dir || return 1
     fi
 
     ssh "$PRIMARY_NODE" "rm -rf \"$tmp_dir\""
+}
+
+function replace_files()
+{
+    for ((i = 0; i < $((${#FILES_TO_REPLACE[*]})); i++)); do
+        local src_dst=${FILES_TO_REPLACE[((i))]}
+
+        local src=$(echo "$src_dst" | awk '{print $1}')
+        local dst=$(echo "$src_dst" | awk '{print $2}')
+
+        if [[ ! -f "$src" ]]; then
+            echo "src file does not exist: $src"
+            return 1
+        fi
+
+        docker exec "$TMP_CONTAINER_NAME" sh -c "[ -f \"$dst\" ]" || {
+            echo "dst file does not exist: $dst"
+            return 1
+        }
+
+        ssh "$PRIMARY_NODE" "docker cp $src $TMP_CONTAINER_NAME:$dst"
+
+    done
 }
 
 function update_motr_config()
@@ -89,17 +118,25 @@ function save_image()
 
 function copy_to_nodes()
 {
-    pdsh -S -w "$OTHER_NODES" "scp $PRIMARY_NODE:$NEW_IMAGE_TAR $NEW_IMAGE_TAR" || return 1
+    if [[ -z "$OTHER_NODES" ]]; then
+        return
+    fi
+
+    $EX_PDSH "$OTHER_NODES" "scp $PRIMARY_NODE:$NEW_IMAGE_TAR $NEW_IMAGE_TAR" || return 1
 }
 
 function load_image_on_nodes()
 {
-    pdsh -S -w "$OTHER_NODES" "docker load --input $NEW_IMAGE_TAR" || return 1
+    if [[ -z "$OTHER_NODES" ]]; then
+        return
+    fi
+
+    $EX_PDSH "$OTHER_NODES" "docker load --input $NEW_IMAGE_TAR" || return 1
 }
 
 function remove_image_tar()
 {
-    pdsh -S -w "$NODES" "rm -f $NEW_IMAGE_TAR" || return 1
+    $EX_PDSH "$NODES" "rm -f $NEW_IMAGE_TAR" || return 1
 }
 
 function parse_params()
@@ -124,6 +161,11 @@ function parse_params()
                 ;;
             --motr-param)
                 MOTR_PARAMS="$MOTR_PARAMS $2"
+                shift
+                ;;
+            --file)
+                FILES_TO_REPLACE+=("$2 $3")
+                shift
                 shift
                 ;;
             *)

@@ -33,13 +33,6 @@
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"
 
-  - name: "Copy glances repo to all node"
-    unarchive:
-      src: "{{ role_path }}/files/glances.tar.gz"
-      dest: "{{ PERFLINE_DIR }}"
-    delegate_to: "{{ item }}"
-    with_items: "{{ groups['all'] }}"
-
   - name: "Compress directory files/s3account into files/s3account.tar.gz"
     archive:
       path: "{{ role_path }}/files/s3account"
@@ -82,7 +75,6 @@
     with_items:
        - { variable: 'PERFLINE_UI_PORT', value: '{{ perfline_ui_port }}' }
 
-
   - name: "Installing golang version above 1.15 on localhost"
     yum:
       name: go >= 1.15
@@ -98,7 +90,7 @@
        mode: '0751'
     delegate_to: "client-1"
 
-  - name: Add repository for s3iamcli
+  - name: "Add repository for s3iamcli"
     yum_repository:
        name: s3iamcli
        description: Packages required for s3 account
@@ -106,7 +98,7 @@
        gpgcheck: no
     delegate_to: "client-1"
 
-  - name: Add repository for s3 account
+  - name: "Add repository for s3 account"
     yum_repository:
        name: s3_account
        description: Packages required for s3 account

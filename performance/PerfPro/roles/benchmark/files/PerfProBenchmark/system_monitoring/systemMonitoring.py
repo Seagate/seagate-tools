@@ -60,23 +60,24 @@ build_url=configs_config.get('BUILD_URL')
 overwrite=configs_config.get('OVERWRITE')
 custom=configs_config.get('CUSTOM')
 solution=configs_config.get('SOLUTION')
+docker_info=configs_config.get('DOCKER_INFO')
 
 def get_release_info(variable):
-
-    if build_url.lower().startswith('http'):
-        release_info = urllib.request.urlopen(build_url+'RELEASE.INFO')
-    else:
-        raise Exception("bad build_url")
-
-    for line in release_info:
-        if variable in line.decode("utf-8"):
-            strinfo=line.decode("utf-8").strip()
+    release_info=os.popen('docker run --rm -it ' + docker_info +' cat /opt/seagate/cortx/RELEASE.INFO')
+    lines=release_info.readlines()
+    for line in lines:
+        if variable in line:
+            strinfo=line.strip()
             strip_strinfo=re.split(': ',strinfo)
             return(strip_strinfo[1])
 
+
 if build_info == 'RELEASE.INFO':
-    BUILD=get_release_info('BUILD')
-    BUILD=BUILD[1:-1]
+    version=get_release_info('VERSION')[1:-1]
+    ver_strip=re.split('-',version)
+#    Version=ver_strip[0]
+    BUILD=ver_strip[1]
+
 elif build_info == 'USER_INPUT':
     BUILD=configs_config.get('BUILD')
 print (BUILD)
@@ -91,8 +92,10 @@ def makeconnection(collection):  #function for making connection with database
         col_stats=configs.get('LR')[collection]
     elif solution.upper() == 'LEGACY':
         if build_info == 'RELEASE.INFO':
-            Version=get_release_info('VERSION')
-            Version=Version[1:-1]
+            version=get_release_info('VERSION')[1:-1]
+            ver_strip=re.split('-',version)
+            Version=ver_strip[0]
+
         elif build_info == 'USER_INPUT':
             Version=configs_config.get('VERSION')
         col_stats=configs.get('R'+Version[0])[collection]

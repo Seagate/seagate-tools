@@ -67,7 +67,7 @@ def get_latest_iteration(query, db_collection):
 def check_first_client(query, db_collection, itr):
     query.update(Iteration=itr)
     cursor = db_collection.distinct('HOST', query)
-    if (len(cursor) < query["Count_of_Clients"]):
+    if (len(cursor) < query["Clients_Count"]):
         cur_client = socket.gethostname()
         if cur_client in cursor:
             print(f"Multi-Client Run: Re-Upload from client {cur_client} detected. Existing data in DB from this client for current run will get overwritten")
@@ -101,7 +101,7 @@ class s3bench:
 
 # Set for uploading to db
         self.Primary_Set = {
-                "Name" : "S3bench" ,
+                "Tool" : "S3bench" ,
                 "Config_ID":self.Config_ID,
                 "run_ID" : self.run_ID
                 }
@@ -288,11 +288,11 @@ def insert_config_details(sanity_config , run_ID):
         "GID" : GID,
         "run_ID" : run_ID,
         "Nodes" : nodes,
-        "Count_of_Servers": nodes_num ,
+        "Nodes_Count": nodes_num ,
         "Clients" : clients,
-        "Count_of_Clients" : clients_num,
-        "Percentage_full": configs_config.get('PC_FULL'),
-        "Custom" : configs_config.get('CUSTOM'),
+        "Clients_Count" : clients_num,
+        "Cluster_Fill": configs_config.get('PC_FULL'),
+        "Custom_Label" : configs_config.get('CUSTOM'),
         "Baseline" : int(-1),
         "Comment" : "NA"
         }

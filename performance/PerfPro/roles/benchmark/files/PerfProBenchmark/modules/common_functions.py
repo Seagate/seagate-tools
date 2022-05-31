@@ -21,7 +21,7 @@ def makeconnection(main_config, collection, database):
     return db, collection
 
 
-def getallfiles(directory, extension):
+def get_files_from_directory(directory, extension):
     """function to return all file names with perticular extension"""
     flist = []
     for path, _, files in os.walk(directory):
@@ -40,3 +40,12 @@ def remove_emptys_from_list(data):
 
 def get_metric_value(data):
     return remove_emptys_from_list(data.split(" "))[-1][:-1]
+
+
+def import_perfpro_config():
+    fname = "./perfpro_config.yml"
+    try:
+        with open(fname, 'r') as config_file:
+            return yaml.safe_load(config_file)
+    except OSError:
+        print(f"OS error occurred trying to open {fname}")

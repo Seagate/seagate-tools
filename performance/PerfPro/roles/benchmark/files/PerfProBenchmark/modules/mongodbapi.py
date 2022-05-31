@@ -126,7 +126,7 @@ def add_document(data: dict,
     with MongoClient(uri) as client:
         pymongo_db = client[db_name]
         tests = pymongo_db[collection]
-        result = tests.insert_one(data)
+        result = tests.insert(data)
         return True, result
 
 
@@ -245,12 +245,12 @@ def aggregate(data: list,
 
 @pymongo_exception
 def get_highest_value_document(query: dict,
-                   field: str,
-                   projection: dict,
-                   uri: str,
-                   db_name: str,
-                   collection: str
-                   ) -> Union[bool, str]:
+                               field: str,
+                               projection: dict,
+                               uri: str,
+                               db_name: str,
+                               collection: str
+                               ) -> Union[bool, str]:
     """
     Return highest value for given field in mongodb records
 

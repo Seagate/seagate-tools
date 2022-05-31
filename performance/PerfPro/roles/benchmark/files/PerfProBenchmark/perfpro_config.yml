@@ -1,0 +1,49 @@
+execution_type:
+solution:
+custom_label:
+
+build:
+  generation_type: 
+  url: 
+  number:
+  version:
+  branch:
+
+cluster:
+  nodes:
+    -
+  clients:
+    -
+  endpoint:
+  os:
+  password:
+  fill_percent: 
+
+database:
+    url:
+    name: "performance_db"
+
+    collections:
+      r1:
+        results: results_1
+        sys_stats: systemresults_1
+        config: configurations_1
+      r2:
+        results: results_2
+        sys_stats: systemresults_2
+        config: configurations_2
+      lc:
+        results: lc
+        sys_stats: lc_sys
+        config: lc_config
+      
+
+sanity:
+  database:
+    url:
+    name: "performance_db"
+
+    collections:
+      config: "sanity_config"
+      run_details: "sanity_run_details"
+      results: "sanity_results"

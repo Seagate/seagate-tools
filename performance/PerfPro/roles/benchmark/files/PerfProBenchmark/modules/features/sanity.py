@@ -29,28 +29,6 @@ class Sanity(S3bench):
     def __init__(self, overwrite_flag) -> None:
         super().__init__(overwrite_flag)
 
-    def update_or_insert_document(self, query, collection, id_key):
-        status, docs = mapi.count_documents(
-            query, self.db_uri, self.db_name, getattr(self, collection))
-        if status and not docs:
-            updation_status, result = mapi.add_document(
-                query, self.db_uri, self.db_name, getattr(self, collection))
-            if updation_status:
-                setattr(self, id_key, result)
-        elif status:
-            updation_status, result = mapi.find_documents(
-                query, None, self.db_uri, self.db_name, getattr(self, collection))
-            if updation_status:
-                setattr(self, id_key, docs[0]["_id"])
-        else:
-            print(
-                f"Status {docs[0]} while counting Mongo DB record: ", docs[1])
-
-        if not updation_status:
-            print(
-                f"Status {result[0]} while inserting Mongo DB record: ", result[1])
-            setattr(self, id_key, None)
-
     def insert_sanity_run_details(self, repo_details, pr_id):
         rd_schema = schemas.get_sanity_details_schema()
         rd_schema["other_repos"] = list(repo_details)
@@ -67,7 +45,7 @@ class Sanity(S3bench):
 
             rd_schema[key] = repo["repo"]
 
-        self.update_or_insert_document(rd_schema, "run_details_col", "run_id")
+        cf.update_or_insert_document(rd_schema, rd_schema, "run_details_col", "run_id")
 
     def insert_sanity_config(self, username, gid):
         sc_schema = schemas.get_sanity_config_schema()
@@ -80,7 +58,7 @@ class Sanity(S3bench):
         sc_schema["Clients_Count"] = len(sc_schema["Clients"])
         sc_schema["Cluster_Fill"] = self.perfpro_config["cluster"]["fill_percent"]
 
-        self.update_or_insert_document(sc_schema, "config_col", "config_id")
+        cf.update_or_insert_document(sc_schema, sc_schema, "config_col", "config_id")
 
     def insert_sanity_results(self, log_path):
         files_found, files = cf.get_files_from_directory(log_path, ".s3bench")

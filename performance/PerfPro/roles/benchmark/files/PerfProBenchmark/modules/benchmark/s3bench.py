@@ -92,17 +92,8 @@ class S3bench:
                 self.extract_s3bench_results(self, file, operation)
                 primary_set = schemas.set_s3bench_primary_set(self, operation)
 
-                insertion_set = schemas.set_s3bench_results_schema(
+                insertion_set = schemas.set_s3bench_insertion_set(
                     self, primary_set, file)
 
-                self.insert_performance_resuls(
-                    self, "results_col", primary_set, insertion_set)
-
-
-def execute_s3bench():
-    sobj = S3bench(sys.argv[2])
-
-    sobj.db_uri = sobj.perfpro_config["database"]["url"]
-    sobj.db_name = sobj.perfpro_config["database"]["name"]
-
-    sobj.insert_s3bench_results(sys.argv[1])
+                self.insert_performance_results(
+                    self, self.col["results"], primary_set, insertion_set)

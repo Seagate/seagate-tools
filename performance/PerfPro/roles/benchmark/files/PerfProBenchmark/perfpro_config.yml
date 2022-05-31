@@ -2,6 +2,12 @@ execution_type:
 solution:
 custom_label:
 
+run:
+  overwrite: 
+  system_stats: 
+  degraded_io:
+  copy_object:  
+
 build:
   generation_type: 
   url: 
@@ -18,6 +24,12 @@ cluster:
   os:
   password:
   fill_percent: 
+
+archive:
+  server:
+  share:
+  mountpoint:
+  target_dir:
 
 database:
     url:

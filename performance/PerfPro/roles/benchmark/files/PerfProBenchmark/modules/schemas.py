@@ -105,3 +105,13 @@ def get_s3bench_primary_set():
         "Percentage_full": 0,
         "Custom": ""
     }
+
+def get_performance_config_set():
+    return{
+        "Operation": "",
+        "Object_Size" : "",
+        "Buckets" : "",
+        "Objects" : "",
+        "Sessions" : ""
+    }
+

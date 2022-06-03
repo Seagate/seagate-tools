@@ -24,7 +24,7 @@ set -x
 
 SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
-TOOLS_DIR="$SCRIPT_DIR/../../chronometry_v2"
+TOOLS_DIR="$SCRIPT_DIR/../../chronometry"
 
 function main()
 {

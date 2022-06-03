@@ -35,7 +35,7 @@ source "$SCRIPT_DIR/../../perfline.conf"
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/$CLUSTER_TYPE/worker_polymorphic_funcs.sh"
 
-TOOLS_DIR="$SCRIPT_DIR/../../chronometry_v2"
+TOOLS_DIR="$SCRIPT_DIR/../../chronometry"
 STAT_COLLECTION=""
 MKFS=""
 EX_SRV="pdsh -R ssh -S -w $NODES"

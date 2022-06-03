@@ -518,7 +518,7 @@ function collect_artifacts() {
 
         "$SCRIPT_DIR"/merge_m0playdb "$m0playdb_parts"
         rm -f "$m0playdb_parts"
-        #$SCRIPT_DIR/../../chronometry_v2/fix_reqid_collisions.py --fix-db --db ./m0play.db
+        #$SCRIPT_DIR/../../chronometry/fix_reqid_collisions.py --fix-db --db ./m0play.db
     fi
 
     if [[ -n $ADDB_ANALYZE ]] && [[ -f "m0play.db" ]]; then

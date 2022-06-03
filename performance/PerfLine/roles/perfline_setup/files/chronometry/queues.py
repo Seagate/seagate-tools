@@ -207,7 +207,6 @@ def client_req(conn, operation):
 def client_req_queue(conn, ax, hosts, time_interval, show_title):
     start = ['initialised']
     stop = ['stable']
-    opcode = 'M0_OC_WRITE'
     ax[0].set_ylabel('MOTR CLIENT')
 
     writes = client_req(conn, 'M0_OC_WRITE')

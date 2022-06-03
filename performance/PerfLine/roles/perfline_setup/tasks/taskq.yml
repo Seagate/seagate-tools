@@ -30,14 +30,14 @@
       dest: "{{ PERFLINE_DIR }}"
     delegate_to: "client-1"
 
-  - name: "Compress directory files/chronometry_v2 into files/chronometry_v2.tar.gz"
+  - name: "Compress directory files/chronometry into files/chronometry.tar.gz"
     archive:
-      path: "{{ role_path }}/files/chronometry_v2"
-      dest: "{{ role_path }}/files/chronometry_v2.tar.gz"
+      path: "{{ role_path }}/files/chronometry"
+      dest: "{{ role_path }}/files/chronometry.tar.gz"
 
-  - name: "Copy perfline chronometry_v2 scripts"
+  - name: "Copy perfline chronometry scripts"
     unarchive:
-      src: "{{ role_path }}/files/chronometry_v2.tar.gz"
+      src: "{{ role_path }}/files/chronometry.tar.gz"
       dest: "{{ PERFLINE_DIR }}"
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"

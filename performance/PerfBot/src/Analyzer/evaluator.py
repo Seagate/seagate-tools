@@ -1,6 +1,7 @@
 import csv
 from datetime import datetime
 import time
+import ast
 
 from Analyzer.rule_handler import read_rulebook
 from store_data import connect_database
@@ -29,7 +30,7 @@ def validator(logic, outcome_map, rule_results_map):
         rule_results_map[key] = state
         formula = formula.replace(key, str(state))
 
-    result = eval(formula)
+    result = ast.literal_eval(formula)
     if result:
         return "Good"
     else:

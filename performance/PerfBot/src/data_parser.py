@@ -1,6 +1,6 @@
 """
 Parser script that filters unstructured data
-To execute: 
+To execute:
 Parent directory: PerfBot
 Command: python ./parser.py <run_ID> <hsbench source file path> <cosbench sourcefile path> <s3bench sourcefile path>
 e.g. python 3 ./parser.py './Data/hsbench/hsbench.log' './Data/cosbench/s3-5050rw.csv' './Data/s3bench/s3bench_Numclients_1_NS_20_size_128Mb.log'

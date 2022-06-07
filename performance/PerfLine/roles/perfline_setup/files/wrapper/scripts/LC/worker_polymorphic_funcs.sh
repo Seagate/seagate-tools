@@ -504,7 +504,7 @@ function collect_artifacts() {
         local m0playdb_parts="$m0d/dumps/m0play*"
 
         # TODO: improve that
-        if [[ "$S3_APP" == "s3rsv" ]]; then
+        if [[ "$S3_APP" == "s3srv" ]]; then
             m0playdb_parts="$m0playdb_parts $s3srv/dumps/m0play*"
         fi
 

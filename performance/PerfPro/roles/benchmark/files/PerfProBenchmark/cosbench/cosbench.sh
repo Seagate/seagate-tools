@@ -160,7 +160,7 @@ start_cosbench() {
 stop_cosbench() {
   ssh "$USERNAME"@"$CONTROLLER" "$(typeset -f stop_cosbench_controller_cmds); stop_cosbench_controller_cmds"
 
-  for driver_host in `cat $DRIVERS_FILE`
+  for driver_host in $(cat "$DRIVERS_FILE")
   do
     printf "Stopping driver on $driver_host...\n"
     # Check if driver_host is  present in driver.conf, if not give error message

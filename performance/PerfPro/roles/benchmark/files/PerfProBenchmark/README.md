@@ -75,8 +75,7 @@ Installation and usage steps:
 			$ sh cosbench.sh stop --controller <CLIENT1-FQDN> --drivers driver-nodes-list 
 
 Log collection to NFS repo :
-```
-   1. In the config.yml file please update the following as per the NFS server details
+```1. In the config.yml file please update the following as per the NFS server details
 
       # Enter Below details for log collection on NFS repo
       NFS_SERVER: <nfs.server.lab.com>
@@ -101,8 +100,7 @@ Log collection to NFS repo :
 ```
 
 CORTX support bundle collection to NFS repo :
-```
-   1. In the config.yml file please update the following as per the NFS server details, other required details for running script will be read from config.yml file. 
+```1. In the config.yml file please update the following as per the NFS server details, other required details for running script will be read from config.yml file. 
 
       #Enter Below details for log collection on NFS repo
       NFS_SERVER: <nfs.server.lab.com>

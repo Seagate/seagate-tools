@@ -30,7 +30,12 @@ set -x
 # DISKS=`echo "$RESULT" | grep 'IO:' | sed 's/IO://'`
 
 # LC CODE
-DISKS=$(cat /tmp/cortx_disks_map | grep 'IO:' | sed 's/IO://')
+SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_DIR="${SCRIPT_PATH%/*}"
+CLUSTER_CONFIG_FILE="/tmp/cluster.conf"
+DISKS_MAP="/tmp/cortx_disks_map"
+python3 "$SCRIPT_DIR"/extract_disks.py "$CLUSTER_CONFIG_FILE" > "$DISKS_MAP"
+DISKS=$(cat "$DISKS_MAP" | grep 'IO:' | sed 's/IO://')
 
 function removing_dir()
 {

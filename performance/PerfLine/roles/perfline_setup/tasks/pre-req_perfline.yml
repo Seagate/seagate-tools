@@ -112,3 +112,10 @@
        dest: "{{ PERFLINE_DIR }}/bin/s3bench_perfline"
        mode: '0751'
     delegate_to: "client-1"
+
+  - name: "Copy rgw_addb_plugin.so file to client machine"
+    copy:
+       src: "{{ role_path }}/files/rgw_addb_plugin.so"
+       dest: "{{ PERFLINE_DIR }}/bin/rgw_addb_plugin.so"
+       mode: '0751'
+    delegate_to: "client-1"

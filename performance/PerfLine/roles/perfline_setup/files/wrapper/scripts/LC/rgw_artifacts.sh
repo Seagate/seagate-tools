@@ -74,7 +74,7 @@ function save_rgw_configs() {
             pushd "$cont"
 
             # Copy config
-            local conf_file=$(ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- ps auxww" | grep radosgw | tr ' ' '\n' | grep '\.conf$')
+            local conf_file=$(ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- ps auxww" | grep radosgw | tr ' ' '\n' | grep -m 1 '\.conf$')
 
             if [[ -n "$conf_file" ]]; then
                 local conf_filename=$(echo "$conf_file" | awk -F "/" '{print $NF}')

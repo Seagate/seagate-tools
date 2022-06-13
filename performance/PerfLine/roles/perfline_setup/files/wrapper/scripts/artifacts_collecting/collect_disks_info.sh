@@ -33,8 +33,9 @@ set -e
 # MD_DISKS=`echo "$RESULT" | grep 'MD:' | sed 's/MD://'`
 
 # LC CODE
-DISKS=$(cat /tmp/cortx_disks_map | grep 'IO:' | sed 's/IO://')
-MD_DISKS=$(cat /tmp/cortx_disks_map | grep 'MD:' | sed 's/MD://')
+DISKS_MAP="/tmp/cortx_disks_map"
+DISKS=$(cat "$DISKS_MAP" | grep 'IO:' | sed 's/IO://')
+MD_DISKS=$(cat "$DISKS_MAP" | grep 'MD:' | sed 's/MD://')
 
 
 function main()

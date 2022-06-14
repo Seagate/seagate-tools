@@ -25,7 +25,6 @@ configs_main = makeconfig(Main_path)
 configs_config= makeconfig(Config_path)
 
 build_info=configs_config.get('BUILD_INFO')
-build_url=configs_config.get('BUILD_URL')
 docker_info=configs_config.get('DOCKER_INFO')
 nodes_list=configs_config.get('NODES')
 clients_list=configs_config.get('CLIENTS')

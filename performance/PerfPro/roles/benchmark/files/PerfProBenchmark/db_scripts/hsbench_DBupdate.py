@@ -28,7 +28,6 @@ configs_main = makeconfig(Main_path)
 configs_config= makeconfig(Config_path)
 
 build_info=configs_config.get('BUILD_INFO')
-build_url=configs_config.get('BUILD_URL')
 nodes_list=configs_config.get('NODES')
 clients_list=configs_config.get('CLIENTS')
 pc_full=configs_config.get('PC_FULL')

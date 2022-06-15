@@ -37,6 +37,7 @@ CORTX_SERVER_POD_PREFIX="cortx-server"
 
 M0D_INIT_PID=1
 S3_INIT_PID=10001
+RGW_INIT_PID=10001
 M0CRATE_INIT_PID=20001
 
 
@@ -397,9 +398,15 @@ function check_existing_docker() {
 function start_docker_container() {
     local image
 
+    local pod_type="$1"
+
+    if [[ -z "$pod_type" ]]; then
+        pod_type="cortxdata"
+    fi
+
     set +e
     check_existing_docker
-    image=$(ssh "$PRIMARY_NODE" "cat $K8S_SCRIPTS_DIR/solution.yaml" | grep "cortxdata:" | awk '{print $2}')
+    image=$(ssh "$PRIMARY_NODE" "cat $K8S_SCRIPTS_DIR/solution.yaml" | grep "${pod_type}:" | awk '{print $2}')
     ssh "$PRIMARY_NODE" "docker run --rm -dit --name $DOCKER_CONTAINER_NAME --mount type=bind,source=$LOCAL_MOUNT_POINT,target=/share $image sleep infinity"
     set -e
 }
@@ -506,6 +513,8 @@ function collect_artifacts() {
         # TODO: improve that
         if [[ "$S3_APP" == "s3srv" ]]; then
             m0playdb_parts="$m0playdb_parts $s3srv/dumps/m0play*"
+        elif [[ "$S3_APP" == "rgw" ]]; then
+            m0playdb_parts="$m0playdb_parts rgw/dumps/m0play*"
         fi
 
         if [[ -n "$RUN_M0CRATE" ]]; then

@@ -200,6 +200,15 @@ class ADDB2PP:
         return(("request", { 'time': ADDB2PP.to_unix(time), 'state': state,
                              'id': int(sm_id), "pid": PID, "type_id": table }))
 
+    def p_rgw_req(measurement, labels, table):
+        name   = measurement[2]
+        time   = measurement[1]
+        state  = measurement[-3][0:-1]
+        phase  = measurement[-1]
+        sm_id  = int(measurement[4].translate(str.maketrans(","," ")))
+        return(("request", { 'time': ADDB2PP.to_unix(time), 'state': state + "::" + phase,
+                             'id': int(sm_id), "pid": PID, "type_id": table }))
+
     # ['*', '2019-08-29-12:16:54.279414683',
     #  'client-to-dix', 'client_id:', '1170,', 'dix_id:', '1171']
     def p_1_to_2(measurement, labels, table):
@@ -426,6 +435,9 @@ class ADDB2PP:
             "s3-request-to-motr"  : (ADDB2PP.p_1_to_2,    "s3_request_to_client"),
             "s3-request-state"    : (ADDB2PP.p_sm_req,    "s3_request_state"),
             "s3-request-uid"      : (ADDB2PP.s3req_uid,   "s3_request_uid"),
+            "rgw-request-state"   : (ADDB2PP.p_rgw_req,   "rgw_request_state"),
+            "rgw-request-opcode"  : (ADDB2PP.p_attr,      "attr"),
+            "rgw-request-to-motr" : (ADDB2PP.p_1_to_2,    "rgw_request_to_client"),
         }
 
 

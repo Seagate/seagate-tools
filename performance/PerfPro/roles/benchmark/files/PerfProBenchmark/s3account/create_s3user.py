@@ -4,6 +4,7 @@ import sys
 import json
 import requests
 import warnings
+import yaml
 
 ## Turn off ssl related python warnings
 ## -------------------------------------
@@ -11,14 +12,25 @@ warnings.filterwarnings('ignore')
 
 ## Cluster Details
 ## ----------------
-url=f'https://{sys.argv[1]}:31169'
-adminusr = 'cortxadmin'
-adminpwd = 'Cortxadmin@123'
-s3account = 'perfpro'
-password = "Seagate@1"
-email = "perfpro@seagate.com"
-access_key = "AKIA_KN5IwWHRsqgHI9qUA0kuQ"
-secret_key = "+yk3nsSwVDhIqybtEmUaWkD+ypcHsGcZnWKMxYBS"
+
+Config_path = '/root/PerfProBenchmark/config.yml'
+url = f'https://{sys.argv[1]}:31169'
+
+
+def makeconfig(name):  # function for connecting with configuration file
+    with open(name) as config_file:
+        configs = yaml.safe_load(config_file)
+    return configs
+
+
+configs_config = makeconfig(Config_path)
+admin_user = configs_config.get('ADMIN_USER')
+admin_passwd = configs_config.get('ADMIN_PASSWD')
+s3_account = configs_config.get('S3_ACCOUNT')
+account_passwd = configs_config.get('ACCOUNT_PASSWD')
+email = configs_config.get('EMAIL')
+access_key = configs_config.get('ACCESS_KEY')
+secret_key = configs_config.get('SECRET_KEY')
 
 ## API Locations
 ## --------------
@@ -31,7 +43,7 @@ ansible_response = dict()
 ## Requesting Admin Login
 ## ----------------------
 api_url=f'{url}{api_login}'
-params={'username': adminusr, 'password': adminpwd}
+params={'username': admin_user, 'password': admin_passwd}
 params=json.dumps(params)
 response = requests.post(api_url, data=params, verify=True)
 authToken = response.headers["Authorization"]
@@ -43,7 +55,7 @@ if response.status_code != 200:
 ## Requesting s3 user creation
 ## ---------------------------
 api_url=f"{url}{api_s3user}"
-params={"account_name": s3account, "password": password, "account_email": email, "access_key": access_key, "secret_key": secret_key}
+params={"account_name": s3_account, "password": account_passwd, "account_email": email, "access_key": access_key, "secret_key": secret_key}
 params=json.dumps(params)
 response = requests.post(api_url, verify=True, headers={"Authorization": authToken, "Content-Type": "application/json"}, data=params)
 ansible_response["status"] = response.status_code

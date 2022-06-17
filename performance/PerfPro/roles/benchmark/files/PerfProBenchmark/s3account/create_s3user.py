@@ -6,16 +6,14 @@ import requests
 import warnings
 import yaml
 
-## Turn off ssl related python warnings
-## -------------------------------------
+# Turn off ssl related python warnings
+# -------------------------------------
 warnings.filterwarnings('ignore')
 
 ## Cluster Details
 ## ----------------
-
 Config_path = '/root/PerfProBenchmark/config.yml'
 url = f'https://{sys.argv[1]}:31169'
-
 
 def makeconfig(name):  # function for connecting with configuration file
     with open(name) as config_file:
@@ -32,11 +30,12 @@ email = configs_config.get('EMAIL')
 access_key = configs_config.get('ACCESS_KEY')
 secret_key = configs_config.get('SECRET_KEY')
 
-## API Locations
-## --------------
-api_login='/api/v2/login'
-api_s3user='/api/v2/s3_accounts'
-api_logout='/api/v2/logout'
+
+# API Locations
+# --------------
+api_login = '/api/v2/login'
+api_s3user = '/api/v2/s3_accounts'
+api_logout = '/api/v2/logout'
 
 ansible_response = dict()
 
@@ -45,12 +44,14 @@ ansible_response = dict()
 api_url=f'{url}{api_login}'
 params={'username': admin_user, 'password': admin_passwd}
 params=json.dumps(params)
+
 response = requests.post(api_url, data=params, verify=True)
 authToken = response.headers["Authorization"]
 if response.status_code != 200:
     ansible_response["status"] = response.status_code
     print(json.dumps(ansible_response))
     sys.exit(0)
+
 
 ## Requesting s3 user creation
 ## ---------------------------
@@ -64,7 +65,8 @@ if response.status_code == 201:
     ansible_response["secret"] = response.json()["secret_key"]
 print(json.dumps(ansible_response))
 
-## Requesting Admin Logout
-## -----------------------
-api_url=f'{url}{api_logout}'
-response = requests.post(api_url, verify=True, headers={'Authorization': authToken})
+# Requesting Admin Logout
+# -----------------------
+api_url = f'{url}{api_logout}'
+response = requests.post(api_url, verify=True, headers={
+                         'Authorization': authToken})

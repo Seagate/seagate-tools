@@ -27,19 +27,21 @@ class collect_logs:
         os.system('mkdir -p ' + mount_point)
         os.system('mount ' + nfs_server + ':' + nfs_export + ' ' + mount_point)
         return 'Export mounted'
-    
+
     @classmethod
     def zip_logs(cls):
         """Create the Zipped copy of recently collected logs by benchmarking tool"""
 
-        os.system(' tar -cvzf ' + mount_point + '/' + log_dest + '/' + log_source + '.tar.gz' + ' -P ' + log_source)
+        os.system(' tar -cvzf ' + mount_point + '/' + log_dest +
+                  '/' + log_source + '.tar.gz' + ' -P ' + log_source)
         return 'logs collected and zipped as ' + log_source + '.tar.gz'
-    
+
     @classmethod
     def copy_logs(cls, source_zip_prefix=None, time_string=None):
         """Copy the Zipped copy to NFS Repo"""
 
-        shutil.copy(source_zip_prefix + time_string + '.tar.gz', mount_point + '/' + log_dest)
+        shutil.copy(source_zip_prefix + time_string +
+                    '.tar.gz', mount_point + '/' + log_dest)
         return 'Logs copied to NFS Repo.'
 
     @classmethod
@@ -53,7 +55,7 @@ class collect_logs:
         """Delete tar.gz file from current location"""
 
         return os.remove(source_zip_prefix + time_string + '.tar.gz')
-    
+
     @classmethod
     def unmount_nfs(cls):
         """Unmounts the NFS export and deleted the mountpoint"""
@@ -70,4 +72,3 @@ print(logs.zip_logs())
 # print(logs.delete_tarfile())
 # print(logs.show_logs())
 print(logs.unmount_nfs())
-

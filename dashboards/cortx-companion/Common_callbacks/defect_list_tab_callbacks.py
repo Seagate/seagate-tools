@@ -98,28 +98,24 @@ def create_te_defects(n_clicks, ids):
                 invalid_id.append(input_id)
                 continue
 
-            for te_id in te_ids:
-                issue_list = []
-                jira_link = 'https://jts.seagate.com/rest/raven/1.0/api/testexec/' + \
-                            str(te_id) + '/test?detailed=true'
-                response = requests.get(jira_link, auth=(common.jira_username,
-                                                         common.jira_password))
-                test_execution_data = response.json()
-                for each in test_execution_data:
-                    for defect_no in range(len(each['defects'])):
-                        issue_list.append(each['defects'][defect_no]['key'])
-                if common.DEBUG_PRINTS:
-                    print("Issue List for TE:{} Issue :{}".format(te_id, issue_list))
-                te_df = common.get_issue_details(issue_list)
-
-                for _ in te_df:
-                    te_df["test_execution"] = te_id
-                    te_df["test_plan"] = tp_id
-                df_execution_wise_defect = df_execution_wise_defect.append(te_df)
+            df_execution_wise_defect = _populate_te_data_frame(df_execution_wise_defect, te_ids,
+                                                               tp_id)
 
     df_execution_wise_defect["issue_no"] = df_execution_wise_defect["issue_no"].apply(common.add_link)
     if common.DEBUG_PRINTS:
         print("create_te_defects : Dataframe : {}".format(df_execution_wise_defect))
+    execution_wise_defect = _construct_te_dash_table(df_execution_wise_defect)
+    if len(invalid_id) > 0:
+        error_string = error_string + str(invalid_id)
+    else:
+        error_string = ""
+    return execution_wise_defect, error_string
+
+
+def _construct_te_dash_table(df_execution_wise_defect):
+    """
+    Construct a dash table consisting of TE's with their corresponding defect IDs.
+    """
     col = []
     for i in df_execution_wise_defect.columns:
         if i == "issue_no":
@@ -127,7 +123,6 @@ def create_te_defects(n_clicks, ids):
                 {"name": str(i).upper(), "id": i, "type": 'text', "presentation": "markdown"})
         else:
             col.append({"name": str(i).upper(), "id": i})
-
     execution_wise_defect = dash_table.DataTable(
         id="execution_wise_defect",
         columns=col,
@@ -143,8 +138,30 @@ def create_te_defects(n_clicks, ids):
             'overflowY': 'auto'
         }
     )
-    if len(invalid_id) > 0:
-        error_string = error_string + str(invalid_id)
-    else:
-        error_string = ""
-    return execution_wise_defect, error_string
+    return execution_wise_defect
+
+
+def _populate_te_data_frame(df_execution_wise_defect, te_ids, tp_id):
+    """
+    Construct a dataframe consisting of TE's with their linked defect IDs and TP ID.
+    Dataframe contains Priority,Component,Name and Issue id of issues.
+    """
+    for te_id in te_ids:
+        issue_list = []
+        jira_link = 'https://jts.seagate.com/rest/raven/1.0/api/testexec/' + \
+                    str(te_id) + '/test?detailed=true'
+        response = requests.get(jira_link, auth=(common.jira_username,
+                                                 common.jira_password))
+        test_execution_data = response.json()
+        for each in test_execution_data:
+            for defect_no in range(len(each['defects'])):
+                issue_list.append(each['defects'][defect_no]['key'])
+        if common.DEBUG_PRINTS:
+            print("Issue List for TE:{} Issue :{}".format(te_id, issue_list))
+        te_df = common.get_issue_details(issue_list)
+
+        for _ in te_df:
+            te_df["test_execution"] = te_id
+            te_df["test_plan"] = tp_id
+        df_execution_wise_defect = df_execution_wise_defect.append(te_df)
+    return df_execution_wise_defect

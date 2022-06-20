@@ -38,13 +38,13 @@ STABLE_WORKLOAD_DIR="$PERFLINE_DIR/wrapper/workload/daemon_runs/stable"
 MAIN_WORKLOAD_DIR="$PERFLINE_DIR/wrapper/workload/daemon_runs/main"
 
 function stable_build() {
-    BUILD_LIST=$(curl -s $STABLE_BUILD_URL/ | grep href | sed 's/.*href="//' | sed 's/".*//' | grep -o '[[:digit:]]*' | sort -n)
+    BUILD_LIST=$(curl -s "$STABLE_BUILD_URL"/ | grep href | sed 's/.*href="//' | sed 's/".*//' | grep -o '[[:digit:]]*' | sort -n)
     for build in $BUILD_LIST;
     do
        if [ "$build" -ge "$BUILDNO" ]
        then
            BUILD_URLS=("$STABLE_BUILD_URL/$build/prod/")
-           for workload_file in $(ls $STABLE_WORKLOAD_DIR/*.yaml)
+           for workload_file in $(ls "$STABLE_WORKLOAD_DIR"/*.yaml)
            do
 	       	python3 - "$workload_file" "$build" "$BUILD_URLS" << EOF
 import sys

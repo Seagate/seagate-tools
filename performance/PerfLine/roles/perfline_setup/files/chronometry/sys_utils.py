@@ -214,7 +214,7 @@ class Histogram():
                   fancybox=True, framealpha=0.7,
                   handlelength=0, handletextpad=0)
 
-    def name(self):
+    def histogram_name(self):
         return self.name
 
     def merge(self, histogram):
@@ -463,8 +463,8 @@ class Queue():
         ymax = df[self.label].max()
         ax.set_ylim([0, ymax * 2] )
 
-    def name(self):
-        return self.name
+    # def name(self):
+    #    return self.name
 
 class RPS():
     def __init__(self, layer, states, avg_window='1s',
@@ -531,8 +531,8 @@ class RPS():
         ymax = self.rps[self.label].max()
         ax.set_ylim([0, ymax * 2] )
 
-    def name(self):
-        return self.name
+    # def name(self):
+    #     return self.name
 
 class Latency():
     MILLISECOND_SCALE = 10**6
@@ -596,11 +596,11 @@ class Latency():
         ymax = self.latency[self.label].max()
         ax.set_ylim([0, ymax * 2] )
 
-    def name(self):
-        return self.name
+    # def name(self):
+    #     return self.name
 
     def merge(self, latency):
-        self.latency = pd.concat([self.latency, histogram.latency], ignore_index=True)
+        self.latency = pd.concat([self.latency, latency], ignore_index=True)
         self.latency.reset_index(drop=True)
 
 class Attr():
@@ -687,8 +687,8 @@ class MBPS():
         ymax = self.mbps.max()
         ax.set_ylim([0, ymax * 2] )
 
-    def name(self):
-        return self.name
+    #def name(self):
+    #    return self.name
 
     def get_pids(self):
         return list(set(self.pids.to_list()))

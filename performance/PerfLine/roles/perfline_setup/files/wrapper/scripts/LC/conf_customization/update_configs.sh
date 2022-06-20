@@ -95,7 +95,8 @@ function customize_solution_config()
     if [[ -n "$MOTR_PARAMS" ]]; then
         local base_docker_image=$(cat "$SOLUTION_CONFIG" | grep cortxdata: | awk '{print $2}')
         local base_docker_image_name=$(echo "$base_docker_image" | awk -F ':' '{print $1}')
-        local base_docker_image_tag=$(echo "$base_docker_image" | awk -F ':' '{print $2}')
+        # below local variable not being used in this function
+        # local base_docker_image_tag=$(echo "$base_docker_image" | awk -F ':' '{print $2}')
         local new_docker_image="$base_docker_image_name:perfline_$TASK_ID"
 
         "$SCRIPT_DIR"/../update_docker_image.sh \

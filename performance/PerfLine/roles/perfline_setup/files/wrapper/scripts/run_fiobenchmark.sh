@@ -25,11 +25,10 @@ set -x
 #
 # Variables deaclaration
 #
-CLUSTER_CONFIG_FILE="/var/lib/hare/cluster.yaml"
-ASSIGNED_IPS=$(ifconfig | grep inet | awk '{print $2}')
+CLUSTER_CONFIG_FILE="/tmp/cluster.yaml"
 SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
-RESULT=$(python3 "$SCRIPT_DIR"/../stat/extract_disks.py $CLUSTER_CONFIG_FILE "$ASSIGNED_IPS")
+RESULT=$(python3 "$SCRIPT_DIR"/../stat/extract_disks.py $CLUSTER_CONFIG_FILE)
 DISKS=$(echo "$RESULT" | cut -d' ' -f 2-)
 PERFLINE_DIR="/var/perfline/"
 

@@ -18,7 +18,6 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 # -*- coding: utf-8 -*-
-#
 
 # METADATA PATH DB SCHEMA DIAGRAM
 # ===============================
@@ -57,34 +56,28 @@
 
 import argparse
 import logging
+from sqlite3 import OperationalError
 import yaml
 import numpy
 import time
-from sqlite3 import OperationalError
 from peewee import TextField
 from peewee import IntegerField
 from peewee import SqliteDatabase
 from peewee import Model
 from peewee import chunked
-from typing import List
-import multiprocessing
 from itertools import zip_longest
 from collections import defaultdict
 from tqdm import tqdm
 from plumbum.cmd import wc
-from math import ceil
 import sys
-from functools import partial
-from os.path import basename, splitext
+from os.path import basename
 import re
-from dateutil.parser import parse as dtparse
-from datetime import datetime
+import json
 
 
 DB      = SqliteDatabase(None)
-BLOCK   = 16<<10
-PROC_NR = 48
-DBBATCH = 95
+BLOCK   = 32<<10
+DBBATCH = 777
 PID     = 0
 
 def die(what: str):
@@ -96,154 +89,21 @@ def die(what: str):
 class BaseModel(Model):
     class Meta:
         database = DB
+        primary_key = False
 
-class fom_to_tx(BaseModel):
-    pid    = IntegerField()
-    fom_id = IntegerField()
-    tx_id  = IntegerField()
+class relation(BaseModel):
+    pid1 = IntegerField()
+    mid1 = IntegerField()
+    pid2 = IntegerField()
+    mid2 = IntegerField()
+    type_id = TextField()
 
-class cas_fom_to_crow_fom(BaseModel):
-    pid          = IntegerField()
-    fom_id       = IntegerField()
-    crow_fom_id  = IntegerField()
-
-class fom_desc(BaseModel):
-    time       = IntegerField()
-    pid        = IntegerField()
-    service    = TextField()
-    sender     = TextField()
-    req_opcode = TextField()
-    rep_opcode = TextField()
-    local      = TextField()
-    rpc_sm_id  = IntegerField()
-    fom_sm_id  = IntegerField()
-    fom_state_sm_id = IntegerField()
-
-class sxid_to_rpc(BaseModel):
-    time       = IntegerField()
-    pid        = IntegerField()
-    opcode     = IntegerField()
-    xid        = IntegerField()
-    session_id = IntegerField()
-    id         = IntegerField()
-
-class rpc_to_sxid(BaseModel):
-    time       = IntegerField()
-    pid        = IntegerField()
-    opcode     = IntegerField()
-    xid        = IntegerField()
-    session_id = IntegerField()
-    id         = IntegerField()
-
-class fom_req(BaseModel):
-    time   = IntegerField()
-    pid    = IntegerField()
-    id     = IntegerField()
-    state  = TextField()
-
-class fom_req_state(BaseModel):
-    time   = IntegerField()
-    pid    = IntegerField()
-    id     = IntegerField()
-    state  = TextField()
-
-class tx_to_gr(BaseModel):
-    pid   = IntegerField()
-    tx_id = IntegerField()
-    gr_id = IntegerField()
-
-class be_tx(BaseModel):
-    time   = IntegerField()
-    pid    = IntegerField()
-    id     = IntegerField()
-    state  = TextField()
-
-class rpc_req(BaseModel):
-    time   = IntegerField()
-    pid    = IntegerField()
-    id     = IntegerField()
-    state  = TextField()
-
-class client_req(BaseModel):
-    time   = IntegerField()
-    pid    = IntegerField()
-    id     = IntegerField()
-    state  = TextField()
-
-class dix_req(BaseModel):
-    time   = IntegerField()
-    pid    = IntegerField()
-    id     = IntegerField()
-    state  = TextField()
-
-class cas_req(BaseModel):
-    time   = IntegerField()
-    pid    = IntegerField()
-    id     = IntegerField()
-    state  = TextField()
-
-class cas_to_rpc(BaseModel):
-    pid    = IntegerField()
-    cas_id = IntegerField()
-    rpc_id = IntegerField()
-
-class dix_to_cas(BaseModel):
-    pid    = IntegerField()
-    dix_id = IntegerField()
-    cas_id = IntegerField()
-
-class dix_to_mdix(BaseModel):
+class request(BaseModel):
+    time    = IntegerField()
     pid     = IntegerField()
-    dix_id  = IntegerField()
-    mdix_id = IntegerField()
-
-class client_to_dix(BaseModel):
-    pid       = IntegerField()
-    client_id = IntegerField()
-    dix_id    = IntegerField()
-
-class client_to_cob(BaseModel):
-    pid       = IntegerField()
-    client_id = IntegerField()
-    cob_id    = IntegerField()
-
-class cob_to_rpc(BaseModel):
-    pid    = IntegerField()
-    cob_id = IntegerField()
-    rpc_id = IntegerField()
-
-class client_to_ioo(BaseModel):
-    pid       = IntegerField()
-    client_id = IntegerField()
-    ioo_id    = IntegerField()
-
-class ioo_to_rpc(BaseModel):
-    pid    = IntegerField()
-    ioo_id = IntegerField()
-    rpc_id = IntegerField()
-
-class cob_req(BaseModel):
-    time   = IntegerField()
-    pid    = IntegerField()
-    id     = IntegerField()
-    state  = TextField()
-
-class ioo_req(BaseModel):
-    time   = IntegerField()
-    pid    = IntegerField()
-    id     = IntegerField()
-    state  = TextField()
-
-class fom_to_stio(BaseModel):
-    pid     = IntegerField()
-    fom_id  = IntegerField()
-    stio_id = IntegerField()
-
-class stio_req(BaseModel):
-    time   = IntegerField()
-    pid    = IntegerField()
-    id     = IntegerField()
-    state  = TextField()
+    id      = IntegerField()
+    state   = TextField()
+    type_id = TextField()
 
 class attr(BaseModel):
     entity_id = IntegerField()
@@ -251,64 +111,17 @@ class attr(BaseModel):
     name      = TextField()
     val       = TextField()
 
-class bulk_to_rpc(BaseModel):
-    bulk_id = IntegerField()
-    rpc_id  = IntegerField()
-    pid     = IntegerField()
-
-class queues(BaseModel):
-    pid  = IntegerField()
-    type = TextField()
-    locality = IntegerField()
-    time = IntegerField()
-    nr   = IntegerField()
-    min  = IntegerField()
-    max  = IntegerField()
-    avg  = FloatField()
-    dev  = FloatField()
-
-class s3_request_to_client(BaseModel):
-    pid           = IntegerField()
-    s3_request_id = IntegerField()
-    client_id     = IntegerField()
-
 class s3_request_uid(BaseModel):
     pid = IntegerField()
     id  = IntegerField()
     uuid = TextField()
 
-class s3_request_state(BaseModel):
-    time  = IntegerField()
-    pid   = IntegerField()
-    id    = IntegerField()
-    state = TextField()
+class host(BaseModel):
+    pid      = IntegerField()
+    hostname = TextField()
 
-class s3_measurement(BaseModel):
-    time  = IntegerField()
-    pid   = IntegerField()
-    name  = TextField()
-    val1  = IntegerField(null=False)
-    val2  = IntegerField(null=True)
-    val3  = IntegerField(null=True)
-    val4  = IntegerField(null=True)
-    val5  = IntegerField(null=True)
-    val6  = IntegerField(null=True)
-    val7  = IntegerField(null=True)
-    val8  = IntegerField(null=True)
-    val9  = IntegerField(null=True)
-    val10  = IntegerField(null=True)
-    val11  = IntegerField(null=True)
-    val12  = IntegerField(null=True)
-    val13  = IntegerField(null=True)
 
-db_create_delete_tables = [client_to_dix, dix_to_mdix, dix_to_cas, cas_to_rpc,
-                           cas_req, dix_req, client_req, rpc_req, rpc_to_sxid,
-                           sxid_to_rpc, fom_desc, fom_to_tx, fom_req, be_tx,
-                           client_to_cob, cob_to_rpc, client_to_ioo, ioo_to_rpc,
-                           cob_req, ioo_req, fom_req_state, queues, tx_to_gr,
-                           fom_to_stio, stio_req, attr, bulk_to_rpc,
-                           cas_fom_to_crow_fom, s3_request_to_client,
-                           s3_request_uid, s3_request_state, s3_measurement]
+db_create_delete_tables = [relation, request, attr, s3_request_uid, host]
 
 def db_create_tables():
     with DB:
@@ -328,8 +141,23 @@ def db_init(path):
 def db_connect():
     DB.connect()
 
+
 def db_close():
+    """
+    Closes the DB
+    """
     DB.close()
+
+
+def db_idx_create():
+    request.add_index(request.id)
+    request.add_index(request.pid)
+    relation.add_index(relation.mid1)
+    relation.add_index(relation.mid2)
+    relation.add_index(relation.pid1)
+    relation.add_index(relation.pid2)
+    attr.add_index(attr.entity_id)
+    attr.add_index(attr.pid)
 
 # ======================================================================
 
@@ -359,18 +187,115 @@ class ADDB2PP:
 
     # ['*', '2019-09-18-19:08:50.975943665', 'fom-phase',
     #  'sm_id:', '38', '-->', 'HA_LINK_OUTGOING_STATE_WAIT_REPLY']
+
+    #* 2020-11-10-10:50:37.794688308 s3-request-state s3_request_id: 3, state: START
+    #* 2020-11-10-11:35:15.162867033 cob-req-state    cob_id: 2175, cob_state: COB_REQ_SENDING
+    #* 2020-11-10-11:35:15.967095739 stio-req-state   stio_id: 2053, stio_state: M0_AVI_LIO_ENDIO
+
     def p_sm_req(measurement, labels, table):
         name   = measurement[2]
         time   = measurement[1]
         state  = measurement[-1]
-        sm_id  = measurement[4]
-        return((table, { 'time': ADDB2PP.to_unix(time), 'state': state, 'id': int(sm_id) }))
+        sm_id  = int(measurement[4].translate(str.maketrans(","," ")))
+        return(("request", { 'time': ADDB2PP.to_unix(time), 'state': state,
+                             'id': int(sm_id), "pid": PID, "type_id": table }))
+
+    def p_rgw_req(measurement, labels, table):
+        name   = measurement[2]
+        time   = measurement[1]
+        state  = measurement[-3][0:-1]
+        phase  = measurement[-1]
+        sm_id  = int(measurement[4].translate(str.maketrans(","," ")))
+        return(("request", { 'time': ADDB2PP.to_unix(time), 'state': state + "::" + phase,
+                             'id': int(sm_id), "pid": PID, "type_id": table }))
 
     # ['*', '2019-08-29-12:16:54.279414683',
     #  'client-to-dix', 'client_id:', '1170,', 'dix_id:', '1171']
     def p_1_to_2(measurement, labels, table):
-        ret = yaml.safe_load("{"+" ".join(measurement[3:])+"}")
-        return((table, ret))
+        mid1 = int(measurement[4].replace(",",""))
+        mid2 = int(measurement[6])
+        pid1 = PID
+        pid2 = PID
+        type_id = table
+
+        return(("relation", {'mid1': mid1, 'pid1': pid1,
+                             'mid2': mid2, 'pid2': pid2,
+                             'type_id': type_id }))
+
+# * 2020-11-10-10:50:29.739943771 rpc-item-id-assign id: 19,     opcode: 117, xid: 1,    session_id: 1455042236294234156
+# * 2020-11-10-10:50:30.235327857 rpc-item-id-fetch  id: 21,     opcode: 32,  xid: -1,   session_id: 0
+# "rpc-item-id-assign": (ADDB2PP.p_1_to_2_rpc,  "rpc_to_sxid"),
+
+    def p_1_to_2_rpc(measurement, labels, table):
+        name  = measurement[2]
+        time  = measurement[1]
+        #ADDB2PP.clean_yaml
+        ret   = yaml.safe_load("{"+" ".join(measurement[3:])+"}")
+        ret['time']  = ADDB2PP.to_unix(time)
+        type_id = table
+
+        if table == "sxid_to_rpc":
+            return(("relation", {'mid1': ret['xid'], 'pid1': ret['session_id'],
+                                 'mid2': ret['id'],  'pid2': PID,
+                                 'type_id': type_id }))
+        elif table == "rpc_to_sxid":
+            return(("relation", {'mid1': ret['id'],  'pid1': PID,
+                                 'mid2': ret['xid'], 'pid2': ret['session_id'],
+                                 'type_id': type_id }))
+        else:
+            assert(False)
+
+# * 2021-06-08-04:55:56.016273408 conn-uuid-to-sm uuid: 18376028739450869&-8057109032192707171, sm_id: 23
+# * 2021-06-08-04:56:05.189405952 conn-sm-to-uuid sm_id: 128, uuid: 1747424776239521833&-8746343302169642367
+# "conn-uuid-to-sm": (ADDB2PP.p_1_to_2_conn,  "conn_uuid_to_sm"),
+
+    def p_1_to_2_conn(measurement, labels, table):
+        name  = measurement[2]
+        time  = measurement[1]
+        ret   = yaml.safe_load("{"+" ".join(measurement[3:])+"}")
+        ret['time']  = ADDB2PP.to_unix(time)
+        type_id = table
+
+        fake_mid, fake_pid = ret['uuid'].split('&')
+
+        if table == "conn_uuid_to_sm":
+            return(("relation", {'mid1': fake_mid,     'pid1': fake_pid,
+                                 'mid2': ret['sm_id'], 'pid2': PID,
+                                 'type_id': type_id }))
+        elif table == "conn_sm_to_uuid":
+            return(("relation", {'mid1': ret['sm_id'], 'pid1': PID,
+                                 'mid2': fake_mid,     'pid2': fake_pid,
+                                 'type_id': type_id }))
+        else:
+            assert(False)
+
+#* 2020-11-10-10:42:04.735610561 fom-descr        service: <0:0>,         sender: 0x0, req-opcode: none, rep-opcode: none, local: false,
+#                                                 rpc_sm_id: 0, fom_sm_id: 0, fom_state_sm_id: 0
+
+    def p_1_to_2_fom(measurement, labels, table):
+        mid1 = int(measurement[14].replace(",",""))
+        mid2 = int(measurement[16].replace(",",""))
+        pid1 = PID
+        pid2 = PID
+        type_id = table
+
+        result = list()
+
+        fom_attrs = dict()
+        for i in range(3, len(measurement), 2):
+            fom_attr_name = measurement[i].replace(':', '')
+            fom_attr_val = measurement[i + 1].replace('<', '').replace('>', '').replace(',','')
+            fom_attrs[fom_attr_name] = fom_attr_val
+
+        e_id = fom_attrs['fom_sm_id']
+        for k, v in fom_attrs.items():
+            result.append( ('attr', {'entity_id' : e_id, 'pid' : PID, 'name' : k, 'val' : v}) )
+
+        result.append( ("relation", {'mid1': mid1, 'pid1': pid1,
+                             'mid2': mid2, 'pid2': pid2,
+                             'type_id': type_id }) )
+        return result
+
 
     # ['*', '2019-08-29-12:08:23.766071289', 'fom-descr', 'service:', '<0:0>,',  'sender:', '0,', 'req-opcode:', 'none,',  'rep-opcode:', 'none,', 'local:', 'false,', 'rpc_sm_id:', '0,',    'fom_sm_id:', '0']
     # ['*', '2019-08-29-12:16:48.097420953', 'rpc-item-id-assign', 'id:', '19,', 'opcode:', '117,', 'xid:', '1,', 'session_id:', '98789222400000038']
@@ -426,8 +351,8 @@ class ADDB2PP:
         entity_id = measurement[4][:-1]
         attr_name = measurement[5][:-1]
         attr_val  = str(measurement[6])
-        ret   = { 'entity_id': entity_id, 'name': attr_name, 'val': attr_val }
-        return((table, ret))
+        ret   = { 'entity_id': entity_id, 'name': attr_name, 'val': attr_val, 'pid': PID }
+        return(("attr", ret))
 
     # ['*',
     #  '2020-01-26-17:14:57.134583699'
@@ -449,7 +374,7 @@ class ADDB2PP:
             s.reverse()
             return "".join(map(lambda a: f"{a:02x}", s))
 
-        ret = {}
+        ret = {'pid': PID}
         ret['id'] = int(measurement[4][:-1])
         first = s3req_bytes_swap(measurement[6])
         last = s3req_bytes_swap(measurement[8])
@@ -470,18 +395,9 @@ class ADDB2PP:
 
     def __init__(self):
         self.parsers = {
-            "runq"              : (ADDB2PP.p_queue,       "queues"),
-            "wail"              : (ADDB2PP.p_queue,       "queues"),
-            "fom-active"        : (ADDB2PP.p_queue,       "queues"),
-            "loc-forq-hist"     : (ADDB2PP.p_queue,       "queues"),
-            "loc-wait-hist"     : (ADDB2PP.p_queue,       "queues"),
-            "loc-cb-hist"       : (ADDB2PP.p_queue,       "queues"),
-            "loc-queue-hist"    : (ADDB2PP.p_queue,       "queues"),
-            "stob-ioq-inflight" : (ADDB2PP.p_queue,       "queues"),
-            "stob-ioq-queued"   : (ADDB2PP.p_queue,       "queues"),
-            "stob-ioq-got"      : (ADDB2PP.p_queue,       "queues"),
-            "rpc-item-id-fetch" : (partial(ADDB2PP.p_yaml_translate, {}), "sxid_to_rpc"),
-            "fom-descr"         : (partial(ADDB2PP.p_yaml_translate, {}), "fom_desc"),
+            "rpc-item-id-fetch" : (ADDB2PP.p_1_to_2_rpc,   "sxid_to_rpc"),
+            #            "fom-descr"         : (partial(ADDB2PP.p_yaml_translate, {}), "fom_desc"),   # fom_sm_id, fom state_sm_id
+            "fom-descr"         : (ADDB2PP.p_1_to_2_fom,  "rpc_to_fom"),
             "tx-state"          : (ADDB2PP.p_sm_req,      "be_tx"),
             "fom-phase"         : (ADDB2PP.p_sm_req,      "fom_req"),
             "fom-state"         : (ADDB2PP.p_sm_req,      "fom_req_state"),
@@ -490,8 +406,11 @@ class ADDB2PP:
             "cas-to-rpc"        : (ADDB2PP.p_1_to_2,      "cas_to_rpc"),
             "dix-to-cas"        : (ADDB2PP.p_1_to_2,      "dix_to_cas"),
             "dix-to-mdix"       : (ADDB2PP.p_1_to_2,      "dix_to_mdix"),
+            "dtx0-state"        : (ADDB2PP.p_sm_req,      "dtx0"),
             "client-to-dix"     : (ADDB2PP.p_1_to_2,      "client_to_dix"),
-            "rpc-item-id-assign": (partial(ADDB2PP.p_yaml_translate, {}), "rpc_to_sxid"),
+            "rpc-item-id-assign": (ADDB2PP.p_1_to_2_rpc,  "rpc_to_sxid"),
+            "rpc-out-state"     : (ADDB2PP.p_sm_req,      "rpc_req"),
+            "rpc-in-state"      : (ADDB2PP.p_sm_req,      "rpc_req"),
             "rpc-out-phase"     : (ADDB2PP.p_sm_req,      "rpc_req"),
             "rpc-in-phase"      : (ADDB2PP.p_sm_req,      "rpc_req"),
             "cas-req-state"     : (ADDB2PP.p_sm_req,      "cas_req"),
@@ -502,24 +421,27 @@ class ADDB2PP:
             "client-to-ioo"     : (ADDB2PP.p_1_to_2,      "client_to_ioo"),
             "ioo-to-rpc"        : (ADDB2PP.p_1_to_2,      "ioo_to_rpc"),
             "ioo-req-state"     : (ADDB2PP.p_sm_req,      "ioo_req"),
-            "cob-req-state"     : (partial(ADDB2PP.p_yaml_translate, {"id": "cob_id", "state": "cob_state"}), "cob_req"),
-            "stio-req-state"    : (partial(ADDB2PP.p_yaml_translate, {"id": "stio_id", "state": "stio_state"}), "stio_req"),
+            "cob-req-state"     : (ADDB2PP.p_sm_req,      "cob_req"),
+            "stio-req-state"    : (ADDB2PP.p_sm_req,      "stio_req"),
             "fom-to-stio"       : (ADDB2PP.p_1_to_2,      "fom_to_stio"),
             "attr"              : (ADDB2PP.p_attr,        "attr"),
             "bulk-to-rpc"       : (ADDB2PP.p_1_to_2,      "bulk_to_rpc"),
+            "conn-uuid-to-sm"   : (ADDB2PP.p_1_to_2_conn, "conn_uuid_to_sm"),
+            "conn-sm-to-uuid"   : (ADDB2PP.p_1_to_2_conn, "conn_sm_to_uuid"),
+            "conn-state"        : (ADDB2PP.p_sm_req,      "conn"),
+            "conn-to-session"   : (ADDB2PP.p_1_to_2,      "conn_to_session"),
+            "session-state"     : (ADDB2PP.p_sm_req,      "sess"),
             "cas-fom-to-crow-fom" : (ADDB2PP.p_1_to_2,    "cas_fom_to_crow_fom"),
-
-            "s3-request-to-client" : (ADDB2PP.p_1_to_2,  "s3_request_to_client"),
-            "s3-request-uid"       : (ADDB2PP.s3req_uid, "s3_request_uid"),
-            "s3-request-state"     : (partial(ADDB2PP.p_yaml_translate, {"id": "s3_request_id"}), "s3_request_state"),
-            "s3-measurement"       : (ADDB2PP.p_s3_msrm, "s3_measurement"),
+            "s3-request-to-motr"  : (ADDB2PP.p_1_to_2,    "s3_request_to_client"),
+            "s3-request-state"    : (ADDB2PP.p_sm_req,    "s3_request_state"),
+            "s3-request-uid"      : (ADDB2PP.s3req_uid,   "s3_request_uid"),
+            "rgw-request-state"   : (ADDB2PP.p_rgw_req,   "rgw_request_state"),
+            "rgw-request-opcode"  : (ADDB2PP.p_attr,      "attr"),
+            "rgw-request-to-motr" : (ADDB2PP.p_1_to_2,    "rgw_request_to_client"),
         }
 
-    def consume_record(self, rec):
-        def _add_pid(_,ret):
-            ret.update({"pid": PID})
-            return ((_,ret))
 
+    def consume_record(self, rec):
         # measurement[0] and labels[1..] (mnl)
         mnl = rec.split("|")
         measurement = mnl[0].split()
@@ -530,166 +452,158 @@ class ADDB2PP:
         labels=dict([kvf for kvf in [kv.strip().split() for kv in mnl[1:]]
                      if kvf and len(kvf)==2])
 
-        for pname, (parser, table) in self.parsers.items():
+        for pname, (parser, type_id) in self.parsers.items():
             if pname == measurement_name:
-                return _add_pid(*parser(measurement, labels, table))
+                return parser(measurement, labels, type_id)
         return None
 
 APP = ADDB2PP()
 def fd_consume_record(rec):
     return APP.consume_record(rec) if rec else None
 
-def fd_consume_data(file, pool):
-    def grouper(n, iterable, padvalue=None):
-        return zip_longest(*[iter(iterable)]*n,
-                           fillvalue=padvalue)
-    results=[]
-    _wc = int(wc["-l", file]().split()[0])
-    _wc = ceil(_wc/BLOCK)*BLOCK
 
-    with tqdm(total=_wc, desc=f"Read file: {file}") as t:
-        with open(file) as fd:
-            for chunk in grouper(BLOCK, fd):
-                results.extend(pool.map(fd_consume_record, chunk))
-                t.update(BLOCK)
+class AddbDumpIterator:
+    def __init__(self, file, start_pos=None, end_pos=None):
+        self.file = file
+        self.start_pos = 0 if start_pos is None else start_pos
+        self.cur_pos = -1
+        self.end_pos = end_pos
 
-    return results
+    def __iter__(self):
+        self.fd = open(self.file)
+        self.fd_iter = iter(self.fd)
+        return self
 
-def fd_id_get(f):
-    f_name = splitext((basename(f)))[0]
-    fid = f_name.split("_")[-1]
+    def __next__(self):
+        results = list()
+        data_chunk = list()
+
+        for addb_rec in self.fd_iter:
+            self.cur_pos += 1
+
+            if self.cur_pos < self.start_pos:
+                continue
+            elif self.end_pos != None and self.cur_pos >= self.end_pos:
+                break
+
+            data_chunk.append(addb_rec)
+            if len(data_chunk) >= BLOCK:
+                break
+
+        if len(data_chunk) == 0:
+            self.fd.close()
+            raise StopIteration()
+
+        for raw_record in data_chunk:
+            tmp = fd_consume_record(raw_record)
+            if isinstance(tmp, list):
+                results.extend(tmp)
+            else:
+                results.append(tmp)
+
+        return results
+
+def get_lines_nr(file_path):
+    return int(wc["-l", file_path]().split()[0])
+
+def parse_pid(file_path):
+    file_name = basename(file_path)
+    fid = file_name.split('.')[0].split('_')[-1]
     return int(fid) if fid.isnumeric() else int(fid, base=16)
 
-def db_consume_data(files: List[str]):
-    rows   = []
-    tables = defaultdict(list)
+def parse_hostname(file_path):
+    file_name_parts = basename(file_path).split('.')[0].split('_')
 
+    if len(file_name_parts) == 3:
+        return file_name_parts[1]
+    return None
+
+def insert_records(tables):
+    with profiler("Write to db"):
+        for k in tables.keys():
+            batching = DBBATCH
+            while batching >= 0:
+                if batching == 0:
+                    raise Exception("Cannot insert records with zero dbbatch size")
+                with DB.atomic() as dbatomic:
+                    with profiler(f"    {k}/{len(tables[k])}"):
+                        try:
+                            for batch in chunked(tables[k], batching):
+                                globals()[k].insert_many(batch).execute()
+                            break
+                        except OperationalError as ex:
+                            if "too many" in str(ex):
+                                logging.warning(f"insert recs int {k} err {ex}")
+                                dbatomic.rollback()
+                                batching = batching // 2
+                            else:
+                                raise ex
+
+def db_consume_data(files, append_db: bool):
     if len(files) == 0:
         return
 
-    db_drop_tables()
-    db_create_tables()
+    if not append_db:
+        db_drop_tables()
+        db_create_tables()
 
-    with profiler(f"Read files: {files}"):
-        for f in files:
-            def pool_init(pid):
-                global PID; PID=pid
-            # Ugly reinitialisation of the pool due to PID value propagation
-            pool = multiprocessing.Pool(PROC_NR, pool_init, (fd_id_get(f),))
-            rows.extend(filter(None, fd_consume_data(f, pool)))
-        for k,v in rows:
-            tables[k].append(v)
+    for (nr,input_file_data) in enumerate(files):
 
-    with tqdm(total=len(rows), desc="Insert records") as t:
-        with profiler("Write to db"):
-            for k in tables.keys():
-                batching = DBBATCH
-                while batching >= 0:
-                    if batching == 0:
-                        raise Exception("Cannot insert records with zero dbbatch size")
-                    with DB.atomic() as dbatomic:
-                        with tqdm(total=len(tables[k]), desc=f"into {k}") as tbl:
-                            with profiler(f"    {k}/{len(tables[k])}"):
-                                try:
-                                    for batch in chunked(tables[k], batching):
-                                        globals()[k].insert_many(batch).execute()
-                                        tbl.update(len(batch))
-                                    break
-                                except OperationalError as ex:
-                                    if "too many" in str(ex):
-                                        logging.warning(f"insert recs int {k} err {ex}")
-                                        dbatomic.rollback()
-                                        batching = batching // 2
-                                    else:
-                                        raise ex
-                t.update(len(tables[k]))
+        file = input_file_data[0]
+
+        if len(input_file_data) == 3:
+            start = input_file_data[1]
+            stop = input_file_data[2]
+            lines_nr = stop - start
+        else:
+            start = None
+            stop = None
+            lines_nr = get_lines_nr(file)
+
+        global PID
+        PID = parse_pid(file)
+
+        hostname = parse_hostname(file)
+
+        if hostname:
+            host_rec = host(pid=PID, hostname=hostname)
+            host_rec.save()
+
+        with tqdm(total=lines_nr, desc=f"{nr+1}/{len(files)} Read file: {file}") as tqwerty:
+
+            for rows in AddbDumpIterator(file, start, stop):
+
+                filtered_rows = filter(None, rows)
+                tables = defaultdict(list)
+                for k,v in filtered_rows:
+                    tables[k].append(v)
+
+                tqwerty.update(len(rows))
+                insert_records(tables)
+
 
 def db_setup_loggers():
-    format='%(asctime)s %(name)s %(levelname)s %(message)s'
+    fmt='%(asctime)s %(name)s %(levelname)s %(message)s'
     level=logging.INFO
     level_sh=logging.WARN
     logging.basicConfig(filename='logfile.txt',
                         filemode='w',
                         level=level,
-                        format=format)
+                        format=fmt)
 
     sh = logging.StreamHandler()
-    sh.setFormatter(logging.Formatter(format))
+    sh.setFormatter(logging.Formatter(fmt))
     sh.setLevel(level_sh)
     log = logging.getLogger()
     log.addHandler(sh)
 
+    logger = logging.getLogger('peewee')
+    logger.setLevel(logging.INFO)
+    logger.addHandler(logging.StreamHandler())
+
 
 auth_srv_format = re.compile(r"\A([0-9\- :,]{23,29})\s+\w+\s+\[ReqId:([0-9a-fA-F\-]{36})\]\s+(\S+).*")
 
-def parse_app_record(res):
-    mm = auth_srv_format.match(res)
-    ret = {}
-    if mm:
-        dt = dtparse(mm.group(1))
-        tdelt = int((dt - datetime.utcfromtimestamp(0)).total_seconds())
-        ret["time"] = tdelt * 1000000000 + dt.microsecond * 1000
-        ret["id"] = mm.group(2)
-        ret["state"] = mm.group(3)
-    return ret
-
-def parse_app_data(file, pool):
-    results={}
-    cont = []
-
-    try:
-        with open(file) as f:
-            cont = f.readlines()
-    except:
-        print(f"Error app reading file {file}")
-        return results
-
-    blk = min(BLOCK, len(cont) // PROC_NR)
-
-    with tqdm(total=len(cont), desc=f"Process app file: {file}") as t:
-        for r in pool.imap_unordered(parse_app_record, cont, blk):
-            if "id" in r:
-                results.setdefault(r["id"], []).append(r)
-            t.update(1)
-
-    return results
-
-def parse_app_logs(applogs: List[str], pool):
-    states = {}
-
-    with profiler(f"Read application files: {applogs}"):
-        for app in applogs:
-            states.update(parse_app_data(app, pool))
-
-    req_states = []
-    for req in s3_request_uid.select():
-        if req.uuid in states:
-            for st in states[req.uuid]:
-                req_states.append(
-                    {"time":st["time"],
-                     "pid":req.pid,
-                     "id":req.id,
-                     "state": st["state"]})
-
-    with profiler("Write app to db"):
-        batching = DBBATCH
-        while batching >= 0:
-            if batching == 0:
-                raise Exception("Cannot insert app records with zero dbbatch size")
-            with DB.atomic() as dbatomic:
-                try:
-                    with tqdm(total=len(req_states), desc="Insert app records") as t:
-                        for batch in chunked(req_states, batching):
-                            s3_request_state.insert_many(batch).execute()
-                            t.update(len(batch))
-                    break
-                except OperationalError as ex:
-                    if "too many" in str(ex):
-                        logging.warning(f"app insert recs err {ex}")
-                        dbatomic.rollback()
-                        batching = batching // 2
-                    else:
-                        raise ex
 
 def db_parse_args():
     parser = argparse.ArgumentParser(description="""
@@ -701,37 +615,41 @@ addb2db.py: creates sql database containing performance samples
 A bunch of addb2dump.txts can be passed here for processing:
 python3 addb2db.py --dumps dump1.txt dump2.txt ...
 """)
+    parser.add_argument('--jdumps', type=str, required=False, default=None, help="""
+Json formatted list of addb dumps with start/end position for each file.
+Can be used instead of --dumps parameter to limit number of lines of each dump to process.
+Example of using:
+python3 addb2db.py --jdumps "[[\\"dumps_1.txt\\",100,200],[\\"dumps_2.txt\\",1000,2000]]"
+""")
+
     parser.add_argument('--db', type=str, required=False,
                         default="m0play.db",
                         help="Output database file")
-    parser.add_argument('--procs', type=int, required=False,
-                        default=PROC_NR,
-                        help="Number of processes to parse dump files")
     parser.add_argument('--block', type=int, required=False,
                         default=BLOCK,
                         help="Block of data from dump files processed at once")
     parser.add_argument('--batch', type=int, required=False,
                         default=DBBATCH,
                         help="Number of samples commited at once")
-    parser.add_argument('--app', nargs='+', type=str, required=False,
-                        default=[],
-                        help="Application logs path, e.g. AuthServer")
+    parser.add_argument('--append_db', type=bool, required=False, default=False)
 
     return parser.parse_args()
 
 if __name__ == '__main__':
     args=db_parse_args()
+
+    if args.jdumps:
+        input_data = json.loads(args.jdumps)
+    else:
+        input_data = [ [addb_dump] for addb_dump in args.dumps ]
+
     BLOCK=args.block
-    PROC_NR=args.procs
     DBBATCH=args.batch
 
     db_init(args.db)
     db_setup_loggers()
     db_connect()
 
-    db_consume_data(args.dumps)
-
-    with multiprocessing.Pool(PROC_NR) as gpool:
-        parse_app_logs(args.app, gpool)
-
+    db_consume_data(input_data, args.append_db)
+    # db_idx_create()
     db_close()

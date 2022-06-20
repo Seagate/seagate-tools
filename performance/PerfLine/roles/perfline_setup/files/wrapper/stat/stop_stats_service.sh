@@ -34,8 +34,9 @@ set -x
 
 
 # LC CODE
-DISKS=$(cat /tmp/cortx_disks_map | grep 'IO:' | sed 's/IO://')
-MD_DISKS=$(cat /tmp/cortx_disks_map | grep 'MD:' | sed 's/MD://')
+DISKS_MAP="/tmp/cortx_disks_map"
+DISKS=$(cat "$DISKS_MAP" | grep 'IO:' | sed 's/IO://')
+MD_DISKS=$(cat "$DISKS_MAP" | grep 'MD:' | sed 's/MD://')
 
 
 function iostat_service_stop()

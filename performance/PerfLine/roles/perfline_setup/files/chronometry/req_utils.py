@@ -23,7 +23,7 @@ import re
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-from addb2db import *
+from addb2db import queues, attr, DB
 from playhouse.shortcuts import model_to_dict
 from typing import List, Dict
 from graphviz import Digraph
@@ -50,7 +50,7 @@ def draw_timeline(timeline, offset):
     label  = timeline[0]['op'] + ": " + str(round((end-start)/1000000,3)) + "ms"
     plt.text(start+center, offset+0.01, label)
 
-def prepare_time_table(time_table):
+def prepare_time_table(time_table, sort: bool):
     ref_time = -1
 
     for times in time_table:
@@ -64,6 +64,9 @@ def prepare_time_table(time_table):
     for times in time_table:
         for time in times:
             time['time']=time['time']-ref_time
+
+    if sort:
+        time_table.sort(key=lambda time: time[0]['time'])
 
     return ref_time
 
@@ -100,11 +103,12 @@ def draw_queue_line(queue, offset):
                      [offset+y/mx for y in _min],
                      [offset+y/mx for y in _max], color='green', alpha=0.2)
 
-    for x,y,nr,i,a,d in zip(xdata, ydata, qnr, _min, _max, dev ):
+    for x,y,_,_,a,_ in zip(xdata, ydata, qnr, _min, _max, dev ):
         plt.text(x,offset+y/mx, f"{round(y,2)} |{round(a,2)}|")
 
 def draw_timelines(time_table, queue_table, client_start_time, queue_start_time,
-                   time_unit: str, show_queues: bool, maximize: bool):
+                   time_unit: str, show_queues: bool, maximize: bool,
+                   no_window = False, filename = None):
     cursor={"x0":0, "y0":0, "x1": 0, "y1": 0, "on": False}
     undo=[]
     def onpress(event):
@@ -139,7 +143,7 @@ def draw_timelines(time_table, queue_table, client_start_time, queue_start_time,
             return
         cursor.update({ "x0": event.xdata, "y0": event.ydata })
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=(20, 10))
     fig.canvas.mpl_connect('key_press_event', onpress)
     fig.canvas.mpl_connect('button_press_event', onclick)
     fig.canvas.mpl_connect('button_release_event', onrelease)
@@ -171,7 +175,12 @@ def draw_timelines(time_table, queue_table, client_start_time, queue_start_time,
     if maximize:
         mng = plt.get_current_fig_manager()
         mng.window.maximize()
-    plt.show()
+
+    if filename is not None:
+        plt.savefig(filename)
+
+    if not no_window:
+        plt.show()
 
 def fill_queue_table(queue_table, queue_start_time, qrange: int):
     for q_conf in [["runq", "wail", "fom-active"],
@@ -200,7 +209,7 @@ def fill_queue_table(queue_table, queue_start_time, qrange: int):
                 queues_tag_append(q_d, 'op', f"{queuei}#{nr}[{_min}..{_max}]")
                 queue_table[-1].append(q_d)
 
-        queue_start_time.append(prepare_time_table(queue_table[-1]))
+        queue_start_time.append(prepare_time_table(queue_table[-1], False))
 
 
 # =============== GRAPH-RELATED STUFF ===============
@@ -249,7 +258,7 @@ def graph_add_relations(graph: Digraph, relations, schema):
     '''
 
     stash=[]
-    for rel,fr,to,map,flags in schema:
+    for rel,fr,to,_map,flags in schema:
         layer_ids=set([(r[rel], r['cli_pid'], r['srv_pid']) for r in relations if r[rel] is not None])
         for lid_rec in layer_ids:
             lid = lid_rec[0]
@@ -264,7 +273,7 @@ def graph_add_relations(graph: Digraph, relations, schema):
                     graph.edge(f"{lid}", f"{tid}")
                 continue
 
-            cursor = DB.execute_sql(f"SELECT {to} FROM {map} WHERE {fr}={lid} and pid={pid}")
+            cursor = DB.execute_sql(f"SELECT {to} FROM {_map} WHERE {fr}={lid} and pid={pid}")
             for (tid,) in cursor:
                 graph.edge(f"{lid}", f"{tid}")
                 if "s" in flags:

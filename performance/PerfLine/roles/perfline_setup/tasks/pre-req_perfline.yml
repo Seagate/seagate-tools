@@ -1,3 +1,23 @@
+#
+#
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+# -*- coding: utf-8 -*-
+
 ---
   - name: "Creating artifacts directory {{ ARTIFACTS_DIR }}"
     file:
@@ -90,5 +110,12 @@
     copy:
        src: "/root/go/bin/s3bench"
        dest: "{{ PERFLINE_DIR }}/bin/s3bench_perfline"
+       mode: '0751'
+    delegate_to: "client-1"
+
+  - name: "Copy rgw_addb_plugin.so file to client machine"
+    copy:
+       src: "{{ role_path }}/files/rgw_addb_plugin.so"
+       dest: "{{ PERFLINE_DIR }}/bin/rgw_addb_plugin.so"
        mode: '0751'
     delegate_to: "client-1"

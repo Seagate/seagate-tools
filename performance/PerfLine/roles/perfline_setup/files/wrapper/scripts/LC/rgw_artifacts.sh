@@ -59,6 +59,7 @@ function save_rgw_configs() {
     local rgw_mapping
     local log_dir
     local trace_dir
+    local addb_dir
 
     mkdir -p $config_dir
     pushd $config_dir
@@ -74,7 +75,7 @@ function save_rgw_configs() {
             pushd "$cont"
 
             # Copy config
-            local conf_file=$(ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- ps auxww" | grep radosgw | tr ' ' '\n' | grep '\.conf$')
+            local conf_file=$(ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- ps auxww" | grep radosgw | tr ' ' '\n' | grep -m 1 '\.conf$')
 
             if [[ -n "$conf_file" ]]; then
                 local conf_filename=$(echo "$conf_file" | awk -F "/" '{print $NF}')
@@ -83,7 +84,12 @@ function save_rgw_configs() {
                 local log_file=$(cat "$conf_filename" | grep 'log file' | sed 's/log file\s*=\s*//' | head -1)
                 log_dir="${log_file%/*}"
                 trace_dir="$log_dir/motr_trace_files"
-                rgw_mapping="${srv} ${pod} ${cont} FID ${trace_dir} ADDB_DIR ${log_dir}\n${rgw_mapping}"
+
+                # TODO: currently RGW stores addb files in the 'rgw_debug' directory.
+                # It will be changed in the future. Once it is done below code will
+                # be changed accordingly.
+                addb_dir="$log_dir/rgw_debug"
+                rgw_mapping="${srv} ${pod} ${cont} FID ${trace_dir} ${addb_dir} ${log_dir}\n${rgw_mapping}"
             fi
 
             popd		# $cont
@@ -100,8 +106,9 @@ function save_rgw_configs() {
 function save_rgw_artifacts() {
     local log_dir="log"
     local m0trace_dir="m0trace"
+    local dumps_dir="dumps"
 
-    start_docker_container
+    start_docker_container "cortxserver"
 
     mkdir -p $log_dir
     pushd $log_dir
@@ -113,6 +120,15 @@ function save_rgw_artifacts() {
         pushd $m0trace_dir
         save_rgw_traces
         popd
+    fi
+
+    if [[ -n $ADDB_DUMPS ]]; then
+        mkdir -p $dumps_dir
+        pushd $dumps_dir
+        save_rgw_addb
+        fiter_addb_dumps "rgw"
+        generate_rgw_m0play
+        popd			# $dumps_dir
     fi
 
     stop_docker_container
@@ -187,4 +203,57 @@ function save_rgw_traces()
         popd
     done
     set -e
+}
+
+function save_rgw_addb() {
+    local pod
+    local cont
+    local serv
+    local trace
+    local addb_dir
+    local lines_n
+    local pid
+    local addb_stob
+    local addb_plugin_dir
+    local addb_plugin
+
+    # Temporary solution for cortx-rgw images that don't include rgw_addb_plugin.so
+    # Will be removed in the future
+    addb_plugin_dir="/opt/seagate/cortx/rgw/bin"
+    addb_plugin="$addb_plugin_dir/rgw_addb_plugin.so"
+
+    ssh "$PRIMARY_NODE" "docker exec $DOCKER_CONTAINER_NAME sh -c \"[ -f $addb_plugin ]\"" || {
+        echo "copy RGW addb plugin in the container"
+        ssh "$PRIMARY_NODE" "docker exec $DOCKER_CONTAINER_NAME sh -c \"mkdir -p $addb_plugin_dir\""
+        ssh "$PRIMARY_NODE" "docker cp $PERFLINE_DIR/bin/rgw_addb_plugin.so $DOCKER_CONTAINER_NAME:$addb_plugin"
+    }
+
+    set +e
+
+    pid=$RGW_INIT_PID
+    lines_n=$(cat ../rgw_map | wc -l)
+
+    for i in $(seq 1 "$lines_n") ; do
+        read hostname pod cont serv trace addb_dir log <<< $(awk "NR==$i" ../rgw_map)
+
+        addb_dir=$(echo "$addb_dir" | sed 's|/etc/cortx/|/share/var/|')
+        stobs=$( ssh "$PRIMARY_NODE" "docker exec $DOCKER_CONTAINER_NAME ls -1 $addb_dir" | grep addb_)
+
+        for st in $stobs; do
+            addb_stob="$addb_dir/$st/o/100000000000000:2"
+            ssh "$PRIMARY_NODE" "docker exec $DOCKER_CONTAINER_NAME /bin/bash -c \"m0addb2dump -f -p $addb_plugin -- $addb_stob\"" > dumpc_"${pid}".txt &
+            ((pid=pid+1))
+        done
+    done
+
+    wait
+    set -e
+}
+
+function generate_rgw_m0play()
+{
+    if ls dumpc* &> /dev/null; then
+        "$TOOLS_DIR"/addb2db_multiprocess.sh --dumps ./dumpc*
+        mv m0play.db m0play.rgw.db
+    fi
 }

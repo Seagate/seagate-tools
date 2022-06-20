@@ -29,6 +29,15 @@ CUSTOM: NA # Default is NA. Update with single string for special config eg: Cor
 DEGRADED_IO: False   # Select True/False to test Degraded read feature
 COPY_OBJECT: False   #Select True/False to test Copy object feature
 
+# For creating S3 account and S3 user to run S3 I/O with given information
+ADMIN_USER: 'admin'
+ADMIN_PASSWD: 'AdminPass@123'
+S3_ACCOUNT: 'account1'
+ACCOUNT_PASSWD: "Password@1"
+EMAIL: "account1@example.com"
+ACCESS_KEY: "AKIA_KN5IwWHRsqgHI9EXAMPLE"
+SECRET_KEY: "+yk3nsSwVDhIqybtEmUaWkD+ypcHsGcZnEXAMPLE"
+
 #Enter Below details for log collection on NFS repo
 NFS_SERVER: 
 NFS_EXPORT: 

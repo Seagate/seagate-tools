@@ -1,7 +1,7 @@
 """
 A hsbench parser module
 
-Depends on: 
+Depends on:
 1. run results of performance
 2. run log of the tool run
 """

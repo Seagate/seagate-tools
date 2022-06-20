@@ -28,6 +28,96 @@ api = Namespace("Sanity", path="/sanity",
                 description="Endpoints for sanity operations")
 
 
+def validate_inputs(request_runid, json_data):
+    if not request_runid:
+        return flask.Response(status=HTTPStatus.BAD_REQUEST,
+                              response="Body is empty")
+
+    validate_field = validations.validate_sanity_fields(json_data)
+    if not validate_field[0]:
+        return flask.Response(status=validate_field[1][0], response=validate_field[1][1])
+
+
+def calculate_perf_tables(p_status, b_status, results, obj, op):
+    if p_status and b_status:
+        results[op]["difference"][obj] = results[op]["value"][obj] - \
+            results[op]["baseline"][obj]
+        results[op]["deviation"][obj] = sanityapi.calculate_deviation(
+            results[op]["value"][obj], results[op]["baseline"][obj])
+    else:
+        results[op]["difference"][obj] = "NA"
+        results[op]["deviation"][obj] = "NA"
+
+
+def non_timings_routine(uri, value_query, metrix, obj, results, base_query):
+    rp_status, wp_status = sanityapi.read_write_routine(
+        uri=uri, query=value_query, metrix=metrix, obj=obj,
+        temp_read=results["read"]["value"],
+        temp_write=results["write"]["value"])
+    rb_status, wb_status = sanityapi.read_write_routine(
+        uri=uri, query=base_query, metrix=metrix, obj=obj,
+        temp_read=results["read"]["baseline"],
+        temp_write=results["write"]["baseline"])
+
+    return rp_status, wp_status, rb_status, wb_status
+
+
+def latency_routine(uri, value_query, metrix, obj, results, base_query):
+    rp_status, wp_status = sanityapi.read_write_routine_for_params(
+        uri=uri, query=value_query, metrix=metrix, param="Avg", obj=obj,
+        temp_read=results["read"]["value"],
+        temp_write=results["write"]["value"])
+    rb_status, wb_status = sanityapi.read_write_routine_for_params(
+        uri=uri, query=base_query, metrix=metrix, param="Avg", obj=obj,
+        temp_read=results["read"]["baseline"],
+        temp_write=results["write"]["baseline"])
+
+    return rp_status, wp_status, rb_status, wb_status
+
+
+def ttfb_routine(uri, value_query, metrix, obj, results, base_query):
+    rp_status, wp_status = sanityapi.read_write_routine_for_ttfb(
+        uri=uri, query=value_query, metrix=metrix, obj=obj,
+        temp_read=results["read"]["value"],
+        temp_write=results["write"]["value"])
+    rb_status, wb_status = sanityapi.read_write_routine_for_ttfb(
+        uri=uri, query=base_query, metrix=metrix, obj=obj,
+        temp_read=results["read"]["baseline"],
+        temp_write=results["write"]["baseline"])
+
+    return rp_status, wp_status, rb_status, wb_status
+
+
+def extract_performance_routine(json_data, metrix):
+    uri = read_config.mongodb_uri.format(read_config.db_username, read_config.db_password,
+                                         read_config.db_hostname)
+
+    results = {"write": schemas.results_format,
+               "read": schemas.results_format}
+
+    _, record_id = sanityapi.get_baseline_index(uri)
+
+    for obj in read_config.sanity_obj_sizes:
+        value_query = {"run_ID": json_data["run_id"],
+                       "Sessions": read_config.sanity_sessions, "Object_Size": obj}
+        base_query = {"Config_ID": record_id,
+                      "Sessions": read_config.sanity_sessions, "Object_Size": obj}
+
+        if metrix in ["Throughput", "IOPS"]:
+            rp_status, wp_status, rb_status, wb_status = non_timings_routine(
+                uri, value_query, metrix, obj, results, base_query)
+        elif metrix == "Latency":
+            rp_status, wp_status, rb_status, wb_status = latency_routine(
+                uri, value_query, metrix, obj, results, base_query)
+        else:
+            rp_status, wp_status, rb_status, wb_status = ttfb_routine(
+                uri, value_query, metrix, obj, results, base_query)
+        calculate_perf_tables(rp_status, rb_status, results, obj, "read")
+        calculate_perf_tables(wp_status, wb_status, results, obj, "write")
+
+    return flask.jsonify({"result": results})
+
+
 @api.route("/throughput", doc={"description": "Get throughput data endpoints from MongoDB."})
 @api.response(200, "Success")
 @api.response(400, "Bad Request: Missing parameters. Do not retry.")
@@ -42,49 +132,8 @@ class throughput(Resource):
         """Get throughput data endpoints from MongoDB for given query."""
         request_runid = flask.request.args.get("run_id")
         json_data = {"run_id": request_runid}
-
-        if not request_runid:
-            return flask.Response(status=HTTPStatus.BAD_REQUEST,
-                                  response="Body is empty")
-
-        validate_field = validations.validate_sanity_fields(json_data)
-        if not validate_field[0]:
-            return flask.Response(status=validate_field[1][0], response=validate_field[1][1])
-
-        uri = read_config.mongodb_uri.format(read_config.db_username, read_config.db_password,
-                                             read_config.db_hostname)
-
-        results = {"write": schemas.results_format,
-                   "read": schemas.results_format}
-
-        base_index = sanityapi.get_baseline_index(uri)
-
-        for obj in read_config.sanity_obj_sizes:
-            value_query = {"run_ID": json_data["run_id"],
-                           "Sessions": read_config.sanity_sessions, "Object_Size": obj}
-            base_query = {"Baseline": base_index,
-                          "Sessions": read_config.sanity_sessions, "Object_Size": obj}
-            sanityapi.read_write_routine(
-                uri=uri, query=value_query, metrix="Throughput", obj=obj,
-                temp_read=results["read"]["value"],
-                temp_write=results["write"]["value"])
-            sanityapi.read_write_routine(
-                uri=uri, query=base_query, metrix="Throughput", obj=obj,
-                temp_read=results["read"]["baseline"],
-                temp_write=results["write"]["baseline"])
-
-            results["read"]["difference"][obj] = results["read"]["value"][obj] - \
-                results["read"]["baseline"][obj]
-            results["write"]["difference"][obj] = results["write"]["value"][obj] - \
-                results["write"]["baseline"][obj]
-
-            results["read"]["deviation"][obj] = sanityapi.calculate_deviation(
-                results["read"]["value"][obj], results["read"]["baseline"][obj])
-            results["write"]["deviation"][obj] = sanityapi.calculate_deviation(
-                results["write"]["value"][obj], results["write"]["baseline"][obj])
-
-        return flask.jsonify({"result": results})
-        # return flask.Response(status=query_results[1][0], response=query_results[1][1])
+        validate_inputs(request_runid, json_data)
+        return extract_performance_routine(json_data, "Throughput")
 
 
 @api.route("/iops", doc={"description": "Get iops data endpoints from MongoDB."})
@@ -101,49 +150,8 @@ class iops(Resource):
         """Get iops data endpoints from MongoDB for given query."""
         request_runid = flask.request.args.get("run_id")
         json_data = {"run_id": request_runid}
-
-        if not request_runid:
-            return flask.Response(status=HTTPStatus.BAD_REQUEST,
-                                  response="Body is empty")
-
-        validate_field = validations.validate_sanity_fields(json_data)
-        if not validate_field[0]:
-            return flask.Response(status=validate_field[1][0], response=validate_field[1][1])
-
-        uri = read_config.mongodb_uri.format(read_config.db_username, read_config.db_password,
-                                             read_config.db_hostname)
-
-        results = {"write": schemas.results_format,
-                   "read": schemas.results_format}
-
-        base_index = sanityapi.get_baseline_index(uri)
-
-        for obj in read_config.sanity_obj_sizes:
-            value_query = {"run_ID": json_data["run_id"],
-                           "Sessions": read_config.sanity_sessions, "Object_Size": obj}
-            base_query = {"Baseline": base_index,
-                          "Sessions": read_config.sanity_sessions, "Object_Size": obj}
-            sanityapi.read_write_routine(
-                uri=uri, query=value_query, metrix="IOPS", obj=obj,
-                temp_read=results["read"]["value"],
-                temp_write=results["write"]["value"])
-            sanityapi.read_write_routine(
-                uri=uri, query=base_query, metrix="IOPS", obj=obj,
-                temp_read=results["read"]["baseline"],
-                temp_write=results["write"]["baseline"])
-
-            results["read"]["difference"][obj] = results["read"]["value"][obj] - \
-                results["read"]["baseline"][obj]
-            results["write"]["difference"][obj] = results["write"]["value"][obj] - \
-                results["write"]["baseline"][obj]
-
-            results["read"]["deviation"][obj] = sanityapi.calculate_deviation(
-                results["read"]["value"][obj], results["read"]["baseline"][obj])
-            results["write"]["deviation"][obj] = sanityapi.calculate_deviation(
-                results["write"]["value"][obj], results["write"]["baseline"][obj])
-
-        return flask.jsonify({"result": results})
-        # return flask.Response(status=query_results[1][0], response=query_results[1][1])
+        validate_inputs(request_runid, json_data)
+        return extract_performance_routine(json_data, "IOPS")
 
 
 @api.route("/latency", doc={"description": "Get latency data endpoints from MongoDB."})
@@ -160,49 +168,8 @@ class latency(Resource):
         """Get latency data endpoints from MongoDB for given query."""
         request_runid = flask.request.args.get("run_id")
         json_data = {"run_id": request_runid}
-
-        if not request_runid:
-            return flask.Response(status=HTTPStatus.BAD_REQUEST,
-                                  response="Body is empty")
-
-        validate_field = validations.validate_sanity_fields(json_data)
-        if not validate_field[0]:
-            return flask.Response(status=validate_field[1][0], response=validate_field[1][1])
-
-        uri = read_config.mongodb_uri.format(read_config.db_username, read_config.db_password,
-                                             read_config.db_hostname)
-
-        results = {"write": schemas.results_format,
-                   "read": schemas.results_format}
-
-        base_index = sanityapi.get_baseline_index(uri)
-
-        for obj in read_config.sanity_obj_sizes:
-            value_query = {"run_ID": json_data["run_id"],
-                           "Sessions": read_config.sanity_sessions, "Object_Size": obj}
-            base_query = {"Baseline": base_index,
-                          "Sessions": read_config.sanity_sessions, "Object_Size": obj}
-            sanityapi.read_write_routine_for_params(
-                uri=uri, query=value_query, metrix="Latency", param="Avg", obj=obj,
-                temp_read=results["read"]["value"],
-                temp_write=results["write"]["value"])
-            sanityapi.read_write_routine_for_params(
-                uri=uri, query=base_query, metrix="Latency", param="Avg", obj=obj,
-                temp_read=results["read"]["baseline"],
-                temp_write=results["write"]["baseline"])
-
-            results["read"]["difference"][obj] = results["read"]["value"][obj] - \
-                results["read"]["baseline"][obj]
-            results["write"]["difference"][obj] = results["write"]["value"][obj] - \
-                results["write"]["baseline"][obj]
-
-            results["read"]["deviation"][obj] = sanityapi.calculate_deviation(
-                results["read"]["value"][obj], results["read"]["baseline"][obj])
-            results["write"]["deviation"][obj] = sanityapi.calculate_deviation(
-                results["write"]["value"][obj], results["write"]["baseline"][obj])
-
-        return flask.jsonify({"result": results})
-        # return flask.Response(status=query_results[1][0], response=query_results[1][1])
+        validate_inputs(request_runid, json_data)
+        return extract_performance_routine(json_data, "Latency")
 
 
 @api.route("/ttfb", doc={"description": "Get TTFB data endpoints from MongoDB."})
@@ -219,49 +186,8 @@ class ttfb(Resource):
         """Get TTFB data endpoints from MongoDB for given query."""
         request_runid = flask.request.args.get("run_id")
         json_data = {"run_id": request_runid}
-
-        if not request_runid:
-            return flask.Response(status=HTTPStatus.BAD_REQUEST,
-                                  response="Body is empty")
-
-        validate_field = validations.validate_sanity_fields(json_data)
-        if not validate_field[0]:
-            return flask.Response(status=validate_field[1][0], response=validate_field[1][1])
-
-        uri = read_config.mongodb_uri.format(read_config.db_username, read_config.db_password,
-                                             read_config.db_hostname)
-
-        results = {"write": schemas.results_format,
-                   "read": schemas.results_format}
-
-        base_index = sanityapi.get_baseline_index(uri)
-
-        for obj in read_config.sanity_obj_sizes:
-            value_query = {"run_ID": json_data["run_id"],
-                           "Sessions": read_config.sanity_sessions, "Object_Size": obj}
-            base_query = {"Baseline": base_index,
-                          "Sessions": read_config.sanity_sessions, "Object_Size": obj}
-            sanityapi.read_write_routine_for_ttfb(
-                uri=uri, query=value_query, metrix="TTFB", obj=obj,
-                temp_read=results["read"]["value"],
-                temp_write=results["write"]["value"])
-            sanityapi.read_write_routine_for_ttfb(
-                uri=uri, query=base_query, metrix="TTFB", obj=obj,
-                temp_read=results["read"]["baseline"],
-                temp_write=results["write"]["baseline"])
-
-            results["read"]["difference"][obj] = results["read"]["value"][obj] - \
-                results["read"]["baseline"][obj]
-            results["write"]["difference"][obj] = results["write"]["value"][obj] - \
-                results["write"]["baseline"][obj]
-
-            results["read"]["deviation"][obj] = sanityapi.calculate_deviation(
-                results["read"]["value"][obj], results["read"]["baseline"][obj])
-            results["write"]["deviation"][obj] = sanityapi.calculate_deviation(
-                results["write"]["value"][obj], results["write"]["baseline"][obj])
-
-        return flask.jsonify({"result": results})
-        # return flask.Response(status=query_results[1][0], response=query_results[1][1])
+        validate_inputs(request_runid, json_data)
+        return extract_performance_routine(json_data, "TTFB")
 
 
 @api.route("/config", doc={"description": "Get config of sanity run based on ID from MongoDB."})
@@ -363,12 +289,12 @@ class highConcurrencyData(Resource):
 
         results = schemas.results_format.copy()
 
-        base_index = sanityapi.get_baseline_index(uri)
+        _, record_id = sanityapi.get_baseline_index(uri)
 
         value_query = {"run_ID": json_data["run_id"],
                        "Sessions": read_config.sanity_high_conc_sessions,
                        "Object_Size": read_config.sanity_high_conc_obj_size}
-        base_query = {"Baseline": base_index,
+        base_query = {"Config_ID": record_id,
                       "Sessions": read_config.sanity_high_conc_sessions,
                       "Object_Size": read_config.sanity_high_conc_obj_size}
         results['value'] = sanityapi.get_all_metrics_data(

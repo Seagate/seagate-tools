@@ -123,47 +123,13 @@ def retrieve_query_results(n_clicks, *values):
         if not input_found:
             return "No Inputs Selected!!!"
 
-        # form query based on inputs
-        for input_val in ctx.inputs:
-            if ctx.inputs[input_val] not in [None, [], [None]] \
-                    and input_val != "query_result_button.n_clicks" \
-                    and input_val != "query_table_view.value":
-                if len(ctx.inputs[input_val]) == 0:
-                    pass
-                elif len(ctx.inputs[input_val]) == 1:
-                    query_input[db_field_mapping[input_val]] = ctx.inputs[input_val][0]
-                else:
-                    temp_list = []
-                    for i in range(len(ctx.inputs[input_val])):
-                        temp_dict = {db_field_mapping[input_val]: ctx.inputs[input_val][i]}
-                        temp_list.append(temp_dict)
-                    query_input['$or'] = temp_list
-        query = {"query": query_input}
+        query = _form_query_by_inputs(ctx, query_input)
         if common.DEBUG_PRINTS:
             print("Sending Query (retrieve_query_results):{}".format(query))
         query.update(common.credentials)
         response = requests.request("GET", common.search_endpoint, headers=common.headers,
                                     data=json.dumps(query))
-        # Fields to display
-        data_from_db = {}
-        if ctx.inputs["query_table_view.value"] == "detail":
-            data_from_db = {"buildType": [], "buildNo": [], "testPlanID": [], "testPlanLabel": [],
-                            "testExecutionID": [], "testExecutionLabel": [], "testTeam": [],
-                            "feature": [],
-                            "testID": [], "testName": [], "testType": [],
-                            "testResult": [], "logPath": [], "healthCheckResult": [],
-                            "testIDLabels": [], "testTags": [],
-                            "testStartTime": [], "testExecutionTime": [],
-                            "executionType": [], "issueIDs": [],
-                            "nodesHostname": [], "noOfNodes": [], "clientHostname": []}
-        else:
-            data_from_db = {"buildType": [], "buildNo": [], "testPlanID": [], "testPlanLabel": [],
-                            "testExecutionID": [],
-                            "testID": [], "testName": [], "testType": [],
-                            "testResult": [],
-                            "testStartTime": [], "testExecutionTime": [],
-                            "executionType": [], "issueIDs": [],
-                            "nodesHostname": []}
+        data_from_db = construct_fields_to_display(ctx)
 
         if response.status_code == HTTPStatus.OK:
             json_response = json.loads(response.text)
@@ -225,9 +191,62 @@ def retrieve_query_results(n_clicks, *values):
             )
 
             return datatable_query_output,no_docs_returned
-    else:
-        pass
     return [],None
+
+
+def construct_fields_to_display(ctx):
+    """
+    Fields to display based on view is detailed or not.
+
+    :param ctx:
+    :return:
+    """
+    data_from_db = {}
+    if ctx.inputs["query_table_view.value"] == "detail":
+        data_from_db = {"buildType": [], "buildNo": [], "testPlanID": [], "testPlanLabel": [],
+                        "testExecutionID": [], "testExecutionLabel": [], "testTeam": [],
+                        "feature": [],
+                        "testID": [], "testName": [], "testType": [],
+                        "testResult": [], "logPath": [], "healthCheckResult": [],
+                        "testIDLabels": [], "testTags": [],
+                        "testStartTime": [], "testExecutionTime": [],
+                        "executionType": [], "issueIDs": [],
+                        "nodesHostname": [], "noOfNodes": [], "clientHostname": []}
+    else:
+        data_from_db = {"buildType": [], "buildNo": [], "testPlanID": [], "testPlanLabel": [],
+                        "testExecutionID": [],
+                        "testID": [], "testName": [], "testType": [],
+                        "testResult": [],
+                        "testStartTime": [], "testExecutionTime": [],
+                        "executionType": [], "issueIDs": [],
+                        "nodesHostname": []}
+    return data_from_db
+
+
+def _form_query_by_inputs(ctx, query_input):
+    """
+    Form query based on context inputs.
+
+    :param ctx:
+    :param query_input:
+    :return: query dict
+    """
+    for input_val in ctx.inputs:
+        if ctx.inputs[input_val] not in [None, [], [None]] \
+                and input_val != "query_result_button.n_clicks" \
+                and input_val != "query_table_view.value":
+            if len(ctx.inputs[input_val]) == 0:
+                pass
+            elif len(ctx.inputs[input_val]) == 1:
+                query_input[db_field_mapping[input_val]] = ctx.inputs[input_val][0]
+            else:
+                temp_list = []
+                for i in range(len(ctx.inputs[input_val])):
+                    temp_dict = {db_field_mapping[input_val]: ctx.inputs[input_val][i]}
+                    temp_list.append(temp_dict)
+                query_input['$or'] = temp_list
+    query = {"query": query_input}
+    return query
 
 
 def build_query(inputs):

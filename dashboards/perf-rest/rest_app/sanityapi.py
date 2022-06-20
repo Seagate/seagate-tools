@@ -42,12 +42,12 @@ def get_run_results_from_id(uri, run_id):
 
 def get_baseline_index(uri):
     """Get Baseline index of latest baseline in database."""
-    query_results = mongodbapi.get_highest_value_document({}, "Baseline", None, uri,
-                                                          read_config.db_name, read_config.sanity_results)
+    query_results = mongodbapi.get_highest_value_document(
+        {}, "Baseline", None, uri, read_config.db_name, read_config.sanity_config)
     if query_results[0]:
-        return query_results[1][0]["Baseline"]
+        return query_results[1][0]["Baseline"], query_results[1][0]["_id"]
     else:
-        return None
+        return None, None
 
 
 def calculate_deviation(value, baseline):
@@ -60,17 +60,30 @@ def calculate_deviation(value, baseline):
 
 def read_write_routine(**kwargs):
     """Read and Write common code routine to get read and write data from database."""
-    kwargs["query"]["Operation"] = "Read"
-    query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
-                                              read_config.db_name, read_config.sanity_results)
-    kwargs["temp_read"][kwargs["obj"]] = round(
-        query_results[1][0][kwargs["metrix"]], 3)
+    found_read_record = True
+    found_write_record = True
 
-    kwargs["query"]["Operation"] = "Write"
-    query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
-                                              read_config.db_name, read_config.sanity_results)
-    kwargs["temp_write"][kwargs["obj"]] = round(
-        query_results[1][0][kwargs["metrix"]], 3)
+    try:
+        kwargs["query"]["Operation"] = "Read"
+        query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
+                                                  read_config.db_name, read_config.sanity_results)
+        kwargs["temp_read"][kwargs["obj"]] = round(
+            query_results[1][0][kwargs["metrix"]], 3)
+    except IndexError:
+        found_read_record = False
+        kwargs["temp_read"][kwargs["obj"]] = "NA"
+
+    try:
+        kwargs["query"]["Operation"] = "Write"
+        query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
+                                                  read_config.db_name, read_config.sanity_results)
+        kwargs["temp_write"][kwargs["obj"]] = round(
+            query_results[1][0][kwargs["metrix"]], 3)
+    except IndexError:
+        found_write_record = False
+        kwargs["temp_write"][kwargs["obj"]] = "NA"
+
+    return found_read_record, found_write_record
 
 
 def get_all_metrics_data(**kwargs):
@@ -98,29 +111,58 @@ def get_all_metrics_data(**kwargs):
 
 def read_write_routine_for_params(**kwargs):
     """Read and Write common code routine using params to get read and write data from database."""
-    kwargs["query"]["Operation"] = "Read"
-    query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
-                                              read_config.db_name, read_config.sanity_results)
-    kwargs["temp_read"][kwargs["obj"]
-                        ] = round(query_results[1][0][kwargs["metrix"]][kwargs["param"]], 3)
+    found_read_record = True
+    found_write_record = True
 
-    kwargs["query"]["Operation"] = "Write"
-    query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
-                                              read_config.db_name, read_config.sanity_results)
-    kwargs["temp_write"][kwargs["obj"]
-                         ] = round(query_results[1][0][kwargs["metrix"]][kwargs["param"]], 3)
+    try:
+        kwargs["query"]["Operation"] = "Read"
+        query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
+                                                  read_config.db_name, read_config.sanity_results)
+        kwargs["temp_read"][kwargs["obj"]
+                            ] = round(query_results[1][0][kwargs["metrix"]][kwargs["param"]], 3)
+    except IndexError:
+        found_read_record = False
+        kwargs["temp_read"][kwargs["obj"]] = "NA"
+
+    try:
+        kwargs["query"]["Operation"] = "Write"
+        query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
+                                                  read_config.db_name, read_config.sanity_results)
+        kwargs["temp_write"][kwargs["obj"]
+                             ] = round(query_results[1][0][kwargs["metrix"]][kwargs["param"]], 3)
+    except IndexError:
+        found_write_record = False
+        kwargs["temp_write"][kwargs["obj"]] = "NA"
+
+    return found_read_record, found_write_record
 
 
 def read_write_routine_for_ttfb(**kwargs):
     """Read and Write for TTFB common code routine to get read and write data from database."""
-    kwargs["query"]["Operation"] = "Read"
-    query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
-                                              read_config.db_name, read_config.sanity_results)
-    kwargs["temp_read"][kwargs["obj"]
-                        ] = round(query_results[1][0][kwargs["metrix"]]["Avg"], 3)
+    found_avg_record = True
+    found_99p_record = True
 
-    kwargs["temp_write"][kwargs["obj"]
-                         ] = round(query_results[1][0][kwargs["metrix"]]["99p"], 3)
+    try:
+        kwargs["query"]["Operation"] = "Read"
+        query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
+                                                  read_config.db_name, read_config.sanity_results)
+        kwargs["temp_read"][kwargs["obj"]
+                            ] = round(query_results[1][0][kwargs["metrix"]]["Avg"], 3)
+
+        kwargs["temp_write"][kwargs["obj"]
+                             ] = round(query_results[1][0][kwargs["metrix"]]["99p"], 3)
+    except IndexError:
+        found_avg_record = False
+        kwargs["temp_read"][kwargs["obj"]] = "NA"
+
+    try:
+        kwargs["temp_write"][kwargs["obj"]
+                             ] = round(query_results[1][0][kwargs["metrix"]]["99p"], 3)
+    except IndexError:
+        found_99p_record = False
+        kwargs["temp_write"][kwargs["obj"]] = "NA"
+
+    return found_avg_record, found_99p_record
 
 
 def get_summary(results, kwargs):

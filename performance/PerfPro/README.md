@@ -13,7 +13,9 @@ $ ansible-playbook perfpro.yml -i inventories/hosts -v
 $ run.sh
 
 ## For Sanity PerfPro execution run either of the following: 
-$ ansible-playbook perfpro.yml -i inventories/hosts --extra-vars '{ "EXECUTION_TYPE" : "sanity" ,"REPOSITORY":{"motr":"cortx-motr","rgw":"cortx-rgw"} , "COMMIT_ID": { "main" : "d1234c" , "dev" : "a5678b"},"PR_ID" : "cortx-rgw/1234" , "USER":"Username","GID" : "1234" }' -v
+$ ansible-playbook perfpro.yml -i inventories/hosts --extra-vars '{ "EXECUTION_TYPE" : "sanity" ,"REPOSITORY":{"motr":"cortx-motr","rgw":"cortx-rgw"} , "COMMIT_ID": { "main" : "d1234c" , "dev" : "a5678b"},"PR_ID" : "cortx-rgw/1234" , "USER":"Username","GID" : "1234", "NODES":{"1": "node1.loc.seagate.com", "2": "node2.loc.seagate.com", "3": "node2.loc.seagate.com"} , "CLIENTS":{"1": "client1.loc.seagate.com"} , "main":{"db_server": "db.server.seagate.com", "db_port": "27017", "db_name": "sanity_db", "db_user": "db_username", "db_passwd": "db_password", "db_database": "performance_database", "db_url": "mongodb://db.hostname.seagate.com:27017/"}, "config":{"CLUSTER_PASS": "password", "END_POINTS": "s3.seagate.com" }}' -v 
+
+NB: "NODES", "CLIENTS" and other "main" and "config" entries need to maintain the case sensitivity for dictonary keys.
 
 ## User Guide
 https://seagate-systems.atlassian.net/wiki/spaces/PRIVATECOR/pages/339117894/PerfPro#User-Guide

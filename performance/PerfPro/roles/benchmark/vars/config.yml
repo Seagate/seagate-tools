@@ -6,13 +6,12 @@ NODES:
   - 3:  # node_number_srvnode-3: hostname of node3 .
 CLIENTS: 
   - 1:  #client_number: hostname of client  
-  - 2:  #client_number: hostname of client  
+#  - 2:  #client_number: hostname of client  
 
 # For Build and SystemUnderTest INFO
-BUILD_INFO:  # Please select the menthod to collect Build info from given options : RELEASE.INFO / USER_INPUT / FROM_K8
-BUILD_URL: # insert here is RELEASE.INFO is selected.
-# Please insert below details if USER_INPUT is selected.
+BUILD_INFO:  # Please select the menthod to collect Build info from given options : RELEASE.INFO / USER_INPUT (RELEASE.INFO collects the release related information from docker image hence add the details of docker image in following key.)
 DOCKER_INFO:  # add the docker info which is used for perf runs Eg: 'ghcr.io/seagate/cortx-all:2.0.0-770'
+# Please insert below details if USER_INPUT is selected.
 BUILD: 
 VERSION: 
 BRANCH: 

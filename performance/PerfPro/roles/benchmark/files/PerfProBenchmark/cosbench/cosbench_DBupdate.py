@@ -27,17 +27,15 @@ def makeconfig(name):  # function for connecting with configuration file
 configs_main = makeconfig(Main_path)  # getting instance  of main file
 configs_config = makeconfig(Config_path)  # getting instance  of config file
 
-build_info = str(configs_config.get('BUILD_INFO'))
-build_url = configs_config.get('BUILD_URL')
-nodes_list = configs_config.get('NODES')
-clients_list = configs_config.get('CLIENTS')
-pc_full = configs_config.get('PC_FULL')
-overwrite = configs_config.get('OVERWRITE')
-custom = configs_config.get('CUSTOM')
-docker_info = configs_config.get('DOCKER_INFO')
-nodes_num = len(nodes_list)
-clients_num = len(clients_list)
-
+build_info=str(configs_config.get('BUILD_INFO'))
+nodes_list=configs_config.get('NODES')
+clients_list=configs_config.get('CLIENTS')
+pc_full=configs_config.get('PC_FULL')
+overwrite=configs_config.get('OVERWRITE')
+custom=configs_config.get('CUSTOM')
+docker_info=configs_config.get('DOCKER_INFO')
+nodes_num=len(nodes_list)
+clients_num=len(clients_list)
 
 def makeconnection():  # function for making connection with database
     # connecting with mongodb database

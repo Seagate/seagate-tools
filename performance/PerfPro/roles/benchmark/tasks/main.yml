@@ -75,6 +75,9 @@
    with_items: "{{ groups['nodes'] }}"
    when: SYSTEM_STATS
 
+ - include: update_main_config.yml
+   when: EXECUTION_TYPE == "sanity"
+
 # - name: Create S3 Account
 #   command: python3 /root/PerfProBenchmark/s3account/create_s3user.py "{{ hostvars['srvnode-1']['ansible_host'] }}"
 #   register: resp

@@ -37,22 +37,19 @@ def makeconfig(name):  # function for connecting with configuration file
 
 
 configs_main = makeconfig(Main_path)
-configs_config = makeconfig(Config_path)
+configs_config= makeconfig(Config_path)
 
-# build_url=configs_config.get('BUILD_URL')
-nodes_list = configs_config.get('NODES')
-clients_list = configs_config.get('CLIENTS')
-pc_full = configs_config.get('PC_FULL')
-overwrite = configs_config.get('OVERWRITE')
-custom = configs_config.get('CUSTOM')
-nodes_num = len(nodes_list)
-clients_num = len(clients_list)
+nodes_list=configs_config.get('NODES')
+clients_list=configs_config.get('CLIENTS')
+pc_full=configs_config.get('PC_FULL')
+overwrite=configs_config.get('OVERWRITE')
+custom=configs_config.get('CUSTOM')
+nodes_num=len(nodes_list)
+clients_num=len(clients_list)
 
-
-def makeconnection(collection):  # function for making connection with database
-    # connecting with mongodb database
-    client = MongoClient(configs_main['db_url'])
-    db = client[configs_main['db_database']]  # database name=performance
+def makeconnection(collection):  #function for making connection with database
+    client = MongoClient(configs_main['db_url'])  #connecting with mongodb database
+    db=client[configs_main['db_database']]  #database name=performance
 #    return db
     col = configs_main.get('SANITY')[collection]
     sanity_col = db[col]

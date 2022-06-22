@@ -77,7 +77,6 @@ do
                   mv s3bench-object_"$SIZE_OF_OBJECTS"\_numsamples_"$NO_OF_SAMPLES"\_buckets_1\_sessions_"$NUMCLIENTS".log "$TOOL_DIR"/s3bench_object_"$SIZE_OF_OBJECTS"\_numsamples_"$NO_OF_SAMPLES"\_buckets_1\_sessions_"$NUMCLIENTS"\.log
 
             fi
-            aws s3 rb s3://$bucket
             echo "S3Benchmark is completed for object size : $SIZE_OF_OBJECTS"
 	    sleep 1
         done

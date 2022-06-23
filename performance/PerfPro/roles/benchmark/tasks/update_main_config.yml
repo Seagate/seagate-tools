@@ -1,0 +1,36 @@
+---
+ - name: updating 'main.yml' file
+   lineinfile:
+    path: /root/PerfProBenchmark/main.yml
+    regexp: "{{ item.key }}"
+    line: "{{ item.key }}: {{ item.value}}"
+   with_dict: "{{ main }}"
+   delegate_to: "clientnode-1"
+
+ - name: updating 'config.yml' file
+   lineinfile:
+    path: /root/PerfProBenchmark/config.yml
+    regexp: "{{ item.key }}:"
+    line: "{{ item.key }}: {{ item.value}}"
+   with_dict: "{{ config }}"
+   delegate_to: "clientnode-1"
+
+ - name: updating 'NODES' entries
+   replace:
+    path: /root/PerfProBenchmark/config.yml
+    after: "NODES:"
+    before: "CLIENTS:"
+    regexp: "  - {{ item.key }}: "
+    replace: "  - {{ item.key }}: {{ item.value }} "
+   with_dict: "{{ NODES }}"
+   delegate_to: "clientnode-1"
+
+ - name: updating 'CLIENTS' entries
+   replace:
+    path: /root/PerfProBenchmark/config.yml
+    after: "CLIENTS:"
+    regexp: "  - {{ item.key }}: "
+    replace: "  - {{ item.key }}: {{ item.value }} "
+   with_dict: "{{ CLIENTS }}"
+   delegate_to: "clientnode-1"
+

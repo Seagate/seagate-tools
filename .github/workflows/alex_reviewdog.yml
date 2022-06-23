@@ -25,7 +25,6 @@ on:
     types: [ opened, synchronize ]
     branches:
       - main
-      - integration
   # Trigger the workflow on demand
   workflow_dispatch:
 jobs:

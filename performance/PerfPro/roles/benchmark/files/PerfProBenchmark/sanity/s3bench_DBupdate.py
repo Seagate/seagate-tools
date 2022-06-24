@@ -16,10 +16,9 @@ Main_path = sys.argv[2]
 Config_path = sys.argv[3]
 # collecting runtime entries
 Repository = sys.argv[4]
-Commit_ID = sys.argv[5]
-PR_ID = sys.argv[6]
-User = sys.argv[7]
-GID = sys.argv[8]
+PR_ID = sys.argv[5]
+User = sys.argv[6]
+GID = sys.argv[7]
 
 sanity_schema = {
     "motr_repository": "",

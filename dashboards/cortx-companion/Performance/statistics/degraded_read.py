@@ -1,4 +1,6 @@
-"""Degraded read tab code."""
+#!/usr/bin/env python3
+#
+# Seagate-tools: Cortx-Companion
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,7 +18,7 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 # -*- coding: utf-8 -*-
-# !/usr/bin/python
+"""Degraded read tab code."""
 
 from dash.dependencies import Output, Input
 from dash.exceptions import PreventUpdate

@@ -1,4 +1,4 @@
-"""Functions to pull data from mongoDB using pymongo."""
+#!/usr/bin/env python3
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
@@ -17,6 +17,8 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 # -*- coding: utf-8 -*-
+"""Functions to pull data from mongoDB using pymongo."""
+
 import sys
 
 from pymongo import MongoClient

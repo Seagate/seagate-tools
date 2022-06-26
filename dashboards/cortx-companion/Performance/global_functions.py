@@ -1,4 +1,4 @@
-"""Global functions needed across Performance files."""
+#!/usr/bin/env python3
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
@@ -17,7 +17,7 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 # -*- coding: utf-8 -*-
-# !/usr/bin/python
+"""Global functions needed across Performance files."""
 
 from __future__ import absolute_import
 from builtins import round

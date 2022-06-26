@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+#
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
 # This program is free software: you can redistribute it and/or modify
@@ -14,6 +16,7 @@
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
+# -*- coding: utf-8 -*-
 """
 A MongoDb instance can have multiple databases in it.
 Each database can have multiple collections(tables) in it.
@@ -21,6 +24,7 @@ Each collection can have multiple documents(row) in it.
 
 Needs reference of schema layout for R2_Systems.
 """
+
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 import configparser

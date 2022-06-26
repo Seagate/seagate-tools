@@ -1,4 +1,4 @@
-"""Performance schemas consumed by backend and essential for database."""
+#!/usr/bin/env python3
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
@@ -17,8 +17,7 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 # -*- coding: utf-8 -*-
-# !/usr/bin/python
-
+"""Performance schemas consumed by backend and essential for database."""
 
 def get_common_schema(data):
     """function for getting common performance schema wrt database

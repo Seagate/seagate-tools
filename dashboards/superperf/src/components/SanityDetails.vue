@@ -62,7 +62,7 @@ export default {
       dataAll: [],
     };
   },
-  mounted: function () {
+  mounted() {
     sanityapi
       .fetchDataFromResponse(this.run_id, "throughput")
       .then((response) => {

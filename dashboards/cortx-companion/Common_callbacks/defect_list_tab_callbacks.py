@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# !/usr/bin/python
+#!/usr/bin/env python3
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
@@ -17,7 +16,7 @@
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
-
+# -*- coding: utf-8 -*-
 """Defect list for Test Execution Callbacks."""
 
 from http import HTTPStatus

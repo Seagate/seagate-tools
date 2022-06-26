@@ -1,0 +1,159 @@
+# Seagate-tools: PerfPro
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+# -*- coding: utf-8 -*-
+
+---
+ - name : "Doing cleanup before starting Degraded Read"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'cx'"
+     cluster_state: "'normal-cleanup'"
+
+ - name: "Running S3bench in write only mode"
+   include: dr_s3bench.yml
+   vars: 
+     s3_var: "'-skipRead -skipCleanup'"
+     cluster_state: "'normal-write'"
+
+ - name: "Running HSbench in write only mode"
+   include: dr_hsbench.yml
+   vars: 
+     hsb_var: "'ip'"
+     cluster_state: "'normal-write'"
+
+#Collecting read stats before failure
+
+ - name: "Running read only S3bench in normal state of cluster"
+   include: dr_s3bench.yml
+   vars:
+     s3_var: "'-skipWrite -skipCleanup'"
+     cluster_state: "'normal-read'"
+
+ - name: "Running read only HSbench in normal state of cluster"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'lg'"
+     cluster_state: "'normal-read'"
+
+# Fail the node using k8s
+ - name: "deleting the pod using K8s to degrade the cluster"
+   shell: /root/PerfProBenchmark/degraded_read/k8_pod_handler.sh down
+   delegate_to: "srvnode-1"
+
+ - name: "Waiting for pod to stop and cluster get into degraded mode"
+   shell: sleep 30
+
+
+# This integration is not working right now, keeping for future use
+# Copy Solution.yml file to PerfProBenchmark directory from deploy scripts directory
+# - name: "Copy solution.yml file of cluster to PerfProBenchmark"
+#   shell: cp /root/deploy-scripts/k8_cortx_cloud/solution.yaml /root/PerfProBenchmark/degraded_read/pods_status/
+#   delegate_to: "srvnode-1"
+
+# This integration is not working right now, keeping for future use
+# Checking state of cluster
+# - name: "Waiting until cluster state is in degraded mode"
+#   shell: /root/PerfProBenchmark/degraded_read/pods_status/pods_status.sh
+#   register: is_cluster_degraded
+#   until: is_cluster_degraded == "FAILED"
+#   retries: 10
+#   delay: 5
+#   delegate_to: "srvnode-1"
+
+
+
+# APIs based method,keeping this method for future use
+#Fail the node
+# - name: "Loading config from another role"
+#   include_vars:
+#      file: "{{ role_path }}/../perfpro_deployment/vars/config.yml"
+#      name: config
+
+# - name: "Stopping node to bring cluster into degraded state"
+#   shell: python3 /root/PerfProBenchmark/degraded_read/node_stop.py {{ config['MGMT_VIP']  }}  {{ groups['nodes'] | length }}
+#   delegate_to: "{{ groups['clients'][0] }}"
+
+# - name: "Waiting for node to stop and cluster get into degraded mode"
+#   shell: sleep 30
+
+#collect read stats
+
+ - name: "Running read only S3bench in degraded state of cluster"
+   include: dr_s3bench.yml
+   vars:
+     s3_var: "'-skipWrite -skipCleanup'"
+     cluster_state: "'degraded-read'"
+
+ - name: "Running read only HSbench in degraded state of cluster"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'lg'"
+     cluster_state: "'degraded-read'"
+
+# Booting the failed node using K8s
+ - name: "creating the pod using K8s to degrade the cluster"
+   shell: /root/PerfProBenchmark/degraded_read/k8_pod_handler.sh up
+   delegate_to: "srvnode-1"
+
+
+ - name: "Waiting for pod to stop and cluster get into degraded mode"
+   shell: sleep 30
+
+# This integration is not working right now, keeping for future use
+# Checking state of cluster
+# - name: "Waiting until cluster state is in normal mode"
+#   shell: /root/PerfProBenchmark/degraded_read/pods_status/pods_status.sh
+#   register: is_cluster_degraded
+#   until: is_cluster_degraded == "PASSED"
+#   retries: 10
+#   delay: 5
+#   delegate_to: "srvnode-1"
+
+
+
+# APIs based method, keeping this method for future use
+#Boot the failed node
+
+# - name: "Starting node to bring degraded cluster back  into healthy state"
+#   shell: python3 /root/PerfProBenchmark/degraded_read/node_start.py {{ config['MGMT_VIP']  }}  {{ groups['nodes'] | length }}
+#   delegate_to: "{{ groups['clients'][0] }}"
+
+# - name: "Waiting for node to start and join cluster"
+#   shell: sleep 30
+
+
+#Collect read starts after cluster is recovered and cleanup
+
+ - name: "Running read only S3bench in recovered state of cluster"
+   include: dr_s3bench.yml
+   vars:
+     s3_var: "'-skipWrite'"
+     cluster_state: "'recovered-read'"
+
+ - name: "Running read only HSbench in recovered state of cluster"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'lg'"
+     cluster_state: "'recovered-read'"
+
+ - name: "Cleaning up buckets and objects of HSbench"
+   include: dr_hsbench.yml
+   vars:
+     hsb_var: "'dcx'"
+     cluster_state: "'recovered-cleanup'"
+

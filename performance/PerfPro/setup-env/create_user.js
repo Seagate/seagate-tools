@@ -5,5 +5,4 @@ pwd: "" ,
 roles: [
 { role: "readWrite", db: "" }
 ]}
-)
-
+);

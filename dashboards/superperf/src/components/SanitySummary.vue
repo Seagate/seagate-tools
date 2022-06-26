@@ -62,7 +62,7 @@ export default {
       dataSummaryWrite: [],
     };
   },
-  mounted: function () {
+  mounted() {
     sanityapi.fetchDataFromResponse(this.run_id, "config").then((response) => {
       this.configData = response.data;
     });

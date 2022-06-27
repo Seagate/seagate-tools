@@ -30,7 +30,7 @@ set -x
 # DISKS=`echo "$RESULT" | grep 'IO:' | sed 's/IO://'`
 
 # LC CODE
-SCRIPT_PATH="$(readlink -f $0)"
+SCRIPT_PATH=$(readlink -f "$0")
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 CLUSTER_CONFIG_FILE="/tmp/cluster.conf"
 DISKS_MAP="/tmp/cortx_disks_map"

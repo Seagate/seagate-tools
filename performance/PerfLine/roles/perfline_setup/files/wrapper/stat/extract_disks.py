@@ -21,12 +21,11 @@
 
 '''
 Return disk partitions on servernodes provided cluster file and
-python3 extract_disks.py <cluster config file> <assigned ips>
-python3 extract_disks.py /var/lib/hare/cluster.yaml $(ifconfig | grep inet | awk '{print $2}')
+python3 extract_disks.py <cluster config file>
+python3 extract_disks.py /var/lib/hare/cluster.yaml
 '''
 import sys
 import yaml
-import re
 
 cluster_config_file = sys.argv[1]
 

@@ -192,8 +192,8 @@ class Histogram():
                   handlelength=0, handletextpad=0)
 
 
-    def name(self):
-        return self.name
+    # def name(self):
+    #     return self.name
 
     def merge(self, histogram):
         self.hist = pd.concat([self.hist, histogram.hist], ignore_index=True)
@@ -512,8 +512,8 @@ def calculate(conn, fiter, save_only):
     stio_all = Layer(STIO, conn)
     rel = Relation(FOM_TO_STIO, conn)
     stio_ioo = rel.sieve(fom_ioo, stio_all)
-    stio_cob = rel.sieve(fom_cob, stio_all)
-    stio_cas = rel.sieve(fom_cas, stio_all)
+    # stio_cob = rel.sieve(fom_cob, stio_all)        # variable is not being used anywhere
+    # stio_cas = rel.sieve(fom_cas, stio_all)        # variable is not being used anywhere
     del stio_all
     del rel
     gc.collect()

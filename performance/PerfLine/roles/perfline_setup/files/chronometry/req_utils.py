@@ -23,7 +23,7 @@ import re
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-from addb2db import queues, attr, DB
+from addb2db import attr, DB
 from playhouse.shortcuts import model_to_dict
 from typing import List, Dict
 from graphviz import Digraph
@@ -182,34 +182,34 @@ def draw_timelines(time_table, queue_table, client_start_time, queue_start_time,
     if not no_window:
         plt.show()
 
-def fill_queue_table(queue_table, queue_start_time, qrange: int):
-    for q_conf in [["runq", "wail", "fom-active"],
-                   ["stob-ioq-inflight", "stob-ioq-queued"]]:
-        queue_table.append([])
-        loc_nr = queues.select(fn.MAX(queues.locality)).where(queues.type==q_conf[0]).scalar()
-        for nr in range(loc_nr+1):
-            for queuei in q_conf:
-                left  = queues.select().where((queues.min>-1)
-                                              &(queues.locality==nr)
-                                              &(queues.type==queuei)
-                                              &(queues.time<client_start_time)).limit(qrange)
-                right = queues.select().where((queues.min>-1)
-                                              &(queues.locality==nr)
-                                              &(queues.type==queuei)
-                                              &(queues.time>=client_start_time)).limit(qrange)
-                stmt = [*left, *right]
-                #print(stmt.sql())
-                q_d = query2dlist(stmt)
-                _min = queues.select(fn.MIN(queues.min)).where((queues.min>-1)
-                                                               &(queues.locality==nr)
-                                                               &(queues.type==queuei)).scalar()
-                _max = queues.select(fn.MAX(queues.max)).where((queues.min>-1)
-                                                               &(queues.locality==nr)
-                                                               &(queues.type==queuei)).scalar()
-                queues_tag_append(q_d, 'op', f"{queuei}#{nr}[{_min}..{_max}]")
-                queue_table[-1].append(q_d)
+# def fill_queue_table(queue_table, queue_start_time, qrange: int):
+#     for q_conf in [["runq", "wail", "fom-active"],
+#                    ["stob-ioq-inflight", "stob-ioq-queued"]]:
+#         queue_table.append([])
+#         loc_nr = queues.select(fn.MAX(queues.locality)).where(queues.type==q_conf[0]).scalar()
+#         for nr in range(loc_nr+1):
+#             for queuei in q_conf:
+#                 left  = queues.select().where((queues.min>-1)
+#                                               &(queues.locality==nr)
+#                                               &(queues.type==queuei)
+#                                               &(queues.time<client_start_time)).limit(qrange)
+#                 right = queues.select().where((queues.min>-1)
+#                                               &(queues.locality==nr)
+#                                               &(queues.type==queuei)
+#                                               &(queues.time>=client_start_time)).limit(qrange)
+#                 stmt = [*left, *right]
+#                 #print(stmt.sql())
+#                 q_d = query2dlist(stmt)
+#                 _min = queues.select(fn.MIN(queues.min)).where((queues.min>-1)
+#                                                                &(queues.locality==nr)
+#                                                                &(queues.type==queuei)).scalar()
+#                 _max = queues.select(fn.MAX(queues.max)).where((queues.min>-1)
+#                                                                &(queues.locality==nr)
+#                                                                &(queues.type==queuei)).scalar()
+#                 queues_tag_append(q_d, 'op', f"{queuei}#{nr}[{_min}..{_max}]")
+#                 queue_table[-1].append(q_d)
 
-        queue_start_time.append(prepare_time_table(queue_table[-1], False))
+#         queue_start_time.append(prepare_time_table(queue_table[-1], False))
 
 
 # =============== GRAPH-RELATED STUFF ===============

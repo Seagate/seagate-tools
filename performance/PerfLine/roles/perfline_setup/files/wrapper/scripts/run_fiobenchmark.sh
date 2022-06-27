@@ -36,7 +36,6 @@ DURATION=""
 BLOCK_SIZE=""
 NUMOFJOBS=""
 TIMESTAMP=$(date +'%Y-%m-%d_%H:%M:%S')
-SAMPLE=""
 TEMPLATE=""
 
 validate_args() {
@@ -58,8 +57,8 @@ show_usage() {
 }
 
 fio_benchmark() {
-       rm -rf $PERFLINE_DIR/fio-workload_$(hostname)
-       WORKLOAD_DIR=$PERFLINE_DIR/fio-workload_$(hostname)
+       rm -rf "$PERFLINE_DIR/fio-workload_$(hostname)"
+       WORKLOAD_DIR="$PERFLINE_DIR/fio-workload_$(hostname)"
        mkdir -p "$WORKLOAD_DIR"
        for bs in ${BLOCK_SIZE//,/ }
        do

@@ -27,7 +27,7 @@ import argparse
 from sys_utils import Figure, Layer, Relation, XIDRelation, Connection, S3, \
     MOTR_REQ, CRPC, SRPC, FOM, STIO, S3PUT_FILTER, S3GET_FILTER, Attr, MBPS, \
     S3_TO_CLIENT, IOO, CLIENT_TO_IOO, IOO_TO_CRPC, COB_TO_CRPC, CAS_TO_CRPC, \
-    SRPC_TO_FOM, FOM_TO_STIO
+    SRPC_TO_FOM, FOM_TO_STIO, get_hosts_pids
 
 class LocalFigure():
     def __init__(self, fig):
@@ -64,10 +64,8 @@ class Handler():
             self.server_agg = LocalFigure(Figure(f'{fiter.name} cluster-wide server throughput',
                                                  self.NUM_SRV_LAYERS, self.NUM_COLS))
 
-        if self.hostmap and self.per_host and self.client:
-            self.client_hosts = dict()
-        if self.hostmap and self.per_host and self.server:
-            self.server_hosts = dict()
+        self.client_hosts = dict()
+        self.server_hosts = dict()
 
         if self.per_process and self.client:
             self.client_process = dict()
@@ -109,7 +107,7 @@ class Handler():
     def process_per_host(self, mbps,
                          dummy, ypos_cli, ypos_srv):
         if self.hostmap and self.per_host and self.client and ypos_cli is not None:
-            if not self.client_hosts:
+            if len(self.client_hosts) == 0:
                 self.create_host_figs(self.client_hosts,
                                       self.NUM_CLI_LAYERS,
                                       self.NUM_COLS,
@@ -126,7 +124,7 @@ class Handler():
                           pids=self.hostmap[host])
 
         if self.hostmap and self.per_host and self.server and ypos_srv is not None:
-            if not self.server_hosts:
+            if len(self.server_hosts) == 0:
                 self.create_host_figs(self.server_hosts,
                                       self.NUM_SRV_LAYERS,
                                       self.NUM_COLS,
@@ -359,21 +357,6 @@ def parse_args():
 
     return args
 
-def get_hosts_pids(conn):
-    table_descr_query = 'select * from sqlite_master where type="table" and name="host"'
-    table_descr_df = sql.read_sql(table_descr_query, con=conn.conn)
-
-    if table_descr_df.empty:
-        return None
-
-    pids_df = sql.read_sql('select * from host', con=conn.conn)
-
-    if pids_df.empty:
-        return None
-
-    pids_df = pids_df.drop_duplicates(subset=['pid'])
-    hostmap = pids_df.groupby('hostname')['pid'].apply(list).to_dict()
-    return hostmap
 
 def main():
     args = parse_args()

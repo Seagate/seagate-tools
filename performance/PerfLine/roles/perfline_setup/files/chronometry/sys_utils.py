@@ -46,26 +46,17 @@ class TypeId():
         self.type_id = type_id
 
 class Layer():
-    def __init__(self, layer_type, connection, start=None, stop=None):
+    def __init__(self, layer_type, connection):
         self.layer_type = layer_type
         self.connection = connection
         self.df = None
-        self.start = start
-        self.stop = stop
 
     def write(self, df):
         self.df = df
 
     def read(self):
         if self.df is None:
-            if self.start is not None and self.stop is not None:
-                query = f'SELECT * FROM request where type_id="{self.layer_type.type_id}" and time > {self.start} and time < {self.stop}'
-            elif self.start is not None:
-                query = f'SELECT * FROM request where type_id="{self.layer_type.type_id}" and time > {self.start}'
-            elif self.stop is not None:
-                query = f'SELECT * FROM request where type_id="{self.layer_type.type_id}" and time < {self.stop}'
-            else:
-                query = f'SELECT * FROM request where type_id="{self.layer_type.type_id}"'
+            query = f'SELECT * FROM request where type_id="{self.layer_type.type_id}"'
             df = sql.read_sql(query, con=self.connection.get())
             self.df = df.loc[:,~df.columns.duplicated()]
         return self.df
@@ -92,10 +83,10 @@ def s3_filter(s3, request_state):
     return pd.merge(s3, mask, on=['pid', 'id'], how='inner')
 
 def s3putobject_filter(s3):
-    return s3_filter(s3, 'S3PutObjectAction')
+    return s3_filter(s3, 'RGW_ADDB_FUNC_WRITE')
 
 def s3getobject_filter(s3):
-    return s3_filter(s3, 'S3GetObjectAction')
+    return s3_filter(s3, 'RGW_ADDB_FUNC_READ_MOBJ')
 
 # List of supported Layers types:
 
@@ -112,7 +103,7 @@ def s3getobject_filter(s3):
 # [+] cob_req
 # [+] ioo_req
 
-S3       = TypeId('S3', 's3_request_state')
+S3       = TypeId('S3', 'rgw_request_state')
 MOTR_REQ = TypeId('MotrReq', 'client_req')
 COB      = TypeId('COB', 'cob_req')
 CAS      = TypeId('CAS', 'cas_req')
@@ -136,7 +127,8 @@ class Histogram():
     MILLISECOND_SCALE = 10**6
     MICROSECOND_SCALE = 10**3
 
-    def __init__(self, layer, start, stop, bins=BINS, percentile=PERCENTILE, pids=None, scale='ms'):
+    def __init__(self, layer, start, stop, bins=BINS, percentile=PERCENTILE,
+                 pids=None, scale='ms', show_percentile=False):
         self.layer = layer
         self.bins = bins
         self.percentile = percentile
@@ -150,6 +142,7 @@ class Histogram():
         elif self.scale_name=='us':
             self.scale = self.MICROSECOND_SCALE
         self.name = f"{self.layer.layer_type.name}: {self.start_states} -> {self.stop_states}, {self.scale_name}"
+        self.show_percentile = show_percentile
 
     @staticmethod
     def __process_states(df, states, inverse=False):
@@ -197,13 +190,16 @@ class Histogram():
         for i in range(len(text)-1):
             t = text[i].split(' ')
             textstr = textstr + t[0] + ": " + t[-1] + '\n'
-        textstr = textstr + "80%: "   + "{:.2f}".format(q80) + "\n"
-        textstr = textstr + "90%: "   + "{:.2f}".format(q90) + "\n"
-        textstr = textstr + "95%: "   + "{:.2f}".format(q95) + "\n"
-        textstr = textstr + "99%: "   + "{:.2f}".format(q99) + "\n"
-        textstr = textstr + "99.5%: " + "{:.2f}".format(q995) + "\n"
-        textstr = textstr + "99.8%: " + "{:.2f}".format(q998) + "\n"
-        textstr = textstr + "99.9%: " + "{:.2f}".format(q999) + "\n"
+
+        if self.show_percentile:
+            textstr = textstr + "80%: "   + "{:.2f}".format(q80) + "\n"
+            textstr = textstr + "90%: "   + "{:.2f}".format(q90) + "\n"
+            textstr = textstr + "95%: "   + "{:.2f}".format(q95) + "\n"
+            textstr = textstr + "99%: "   + "{:.2f}".format(q99) + "\n"
+            textstr = textstr + "99.5%: " + "{:.2f}".format(q995) + "\n"
+            textstr = textstr + "99.8%: " + "{:.2f}".format(q998) + "\n"
+            textstr = textstr + "99.9%: " + "{:.2f}".format(q999) + "\n"
+
         textstr = textstr + text[-1].split(' ')[0] + ": " + text[-1].split(' ')[-1]
 
         handles = [mpl_patches.Rectangle((0, 0), 1, 1, fc="white", ec="white",
@@ -274,7 +270,7 @@ class Relation():
 # [-] bulk_to_rpc
 # [+] ioo_to_rpc
 
-S3_TO_CLIENT  = TypeId('S3 to Motr client request', 's3_request_to_client')
+S3_TO_CLIENT  = TypeId('S3 to Motr client request', 'rgw_request_to_client')
 CLIENT_TO_DIX = TypeId('Motr client request to DIX request', 'client_to_dix')
 DIX_TO_MDIX   = TypeId('DIX request to MDIX request', 'dix_to_mdix')
 DIX_TO_CAS    = TypeId('DIX request to CAS request', 'dix_to_cas')
@@ -350,7 +346,7 @@ class Figure():
 
     def __init__(self, name, rows, cols):
         self.mpl_idx = Figure.next_figure()
-        self.fig = plt.figure(self.mpl_idx, figsize=(20, 10))
+        self.fig = plt.figure(self.mpl_idx, constrained_layout=True, figsize=(20, 10))
         self.mpl_plt = plt
         self.layout = self.fig.add_gridspec(rows, cols)
         self.rows = rows
@@ -380,13 +376,13 @@ class Figure():
                 plot.ax.set_title(plot.hist.name)
 
     def show(self):
-        self.mpl_plt.figure(self.mpl_idx)
-        self.mpl_plt.subplots_adjust(left=0.04,
-                                     bottom=0.06,
-                                     right=0.99,
-                                     top=0.92,
-                                     wspace=0.11,
-                                     hspace=0.11)
+        # self.mpl_plt.figure(self.mpl_idx)
+        # self.mpl_plt.subplots_adjust(left=0.04,
+        #                              bottom=0.06,
+        #                              right=0.99,
+        #                              top=0.92,
+        #                              wspace=0.11,
+        #                              hspace=0.11)
         self.mpl_plt.show()
 
     @staticmethod
@@ -394,13 +390,13 @@ class Figure():
         plt.show()
 
     def save(self):
-        self.mpl_plt.figure(self.mpl_idx)
-        self.mpl_plt.subplots_adjust(left=0.04,
-                                     bottom=0.06,
-                                     right=0.99,
-                                     top=0.92,
-                                     wspace=0.11,
-                                     hspace=0.11)
+        # self.mpl_plt.figure(self.mpl_idx)
+        # self.mpl_plt.subplots_adjust(left=0.04,
+        #                              bottom=0.06,
+        #                              right=0.99,
+        #                              top=0.92,
+        #                              wspace=0.11,
+        #                              hspace=0.11)
         self.fig.savefig(self.filename, format="png")
 
 class Queue():
@@ -692,3 +688,72 @@ class MBPS():
 
     def get_pids(self):
         return list(set(self.pids.to_list()))
+
+
+def add_start_stop_markers_rgw_req(rgw_reqs_df):
+    # Set of RGW request states doesn't include states like 'START'
+    # and 'COMPLETE'. But such request states (let's say markers) are
+    # necessary for generation of histograms, rps/mbps graphs. That's why we
+    # have to add markers for each RGW request. For that we need to find
+    # the first and the last request state for each request via grouping
+    # request states by [pid, id]. Requests states in each group must be
+    # sorted by time.
+    rgw_reqs_df = rgw_reqs_df.sort_values('time')
+    groups = rgw_reqs_df.groupby(['pid','id'])
+
+    # Usually we expect that there are multiple rows (requests states)
+    # for each group (see 'rgw_reqs_df.groupby()' above). In this case we can
+    # add 'START' and 'COMPLETE' markers for requests (represented as a list of
+    # request states grouped by [pid, id]).
+    # But at the same time it is possible to have only a single row (request
+    # state) for some requests due to some reasons (for example, some of ADDB
+    # records may be lost). In such case the best solution is to omit 'COMPLETE'
+    # marker since we know for sure that almost all of request states for this
+    # particular request are lost.
+    # In order to detect such groups for which 'head' and 'tail' are the same row
+    # we have to save original values of 'state' and 'time' columns. Then we can
+    # remove 'COMPLETE' markers from concatenated data frame using 'drop_duplicates()'
+    # function with the [pid, id, time_orig, state_orig] list as a parameter.
+
+    # Create a data frame for 'START' markers
+    start_markers_df = groups.head(1).copy(deep=False)
+    start_markers_df['state_orig'] = start_markers_df.state
+    start_markers_df['time_orig'] = start_markers_df.time
+    start_markers_df['state'] = 'START'
+    start_markers_df['time'] = start_markers_df.time - 1
+
+    # Create a data frame for 'COMPLETE' markers
+    complete_markers_df = groups.tail(1).copy(deep=False)
+    complete_markers_df['state_orig'] = complete_markers_df.state
+    complete_markers_df['time_orig'] = complete_markers_df.time
+    complete_markers_df['state'] = 'COMPLETE'
+    complete_markers_df['time'] = complete_markers_df.time + 1
+
+    # Create a concatenated data frame for both 'START' and 'COMPLETE'
+    # and remove unwanted 'COMPLETE' markers (see description above).
+    markers_df = pd.concat([start_markers_df, complete_markers_df]).drop_duplicates(['pid', 'id', 'time_orig', 'state_orig'])
+    markers_df.drop(columns=['time_orig', 'state_orig'], inplace=True)
+
+    # Add markers to original data frame and sort rows by time
+    rgw_reqs_df = pd.concat([rgw_reqs_df, markers_df]).sort_values('time')
+
+    return rgw_reqs_df
+
+
+ADD_START_COMPLETE_RGW_REQ_FILTER = Filter('start_complete_rgw_markers', add_start_stop_markers_rgw_req)
+
+def get_hosts_pids(conn):
+    table_descr_query = 'select * from sqlite_master where type="table" and name="host"'
+    table_descr_df = sql.read_sql(table_descr_query, con=conn.conn)
+
+    if table_descr_df.empty:
+        return None
+
+    pids_df = sql.read_sql('select * from host', con=conn.conn)
+
+    if pids_df.empty:
+        return None
+
+    pids_df = pids_df.drop_duplicates(subset=['pid'])
+    hostmap = pids_df.groupby('hostname')['pid'].apply(list).to_dict()
+    return hostmap

@@ -1,111 +1,74 @@
-Installation and usage steps:
+# PerfProBenchmark
 
-	1. Install go language
+This directory is being copied by PerfPro orchestrator and contains artefacts required to run PerfPro playbooks like perf-sanity and perf-regression. To run the various performance tests, we need the benchmarking tool and its configurations as per test scenarios. PerfPro uses S3Bench, HSBench and COSBench to run performance tests.
 
-		$ yum install go -y
+PerfPro manages installation, configurations and execution of these benchmarking tools. Post execution, the test results are required to be pushed to MongoDB for further processing by PerfPro Dashboard. The db_scripts consists of python scripts which pushes these test results by benchmarking tools to MongoDB mentioned in main.yml at PerfPro\roles\benchmark\vars\ directory.
 
-	2. Get the go language based s3bench,hsbench package
+To run the benchmarking tools without PerfPro orchestrator, use manual execution method as described below
 
-		$ go get github.com/igneous-systems/s3bench
-		$ go get github.com/markhpc/hsbench
-	    $ cd /root/go/src/github.com/igneous-systems/s3bench; go build
-		$ cd /root/go/src/github.com/markhpc/hsbench; go build
-
-	3. Untar BENCHMARK.tar.gz file, it will contain 3 benchmark wrapper script which is resposible for continuous S3 performance testing based on number of clients, number of samples, IOsize etc.
-
-		$ tar -xzvf BENCHMARK.tar.gz
-
-	4. Steps to run S3bench wrapper scripts
-
-		$ cd allbenchmark/s3bench_basic;
-
-		i). S3bench_basic wrapper script has designed for continuous S3 performance testing based on different parameters w.r.t number of the client, number of samples, and size of objects.
-
-				$ ./run_s3benchmark.sh -nc 32,64,128 -ns 1024,2048,4096 -s 1Mb,4Mb,128Mb
-
-				Note: It will generate a list of JSON files for each iteration as well as log file inside the "s3bench_basic/benchmark.log" directory.
-
-	   ii). To generate a report, please run below command:
-
-				$ python3 s3benchReport.py benchmark.log
-
-	5. Steps to run hsbench wrapper scripts
-
-		$ cd allbenchmark/hsbench;
-
-		i). Similarly, for hsbench, the User can use additional parameters to test S3 performance like Number of buckets, Number of Objects, size of objects, Number of clients/Threads, and also runtime (Duration).
-
-				$ ./run_benchmark.sh -b 8,16,32,64 -o 1024,2048 -s 1Mb,4Mb,16Mb,32Mb -t 32,48,64,96,128 -d 600
-
-				Note: It will generate a list of JSON files for each iteration as well as log file inside the "hsbench/benchmark.log" directory.
-
-	   ii). To generate a report, please run below command:
-
-				$ Python3 hsbenchReport.py benchmark.log
-
-	6. steps to Intall and configure cosbench
-
-	    $ tar -xzvf BENCHMARK.tar.gz
-
-        $ cd allbenchmark/cosbench
-
-        i) Create a file "driver-nodes-list" where you have to list out clients fqdn like below:
-
-			S3CLIENT1.colo.seagate.com
-			S3CLIENT2.colo.seagate.com
-
-       ii) Installing cosbench on controller and driver nodes:
-
-			$ sh cosbench.sh install --controller <CLIENT1-FQDN> --drivers driver-nodes-list
-
-       iv) Configuring cosbench
-
-			$ sh cosbench.sh configure --controller <CLIENT1-FQDN> --drivers driver-nodes-list
-
-        v) Starting cosbench on controller and driver nodes
-
-			$ sh cosbench.sh start --controller <CLIENT1-FQDN> --drivers driver-nodes-list
-
-       vi) Now you can run cosbench wrapper script like below:
-
-			Ex: ./s3cosbench_benchmark.sh -nc 8,16,32 -ns 1024,2048,4096 -s 1Mb,4Mb,16Mb -b 8,16,32 -w read -t 600
-
-      vii) To Stop cosbench service on controller and driver nodes
-
-			$ sh cosbench.sh stop --controller <CLIENT1-FQDN> --drivers driver-nodes-list
-
-Log collection to NFS repo :
-```
-   1. In the config.yml file please update the following as per the NFS server details
-
-      # Enter Below details for log collection on NFS repo
-      NFS_SERVER: <nfs.server.lab.com>
-      NFS_EXPORT: </exportname>
-      NFS_MOUNT_POINT: </mnt/mountpoint>
-      NFS_FOLDER: <foldername/>
-      # End of NFS config
-      # WARNING: Mounting NFS share/export on commonly used mount points like /mnt may fail or may cause disruptions to othere services using it.
-
-   2. Make sure the "NFS_FOLDER" is created inside the "NFS_EXPORT"
-
-   3. In the "cosbench/s3cosbench_benchmark.sh" , "hsbench/run_benchmark.sh" and "s3bench_meta/run_s3benchmark.sh"
-      check the following:
-
-      i)  "LOG_COLLECT" points to the absolute path of the "collect_logs.py" file
-      ii) "CONFIG" points to the absolute path of the "config.yml" file
-
-   4. "NFS_MOUNT_POINT" need not be created in the client machine but the parent directory should be present.
-
-   5. In order to avoid the log collection to NFS Repo please comment following in the benchmark running scripts for the tools
-      'python3 $LOG_COLLECT $CONFIG'
+## Installation
+1.  Install `go` language
+```txt
+	yum install go
 ```
 
-CORTX support bundle collection to NFS repo :
-```
-   1. In the config.yml file please update the following as per the NFS server details, other required details for running script will be read from config.yml file.
+## Steps to run benchmark wrapper scripts
 
-      #Enter Below details for log collection on NFS repo
-      NFS_SERVER: <nfs.server.lab.com>
-      NFS_EXPORT: </exportname>
-      #End of NFS config
+### S3Bench
+1.  Go to s3bench directory
+2.  Run `run_s3benchmark.sh` script as
+```txt
+	./run_s3benchmark.sh -nc 32,64,128 -ns 1024,2048 -s 1Mb,4Mb,128Mb
 ```
+
+### HSBench
+1.  Go to hsbench directory
+2.  Run `run_benchmark.sh` script as 
+```txt
+	./run_benchmark.sh -b 32,64,128 -o 1024,2048 -s 1Mb,4Mb,128Mb -t 32,64,128 -d 600
+```
+
+### COSBench
+1.  Go to cosbench directory
+2.  Create a file "driver-nodes-list" where you have to list out clients fqdn like below
+```txt
+	S3CLIENT1.example.com
+	S3CLIENT2.example.com
+```
+3.  Installing cosbench on controller and driver nodes
+```txt
+	sh cosbench.sh install --controller <CONTROLLER-FQDN> --drivers driver-nodes-list
+```
+4.  Configuring cosbench
+```txt
+	sh cosbench.sh configure --controller <CONTROLLER-FQDN> --drivers driver-nodes-list
+```
+5.  Starting cosbench on controller and driver nodes
+```txt
+	sh cosbench.sh start --controller <CONTROLLER-FQDN> --drivers driver-nodes-list
+```
+6.  Now you can run cosbench wrapper script like
+```txt
+    ./s3cosbench_benchmark.sh -nc 8,16,32 -ns 1024,2048,4096 -s 1Mb,4Mb,16Mb -b 8,16,32 -w read -t 600
+```
+7.  To Stop cosbench service on controller and driver nodes
+```txt
+	sh cosbench.sh stop --controller <CONTROLLER-FQDN> --drivers driver-nodes-list
+```
+
+Reference to COSBench documentation:
+https://usermanual.wiki/Pdf/COSBenchUserGuide.1196297168.pdf
+
+## Other wrapper scripts
+
+Like benchmark wrapper scripts above, there are other scripts which do one or the other feature on top of wrapper scripts
+e.g.
+```txt
+	sanity: wrapper over s3bench which helps in running perf-sanity on mentioned s3_endpoint
+	copy_oject: wrapper over s3bench which copies objects from a bucket to another
+	degraded_IO: wrapper over s3bench which captures performance stats under degraded state of cluster serving s3_endpoint
+```
+
+## System_monitoring
+
+These are the scripts which capture system stats like CPU, Memory, Disk and Network utilization from system under test during PerfPro runs and push them on mentioned MongoDB server in main.yml

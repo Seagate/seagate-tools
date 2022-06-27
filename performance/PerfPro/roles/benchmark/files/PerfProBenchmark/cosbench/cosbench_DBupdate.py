@@ -19,6 +19,7 @@ Config_path = sys.argv[3]
 
 
 def makeconfig(name):  # function for connecting with configuration file
+    ''' Function to connect with configuration file to fetch the details of the file '''
     with open(name) as config_file:
         configs = yaml.safe_load(config_file)
     return configs
@@ -27,17 +28,22 @@ def makeconfig(name):  # function for connecting with configuration file
 configs_main = makeconfig(Main_path)  # getting instance  of main file
 configs_config = makeconfig(Config_path)  # getting instance  of config file
 
-build_info=str(configs_config.get('BUILD_INFO'))
-nodes_list=configs_config.get('NODES')
-clients_list=configs_config.get('CLIENTS')
-pc_full=configs_config.get('PC_FULL')
-overwrite=configs_config.get('OVERWRITE')
-custom=configs_config.get('CUSTOM')
-docker_info=configs_config.get('DOCKER_INFO')
-nodes_num=len(nodes_list)
-clients_num=len(clients_list)
+build_info = str(configs_config.get('BUILD_INFO'))
+nodes_list = configs_config.get('NODES')
+clients_list = configs_config.get('CLIENTS')
+pc_full = configs_config.get('PC_FULL')
+overwrite = configs_config.get('OVERWRITE')
+custom = configs_config.get('CUSTOM')
+docker_info = configs_config.get('DOCKER_INFO')
+nodes_num = len(nodes_list)
+clients_num = len(clients_list)
+
 
 def makeconnection():  # function for making connection with database
+    '''
+    Function to connect to the Database and fetch the DB details and
+    add data to DB throughout the script execution
+    '''
     # connecting with mongodb database
     client = MongoClient(configs_main['db_url'])
     db = client[configs_main['db_database']]  # database name=performance
@@ -45,6 +51,10 @@ def makeconnection():  # function for making connection with database
 
 
 def get_release_info(variable):
+    '''
+    Function to get the release info from the Docker image.
+    It returns the value for the variable which is required by the script.
+    '''
     release_info = os.popen('docker run --rm -it ' +
                             docker_info + ' cat /opt/seagate/cortx/RELEASE.INFO')
     lines = release_info.readlines()
@@ -54,9 +64,11 @@ def get_release_info(variable):
             strip_strinfo = re.split(': ', strinfo)
             return(strip_strinfo[1])
 
-
 # Function to find latest iteration
+
+
 def get_latest_iteration(query, db, collection):
+    ''' Function to get the latest iteration value from the existing DB entries. '''
     max_iter = 0
     cursor = db[collection].find(query)
     for record in cursor:
@@ -68,6 +80,7 @@ def get_latest_iteration(query, db, collection):
 
 
 def check_first_client(query, db, collection, itr):
+    ''' Function returns if the client trying to push DB entries is First client from the list of clients. '''
     query.update(Iteration=itr)
     cursor = db[collection].distinct('HOST', query)
     if (len(cursor) < query["Count_of_Clients"]):
@@ -80,9 +93,11 @@ def check_first_client(query, db, collection, itr):
         return False
     return True
 
-
 # function for retriving required data from log files and update into mongodb
+
+
 def insert_data(files, Build, Version, Config_ID, db, col, Branch, OS):
+    ''' Function helps in collecting the data from log files and insert in the DB. '''
     find_iteration = True
     first_client = True
     delete_data = True
@@ -149,7 +164,7 @@ def insert_data(files, Build, Version, Config_ID, db, col, Branch, OS):
                             db_data.update(runconfig_Set)
                             db_data.update(updation_Set)
 
-# Function to insert data into db with iterration number
+                            ''' Function to insert data into db with iterration number '''
 
                             def db_update(itr, db_data):
                                 db_data.update(Iteration=itr)
@@ -190,8 +205,8 @@ def insert_data(files, Build, Version, Config_ID, db, col, Branch, OS):
             Run_Health = "Failed"
 
 
-# function to return all file names with perticular extension
 def getallfiles(directory, extension):
+    ''' function to return all file names with perticular extension '''
     flist = []
     for path, _, files in os.walk(directory):
         for name in files:
@@ -234,6 +249,10 @@ def update_mega_chain(build, version, col):
 
 
 def getconfig():
+    '''
+    Function to get all config details from config.yml file and create a collective Dictonary.
+    This dictonary then will be used to match with existing entries from Configuration collection
+    '''
     nodes_list = configs_config.get('NODES')
     clients_list = configs_config.get('CLIENTS')
     build_info = configs_config.get('BUILD_INFO')
@@ -294,6 +313,7 @@ def getconfig():
 
 
 def main(argv):
+    ''' Main Function for COSbench DB update '''
     dic = argv[1]
     files = getallfiles(dic, "workloadtype.csv")
 

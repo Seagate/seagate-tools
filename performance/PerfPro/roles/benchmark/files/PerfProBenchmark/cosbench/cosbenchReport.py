@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-
+'''
+Script to return CSV results of cosbench log files
+'''
 import pandas as pd
 import os
 import sys

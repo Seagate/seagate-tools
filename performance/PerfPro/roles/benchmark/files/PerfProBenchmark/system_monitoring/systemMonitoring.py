@@ -48,7 +48,7 @@ def addbackup(dataentry):
 
 """
 
-
+''' Function to connect with configuration file to fetch the details of the file '''
 def makeconfig(name):  # function for connecting with configuration file
     with open(name) as config_file:
         configs = yaml.safe_load(config_file)
@@ -64,7 +64,10 @@ custom = configs_config.get('CUSTOM')
 solution = configs_config.get('SOLUTION')
 docker_info = configs_config.get('DOCKER_INFO')
 
-
+'''
+Function to get the release info from the Docker image.
+It returns the value for the variable which is required by the script.
+'''
 def get_release_info(variable):
     release_info = os.popen('docker run --rm -it ' +
                             docker_info + ' cat /opt/seagate/cortx/RELEASE.INFO')
@@ -86,7 +89,7 @@ elif build_info == 'USER_INPUT':
     BUILD = configs_config.get('BUILD')
 print(BUILD)
 
-
+''' Function to connect to the Database and fetch the DB details and add data to DB throughout the script execution '''
 def makeconnection(collection):  # function for making connection with database
     configs = makeconfig(Main_path)
     client = MongoClient(configs['db_url'])  # connecting with mongodb database
@@ -109,7 +112,10 @@ def makeconnection(collection):  # function for making connection with database
     col = db[col_stats]  # collection name = configurations
     return col
 
-
+'''
+Function to get all config details from config.yml file and create a collective Dictonary.
+This dictonary then will be used to match with existing entries from Configuration collection
+'''
 def getconfig():
     nodes_list = configs_config.get('NODES')
     clients_list = configs_config.get('CLIENTS')
@@ -170,7 +176,7 @@ def getconfig():
 
     return (dic1)
 
-
+''' Function to get the latest iteration value from the existing DB entries. '''
 # Function to find latest iteration
 def get_latest_iteration(query):
     max_iter = 0
@@ -181,7 +187,7 @@ def get_latest_iteration(query):
             max_iter = record['Iteration']
     return max_iter
 
-
+''' Function to add system monitoring data to the DB '''
 def adddata(data, device, col):
     find_iteration = True
     delete_data = True
@@ -249,7 +255,7 @@ def adddata(data, device, col):
                 # else:
                 #    print(dic)
 
-
+''' Function to record system monitoring stats. '''
 def addReport():  # function for getting system report accoordiing to 'cmd' argument
     col = makeconnection('sysstat_collection')
     cmd = [[['sar', '5'], 'p1', "CPU"], [['sar', '-r', '5'], 'p2', "MEMORY"], [['sar', '-d', '5'],
@@ -272,14 +278,14 @@ def addReport():  # function for getting system report accoordiing to 'cmd' argu
         print("\n"+c[2]+"\n")
         adddata(outs, c[2], col)
 
-
+''' Function to retive all system stats from database'''
 def retriveAll():  # function for retriving all the data from database
     col = makeconnection('systemresults')
     data = col.find()
     for d in data:
         print(d)
 
-
+''' System monitoring main function. '''
 def main():
     if os.path.isfile("pidfile"):
         print("systemstats are already running! Nothing to start. Exiting")

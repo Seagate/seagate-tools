@@ -22,23 +22,24 @@ Config_path = sys.argv[3]
 
 
 def makeconfig(name):
+    ''' Function to connect with configuration file to fetch the details of the file '''
     with open(name) as config_file:
         configs = yaml.safe_load(config_file)
     return configs
 
 
 configs_main = makeconfig(Main_path)
-configs_config= makeconfig(Config_path)
+configs_config = makeconfig(Config_path)
 
-build_info=configs_config.get('BUILD_INFO')
-nodes_list=configs_config.get('NODES')
-clients_list=configs_config.get('CLIENTS')
-pc_full=configs_config.get('PC_FULL')
-overwrite=configs_config.get('OVERWRITE')
-custom=configs_config.get('CUSTOM')
-nodes_num=len(nodes_list)
-clients_num=len(clients_list)
-docker_info=configs_config.get('DOCKER_INFO')
+build_info = configs_config.get('BUILD_INFO')
+nodes_list = configs_config.get('NODES')
+clients_list = configs_config.get('CLIENTS')
+pc_full = configs_config.get('PC_FULL')
+overwrite = configs_config.get('OVERWRITE')
+custom = configs_config.get('CUSTOM')
+nodes_num = len(nodes_list)
+clients_num = len(clients_list)
+docker_info = configs_config.get('DOCKER_INFO')
 
 
 def makeconnection():
@@ -114,6 +115,10 @@ def extract_json(file):
 
 
 def getconfig():
+    '''
+    Function to get all config details from config.yml file and create a collective Dictonary.
+    This dictonary then will be used to match with existing entries from Configuration collection
+    '''
     nodes_list = configs_config.get('NODES')
     clients_list = configs_config.get('CLIENTS')
     build_info = configs_config.get('BUILD_INFO')
@@ -177,6 +182,7 @@ def getconfig():
 
 
 def get_latest_iteration(query, db, collection):
+    ''' Function to get the latest iteration value from the existing DB entries. '''
     max_iter = 0
     cursor = db[collection].find(query)
     for record in cursor:
@@ -188,6 +194,7 @@ def get_latest_iteration(query, db, collection):
 
 
 def check_first_client(query, db, collection, itr):
+    ''' Function returns if the client trying to push DB entries is First client from the list of clients. '''
     query.update(Iteration=itr)
     cursor = db[collection].distinct('HOST', query)
     if (len(cursor) < query["Count_of_Clients"]):

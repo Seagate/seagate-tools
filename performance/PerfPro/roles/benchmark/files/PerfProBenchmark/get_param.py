@@ -1,3 +1,6 @@
+"""
+Script to retun ENDPOINT value from config.yml and is used by run scripts of benchmarking tools
+"""
 import sys
 import yaml
 

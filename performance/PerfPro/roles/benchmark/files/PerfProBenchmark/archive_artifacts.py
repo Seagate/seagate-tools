@@ -1,3 +1,7 @@
+"""
+Script to archive PerfPro logs to NFS repository
+Input : config.yml and logs location
+"""
 import os
 import shutil
 import sys
@@ -16,7 +20,7 @@ log_source = sys.argv[2]
 
 
 class collect_logs:
-
+    '''Class to collect logs and archive them in NFS repository'''
     @classmethod
     def mount_nfs(cls):
         """Mounts the NFS export on the mountpoint to copy the collected logs"""

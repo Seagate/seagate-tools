@@ -1,24 +1,35 @@
 # How to run PerfPro
-====================
 
-## Pre-Requisites in order to run Perfpro:
-1. Verify 'hosts' file is empty in "inventories/" directory (PerfPro/inventories/hosts).  
-2. Update config.yml (PerfPro/roles/benchmark/vars/config.yml) with valid information of SUT and build in order to run this.
-3.  Update main.yml (PerfPro/roles/benchmark/vars/main.yml) with details related to 'MongoDB credentials', 'port', 'database' and 'db_url'.
+This document explains how to use PerfPro to run perf-regression OR perf-sanity ansible playbook.
 
-## Example how to run ansible-playbook directly
-$ ansible-playbook perfpro.yml -i inventories/hosts -v
+## Pre-Requisites
 
-## or simply execute run.sh
-$ run.sh
+1.  Verify 'hosts' file is empty in "inventories/" directory (~/seagate-tools/performance/PerfPro/inventories/hosts).  
+2.  Update config.yml at (~/seagate-tools/performance/PerfPro/roles/benchmark/vars/config.yml) with valid information against all the keys.
+3.  Update main.yml at (~/seagate-tools/performance/PerfPro/roles/benchmark/vars/main.yml) with details related to 'MongoDB credentials', 'port', 'database' and 'db_url'.
 
-## For Sanity PerfPro execution run either of the following: 
-$ ansible-playbook perfpro.yml -i inventories/hosts --extra-vars '{ "EXECUTION_TYPE" : "sanity" ,"REPOSITORY":{{ "category": "motr", "repo": "cortx-motr", "branch": "k8s", "commit": "a1234b" }, { "category": "rgw", "repo": "cortx-rgw", "branch": "dev", "commit": "c5678d" }, { "category": "hare", "repo": "cortx-hare", "branch": "main", "commit": "e9876f" }},"PR_ID" : "cortx-rgw/1234" , "USER":"Username","GID" : "1234", "NODES":{"1": "node1.loc.seagate.com", "2": "node2.loc.seagate.com", "3": "node2.loc.seagate.com"} , "CLIENTS":{"1": "client1.loc.seagate.com"} , "main":{"db_server": "db.server.seagate.com", "db_port": "27017", "db_name": "sanity_db", "db_user": "db_username", "db_passwd": "db_password", "db_database": "performance_database", "db_url": "mongodb://db.hostname.seagate.com:27017/"}, "config":{"CLUSTER_PASS": "password", "END_POINTS": "s3.seagate.com" }}' -v 
+Notes:
+1.  Examples for config.yml and main.yml can be found at [example-config.yml](./docs/example-config.yml) and [example-main.yml](./docs/example-main.yml).
+2.  It is recommended to remove lines which do not have any field updated.   
+3.  "NODES", "CLIENTS" and other entries in main.yml and config.yml need to maintain the case sensitivity.
 
-NB: "NODES", "CLIENTS" and other "main" and "config" entries need to maintain the case sensitivity for dictonary keys. "REPOSITORY" list may vary in size depending upon number of Repositories used to create CI build. 
+## Run perf-regression playbook
 
-## User Guide
-https://seagate-systems.atlassian.net/wiki/spaces/PRIVATECOR/pages/339117894/PerfPro#User-Guide
+Once the config.yml and main.yml files are update with required information, run  following command from PerfPro orchestrator.
+```txt
+ansible-playbook perfpro.yml -i inventories/hosts -v` or simply execute `$ run.sh
+```
 
-## for detailed documentation on PerfPro, please refer
-https://seagate-systems.atlassian.net/wiki/spaces/PRIVATECOR/pages/339117894/PerfPro
+## Run perf-sanity playbook
+
+To run PerfPro as perf-sanity ansible playbook, run following command from PerfPro orchestrator. Following command supersedes values taken from config.yml and main.yml.
+```txt
+ansible-playbook perfpro.yml -i inventories/hosts --extra-vars '{ "EXECUTION_TYPE" : "sanity" ,"REPOSITORY":{{ "category": "motr", "repo": "cortx-motr", "branch": "k8s", "commit": "a1234b" }, { "category": "rgw", "repo": "cortx-rgw", "branch": "dev", "commit": "c5678d" }, { "category": "hare", "repo": "cortx-hare", "branch": "main", "commit": "e9876f" }},"PR_ID" : "cortx-rgw/1234" , "USER":"Username","GID" : "1234", "NODES":{"1": "node1.loc.seagate.com", "2": "node2.loc.seagate.com", "3": "node2.loc.seagate.com"} , "CLIENTS":{"1": "client1.loc.seagate.com"} , "main":{"db_server": "db.server.seagate.com", "db_port": "27017", "db_name": "sanity_db", "db_user": "db_username", "db_passwd": "db_password", "db_database": "performance_database", "db_url": "mongodb://db.hostname.seagate.com:27017/"}, "config":{"CLUSTER_PASS": "password", "END_POINTS": "s3.seagate.com" }}' -v
+```
+
+Notes:
+
+1.  "NODES", "CLIENTS" and other entries in "main" and "config" dictionaries need to maintain the case sensitivity.
+2.  "REPOSITORY" list may vary in size depending upon number of repositories used to create build.
+
+## [User Guide](./docs/user-guide.md)

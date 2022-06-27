@@ -24,11 +24,13 @@ from pandas.io import sql
 import gc
 import sys
 import argparse
-from sys_utils import Figure, Queue, Latency, Layer, Relation, XIDRelation, \
+from sys_utils import Figure, Latency, Queue, Layer, Relation, XIDRelation, \
     S3, MOTR_REQ, CRPC, SRPC, CAS, FOM, STIO, BETX,  S3PUT_FILTER, DIX, \
     Connection, S3GET_FILTER, S3_TO_CLIENT, IOO, CLIENT_TO_IOO, COB, \
     IOO_TO_CRPC, CLIENT_TO_COB, CLIENT_TO_DIX, DIX_TO_MDIX, DIX_TO_CAS, \
     COB_TO_CRPC, CAS_TO_CRPC, SRPC_TO_FOM, FOM_TO_STIO, FOM_TO_TX
+
+from sys_utils import ADD_START_COMPLETE_RGW_REQ_FILTER, get_hosts_pids
 
 class LocalFigure():
     def __init__(self, fig):
@@ -65,10 +67,8 @@ class Handler():
             self.server_agg = LocalFigure(Figure(f'{fiter.name} cluster-wide server latency',
                                                  self.NUM_SRV_LAYERS, self.NUM_COLS))
 
-        if self.hostmap and self.per_host and self.client:
-            self.client_hosts = dict()
-        if self.hostmap and self.per_host and self.server:
-            self.server_hosts = dict()
+        self.client_hosts = dict()
+        self.server_hosts = dict()
 
         if self.per_process and self.client:
             self.client_process = dict()
@@ -126,7 +126,7 @@ class Handler():
     def process_per_host(self, layer, start, stop,
                          dummy, ypos_cli, ypos_srv):
         if self.hostmap and self.per_host and self.client and ypos_cli is not None:
-            if not self.client_hosts:
+            if len(self.client_hosts) == 0:
                 self.create_host_figs(self.client_hosts,
                                       self.NUM_CLI_LAYERS,
                                       self.NUM_COLS,
@@ -138,7 +138,7 @@ class Handler():
                           pids=self.hostmap[host])
 
         if self.hostmap and self.per_host and self.server and ypos_srv is not None:
-            if not self.server_hosts:
+            if len(self.server_hosts) == 0:
                 self.create_host_figs(self.server_hosts,
                                       self.NUM_SRV_LAYERS,
                                       self.NUM_COLS,
@@ -255,6 +255,7 @@ def pandas_fini():
 
 def calculate(conn, fiter, handler):
     s3all = Layer(S3, conn)
+    s3all = ADD_START_COMPLETE_RGW_REQ_FILTER.run(s3all)
     s3 = fiter.run(s3all)
     handler.consume(s3)
     del s3all
@@ -406,21 +407,6 @@ def parse_args():
 
     return args
 
-def get_hosts_pids(conn):
-    table_descr_query = 'select * from sqlite_master where type="table" and name="host"'
-    table_descr_df = sql.read_sql(table_descr_query, con=conn.conn)
-
-    if table_descr_df.empty:
-        return None
-
-    pids_df = sql.read_sql('select * from host', con=conn.conn)
-
-    if pids_df.empty:
-        return None
-
-    pids_df = pids_df.drop_duplicates(subset=['pid'])
-    hostmap = pids_df.groupby('hostname')['pid'].apply(list).to_dict()
-    return hostmap
 
 def main():
     args = parse_args()

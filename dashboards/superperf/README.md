@@ -1,4 +1,4 @@
-# superperf
+# SuperPerf
 
 ## Project setup
 ```shell

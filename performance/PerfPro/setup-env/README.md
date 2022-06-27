@@ -1,4 +1,4 @@
-# PerfPro-Database
+# PerfPro Database Environment Setup Automation
 
 This directory contains the automation scripts to setup the database environment for mongoDB. It includes installing mongo org and creating users accessing hosted Performance database.
 

@@ -1,0 +1,61 @@
+---
+# Inputs for inventories/host file. Update following entries for server nodes and clients. Add or remove entries if not part of systems under test.
+NODES:
+  - 1: node1.example.com
+  - 2: node2.example.com
+  - 3: node3.example.com
+CLIENTS:
+  - 1: client1.example.com
+  - 2: client2.example.com
+
+# Information regarding system under test and Build deployed on the cluster
+BUILD_INFO: <RELEASE.INFO/USER_INPUT>             # Please select the menthod to collect Build information from given options : RELEASE.INFO / USER_INPUT (RELEASE.INFO collects the release related information from docker image hence add the details of docker image in following key.)
+DOCKER_INFO: ghcr.io/seagate/cortx-all:2.0.0-770  # If BUILD_INFO is set to RELEASE_INFO; add the docker image path used to deploy cluster Eg: 'ghcr.io/seagate/cortx-all:2.0.0-770'
+# If BUILD_INFO is set to USER_INPUT; provide below details for BUILD, VERSION, BRANCH and OS
+BUILD: "770"
+VERSION: "2.0.0"
+BRANCH: "main"
+OS: "CentOS-7.9"
+CLUSTER_PASS:           # Please enter the cluser password, required if SYSTEM_STATS: True
+SOLUTION: lc            # DB collection for uploading data legacy, lc or lr
+EXECUTION_TYPE: normal  # execution type can be 'normal' or 'sanity'
+
+# For PerfPro MongoDB related Entries
+END_POINTS: https://s3.example.com:30080/   # Single endpoint OR comma seperated multiple endpoints : https://s3.example.com OR "http://node1.example.com:30080,http://node2.example.com:30081,http://node3.example.com:30083"
+SYSTEM_STATS: False     # If True, enter cluster nodes for installing pkgs, collecting sysstats and uploading sysstats. If Flase, won't enter cluster nodes
+PC_FULL: 0              # Select for system percentage full before test.
+OVERWRITE: False        # Select True or False to overwrite the DB entries for same Primary Key
+CUSTOM: NA              # Default is NA. Update with single string for special config eg: CorvStd, CorvHiPerf, 5u84Std, 5u84HiPerf, SSD, DIEnabled, PODsetup etc
+DEGRADED_IO: False      # Select True/False to test Degraded read feature
+COPY_OBJECT: False      # Select True/False to test Copy object feature
+
+# For creating S3 account and S3 user to run S3 I/O with given information
+ADMIN_USER: 'admin'           # Admin account required to create S3 Account
+ADMIN_PASSWD: 'AdminPass@123' # Pass phrase of Admin account
+S3_ACCOUNT: 'account1'        # Account name of S3 Account to be created to run S3 I/O on END_POINTS
+ACCOUNT_PASSWD: "Password@1"  # Pass phrase of S3 Account to run S3 I/O on END_POINTS
+EMAIL: "account1@example.com"
+ACCESS_KEY: "ACCESS_KEY_EXAMPLE"
+SECRET_KEY: "SECRET_KEY_EXAMPLE"
+
+#Enter Below details for log collection on NFS repo
+NFS_SERVER: nfs.example.com     # NFS server FQDN OR IP
+NFS_EXPORT: /nfs-share          # Export from NFS server
+NFS_MOUNT_POINT: /mnt/perfpro/  # Mount point for mounting above export from NFS server
+NFS_FOLDER: /benchmarks/        # Folder present on NFS export
+
+#END
+required_vars:
+  - NODES
+  - CLIENTS
+  - BUILD_URL
+  - CLUSTER_PASS
+  - END_POINTS
+  - PC_FULL
+  - OVERWRITE
+  - CUSTOM
+  - DEGRADED_READ
+  - NFS_SERVER
+  - NFS_EXPORT
+  - NFS_MOUNT_POINT
+  - NFS_FOLDER

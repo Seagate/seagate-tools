@@ -15,6 +15,8 @@ from datetime import datetime
 Main_path = sys.argv[2]
 Config_path = sys.argv[3]
 
+''' Function to connect with configuration file to fetch the details of the file '''
+
 
 def makeconfig(name):  # function for connecting with configuration file
     with open(name) as config_file:
@@ -22,23 +24,35 @@ def makeconfig(name):  # function for connecting with configuration file
     return configs
 
 
+''' configuration values are loaded in respective variables '''
 configs_main = makeconfig(Main_path)
-configs_config= makeconfig(Config_path)
+configs_config = makeconfig(Config_path)
 
-build_info=configs_config.get('BUILD_INFO')
-nodes_list=configs_config.get('NODES')
-clients_list=configs_config.get('CLIENTS')
-pc_full=configs_config.get('PC_FULL')
-overwrite=configs_config.get('OVERWRITE')
-custom=configs_config.get('CUSTOM')
-docker_info=configs_config.get('DOCKER_INFO')
-nodes_num=len(nodes_list)
-clients_num=len(clients_list)
+''' Configuration variables to be used in the script '''
+build_info = configs_config.get('BUILD_INFO')
+nodes_list = configs_config.get('NODES')
+clients_list = configs_config.get('CLIENTS')
+pc_full = configs_config.get('PC_FULL')
+overwrite = configs_config.get('OVERWRITE')
+custom = configs_config.get('CUSTOM')
+docker_info = configs_config.get('DOCKER_INFO')
+nodes_num = len(nodes_list)
+clients_num = len(clients_list)
 
-def makeconnection():  #function for making connection with database
-    client = MongoClient(configs_main['db_url'])  #connecting with mongodb database
-    db=client[configs_main['db_database']]  #database name=performance
+''' Function to connect to the Database and fetch the DB details and add data to DB throughout the script execution '''
+
+
+def makeconnection():  # function for making connection with database
+    # connecting with mongodb database
+    client = MongoClient(configs_main['db_url'])
+    db = client[configs_main['db_database']]  # database name=performance
     return db
+
+
+'''
+Function to get the release info from the Docker image.
+It returns the value for the variable which is required by the script.
+'''
 
 
 def get_release_info(variable):
@@ -52,7 +66,10 @@ def get_release_info(variable):
             return(strip_strinfo[1])
 
 
+''' Function to get the latest iteration value from the existing DB entries. '''
 # Function to find latest iteration
+
+
 def get_latest_iteration(query, db, collection):
     max_iter = 0
     cursor = db[collection].find(query)
@@ -61,6 +78,8 @@ def get_latest_iteration(query, db, collection):
             max_iter = record['Iteration']
     return max_iter
 
+
+''' Function returns if the client trying to push DB entries is First client from the list of clients. '''
 # Function to resolve iteration/overwrite etc in multi-client run
 
 
@@ -76,6 +95,9 @@ def check_first_client(query, db, collection, itr):
             db[collection].delete_many(query)
         return False
     return True
+
+
+''' Below class created the Database object for S3bench data entry and will be used to push them in the DB'''
 
 
 class s3bench:
@@ -136,7 +158,8 @@ class s3bench:
             "Run_State": self.Run_State
         }
 
-    # function for inserting and updating mongodb database
+    ''' function for inserting and updating mongodb database '''
+
     def insert_update(self, Iteration):
         db = makeconnection()
         db_data = {}
@@ -145,8 +168,7 @@ class s3bench:
         db_data.update(self.Updation_Set)
         collection = self.Col
 
-# Function to insert data into db with iteration number
-
+        ''' Function to insert data into db with iteration number '''
         def db_update(itr, db_data):
             db_data.update(Iteration=itr)
             db[collection].insert_one(db_data)
@@ -161,7 +183,10 @@ class s3bench:
             print(e)
 
 
+''' Function helps in collecting the data from log files and insert in the DB. '''
 # function for retriving required data from log files
+
+
 def insertOperations(files, Build, Version, col, Config_ID, Branch, OS, db):
     find_iteration = True
     first_client = True
@@ -249,7 +274,9 @@ def insertOperations(files, Build, Version, col, Config_ID, Branch, OS, db):
             Run_Health = "Failed"
 
 
-# function to return all file names with perticular extension
+''' Function to return all file names with perticular extension '''
+
+
 def getallfiles(directory, extension):
     flist = []
     for path, _, files in os.walk(directory):
@@ -290,6 +317,12 @@ def update_mega_chain(build, version, col):
             print("...Mega entry has updated with beta build ", build)
             return
     print("...Mega entry has not updated for build ", build)
+
+
+'''
+Function to get all config details from config.yml file and create a collective Dictonary.
+This dictonary then will be used to match with existing entries from Configuration collection
+'''
 
 
 def getconfig():
@@ -351,6 +384,9 @@ def getconfig():
     }
 
     return (dic)
+
+
+''' Main Function for S3bench DB update '''
 
 
 def main(argv):

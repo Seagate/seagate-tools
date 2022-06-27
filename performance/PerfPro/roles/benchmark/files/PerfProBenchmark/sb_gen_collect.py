@@ -1,3 +1,6 @@
+"""
+Script to collect Support Bundle from SUT and archive it to NFS repository.
+"""
 from datetime import datetime as DT
 import paramiko
 import time

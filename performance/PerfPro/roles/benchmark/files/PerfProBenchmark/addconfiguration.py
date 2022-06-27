@@ -19,6 +19,7 @@ Config_path = sys.argv[2]
 
 
 def makeconfig(name):  # function for connecting with configuration file
+    ''' Function to connect with configuration file to fetch the details of the file '''
     with open(name) as config_file:
         configs = yaml.safe_load(config_file)
     return configs
@@ -33,6 +34,10 @@ docker_info = configs_config.get('DOCKER_INFO')
 
 
 def get_release_info(variable):
+    '''
+    Function to get the release info from the Docker image.
+    It returns the value for the variable which is required by the script.
+    '''
     release_info = os.popen('docker run --rm -it ' +
                             docker_info + ' cat /opt/seagate/cortx/RELEASE.INFO')
     lines = release_info.readlines()
@@ -44,6 +49,9 @@ def get_release_info(variable):
 
 
 def makeconnection(collection):  # function for making connection with database
+    '''
+    Function to connect to the Database and fetch the DB details and add data to DB throughout the script execution
+    '''
     configs = makeconfig(Main_path)
     client = MongoClient(configs['db_url'])  # connecting with mongodb database
     db = client[configs['db_database']]  # database name=performance
@@ -66,6 +74,7 @@ def makeconnection(collection):  # function for making connection with database
 
 
 def storeconfigurations():
+    ''' Function to store config data from config.yml to configuration collection '''
     nodes_list = configs_config.get('NODES')
     clients_list = configs_config.get('CLIENTS')
     build_info = configs_config.get('BUILD_INFO')
@@ -138,6 +147,7 @@ def storeconfigurations():
 
 
 def main(argv):
+    '''Main function for storing configuration data in DB'''
     storeconfigurations()
 
 

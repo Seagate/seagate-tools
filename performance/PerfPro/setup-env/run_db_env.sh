@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Fetching mongo-version 
+# Fetching mongo-version
 mongo_version=$(grep ^mongo_version db_info | awk '{print $3}')
 
 # Copying congiguration file

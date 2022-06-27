@@ -185,7 +185,7 @@ def main():
             base = "_".join([size_lookup[str(size)], str(sessions)])
             filename = os.path.join(NIGHT_ARTIFACTS, build, "data", base + ".json")
             print("Will save to {}".format(filename))
-            r = fd.to_json(filename, orient="split")
+            fd.to_json(filename, orient="split")
 
             # Save png
             filename = os.path.join(NIGHT_ARTIFACTS, build, "img", base + ".png")

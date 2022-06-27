@@ -193,7 +193,7 @@ class ADDB2PP:
     #* 2020-11-10-11:35:15.967095739 stio-req-state   stio_id: 2053, stio_state: M0_AVI_LIO_ENDIO
 
     def p_sm_req(measurement, labels, table):
-        name   = measurement[2]
+        # name   = measurement[2]
         time   = measurement[1]
         state  = measurement[-1]
         sm_id  = int(measurement[4].translate(str.maketrans(","," ")))

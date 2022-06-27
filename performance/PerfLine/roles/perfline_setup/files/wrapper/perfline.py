@@ -104,7 +104,7 @@ def list_results(is_yaml):
     for r in huey.all_results():
         if not 'r:' in r and r != 'current_task':
             try:
-                dummy = huey.result(r, preserve=True)
+                huey.result(r, preserve=True)
                 passed.append(r)
             except exceptions.TaskException:
                 failed.append(r)

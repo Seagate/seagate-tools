@@ -586,7 +586,8 @@ def main():
 #    s3_config_info, hosts_info, haproxy_info = parse_s3_info(report_dir)
 
     # Read report output
-    m0crate_rw_stats, workload_filenames, iperf_rw_stat, csv_report_content = parse_report_info(report_dir)
+    # m0crate_rw_stats, workload_filenames, iperf_rw_stat, csv_report_content = parse_report_info(report_dir)
+    m0crate_rw_stats, workload_filenames, _, csv_report_content = parse_report_info(report_dir)
 
     # Disk and network mappings
     disks_mapping_info, nodes_mapping_info = parse_mapping_info(
@@ -621,7 +622,7 @@ def main():
             lnet_info=lnet_info,
             multipath_conf=multipath_conf,
             multipath_info=multipath_info,
-#            m0crate_rw_stats=m0crate_rw_stats,
+            m0crate_rw_stats=m0crate_rw_stats,
             workload_filenames=workload_filenames,
 #            iperf_rw_stat=iperf_rw_stat,
             mems=mems,

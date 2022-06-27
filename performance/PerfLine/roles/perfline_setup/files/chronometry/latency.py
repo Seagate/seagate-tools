@@ -24,7 +24,7 @@ from pandas.io import sql
 import gc
 import sys
 import argparse
-from sys_utils import Figure, Queue, Layer, Relation, XIDRelation, \
+from sys_utils import Figure, Queue, Latency, Layer, Relation, XIDRelation, \
     S3, MOTR_REQ, CRPC, SRPC, CAS, FOM, STIO, BETX,  S3PUT_FILTER, DIX, \
     Connection, S3GET_FILTER, S3_TO_CLIENT, IOO, CLIENT_TO_IOO, COB, \
     IOO_TO_CRPC, CLIENT_TO_COB, CLIENT_TO_DIX, DIX_TO_MDIX, DIX_TO_CAS, \

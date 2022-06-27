@@ -9,6 +9,11 @@ release_info = str(parse_conf.get('BUILD_INFO'))
 build_url = parse_conf.get('BUILD_URL')
 docker_info = parse_conf.get('DOCKER_INFO')
 
+'''
+Function to get the release info from the Docker image.
+It returns the value for the variable(BUILD) which is required by the script.
+'''
+
 
 def get_build_info(variable):
     release_info = os.popen('docker run --rm -it ' +

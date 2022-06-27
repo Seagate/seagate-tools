@@ -1,3 +1,7 @@
+"""
+Script helps in filling up SUT upto the given Prefill percentage defined in config.yml
+"""
+
 import sys
 import paramiko
 import yaml
@@ -15,6 +19,12 @@ endpoints = parse_conf.get('END_POINTS')
 
 prebench = sys.argv[2]
 
+"""
+Function to make SSH connection to SUT Node1 run the command
+Input : command to run on server
+Returns : Response of the the command.
+"""
+
 
 def server(cmd):
     ssh = paramiko.SSHClient()
@@ -28,6 +38,12 @@ def server(cmd):
 
 
 result = server('hctl status --json')
+
+"""
+Function to read values of Total and Available disk size.
+Input : string with variable and value
+Returns : Value
+"""
 
 
 def read_result(value):
@@ -48,6 +64,13 @@ pre_fill = int(total_disk*PC_full/100)
 
 print('PC_Full % :', PC_full, '\nPre_Fill data size (B):', pre_fill)
 
+"""
+Function to call and run prefill s3bench shell script.
+Input : Size of disk needed to filled.
+Retuns : NONE
+Invokes : Prefill shell script
+"""
+
 
 def fill_data(pre_fill):
     obj_size = 128
@@ -61,6 +84,9 @@ def fill_data(pre_fill):
     for i in range(num_bucket):
         subprocess.call([f"/{prebench}", "-ep", f"{str(endpoints)}", "-nc", f"{num_clients}",
                         "-ns", f"{num_obj_per_bucket}", "-s", f"{str(obj_size)+'Mb'}", "-nb", f"{i}"])
+
+
+""" Function to decide if prefill needs to run and prefill size """
 
 
 def pre_fill_calc():

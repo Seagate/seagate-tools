@@ -29,6 +29,15 @@ import gc
 import sys
 import argparse
 
+
+from sys_utils import Connection, Layer, Relation, XIDRelation, Histogram, \
+                      Figure, S3, MOTR_REQ, COB, CAS, DIX, IOO, CRPC, SRPC, \
+                      FOM, STIO, BETX, S3_TO_CLIENT, CLIENT_TO_DIX, \
+                      DIX_TO_MDIX, DIX_TO_CAS, CAS_TO_CRPC, CLIENT_TO_COB, \
+                      COB_TO_CRPC, CLIENT_TO_IOO, IOO_TO_CRPC, SRPC_TO_FOM, \
+                      FOM_TO_STIO, FOM_TO_TX, S3GET_FILTER, S3PUT_FILTER, \
+                      ADD_START_COMPLETE_RGW_REQ_FILTER
+
 def pandas_init():
     pd.set_option('display.max_rows', 500)
     pd.set_option('display.max_columns', 500)
@@ -39,329 +48,16 @@ def pandas_init():
 def pandas_fini():
     pass
 
-class Connection():
-    def __init__(self, filename):
-        self.filename = filename
-        self.conn = None
-
-    def connect(self):
-        self.conn = sqlite3.connect(self.filename)
-
-    def get(self):
-        if self.conn is None:
-            self.connect()
-        return self.conn
-
-class TypeId():
-    def __init__(self, name, type_id):
-        self.name = name
-        self.type_id = type_id
-
-class Layer():
-    def __init__(self, layer_type, connection):
-        self.layer_type = layer_type
-        self.connection = connection
-        self.df = None
-
-    def write(self, df):
-        self.df = df
-
-    def read(self):
-        if self.df is None:
-            query = f'SELECT * FROM request where type_id="{self.layer_type.type_id}"'
-            df = sql.read_sql(query, con=self.connection.get())
-            self.df = df.loc[:,~df.columns.duplicated()]
-        return self.df
-
-    def merge(self, layer):
-        self.df = pd.concat([self.read(), layer.read()], ignore_index=True)
-
-class Filter():
-    def __init__(self, name, filter_cb=None):
-        self.name = name
-        self.filter_cb = filter_cb
-
-    def run(self, layer):
-        df = self.filter_cb(layer.read())
-        filtered_layer = Layer(layer.layer_type, layer.connection)
-        filtered_layer.write(df)
-        return filtered_layer
-
-def s3_filter(s3, request_state):
-    mask = s3[s3.state.str.contains(request_state)][['pid', 'id']].drop_duplicates()
-    return pd.merge(s3, mask, on=['pid', 'id'], how='inner')
-
-def s3putobject_filter(s3):
-    return s3_filter(s3, 'S3PutObjectAction')
-
-def s3getobject_filter(s3):
-    return s3_filter(s3, 'S3GetObjectAction')
-
-# List of supported Layers types:
-
-# [+] stio_req
-# [+] rpc_req
-# [-] fom_req_state
-# [+] fom_req
-# [-] rpc_post_reply
-# [+] be_tx
-# [+] dix_req
-# [+] cas_req
-# [+] client_req
-# [+] s3_request_state
-# [+] cob_req
-# [+] ioo_req
-
-S3       = TypeId('S3', 's3_request_state')
-MOTR_REQ = TypeId('MotrReq', 'client_req')
-COB      = TypeId('COB', 'cob_req')
-CAS      = TypeId('CAS', 'cas_req')
-DIX      = TypeId('DIX', 'dix_req')
-IOO      = TypeId('IOO', 'ioo_req')
-CRPC     = TypeId('CRPC', 'rpc_req')
-SRPC     = TypeId('SRPC', 'rpc_req')
-FOM      = TypeId('FOM', 'fom_req')
-STIO     = TypeId('STIO', 'stio_req')
-BETX     = TypeId('BETX', 'be_tx')
-
-S3PUT_FILTER = Filter('S3PutObject', s3putobject_filter)
-S3GET_FILTER = Filter('S3GetObject', s3getobject_filter)
-
-BINS = 50
-PERCENTILE = 0.95
-
-class Histogram():
-    BINS = 100
-    PERCENTILE = 0.95
-    MILLISECOND_SCALE = 10**6
-
-    def __init__(self, layer, start, stop, bins=BINS, percentile=PERCENTILE):
-        self.layer = layer
-        self.bins = bins
-        self.percentile = percentile
-        self.start_states = start
-        self.stop_states = stop
-        self.hist = None
-        self.name = f"{self.layer.layer_type.name}: {self.start_states} -> {self.stop_states}, ms"
-
-    @staticmethod
-    def __process_states(df, states, inverse=False):
-        acc = pd.DataFrame()
-        for s in states:
-            tmp = df[(df.state == s)]
-            acc = pd.concat([acc, tmp], ignore_index=True)
-        if inverse:
-            acc['time'] = -acc['time']
-        acc.sort_values('time', inplace=True)
-        acc.drop_duplicates(subset=['pid', 'id', 'state'], keep='first', inplace=True)
-        return acc
-
-    def calculate(self):
-        df = self.layer.read()
-        start = self.__process_states(df, self.start_states, inverse=True)
-        stop = self.__process_states(df, self.stop_states)
-        df = pd.concat([start,stop], ignore_index=True)
-        gb = df.groupby(['pid','id']).agg({'time': [np.sum]})
-        gb.reset_index(inplace=True)
-        gb['delta'] = [x/self.MILLISECOND_SCALE for x in gb[('time', 'sum')]]
-        self.hist = gb['delta']
-        self.hist = self.hist[self.hist > 0]
-
-    def hist_df(self):
-        return self.hist
-
-    def draw(self, fig, ax, color):
-        df = self.hist
-        df[df > 0][df < df.quantile(self.percentile)].hist(bins=self.bins, alpha=0.5, figure=fig, ax=ax, color=color)
-
-        textstr = df.describe().to_string()
-        text = textstr.split('\n')
-        textstr = ''
-        for i, _ in enumerate(text):
-            t = text[i].split(' ')
-            textstr = textstr + t[0] + ": " + t[-1]
-            if i < (len(text) - 1):
-                textstr = textstr + '\n'
-
-        handles = [mpl_patches.Rectangle((0, 0), 1, 1, fc="white", ec="white",
-                                         lw=0, alpha=0)]
-        labels = []
-        labels.append(textstr)
-        ax.legend(handles, labels, loc='upper right', prop={'size': 8},
-                  fancybox=True, framealpha=0.7,
-                  handlelength=0, handletextpad=0)
-
-
-    # def name(self):
-    #     return self.name
-
-    def merge(self, histogram):
-        self.hist = pd.concat([self.hist, histogram.hist], ignore_index=True)
-        self.hist.reset_index(drop=True)
-
-
-class Relation():
-    def __init__(self, relation_type, connection):
-        self.relation_type = relation_type
-        self.connection = connection
-        self.df = None
-
-    def read(self):
-        if self.df is None:
-            query = f'SELECT * FROM relation where type_id="{self.relation_type.type_id}"'
-            df = sql.read_sql(query, con=self.connection.get())
-            self.df = df.loc[:,~df.columns.duplicated()]
-        return self.df
-
-    def sieve(self, upper_layer, next_layer):
-        upper_df = upper_layer.read()
-        next_df = next_layer.read()
-        rel_df = self.read()
-
-        mask_rel = upper_df[['pid', 'id']].drop_duplicates()
-        src_mask = pd.merge(rel_df, mask_rel, how='inner', left_on=['pid1', 'mid1'], right_on=['pid', 'id'])
-        src_mask.drop_duplicates(inplace=True)
-        result_df = pd.merge(next_df, src_mask[['pid2', 'mid2']], how='inner', left_on=['pid', 'id'], right_on=['pid2', 'mid2'])
-        result_df.drop_duplicates(inplace=True)
-        result_df.drop('pid2', 1, inplace=True)
-        result_df.drop('mid2', 1, inplace=True)
-
-        result = Layer(next_layer.layer_type, next_layer.connection)
-        result.write(result_df)
-
-        return result
-
-
-# List of available relations:
-#
-# [+] sxid_to_rpc
-# [+] rpc_to_sxid
-# [+] rpc_to_fom
-# [-] tx_to_gr
-# [+] fom_to_tx
-# [-] cas_fom_to_crow_fom
-# [+] fom_to_stio
-# [+] dix_to_mdix
-# [+] dix_to_cas
-# [+] cas_to_rpc
-# [+] client_to_dix
-# [+] s3_request_to_client
-# [+] client_to_cob
-# [+] cob_to_rpc
-# [+] client_to_ioo
-# [-] bulk_to_rpc
-# [+] ioo_to_rpc
-
-S3_TO_CLIENT  = TypeId('S3 to Motr client request', 's3_request_to_client')
-CLIENT_TO_DIX = TypeId('Motr client request to DIX request', 'client_to_dix')
-DIX_TO_MDIX   = TypeId('DIX request to MDIX request', 'dix_to_mdix')
-DIX_TO_CAS    = TypeId('DIX request to CAS request', 'dix_to_cas')
-CAS_TO_CRPC   = TypeId('CAS request to CPRC request', 'cas_to_rpc')
-CLIENT_TO_COB = TypeId('Motr client request to COB request', 'client_to_cob')
-COB_TO_CRPC   = TypeId('COB request to CPRC request', 'cob_to_rpc')
-CLIENT_TO_IOO = TypeId('Motr client request to IOO request', 'client_to_ioo')
-IOO_TO_CRPC   = TypeId('IOO request to CPRC request', 'ioo_to_rpc')
-RPC_TO_SXID   = TypeId('RPC request to Session & Transfer ID', 'rpc_to_sxid')
-SXID_TO_RPC   = TypeId('Session & Transfer ID to RPC request', 'sxid_to_rpc')
-SRPC_TO_FOM   = TypeId('SRPC request to FOM', 'rpc_to_fom')
-FOM_TO_STIO   = TypeId('FOM to STOB IO request', 'fom_to_stio')
-FOM_TO_TX     = TypeId('FOM to BE TX request', 'fom_to_tx')
-
-
-class XIDRelation():
-    def __init__(self,  connection):
-        self.connection = connection
-        self.rpc_to_sxid = Relation(RPC_TO_SXID, connection)
-        self.sxid_to_rpc = Relation(SXID_TO_RPC, connection)
-        self.df = None
-
-    def read(self):
-        if self.df is None:
-            df1 = self.rpc_to_sxid.read()
-            df2 = self.sxid_to_rpc.read()
-            self.df = pd.concat([df1, df2], ignore_index=True)
-        return self.df
-
-    def sieve(self, upper_layer, next_layer):
-        crpc = upper_layer.read()
-        rpc = next_layer.read()
-        relations = self.read()
-
-        crpc_mask = crpc[['pid', 'id']].drop_duplicates()
-        sxids = pd.merge(crpc_mask, relations, how='inner', left_on=['pid', 'id'], right_on=['pid1', 'mid1'])
-        sxids = sxids[['pid2', 'mid2']].drop_duplicates()
-        sxids.rename(columns={'pid2': 'pid', 'mid2': 'id'}, inplace=True)
-        srpc_mask = pd.merge(sxids, relations, how='inner', left_on=['pid', 'id'], right_on=['pid1', 'mid1'])
-        srpc_mask = srpc_mask[['pid2', 'mid2']].drop_duplicates()
-        srpc = pd.merge(rpc, srpc_mask, how='inner', left_on=['pid', 'id'], right_on=['pid2', 'mid2'])
-        srpc.drop_duplicates(inplace=True)
-        srpc.drop('pid2', 1, inplace=True)
-        srpc.drop('mid2', 1, inplace=True)
-
-        result = Layer(next_layer.layer_type, next_layer.connection)
-        result.write(srpc)
-
-        return result
-
-class Plot():
-    def __init__(self, hist, ax):
-        self.hist = hist
-        self.ax = ax
-
-    def name(self):
-        return self.hist.name
-
-class Figure():
-    COLORS = ['g', 'b', 'r', 'c', 'm']
-    color_idx = 0
-    figure_idx = 0
-
-    @staticmethod
-    def next_figure():
-        Figure.figure_idx = Figure.figure_idx + 1
-        return Figure.figure_idx
-
-    def next_color(self):
-        color = Figure.COLORS[self.color_idx]
-        self.color_idx = (self.color_idx + 1) % len(Figure.COLORS)
-        return color
-
-    def __init__(self, name, rows, cols):
-        self.mpl_idx = Figure.next_figure()
-        self.fig = plt.figure(self.mpl_idx, constrained_layout=True, figsize=(20, 10))
-        self.mpl_plt = plt
-        self.layout = self.fig.add_gridspec(rows, cols)
-        self.rows = rows
-        self.cols = cols
-        self.name = name
-        self.filename = name.replace(' ', '_') + ".png"
-        self.plots = []
-        self.mpl_plt.suptitle(self.name)
-
-    def add(self, hist, row, col, sharex=None, sharey=None):
-        ax = self.fig.add_subplot(self.layout[row, col], sharex=sharex, sharey=sharey)
-        self.plots.append(Plot(hist, ax))
-        return ax
-
-    def draw(self):
-        for plot in self.plots:
-            print(f"plotting: {plot.hist.name}")
-            plot.hist.draw(self.fig, plot.ax, self.next_color())
-            plot.ax.set_title(plot.hist.name)
-
-    def show(self):
-        self.mpl_plt.show()
-
-    def save(self):
-        self.fig.savefig(self.filename, format="png")
 
 def calculate(conn, fiter, save_only):
     s3fig = Figure(f"{fiter.name} system histograms", 4, 2)
     mfig = Figure(f"{fiter.name} Motr histograms", 6, 3)
 
     s3all = Layer(S3, conn)
+    s3all = ADD_START_COMPLETE_RGW_REQ_FILTER.run(s3all)
     #s3 = S3PUT_FILTER.run(s3all)
     s3 = fiter.run(s3all)
+
     s3hist = Histogram(s3, ["START"], ["COMPLETE"], bins=50, percentile=0.90)
     s3hist.calculate()
     s3fig.add(s3hist, 0, 0)
@@ -601,4 +297,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

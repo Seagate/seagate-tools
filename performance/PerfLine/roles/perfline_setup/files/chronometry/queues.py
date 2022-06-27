@@ -227,7 +227,7 @@ def client_req_queue(conn, ax, hosts, time_interval, show_title):
         plot(queue(reads_host, start, stop, label="Read"), ax=ax[i], color='g')
 
 def crpc_writev_req(conn):
-    query = f'''SELECT
+    query = '''SELECT
     crpc.time as time, crpc.pid as pid, crpc.id as id, crpc.state as state
     FROM request crpc
     JOIN attr ON crpc.pid=attr.pid and crpc.id=attr.entity_id
@@ -241,7 +241,7 @@ def crpc_writev_req(conn):
     return df
 
 def crpc_readv_req(conn):
-    query = f'''SELECT
+    query = '''SELECT
     crpc.time as time, crpc.pid as pid, crpc.id as id, crpc.state as state
     FROM request crpc
     JOIN attr ON crpc.pid=attr.pid and crpc.id=attr.entity_id

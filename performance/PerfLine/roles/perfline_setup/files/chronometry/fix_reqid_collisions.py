@@ -72,7 +72,6 @@ def calculate_s3reqid_offset(db_connection):
 
 def fix_collisions(db_connection):
     offset_val = calculate_s3reqid_offset(db_connection)
-
     print(f"update s3 request id's values using offset {offset_val}")
 
     update_req_table = f"UPDATE request SET id=id+{offset_val} WHERE type_id='s3_request_state';"

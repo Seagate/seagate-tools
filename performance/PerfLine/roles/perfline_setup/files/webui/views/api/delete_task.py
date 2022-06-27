@@ -36,6 +36,7 @@ def deleteTask(taskList: str):
              result[result_dir] = "deleted successfully"
          except OSError as error:
              result[result_dir] = "File path not found"
+             print(f"Failed task deletion: {error}")
     cache.update(all_artif_dirs, force = True)
     response = make_response(f'{result}')
     return response

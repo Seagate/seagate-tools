@@ -19,18 +19,18 @@
 
 ---
 # vars file for benchmark
-db_server:  # Enter the DB server's FQDN or IP details.
-db_port:  # Enter the Port number as per MongoDB config.
-db_name:  # Enter the DB name as configured on DB server
-db_user:  # Enter the DB User's credentials.
-db_passwd:  # Enter DB user's password.
-db_database:  # Enter the Database details . 
+db_server: mongodb.example.com
+db_port: 27017
+db_name: performance_db
+db_user: mongo_user
+db_passwd: mongo_passwd
+db_database: performance_db
 
-# Following are the default collections details, These can be modified as per User's specific configuration. 
+# Following are the default collections details, These can be modified as per User's specific configuration.
 SANITY:
-  sanity_details_collection: sanity_run_details # stores sanity repo and user-specific details
-  sanity_config_collection: sanity_config # stores run specific configurations
-  sanity_dbcollection: sanity_results # stores performance metrics and record-specific data
+  sanity_details_collection: sanity_run_details
+  sanity_config_collection: sanity_config
+  sanity_dbcollection: sanity_results
 R1:
   db_collection: results_1
   sysstat_collection: systemresults_1
@@ -47,4 +47,5 @@ LR:
   db_collection: lr
   sysstat_collection: lr_sys
   config_collection: lr_config
-db_url:  # Enter the DB server URL which can be accessed. 
+
+db_url: mongodb://mongo_user:mongo_pass@mongodb.example.com:27017

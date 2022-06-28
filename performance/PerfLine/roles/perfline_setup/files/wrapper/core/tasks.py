@@ -172,6 +172,17 @@ def update_configs(conf, result_dir, logdir, task_id):
                         options.append(p_name)
                         options.append('{}={}'.format(k, repr(v)))
 
+        if 'rgw' in conf['configuration']:
+            rgw = conf['configuration']['rgw']
+
+            if 'THREAD_POOL_SIZE' in rgw:
+                options.append('--rgw-thread-pool-size')
+                options.append(rgw['THREAD_POOL_SIZE'])
+
+            if 'MAX_CONCURRENT_REQUEST' in rgw:
+                options.append('--rgw-max-concurrent-request')
+                options.append(rgw['MAX_CONCURRENT_REQUEST'])
+
         if 'haproxy' in conf['configuration']:
             haproxy = conf['configuration']['haproxy']
 

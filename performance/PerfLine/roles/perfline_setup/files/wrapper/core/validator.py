@@ -88,6 +88,14 @@ def get_schema_motr():
                         'S3_THIRDPARTY_CONFIG': {'type': 'dict', 'required': False, 'empty': False},
                     }
                 },
+                'rgw': {
+                    'required': False,
+                    'type': 'dict',
+                    'schema': {
+                        'THREAD_POOL_SIZE': {'type': 'integer', 'required': False, 'empty': False},
+                        'MAX_CONCURRENT_REQUEST': {'type': 'integer', 'required': False, 'empty': False},
+                    }
+                },
                 'haproxy': {
                     'required': False,
                     'type': 'dict',

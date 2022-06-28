@@ -1,4 +1,4 @@
-"""Performance tabs integrated UI central file.."""
+#!/usr/bin/env python3
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
@@ -17,7 +17,7 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 # -*- coding: utf-8 -*-
-# !/usr/bin/python
+"""Performance tabs integrated UI central file.."""
 
 from __future__ import absolute_import
 from Performance.graphs.graphs_layouts import graphs_perf_tabs, graphs_input_options

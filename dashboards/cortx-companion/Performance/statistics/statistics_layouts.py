@@ -1,4 +1,4 @@
-"""Performance statistics UI layout designs."""
+#!/usr/bin/env python3
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
@@ -17,7 +17,7 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 # -*- coding: utf-8 -*-
-# !/usr/bin/python
+"""Performance statistics UI layout designs."""
 
 from dash_bootstrap_components import Card, CardBody, Row, Button, Tab  # , Tabs
 from dash_core_components import Dropdown, Markdown, Loading

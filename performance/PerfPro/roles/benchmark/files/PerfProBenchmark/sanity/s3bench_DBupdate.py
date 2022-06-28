@@ -1,4 +1,24 @@
 #!/usr/bin/env python3
+#
+# Seagate-tools: PerfPro
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+# -*- coding: utf-8 -*-
+
 """
 python3 s3bench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
 Attributes: _id,Log_File,Name,Operation,IOPS,Throughput,Latency,TTFB,Object_Size,HOST
@@ -30,25 +50,34 @@ sanity_schema = {
 
 
 def makeconfig(name):  # function for connecting with configuration file
+    ''' Function to connect with configuration file to fetch the details of the file '''
     with open(name) as config_file:
         configs = yaml.safe_load(config_file)
     return configs
 
 
+''' configuration values are loaded in respective variables '''
 configs_main = makeconfig(Main_path)
-configs_config= makeconfig(Config_path)
+configs_config = makeconfig(Config_path)
 
-nodes_list=configs_config.get('NODES')
-clients_list=configs_config.get('CLIENTS')
-pc_full=configs_config.get('PC_FULL')
-overwrite=configs_config.get('OVERWRITE')
-custom=configs_config.get('CUSTOM')
-nodes_num=len(nodes_list)
-clients_num=len(clients_list)
+''' Configuration variables to be used in the script '''
+nodes_list = configs_config.get('NODES')
+clients_list = configs_config.get('CLIENTS')
+pc_full = configs_config.get('PC_FULL')
+overwrite = configs_config.get('OVERWRITE')
+custom = configs_config.get('CUSTOM')
+nodes_num = len(nodes_list)
+clients_num = len(clients_list)
 
-def makeconnection(collection):  #function for making connection with database
-    client = MongoClient(configs_main['db_url'])  #connecting with mongodb database
-    db=client[configs_main['db_database']]  #database name=performance
+''' Function to connect to the Database and fetch the DB details and add data to DB throughout the script execution '''
+
+
+def makeconnection(collection):  # function for making connection with database
+    '''Function to connect to the Database and fetch the DB details and
+    add data to DB throughout the script execution'''
+    client = MongoClient(
+        configs_main['db_url'])  # connecting with mongodb database
+    db = client[configs_main['db_database']]  # database name=performance
 #    return db
     col = configs_main.get('SANITY')[collection]
     sanity_col = db[col]
@@ -58,6 +87,7 @@ def makeconnection(collection):  #function for making connection with database
 
 
 def get_latest_iteration(query, db_collection):
+    ''' Function to get the latest iteration value from the existing DB entries. '''
     max_iter = 0
     cursor = db_collection.find(query)
     for record in cursor:
@@ -69,6 +99,7 @@ def get_latest_iteration(query, db_collection):
 
 
 def check_first_client(query, db_collection, itr):
+    ''' Function returns if the client trying to push DB entries is First client from the list of clients. '''
     query.update(Iteration=itr)
     cursor = db_collection.distinct('HOST', query)
     if (len(cursor) < query["Clients_Count"]):
@@ -80,6 +111,9 @@ def check_first_client(query, db_collection, itr):
             db_collection.delete_many(query)
         return False
     return True
+
+
+''' Below class created the Database object for S3bench data entry and will be used to push them in the DB'''
 
 
 class s3bench:
@@ -131,18 +165,18 @@ class s3bench:
             "Run_State": self.Run_State
         }
 
-    # function for inserting and updating mongodb database
     def insert_update(self, Iteration):
-        #db = makeconnection()
+        ''' Function for inserting and updating mongodb database '''
+        # db = makeconnection()
         db_data = {}
         db_data.update(self.Primary_Set)
         db_data.update(self.Runconfig_Set)
         db_data.update(self.Updation_Set)
-        #collection = self.Col
+        # collection = self.Col
         db_collection = self.db_collection
-# Function to insert data into db with iteration number
 
         def db_update(itr, db_data):
+            '''Function to insert data into db with iteration number '''
             db_data.update(Iteration=itr)
             db_collection.insert_one(db_data)
             print('Inserted new entries \n' + str(db_data))
@@ -155,9 +189,11 @@ class s3bench:
                 "Unable to insert/update documents into database. Observed following exception:")
             print(e)
 
-
 # function for retriving required data from log files
+
+
 def insertOperations(files, db_collection, run_ID, Config_ID):
+    ''' Function helps in collecting the data from log files and insert in the DB. '''
     find_iteration = True
     first_client = True
     delete_data = True
@@ -222,7 +258,7 @@ def insertOperations(files, db_collection, run_ID, Config_ID):
                                 data.Primary_Set, db_collection)
                             find_iteration = False
                             # To prevent data of one client getting overwritten/deleted while another client upload data as primary set matches for all client in multi-client run
-                            #first_client=check_first_client(data.Primary_Set, db_collection, iteration_number)
+                            # first_client=check_first_client(data.Primary_Set, db_collection, iteration_number)
                             # the query needs to be updated hence marking this commented.
                         if iteration_number == 0:
                             data.insert_update(iteration_number+1)
@@ -248,8 +284,8 @@ def insertOperations(files, db_collection, run_ID, Config_ID):
             Run_Health = "Failed"
 
 
-# function to return all file names with perticular extension
 def getallfiles(directory, extension):
+    ''' Function to return all file names with perticular extension '''
     flist = []
     for path, _, files in os.walk(directory):
         for name in files:
@@ -259,6 +295,7 @@ def getallfiles(directory, extension):
 
 
 def insert_run_details(run_details, repo_details, PR_ID):
+    ''' Function to insert run details in mongo DB '''
     sanity_schema["other_repos"] = list(repo_details)
     sanity_schema["PR_ID"] = PR_ID
     for repo in list(repo_details):
@@ -294,6 +331,7 @@ def insert_run_details(run_details, repo_details, PR_ID):
 
 
 def insert_config_details(sanity_config, run_ID):
+    ''' Function to insert Config details in mongo DB. '''
     global User, GID, nodes_num, clients_num, nodes_list, clients_list
     nodes = []
     clients = []
@@ -337,6 +375,7 @@ def insert_config_details(sanity_config, run_ID):
 
 
 def main(argv):
+    ''' Main Function for S3bench DB update '''
     dic = argv[1]
     # getting all files with log as extension from given directory
     files = getallfiles(dic, ".log")

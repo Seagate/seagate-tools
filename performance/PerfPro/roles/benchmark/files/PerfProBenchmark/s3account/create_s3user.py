@@ -1,4 +1,24 @@
 #!/usr/bin/env python3
+#
+# Seagate-tools: PerfPro
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+# -*- coding: utf-8 -*-
+
 
 import sys
 import json
@@ -10,10 +30,11 @@ import yaml
 # -------------------------------------
 warnings.filterwarnings('ignore')
 
-## Cluster Details
-## ----------------
+# Cluster Details
+# ----------------
 Config_path = '/root/PerfProBenchmark/config.yml'
 url = f'https://{sys.argv[1]}:31169'
+
 
 def makeconfig(name):  # function for connecting with configuration file
     with open(name) as config_file:
@@ -39,11 +60,11 @@ api_logout = '/api/v2/logout'
 
 ansible_response = dict()
 
-## Requesting Admin Login
-## ----------------------
-api_url=f'{url}{api_login}'
-params={'username': admin_user, 'password': admin_passwd}
-params=json.dumps(params)
+# Requesting Admin Login
+# ----------------------
+api_url = f'{url}{api_login}'
+params = {'username': admin_user, 'password': admin_passwd}
+params = json.dumps(params)
 
 response = requests.post(api_url, data=params, verify=True)
 authToken = response.headers["Authorization"]
@@ -53,12 +74,14 @@ if response.status_code != 200:
     sys.exit(0)
 
 
-## Requesting s3 user creation
-## ---------------------------
-api_url=f"{url}{api_s3user}"
-params={"account_name": s3_account, "password": account_passwd, "account_email": email, "access_key": access_key, "secret_key": secret_key}
-params=json.dumps(params)
-response = requests.post(api_url, verify=True, headers={"Authorization": authToken, "Content-Type": "application/json"}, data=params)
+# Requesting s3 user creation
+# ---------------------------
+api_url = f"{url}{api_s3user}"
+params = {"account_name": s3_account, "password": account_passwd,
+          "account_email": email, "access_key": access_key, "secret_key": secret_key}
+params = json.dumps(params)
+response = requests.post(api_url, verify=True, headers={
+                         "Authorization": authToken, "Content-Type": "application/json"}, data=params)
 ansible_response["status"] = response.status_code
 if response.status_code == 201:
     ansible_response["access"] = response.json()["access_key"]

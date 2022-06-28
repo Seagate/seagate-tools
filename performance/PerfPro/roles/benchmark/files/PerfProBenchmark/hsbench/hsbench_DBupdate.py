@@ -1,4 +1,24 @@
 #!/usr/bin/env python3
+#
+# Seagate-tools: PerfPro
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+# -*- coding: utf-8 -*-
+
 '''
 python3 hsbench_DBupdate.py <log file path> <main.yaml path> <config.yaml path>
 
@@ -18,6 +38,7 @@ import pandas as pd
 Main_path = sys.argv[2]  # database url
 Config_path = sys.argv[3]
 
+''' Function to connect with configuration file to fetch the details of the file '''
 # Function for connecting with configuration file
 
 
@@ -113,6 +134,12 @@ def extract_json(file):
     return table_op
 
 
+'''
+Function to get all config details from config.yml file and create a collective Dictonary.
+This dictonary then will be used to match with existing entries from Configuration collection
+'''
+
+
 def getconfig():
     nodes_list = configs_config.get('NODES')
     clients_list = configs_config.get('CLIENTS')
@@ -173,6 +200,8 @@ def getconfig():
 
     return (dic)
 
+
+''' Function to get the latest iteration value from the existing DB entries. '''
 # Function to find latest iteration
 
 
@@ -184,6 +213,8 @@ def get_latest_iteration(query, db, collection):
             max_iter = record['Iteration']
     return max_iter
 
+
+''' Function returns if the client trying to push DB entries is First client from the list of clients. '''
 # Function to resolve iteration/overwrite etc in multi-client run
 
 
@@ -216,7 +247,6 @@ def push_data(files, host, db, Build, Version, Branch, OS):
     first_client = True
     delete_data = True
     iteration_number = 0
-    global nodes_num, clients_num, pc_full, overwrite, custom
     print("logged in from ", host)
     dic = getconfig()
     if dic['SOLUTION'].upper() == 'LC':
@@ -305,7 +335,7 @@ def push_data(files, host, db, Build, Version, Branch, OS):
                         db_data.update(runconfig_Set)
                         db_data.update(updation_Set)
 
-# Function to insert data into db with iterration number
+                        ''' Function to insert data into db with iterration number '''
                         def db_update(itr, db_data):
                             db_data.update(Iteration=itr)
                             db[collection].insert_one(db_data)

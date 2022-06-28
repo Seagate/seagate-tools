@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-"""Global Functions for REST Server."""
+#!/usr/bin/env python3
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
@@ -17,6 +16,8 @@
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
+# -*- coding: utf-8 -*-
+"""Global Functions for REST Server."""
 
 def convert_objectids(results):
     """Converting ObjectID datatype to string."""

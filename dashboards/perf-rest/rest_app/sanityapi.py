@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-"""Sanity API to help backend code to execute for Sanity endpoints."""
+#!/usr/bin/env python3
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
@@ -16,6 +15,9 @@
 #
 # For any questions about this software or licensing,
 # please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+# -*- coding: utf-8 -*-
+"""Sanity API to help backend code to execute for Sanity endpoints."""
 
 from . import mongodbapi, read_config, schemas
 

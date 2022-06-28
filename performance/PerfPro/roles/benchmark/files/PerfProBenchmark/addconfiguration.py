@@ -1,4 +1,24 @@
 #!/usr/bin/env python3
+#
+# Seagate-tools: PerfPro
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+# -*- coding: utf-8 -*-
+
 """
 Script for storing configuration file data into MongoDB
 Command line arguments:   [path for main.yml] [path for config.yml]
@@ -19,6 +39,7 @@ Config_path = sys.argv[2]
 
 
 def makeconfig(name):  # function for connecting with configuration file
+    ''' Function to connect with configuration file to fetch the details of the file '''
     with open(name) as config_file:
         configs = yaml.safe_load(config_file)
     return configs
@@ -33,6 +54,10 @@ docker_info = configs_config.get('DOCKER_INFO')
 
 
 def get_release_info(variable):
+    '''
+    Function to get the release info from the Docker image.
+    It returns the value for the variable which is required by the script.
+    '''
     release_info = os.popen('docker run --rm -it ' +
                             docker_info + ' cat /opt/seagate/cortx/RELEASE.INFO')
     lines = release_info.readlines()
@@ -44,6 +69,9 @@ def get_release_info(variable):
 
 
 def makeconnection(collection):  # function for making connection with database
+    '''
+    Function to connect to the Database and fetch the DB details and add data to DB throughout the script execution
+    '''
     configs = makeconfig(Main_path)
     client = MongoClient(configs['db_url'])  # connecting with mongodb database
     db = client[configs['db_database']]  # database name=performance
@@ -66,6 +94,7 @@ def makeconnection(collection):  # function for making connection with database
 
 
 def storeconfigurations():
+    ''' Function to store config data from config.yml to configuration collection '''
     nodes_list = configs_config.get('NODES')
     clients_list = configs_config.get('CLIENTS')
     build_info = configs_config.get('BUILD_INFO')
@@ -138,6 +167,7 @@ def storeconfigurations():
 
 
 def main(argv):
+    '''Main function for storing configuration data in DB'''
     storeconfigurations()
 
 

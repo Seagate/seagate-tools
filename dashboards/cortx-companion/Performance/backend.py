@@ -1,4 +1,4 @@
-"""Backend functions for Performance tabs."""
+#!/usr/bin/env python3
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
@@ -17,7 +17,7 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 # -*- coding: utf-8 -*-
-# !/usr/bin/python
+"""Backend functions for Performance tabs."""
 
 import pandas as pd
 import dash_table

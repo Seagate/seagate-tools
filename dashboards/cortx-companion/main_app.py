@@ -28,7 +28,7 @@ import dash_html_components as html
 import flask
 from dash.dependencies import Output, Input
 from dash.exceptions import PreventUpdate
-from common import app, versions, server
+from common import app, versions, server, cft_sharepoint, cortx_sharepoint
 from Common_callbacks import defect_list_tab_callbacks, \
     main_page_callbacks, query_tab_callbacks  # pylint: disable=unused-import
 from R1_callbacks import r1_exe_report_callbacks, \
@@ -203,8 +203,6 @@ main_tabs = dbc.Tabs(
     id="main_tabs",
 )
 
-cortx_sharepoint = ""
-cft_sharepoint = ""
 navbar = dbc.Navbar(
     [
         html.A(

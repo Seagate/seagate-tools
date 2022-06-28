@@ -61,6 +61,9 @@ try:
                    "db_password": config["REST"]["db_password"]}
     jira_username = config["JIRA"]["jira_username"]
     jira_password = config["JIRA"]["jira_password"]
+
+    cortx_sharepoint = config["LINKS"]["cortx_sharepoint"]
+    cft_sharepoint = config["LINKS"]["cft_sharepoint"]
 except KeyError:
     print("Not able to read the details from config.ini file")
     sys.exit(1)

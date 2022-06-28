@@ -6,7 +6,7 @@ It consists of following artefacts
 
 ## Dashboard
 
-It carries the source code for deploying web based graphical user interface to host performance statistics and plotting performance trends by data collected using another tool called PerfPro present at ~/seagate-tools/performance/PerfPro. This directory consists sub-directories for:
+It carries the source code of web based graphical user interfaces such as Cortx-Companion, Perf-Rest and SuperPerf. This directory consists sub-directories for:
 
 ### Cortx-Companion
 

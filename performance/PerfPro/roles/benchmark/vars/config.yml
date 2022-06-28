@@ -1,33 +1,32 @@
 ---
 # For host file update : add for more nodes/clients in environment or remove if less nodes/clients .
 NODES:  
-  - 1:  # node_number_srvnode-1: hostname of node1 .
-  - 2:  # node_number_srvnode-2: hostname of node2 .
-  - 3:  # node_number_srvnode-3: hostname of node3 .
+  - 1: node1.example.com
+  - 2: node2.example.com
+  - 3: node3.example.com
 CLIENTS: 
-  - 1:  #client_number: hostname of client  
-#  - 2:  #client_number: hostname of client  
+  - 1: client1.example.com
 
 # For Build and SystemUnderTest INFO
-BUILD_INFO:  # Please select the menthod to collect Build info from given options : RELEASE.INFO / USER_INPUT (RELEASE.INFO collects the release related information from docker image hence add the details of docker image in following key.)
-DOCKER_INFO:  # add the docker info which is used for perf runs Eg: 'ghcr.io/seagate/cortx-all:2.0.0-770'
+BUILD_INFO: RELEASE.INFO
+DOCKER_INFO: 'ghcr.io/seagate/cortx-all:2.0.0-770'
 # Please insert below details if USER_INPUT is selected.
-BUILD: 
-VERSION: 
-BRANCH: 
-OS: 
-CLUSTER_PASS:  # Please enter the cluser password.
-SOLUTION: lc    # DB collection for uploading data legacy, lc or lr
-EXECUTION_TYPE: normal # execution type can be 'normal' or 'sanity'
+BUILD: '770'
+VERSION: '2.0.0'
+BRANCH: 'main'
+OS: 'CentOS'
+CLUSTER_PASS: 
+SOLUTION: lc
+EXECUTION_TYPE: normal
 
 # For PerfPro MongoDB related Entries
-END_POINTS: 
-SYSTEM_STATS: True # If True, enter cluster nodes for installing pkgs, collecting sysstats and uploading sysstats. If Flase, won't enter cluster nodes
-PC_FULL: 0 # Select for system percentage full before test. 
-OVERWRITE: False # select True or False to overwrite the DB entries for same Primary Key
-CUSTOM: NA # Default is NA. Update with single string for special config eg: CorvStd, CorvHiPerf, 5u84Std, 5u84HiPerf, SSD, DIEnabled, PODsetup etc
-DEGRADED_IO: False   # Select True/False to test Degraded read feature
-COPY_OBJECT: False   #Select True/False to test Copy object feature
+END_POINTS: 's3.example.com:30080'
+SYSTEM_STATS: False
+PC_FULL: 0
+OVERWRITE: False
+CUSTOM: NA
+DEGRADED_IO: False
+COPY_OBJECT: False
 
 # For creating S3 account and S3 user to run S3 I/O with given information
 ADMIN_USER: 'admin'
@@ -35,14 +34,14 @@ ADMIN_PASSWD: 'AdminPass@123'
 S3_ACCOUNT: 'account1'
 ACCOUNT_PASSWD: "Password@1"
 EMAIL: "account1@example.com"
-ACCESS_KEY: "AKIA_KN5IwWHRsqgHI9EXAMPLE"
-SECRET_KEY: "+yk3nsSwVDhIqybtEmUaWkD+ypcHsGcZnEXAMPLE"
+ACCESS_KEY: "ACCESS_KEY_EXAMPLE"
+SECRET_KEY: "SECRET_KEY_EXAMPLE"
 
 #Enter Below details for log collection on NFS repo
-NFS_SERVER: 
-NFS_EXPORT: 
-NFS_MOUNT_POINT: 
-NFS_FOLDER: 
+NFS_SERVER: nfs.server.example.com
+NFS_EXPORT: /export
+NFS_MOUNT_POINT: /mnt/perfpro
+NFS_FOLDER: perfpro_backup
 
 #END
 required_vars:

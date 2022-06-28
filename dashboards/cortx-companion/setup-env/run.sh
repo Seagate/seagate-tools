@@ -1,4 +1,4 @@
-#!/bin/bash
+# !/bin/bash
 
 # Installing git
 yum install -y git

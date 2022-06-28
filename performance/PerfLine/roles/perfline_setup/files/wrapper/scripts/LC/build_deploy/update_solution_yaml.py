@@ -46,6 +46,8 @@ def parse_args():
 
     parser.add_argument("--pod", action='append', default=list(), required=False)
     parser.add_argument("--image", action='append', default=list(), required=False)
+    parser.add_argument("--rgw-thread-pool-size", type=str, required=False)
+    parser.add_argument("--rgw-max-concurrent-request", type=str, required=False)
 
     return parser.parse_args()
 
@@ -103,6 +105,26 @@ def update_pod_value(conf, pod_descr):
     images[pod_name] = docker_img
 
 
+def update_rgw_config_params(data,thread_pool_size, max_concurrent_request):
+    if thread_pool_size is None:
+       thread_pool_size = 10  # default value assigned
+
+    if max_concurrent_request is None:
+       max_concurrent_request = 10  # default value assigned
+
+    params = f"thread_pool_size: {thread_pool_size}\\nmax_concurrent_request: {max_concurrent_request}\\n"
+
+    data['solution']['common']['s3']['extra_configuration'] = params
+
+
+def replaceAll(file):
+    with open(file) as f:
+        content = f.read()
+
+    with open(file, 'wt') as f_new:
+        f_new.write(content.replace("'", '"'))
+
+
 def main():
     args = parse_args()
     data = parse_file(args.src_file)
@@ -113,8 +135,11 @@ def main():
     for pod_descr in args.pod:
         update_pod_value(data, pod_descr)
 
-    save_file(data, args.dst_file)
+    if args.rgw_thread_pool_size is not None or args.rgw_max_concurrent_request is not None:
+        update_rgw_config_params(data,args.rgw_thread_pool_size, args.rgw_max_concurrent_request)
 
+    save_file(data, args.dst_file)
+    replaceAll(args.dst_file)
 
 if __name__ == '__main__':
     main()

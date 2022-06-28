@@ -32,6 +32,8 @@ source "$SCRIPT_DIR/../../../../perfline.conf"
 SOLUTION_CONFIG="$CORTX_K8S_REPO/k8_cortx_cloud/solution.yaml"
 SOLUTION_CONFIG_BACKUP="$CORTX_K8S_REPO/k8_cortx_cloud/.perfline__solution.yaml__backup"
 
+PRIMARY_NODE=$(echo "$NODES" | cut -d "," -f1)
+
 function parse_args()
 {
     echo "params: $@"
@@ -40,6 +42,14 @@ function parse_args()
         case $1 in
             --solution-custom-conf)
                 SOLUTION_CUSTOM_CONF="$2"
+                shift
+                ;;
+            --rgw-thread-pool-size)
+                THREAD_POOL="$2"
+                shift
+                ;;
+            --rgw-max-concurrent-request)
+                MAX_REQ="$2"
                 shift
                 ;;
             --hare-sns-data-units)
@@ -109,6 +119,11 @@ function customize_solution_config()
     fi
 
     check_solution_config
+
+    if [[ -n "$THREAD_POOL" ]] || [[ -n "$MAX_REQ" ]]; then
+        update_rgw_config_solution_yaml
+    fi
+
 }
 
 function copy_custom_solution_file() {
@@ -181,6 +196,20 @@ END
 
 echo "$output"
 
+}
+
+function update_rgw_config_solution_yaml()
+{
+    local rgw_config_args=""
+    if [[ -n "$THREAD_POOL" ]]; then
+         rgw_config_args="--rgw-thread-pool-size $THREAD_POOL"
+    fi
+    if [[ -n "$MAX_REQ" ]]; then
+          rgw_config_args="$rgw_config_args --rgw-max-concurrent-request $MAX_REQ"
+    fi
+
+    ssh "$PRIMARY_NODE" "$SCRIPT_DIR/../build_deploy/update_solution_yaml.py \
+        --src-file $SOLUTION_CONFIG --dst-file $SOLUTION_CONFIG $rgw_config_args"
 }
 
 function main()

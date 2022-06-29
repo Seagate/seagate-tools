@@ -1,0 +1,51 @@
+# Seagate-tools: PerfPro
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+# -*- coding: utf-8 -*-
+
+---
+# vars file for benchmark
+db_server: mongodb.example.com
+db_port: 27017
+db_name: performance_db
+db_user: mongo_user
+db_passwd: mongo_passwd
+db_database: performance_db
+
+# Following are the default collections details, These can be modified as per User's specific configuration.
+SANITY:
+  sanity_details_collection: sanity_run_details
+  sanity_config_collection: sanity_config
+  sanity_dbcollection: sanity_results
+R1:
+  db_collection: results_1
+  sysstat_collection: systemresults_1
+  config_collection: configurations_1
+R2:
+  db_collection: results_2
+  sysstat_collection: systemresults_2
+  config_collection: configurations_2
+LC:
+  db_collection: lc
+  sysstat_collection: lc_sys
+  config_collection: lc_config
+LR:
+  db_collection: lr
+  sysstat_collection: lr_sys
+  config_collection: lr_config
+
+db_url: mongodb://mongo_user:mongo_pass@mongodb.example.com:27017

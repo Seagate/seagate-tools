@@ -1,0 +1,79 @@
+# Seagate-tools: PerfPro
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+# -*- coding: utf-8 -*-
+
+---
+# For host file update : add for more nodes/clients in environment or remove if less nodes/clients .
+NODES:  
+  - 1: node1.example.com
+  - 2: node2.example.com
+  - 3: node3.example.com
+CLIENTS: 
+  - 1: client1.example.com
+
+# For Build and SystemUnderTest INFO
+BUILD_INFO: RELEASE.INFO
+DOCKER_INFO: 'ghcr.io/seagate/cortx-all:2.0.0-770'
+# Please insert below details if USER_INPUT is selected.
+BUILD: '770'
+VERSION: '2.0.0'
+BRANCH: 'main'
+OS: 'CentOS'
+CLUSTER_PASS: 
+SOLUTION: lc
+EXECUTION_TYPE: normal
+
+# For PerfPro MongoDB related Entries
+END_POINTS: 's3.example.com:30080'
+SYSTEM_STATS: False
+PC_FULL: 0
+OVERWRITE: False
+CUSTOM: NA
+DEGRADED_IO: False
+COPY_OBJECT: False
+
+# For creating S3 account and S3 user to run S3 I/O with given information
+ADMIN_USER: 'admin'
+ADMIN_PASSWD: 'AdminPass@123'
+S3_ACCOUNT: 'account1'
+ACCOUNT_PASSWD: "Password@1"
+EMAIL: "account1@example.com"
+ACCESS_KEY: "ACCESS_KEY_EXAMPLE"
+SECRET_KEY: "SECRET_KEY_EXAMPLE"
+
+#Enter Below details for log collection on NFS repo
+NFS_SERVER: nfs.server.example.com
+NFS_EXPORT: /export
+NFS_MOUNT_POINT: /mnt/perfpro
+NFS_FOLDER: perfpro_backup
+
+#END
+required_vars:
+  - NODES
+  - CLIENTS
+  - BUILD_URL
+  - CLUSTER_PASS
+  - END_POINTS
+  - PC_FULL
+  - OVERWRITE
+  - CUSTOM
+  - DEGRADED_READ
+  - NFS_SERVER
+  - NFS_EXPORT
+  - NFS_MOUNT_POINT
+  - NFS_FOLDER

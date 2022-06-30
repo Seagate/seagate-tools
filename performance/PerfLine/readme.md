@@ -15,7 +15,7 @@ PerfLine can be installed from any machine. Below prerequisites must be satisfie
     [service_framework](https://seagate-systems.atlassian.net/wiki/spaces/PUB/pages/754155622/CORTX+Kubernetes+Deployment+Document+using+Services+Framework)
 
     Stable version of `cortx-k8s` repository is required to clone into `/root/cortx-k8s` directory of primary server node.
-    It's recommended to use version v0.7.0 (commit 2e0a85e1cab71293180df0990dbc6460902b819e) of `cortx-k8s`.
+    It's recommended to use version v0.8.0 (commit d680cdacaf2e6b74745e913b38efcca354f3cc54) of `cortx-k8s`.
 
     NOTE:  starting from `cortx-k8s` v0.1.0 the default s3 application is RGW. In case if you need to use
     s3server please use v0.0.22 (commit c4773d6fe7b6d1c2b76a69ea2ab0f9582fc660e0) of `corxt-k8s`

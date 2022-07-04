@@ -89,6 +89,7 @@
        - { variable: 'BACKUP_NFS_LOCATION', value: '{{ backup_nfs_location }}'}
        - { variable: 'STORAGE_CONTROLLER_LOGIN', value: '{{ storage_controller_login }}'}
        - { variable: 'STORAGE_CONTROLLER_PASSWORD', value: '{{ storage_controller_password }}'}
+       - { variable: 'CORTX_K8S_REPO', value: '{{ cortx_k8s_repo }}'}
 
   - name: "Updating numeric values of a variables in perfline.conf"
     lineinfile:

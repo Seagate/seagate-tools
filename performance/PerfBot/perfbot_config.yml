@@ -1,6 +1,0 @@
-database:
-    host:
-    port: 8086
-    database: "perfbot"
-
-quantum: 5

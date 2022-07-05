@@ -9,7 +9,7 @@ This document explains how to use PerfPro to run perf-regression OR perf-sanity 
 3.  Update main.yml at (~/seagate-tools/performance/PerfPro/roles/benchmark/vars/main.yml) with details related to 'MongoDB credentials', 'port', 'database' and 'db_url'.
 
 Notes:
-1.  Examples for config.yml and main.yml can be found at [example-config.yml](./docs/example-config.yml) and [example-main.yml](./docs/example-main.yml).
+1.  Examples for config.yml and main.yml can be found at [example-config.yml](https://github.com/Seagate/seagate-tools/blob/main/performance/PerfPro/docs/example-config.yml) and [example-main.yml](https://github.com/Seagate/seagate-tools/blob/main/performance/PerfPro/docs/example-main.yml).
 2.  It is recommended to remove lines which do not have any field updated.   
 3.  "NODES", "CLIENTS" and other entries in main.yml and config.yml need to maintain the case sensitivity.
 
@@ -32,4 +32,4 @@ Notes:
 1.  "NODES", "CLIENTS" and other entries in "main" and "config" dictionaries need to maintain the case sensitivity.
 2.  "REPOSITORY" list may vary in size depending upon number of repositories used to create build.
 
-## [User Guide](./docs/user-guide.md)
+## [User Guide](https://github.com/Seagate/seagate-tools/blob/main/performance/PerfPro/docs/user-guide.md)

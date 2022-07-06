@@ -22,7 +22,8 @@ enable_daemon_service='no'
 perfline_ui_port=8005
 
 
-# Disk input would be required for LC setup
+# Required for LC setup
+cortx_k8s_repo=""
 disk=""
 
 cortx_re_repo="/root/cortx-re"

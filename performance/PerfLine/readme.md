@@ -14,7 +14,7 @@ PerfLine can be installed from any machine. Below prerequisites must be satisfie
 1.  Please follow below link to deploy CORTX cluster using the services framework:
     [service_framework](https://seagate-systems.atlassian.net/wiki/spaces/PUB/pages/754155622/CORTX+Kubernetes+Deployment+Document+using+Services+Framework)
 
-    Stable version of `cortx-k8s` repository is required to clone into `/root/cortx-k8s` directory of primary server node.
+    Stable version of `cortx-k8s` repository has to be cloned into any directory (for example `/root/deploy-scripts`) of primary server node.
     It's recommended to use version v0.8.0 (commit d680cdacaf2e6b74745e913b38efcca354f3cc54) of `cortx-k8s`.
 
     NOTE:  starting from `cortx-k8s` v0.1.0 the default s3 application is RGW. In case if you need to use
@@ -64,6 +64,14 @@ PerfLine can be installed from any machine. Below prerequisites must be satisfie
     **Note : It's mandatory to use common password for all.**
 
         cluster_pass=
+
+    5.5  Specify both `cortx_k8s_repo` and `disk` variables.
+    **Note : It's required only for LC setup.**
+
+    Example:
+
+        cortx_k8s_repo="/root/deploy-scripts"
+        disk="/dev/sdb"
 
 ## Installation
 

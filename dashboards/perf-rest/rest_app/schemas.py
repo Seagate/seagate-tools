@@ -20,10 +20,21 @@
 """Schemas to consider while coding."""
 
 results_format = {
-    "value": {},
     "baseline": {},
+    "deviation": {},
     "difference": {},
-    "deviation": {}
+    "value": {}
+}
+
+all_results_format = {
+    "Read Throughput": "NA",
+    "Read IOPS": "NA",
+    "Read Latency": "NA",
+    "Read TTFB Avg": "NA",
+    "Read TTFB 99%": "NA",
+    "Write Throughput": "NA",
+    "Write IOPS": "NA",
+    "Write Latency": "NA"
 }
 
 config_format = {

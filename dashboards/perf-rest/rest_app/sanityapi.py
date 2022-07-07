@@ -64,107 +64,112 @@ def read_write_routine(**kwargs):
     """Read and Write common code routine to get read and write data from database."""
     found_read_record = True
     found_write_record = True
+    read_val = "NA"
+    write_val = "NA"
 
     try:
         kwargs["query"]["Operation"] = "Read"
         query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
                                                   read_config.db_name, read_config.sanity_results)
-        kwargs["temp_read"][kwargs["obj"]] = round(
-            query_results[1][0][kwargs["metrix"]], 3)
+        read_val = round(query_results[1][0][kwargs["metrix"]], 3)
     except IndexError:
         found_read_record = False
-        kwargs["temp_read"][kwargs["obj"]] = "NA"
 
     try:
         kwargs["query"]["Operation"] = "Write"
         query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
                                                   read_config.db_name, read_config.sanity_results)
-        kwargs["temp_write"][kwargs["obj"]] = round(
-            query_results[1][0][kwargs["metrix"]], 3)
+        write_val = round(query_results[1][0][kwargs["metrix"]], 3)
     except IndexError:
         found_write_record = False
-        kwargs["temp_write"][kwargs["obj"]] = "NA"
 
-    return found_read_record, found_write_record
+    return found_read_record, found_write_record, read_val, write_val
 
 
 def get_all_metrics_data(**kwargs):
     """Returns the data for all of the performance metrics"""
-    kwargs["query"]["Operation"] = "Read"
-    query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
-                                              read_config.db_name, read_config.sanity_results)
-    _temp = {}
-    _temp["Read Throughput"] = round(query_results[1][0]["Throughput"], 3)
-    _temp["Read IOPS"] = round(query_results[1][0]["IOPS"], 3)
-    _temp["Read Latency"] = round(query_results[1][0]["Latency"]["Avg"], 3)
-    _temp["Read TTFB Avg"] = round(query_results[1][0]["TTFB"]["Avg"], 3)
-    _temp["Read TTFB 99%"] = round(query_results[1][0]["TTFB"]["99p"], 3)
+    _temp = schemas.all_results_format.copy()
+    found_read_record = True
+    found_write_record = True
+    try:
+        kwargs["query"]["Operation"] = "Read"
+        query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
+                                                  read_config.db_name, read_config.sanity_results)
 
-    kwargs["query"]["Operation"] = "Write"
-    query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
-                                              read_config.db_name, read_config.sanity_results)
+        _temp["Read Throughput"] = round(query_results[1][0]["Throughput"], 3)
+        _temp["Read IOPS"] = round(query_results[1][0]["IOPS"], 3)
+        _temp["Read Latency"] = round(query_results[1][0]["Latency"]["Avg"], 3)
+        _temp["Read TTFB Avg"] = round(query_results[1][0]["TTFB"]["Avg"], 3)
+        _temp["Read TTFB 99%"] = round(query_results[1][0]["TTFB"]["99p"], 3)
+    except IndexError:
+        found_read_record = False
 
-    _temp["Write Throughput"] = round(query_results[1][0]["Throughput"], 3)
-    _temp["Write IOPS"] = round(query_results[1][0]["IOPS"], 3)
-    _temp["Write Latency"] = round(query_results[1][0]["Latency"]["Avg"], 3)
+    try:
+        kwargs["query"]["Operation"] = "Write"
+        query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
+                                                  read_config.db_name, read_config.sanity_results)
 
-    return _temp
+        print(query_results[1][0])
+        _temp["Write Throughput"] = round(query_results[1][0]["Throughput"], 3)
+        _temp["Write IOPS"] = round(query_results[1][0]["IOPS"], 3)
+        _temp["Write Latency"] = round(
+            query_results[1][0]["Latency"]["Avg"], 3)
+    except IndexError:
+        found_write_record = False
+
+    return found_read_record, found_write_record, _temp
 
 
 def read_write_routine_for_params(**kwargs):
     """Read and Write common code routine using params to get read and write data from database."""
     found_read_record = True
     found_write_record = True
+    read_val = "NA"
+    write_val = "NA"
 
     try:
         kwargs["query"]["Operation"] = "Read"
         query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
                                                   read_config.db_name, read_config.sanity_results)
-        kwargs["temp_read"][kwargs["obj"]
-                            ] = round(query_results[1][0][kwargs["metrix"]][kwargs["param"]], 3)
+        read_val = round(query_results[1][0]
+                         [kwargs["metrix"]][kwargs["param"]], 3)
     except IndexError:
         found_read_record = False
-        kwargs["temp_read"][kwargs["obj"]] = "NA"
 
     try:
         kwargs["query"]["Operation"] = "Write"
         query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
                                                   read_config.db_name, read_config.sanity_results)
-        kwargs["temp_write"][kwargs["obj"]
-                             ] = round(query_results[1][0][kwargs["metrix"]][kwargs["param"]], 3)
+        write_val = round(query_results[1][0]
+                          [kwargs["metrix"]][kwargs["param"]], 3)
     except IndexError:
         found_write_record = False
-        kwargs["temp_write"][kwargs["obj"]] = "NA"
 
-    return found_read_record, found_write_record
+    return found_read_record, found_write_record, read_val, write_val
 
 
 def read_write_routine_for_ttfb(**kwargs):
     """Read and Write for TTFB common code routine to get read and write data from database."""
     found_avg_record = True
     found_99p_record = True
+    read_val = "NA"
+    write_val = "NA"
 
     try:
         kwargs["query"]["Operation"] = "Read"
         query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
                                                   read_config.db_name, read_config.sanity_results)
-        kwargs["temp_read"][kwargs["obj"]
-                            ] = round(query_results[1][0][kwargs["metrix"]]["Avg"], 3)
+        read_val = round(query_results[1][0][kwargs["metrix"]]["Avg"], 3)
 
-        kwargs["temp_write"][kwargs["obj"]
-                             ] = round(query_results[1][0][kwargs["metrix"]]["99p"], 3)
     except IndexError:
         found_avg_record = False
-        kwargs["temp_read"][kwargs["obj"]] = "NA"
 
     try:
-        kwargs["temp_write"][kwargs["obj"]
-                             ] = round(query_results[1][0][kwargs["metrix"]]["99p"], 3)
+        write_val = round(query_results[1][0][kwargs["metrix"]]["99p"], 3)
     except IndexError:
         found_99p_record = False
-        kwargs["temp_write"][kwargs["obj"]] = "NA"
 
-    return found_avg_record, found_99p_record
+    return found_avg_record, found_99p_record, read_val, write_val
 
 
 def get_summary(results, kwargs):

@@ -19,6 +19,7 @@
 # -*- coding: utf-8 -*-
 """Sanity endpoint entry functions."""
 
+from copy import deepcopy
 from http import HTTPStatus
 
 import flask
@@ -28,6 +29,8 @@ from . import read_config, validations, sanityapi, schemas, global_functions
 
 api = Namespace("Sanity", path="/sanity",
                 description="Endpoints for sanity operations")
+uri = read_config.mongodb_uri.format(read_config.db_username, read_config.db_password,
+                                     read_config.db_hostname)
 
 
 def validate_inputs(request_runid, json_data):
@@ -42,8 +45,8 @@ def validate_inputs(request_runid, json_data):
 
 def calculate_perf_tables(p_status, b_status, results, obj, op):
     if p_status and b_status:
-        results[op]["difference"][obj] = results[op]["value"][obj] - \
-            results[op]["baseline"][obj]
+        results[op]["difference"][obj] = round(results[op]["value"][obj] - \
+            results[op]["baseline"][obj], 3)
         results[op]["deviation"][obj] = sanityapi.calculate_deviation(
             results[op]["value"][obj], results[op]["baseline"][obj])
     else:
@@ -51,51 +54,12 @@ def calculate_perf_tables(p_status, b_status, results, obj, op):
         results[op]["deviation"][obj] = "NA"
 
 
-def non_timings_routine(uri, value_query, metrix, obj, results, base_query):
-    rp_status, wp_status = sanityapi.read_write_routine(
-        uri=uri, query=value_query, metrix=metrix, obj=obj,
-        temp_read=results["read"]["value"],
-        temp_write=results["write"]["value"])
-    rb_status, wb_status = sanityapi.read_write_routine(
-        uri=uri, query=base_query, metrix=metrix, obj=obj,
-        temp_read=results["read"]["baseline"],
-        temp_write=results["write"]["baseline"])
-
-    return rp_status, wp_status, rb_status, wb_status
-
-
-def latency_routine(uri, value_query, metrix, obj, results, base_query):
-    rp_status, wp_status = sanityapi.read_write_routine_for_params(
-        uri=uri, query=value_query, metrix=metrix, param="Avg", obj=obj,
-        temp_read=results["read"]["value"],
-        temp_write=results["write"]["value"])
-    rb_status, wb_status = sanityapi.read_write_routine_for_params(
-        uri=uri, query=base_query, metrix=metrix, param="Avg", obj=obj,
-        temp_read=results["read"]["baseline"],
-        temp_write=results["write"]["baseline"])
-
-    return rp_status, wp_status, rb_status, wb_status
-
-
-def ttfb_routine(uri, value_query, metrix, obj, results, base_query):
-    rp_status, wp_status = sanityapi.read_write_routine_for_ttfb(
-        uri=uri, query=value_query, metrix=metrix, obj=obj,
-        temp_read=results["read"]["value"],
-        temp_write=results["write"]["value"])
-    rb_status, wb_status = sanityapi.read_write_routine_for_ttfb(
-        uri=uri, query=base_query, metrix=metrix, obj=obj,
-        temp_read=results["read"]["baseline"],
-        temp_write=results["write"]["baseline"])
-
-    return rp_status, wp_status, rb_status, wb_status
-
-
 def extract_performance_routine(json_data, metrix):
     uri = read_config.mongodb_uri.format(read_config.db_username, read_config.db_password,
                                          read_config.db_hostname)
 
-    results = {"write": schemas.results_format,
-               "read": schemas.results_format}
+    results = {"write": deepcopy(schemas.results_format),
+               "read": deepcopy(schemas.results_format)}
 
     _, record_id = sanityapi.get_baseline_index(uri)
 
@@ -106,14 +70,25 @@ def extract_performance_routine(json_data, metrix):
                       "Sessions": read_config.sanity_sessions, "Object_Size": obj}
 
         if metrix in ["Throughput", "IOPS"]:
-            rp_status, wp_status, rb_status, wb_status = non_timings_routine(
-                uri, value_query, metrix, obj, results, base_query)
+            rp_status, wp_status, rp, wp = sanityapi.read_write_routine(
+                uri=uri, query=value_query, metrix=metrix)
+            rb_status, wb_status, rb, wb = sanityapi.read_write_routine(
+                uri=uri, query=base_query, metrix=metrix)
         elif metrix == "Latency":
-            rp_status, wp_status, rb_status, wb_status = latency_routine(
-                uri, value_query, metrix, obj, results, base_query)
+            rp_status, wp_status, rp, wp = sanityapi.read_write_routine_for_params(
+                uri=uri, query=value_query, metrix=metrix, param="Avg")
+            rb_status, wb_status, rb, wb = sanityapi.read_write_routine_for_params(
+                uri=uri, query=base_query, metrix=metrix, param="Avg")
         else:
-            rp_status, wp_status, rb_status, wb_status = ttfb_routine(
-                uri, value_query, metrix, obj, results, base_query)
+            rp_status, wp_status, rp, wp = sanityapi.read_write_routine_for_ttfb(
+                uri=uri, query=value_query, metrix=metrix)
+            rb_status, wb_status, rb, wb = sanityapi.read_write_routine_for_ttfb(
+                uri=uri, query=base_query, metrix=metrix)
+
+        results["read"]["value"][obj] = rp
+        results["read"]["baseline"][obj] = rb
+        results["write"]["value"][obj] = wp
+        results["write"]["baseline"][obj] = wb
         calculate_perf_tables(rp_status, rb_status, results, obj, "read")
         calculate_perf_tables(wp_status, wb_status, results, obj, "write")
 
@@ -206,17 +181,7 @@ class sanity_config(Resource):
         """Get Config data endpoints from MongoDB for given query."""
         request_runid = flask.request.args.get("run_id")
         json_data = {"run_id": request_runid}
-
-        if not request_runid:
-            return flask.Response(status=HTTPStatus.BAD_REQUEST,
-                                  response="Body is empty")
-
-        validate_field = validations.validate_sanity_fields(json_data)
-        if not validate_field[0]:
-            return flask.Response(status=validate_field[1][0], response=validate_field[1][1])
-
-        uri = read_config.mongodb_uri.format(read_config.db_username, read_config.db_password,
-                                             read_config.db_hostname)
+        validate_inputs(request_runid, json_data)
         data = sanityapi.get_sanity_config(uri, json_data["run_id"])
         global_functions.convert_objectids(data)
 
@@ -237,20 +202,10 @@ class sanity_run_params(Resource):
         """Get sanity run params from MongoDB for given query."""
         request_runid = flask.request.args.get("run_id")
         json_data = {"run_id": request_runid}
+        validate_inputs(request_runid, json_data)
 
-        if not request_runid:
-            return flask.Response(status=HTTPStatus.BAD_REQUEST,
-                                  response="Body is empty")
-
-        validate_field = validations.validate_sanity_fields(json_data)
-        if not validate_field[0]:
-            return flask.Response(status=validate_field[1][0], response=validate_field[1][1])
-
-        uri = read_config.mongodb_uri.format(read_config.db_username, read_config.db_password,
-                                             read_config.db_hostname)
-
-        results = {"write": schemas.config_format,
-                   "read": schemas.config_format}
+        results = {"write": deepcopy(schemas.config_format),
+                   "read": deepcopy(schemas.config_format)}
 
         for obj in read_config.sanity_obj_sizes:
             value_query = {"run_ID": json_data["run_id"],
@@ -277,19 +232,9 @@ class highConcurrencyData(Resource):
         """Get sanity all metrix data from MongoDB for given query."""
         request_runid = flask.request.args.get("run_id")
         json_data = {"run_id": request_runid}
+        validate_inputs(request_runid, json_data)
 
-        if not request_runid:
-            return flask.Response(status=HTTPStatus.BAD_REQUEST,
-                                  response="Body is empty")
-
-        validate_field = validations.validate_sanity_fields(json_data)
-        if not validate_field[0]:
-            return flask.Response(status=validate_field[1][0], response=validate_field[1][1])
-
-        uri = read_config.mongodb_uri.format(read_config.db_username, read_config.db_password,
-                                             read_config.db_hostname)
-
-        results = schemas.results_format.copy()
+        results = deepcopy(schemas.results_format)
 
         _, record_id = sanityapi.get_baseline_index(uri)
 
@@ -299,18 +244,28 @@ class highConcurrencyData(Resource):
         base_query = {"Config_ID": record_id,
                       "Sessions": read_config.sanity_high_conc_sessions,
                       "Object_Size": read_config.sanity_high_conc_obj_size}
-        results['value'] = sanityapi.get_all_metrics_data(
+        rp_status, wp_status, results['value'] = sanityapi.get_all_metrics_data(
             uri=uri, query=value_query, metrix="Throughput", obj=value_query["Object_Size"])
-        results['baseline'] = sanityapi.get_all_metrics_data(
+        rb_status, wb_status, results['baseline'] = sanityapi.get_all_metrics_data(
             uri=uri, query=base_query, metrix="Throughput", obj=value_query["Object_Size"])
 
-        results["difference"] = {
-            key: results['value'][key] - results['baseline'].get(key, 0) for key in results['value']
-        }
+        if rp_status and wp_status:
+            results["difference"] = {
+                key: results['value'][key] - results['baseline'].get(key, 0) for key in results['value']
+            }
+        else:
+            results["difference"] = {
+                key: "NA" for key in results['value']
+            }
 
-        results["deviation"] = {
-            key: sanityapi.calculate_deviation(
-                results['value'][key], results['baseline'].get(key, 0)) for key in results['value']
-        }
+        if rb_status and wb_status:
+            results["deviation"] = {
+                key: sanityapi.calculate_deviation(
+                    results['value'][key], results['baseline'].get(key, 0)) for key in results['value']
+            }
+        else:
+            results["difference"] = {
+                key: "NA" for key in results['value']
+            }
 
         return flask.jsonify({"result": results})

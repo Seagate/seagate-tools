@@ -54,6 +54,7 @@ function save_s3app_artifacts()
 function save_rgw_configs() {
     local config_dir="configs"
 
+    local pods
     local pod
     local containers
     local rgw_mapping
@@ -65,36 +66,41 @@ function save_rgw_configs() {
     pushd $config_dir
 
     for srv in $(echo "$NODES" | tr ',' ' '); do
-        pod=$(ssh "$PRIMARY_NODE" "kubectl get pod -o wide" | grep "$srv" | grep "$CORTX_SERVER_POD_PREFIX" | awk '{print $1}')
-        containers=$(ssh "$PRIMARY_NODE" "kubectl get pods $pod -o jsonpath='{.spec.containers[*].name}'" | tr ' ' '\n' | grep rgw)
         mkdir -p "$srv"
         pushd "$srv"
 
-        for cont in $containers ; do
-            mkdir -p "$cont"
-            pushd "$cont"
+        pods=$(ssh "$PRIMARY_NODE" "kubectl get pod -o wide" | grep "$srv" | grep "$CORTX_SERVER_POD_PREFIX" | awk '{print $1}')
+        
+        for pod in $pods; do
 
-            # Copy config
-            local conf_file=$(ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- ps auxww" | grep radosgw | tr ' ' '\n' | grep -m 1 '\.conf$')
+            containers=$(ssh "$PRIMARY_NODE" "kubectl get pods $pod -o jsonpath='{.spec.containers[*].name}'" | tr ' ' '\n' | grep rgw)
 
-            if [[ -n "$conf_file" ]]; then
-                local conf_filename=$(echo "$conf_file" | awk -F "/" '{print $NF}')
-                ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- cat $conf_file" > "$conf_filename"
+            for cont in $containers ; do
+                mkdir -p "${pod}_${cont}"
+                pushd "${pod}_${cont}"
 
-                local log_file=$(cat "$conf_filename" | grep 'log file' | sed 's/log file\s*=\s*//' | head -1)
-                log_dir="${log_file%/*}"
-                trace_dir="$log_dir/motr_trace_files"
+                # Copy config
+                local conf_file=$(ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- ps auxww" | grep radosgw | tr ' ' '\n' | grep -m 1 '\.conf$')
 
-                # TODO: currently RGW stores addb files in the 'rgw_debug' directory.
-                # It will be changed in the future. Once it is done below code will
-                # be changed accordingly.
-                addb_dir="$log_dir/rgw_debug"
-                rgw_mapping="${srv} ${pod} ${cont} FID ${trace_dir} ${addb_dir} ${log_dir}\n${rgw_mapping}"
-            fi
+                if [[ -n "$conf_file" ]]; then
+                    local conf_filename=$(echo "$conf_file" | awk -F "/" '{print $NF}')
+                    ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- cat $conf_file" > "$conf_filename"
 
-            popd		# $cont
+                    local log_file=$(cat "$conf_filename" | grep 'log file' | sed 's/log file\s*=\s*//' | head -1)
+                    log_dir="${log_file%/*}"
+                    trace_dir="$log_dir/motr_trace_files"
+
+                    # TODO: currently RGW stores addb files in the 'rgw_debug' directory.
+                    # It will be changed in the future. Once it is done below code will
+                    # be changed accordingly.
+                    addb_dir="$log_dir/rgw_debug"
+                    rgw_mapping="${srv} ${pod} ${cont} FID ${trace_dir} ${addb_dir} ${log_dir}\n${rgw_mapping}"
+                fi
+
+                popd		# $cont
+            done
         done
-
+        
         popd			# $srv
     done
 

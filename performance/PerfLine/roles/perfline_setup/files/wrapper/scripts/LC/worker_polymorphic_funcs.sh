@@ -25,8 +25,6 @@ K8S_SCRIPTS_DIR="$CORTX_K8S_REPO/k8_cortx_cloud"
 
 HAX_CONTAINER="cortx-hax"
 LOCAL_PODS_FS='/mnt/fs-local-volume/local-path-provisioner'
-DATA_POD_FS_TEMPLATE="cortx-data-fs"
-SERVER_POD_FS_TEMPLATE="cortx-server-fs"
 LOCAL_MOUNT_POINT='/mnt/fs-local-volume/etc/gluster'
 CONTAINER_MOUNT_POINT='/share'
 DOCKER_CONTAINER_NAME="perfline_cortx"
@@ -82,6 +80,7 @@ function detect_primary_pod()
     PRIMARY_POD=$(ssh "$PRIMARY_NODE" "kubectl get pod -o wide" \
          | grep $CORTX_DATA_POD_PREFIX \
          | grep "$PRIMARY_NODE" \
+         | head -1 \
          | awk '{print $1}')
 
     if [[ -z "$PRIMARY_POD" ]]; then
@@ -197,6 +196,7 @@ function save_m0crate_artifacts()
 function save_motr_configs() {
     local config_dir="configs"
 
+    local pods
     local pod
     local containers
     local mapping
@@ -208,29 +208,35 @@ function save_motr_configs() {
     pushd $config_dir
 
     for srv in $(echo $NODES | tr ',' ' '); do
- 	    pod=$(ssh "$PRIMARY_NODE" "kubectl get pod -o wide" | grep "$srv" | grep $CORTX_DATA_POD_PREFIX | awk '{print $1}')
-	    containers=$(ssh "$PRIMARY_NODE" "kubectl get pods $pod -o jsonpath='{.spec.containers[*].name}'" | tr ' ' '\n' | grep cortx-motr-io)
+
         mkdir -p "$srv"
-	    pushd "$srv"
+        pushd "$srv"
 
-	    for cont in $containers ; do
-	        mkdir -p "$cont"
-	        pushd "$cont"
+ 	    pods=$(ssh "$PRIMARY_NODE" "kubectl get pod -o wide" | grep "$srv" | grep $CORTX_DATA_POD_PREFIX | awk '{print $1}')
+	    
+        for pod in $pods; do
+            containers=$(ssh "$PRIMARY_NODE" "kubectl get pods $pod -o jsonpath='{.spec.containers[*].name}'" | tr ' ' '\n' | grep cortx-motr-io)
 
-	        # Copy motr config
-	        ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- cat /etc/sysconfig/motr" > motr
-	        ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- cat /etc/cortx/cluster.conf" > cluster.conf
+            for cont in $containers ; do
+                mkdir -p "${pod}_${cont}"
+                pushd "${pod}_${cont}"
 
-	        # Gather metadata
-	        service=$(ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- ps auxww" | grep m0d | tr ' ' '\n' | grep -A1 -- "-f" | tail -n1 | tr -d '<' | tr -d '>')
+                # Copy motr config
+                ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- cat /etc/sysconfig/motr" > motr
+                ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- cat /etc/cortx/cluster.conf" > cluster.conf
 
-	        trace_dir=$(cat motr | grep MOTR_M0D_TRACE | grep -v "#")
-	        addb_dir=$(cat motr | grep MOTR_M0D_ADDB | grep -v "#")
+                # Gather metadata
+                service=$(ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- ps auxww" | grep m0d | tr ' ' '\n' | grep -A1 -- "-f" | tail -n1 | tr -d '<' | tr -d '>')
 
-	        mapping="${srv} ${pod} ${cont} ${service} ${trace_dir} ${addb_dir}\n${mapping}"
-	        popd		# $cont
-	    done
-	    popd			# $srv
+                trace_dir=$(cat motr | grep MOTR_M0D_TRACE | grep -v "#")
+                addb_dir=$(cat motr | grep MOTR_M0D_ADDB | grep -v "#")
+
+                mapping="${srv} ${pod} ${cont} ${service} ${trace_dir} ${addb_dir}\n${mapping}"
+                popd		# $pod_$cont
+            done
+        done
+        
+        popd			# $srv
     done
 
     popd			# $config_dir
@@ -258,7 +264,7 @@ function prepare_cluster() {
     ssh "$PRIMARY_NODE" 'sed -i "/seagate/d" /etc/hosts'
     for node in ${NODES//,/ };
     do
-        local ip=$(ssh "$PRIMARY_NODE" "kubectl get pod -o wide | grep $node | grep $CORTX_SERVER_POD_PREFIX" | awk '{print $6}')
+        local ip=$(ssh "$PRIMARY_NODE" "kubectl get pod -o wide | grep $node | grep $CORTX_SERVER_POD_PREFIX" | head -1 | awk '{print $6}')
         ((i=i+1))
         if [ -z "$ip" ]; then
            echo "s3 ip detection failed"
@@ -268,6 +274,32 @@ function prepare_cluster() {
     done
 
     create_s3_account
+}
+
+function detect_data_pvc_locations()
+{
+
+    local pods=$(ssh "$PRIMARY_NODE" "kubectl get pods" | grep -E 'cortx-data|cortx-server' | awk '{print $1}')
+
+    for pod in $pods; do
+        local pod_descr_json=$(ssh "$PRIMARY_NODE" "kubectl get pods -o json --field-selector metadata.name=\"$pod\"")
+
+        # PVC 'data' - for multipod configs
+        # PVC 'local-path-pv' - for singlepod configs
+        local py_script=$(cat <<EOF
+import sys, json
+
+all_volumes = json.load(sys.stdin)['items'][0]['spec']['volumes']
+data_volumes = list(filter(lambda x: x['name'] in ('data', 'local-path-pv'), all_volumes))
+if len(data_volumes) > 0:
+    print(data_volumes[0]['persistentVolumeClaim']['claimName'])
+EOF
+)
+
+        local pvc=$(echo "$pod_descr_json" | python3 -c "$py_script")
+        local pvc_volume=$(ssh "$PRIMARY_NODE" "kubectl get pvc" | grep "$pvc" | awk '{print $3}')
+        echo "$pod $pvc $pvc_volume" >> pod_pvc_map
+    done
 }
 
 function collect_stat_data()
@@ -281,6 +313,8 @@ function collect_stat_data()
         scp cluster.conf $srv:$cluster_conf
         ssh "$srv" "$SCRIPT_DIR/LC/get_disks_map.py $cluster_conf $hostname_short > $disks_map"
     done
+
+    detect_data_pvc_locations
 }
 
 function save_motr_traces() {
@@ -449,23 +483,21 @@ function copy_pods_artifacts() {
     pushd $var_dir
 
     for srv in $(echo "$NODES" | tr ',' ' '); do
-        data_pod_fs_dir=$(ssh "$srv" ls -t $LOCAL_PODS_FS | grep $DATA_POD_FS_TEMPLATE | head -1)
-        server_pod_fs_dir=$(ssh "$srv" ls -t $LOCAL_PODS_FS | grep $SERVER_POD_FS_TEMPLATE | head -1)
 
-        if [[ -z "$data_pod_fs_dir" ]]; then
-            echo "detection of data POD filesystem was failed"
-            exit 1
-        fi
+        local all_pvc_dirs=$(ssh "$srv" ls "$LOCAL_PODS_FS")
 
-        if [[ -z "$server_pod_fs_dir" ]]; then
-            echo "detection of server POD filesystem was failed"
-            exit 1
-        fi
+        cat "$RESULTS_DIR"/pod_pvc_map | while read line; do
+            local pod=$(echo "$line" | awk '{print $1}')
+            local pvc_volume=$(echo "$line" | awk '{print $3}')
 
-        set +e
-        rsync -avr --exclude "db" --exclude "db-log" "$srv":$LOCAL_PODS_FS/"$data_pod_fs_dir"/* ./
-        rsync -avr --exclude "db" --exclude "db-log" "$srv":$LOCAL_PODS_FS/"$server_pod_fs_dir"/* ./
-        set -e
+            local pvc_dir=$(echo "$all_pvc_dirs" | grep "$pvc_volume")
+
+            if [[ -n "$pvc_dir" ]]; then
+                set +e
+                rsync -avr --exclude "db" --exclude "db-log" "$srv":$LOCAL_PODS_FS/"$pvc_dir"/* ./
+                set -e
+            fi
+        done
     done
 
     popd			# $var_dir

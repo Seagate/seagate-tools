@@ -33,6 +33,7 @@ SOLUTION_CONFIG="$CORTX_K8S_REPO/k8_cortx_cloud/solution.yaml"
 SOLUTION_CONFIG_BACKUP="$CORTX_K8S_REPO/k8_cortx_cloud/.perfline__solution.yaml__backup"
 
 PRIMARY_NODE=$(echo "$NODES" | cut -d "," -f1)
+NAMESPACE=$(cat "$SOLUTION_CONFIG" | grep "namespace" | awk '{ print $2}')
 
 function parse_args()
 {

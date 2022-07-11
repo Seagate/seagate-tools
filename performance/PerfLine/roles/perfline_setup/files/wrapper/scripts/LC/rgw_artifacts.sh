@@ -69,22 +69,22 @@ function save_rgw_configs() {
         mkdir -p "$srv"
         pushd "$srv"
 
-        pods=$(ssh "$PRIMARY_NODE" "kubectl get pod -o wide" | grep "$srv" | grep "$CORTX_SERVER_POD_PREFIX" | awk '{print $1}')
-        
+        pods=$(ssh "$PRIMARY_NODE" "kubectl get pods -n $NAMESPACE -o wide" | grep "$srv" | grep "$CORTX_SERVER_POD_PREFIX" | awk '{print $1}')
+
         for pod in $pods; do
 
-            containers=$(ssh "$PRIMARY_NODE" "kubectl get pods $pod -o jsonpath='{.spec.containers[*].name}'" | tr ' ' '\n' | grep rgw)
+            containers=$(ssh "$PRIMARY_NODE" "kubectl get pods -n $NAMESPACE $pod -o jsonpath='{.spec.containers[*].name}'" | tr ' ' '\n' | grep rgw)
 
             for cont in $containers ; do
                 mkdir -p "${pod}_${cont}"
                 pushd "${pod}_${cont}"
 
                 # Copy config
-                local conf_file=$(ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- ps auxww" | grep radosgw | tr ' ' '\n' | grep -m 1 '\.conf$')
+                local conf_file=$(ssh "$PRIMARY_NODE" "kubectl exec -n $NAMESPACE $pod -c $cont -- ps auxww" | grep radosgw | tr ' ' '\n' | grep -m 1 '\.conf$')
 
                 if [[ -n "$conf_file" ]]; then
                     local conf_filename=$(echo "$conf_file" | awk -F "/" '{print $NF}')
-                    ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- cat $conf_file" > "$conf_filename"
+                    ssh "$PRIMARY_NODE" "kubectl exec -n $NAMESPACE $pod -c $cont -- cat $conf_file" > "$conf_filename"
 
                     local log_file=$(cat "$conf_filename" | grep 'log file' | sed 's/log file\s*=\s*//' | head -1)
                     log_dir="${log_file%/*}"
@@ -100,7 +100,7 @@ function save_rgw_configs() {
                 popd		# $cont
             done
         done
-        
+
         popd			# $srv
     done
 

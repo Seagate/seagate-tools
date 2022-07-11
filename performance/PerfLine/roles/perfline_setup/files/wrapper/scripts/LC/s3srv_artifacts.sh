@@ -62,8 +62,8 @@ function save_s3_configs() {
     pushd $config_dir
 
     for srv in $(echo $NODES | tr ',' ' '); do
-        pod=$(ssh "$PRIMARY_NODE" "kubectl get pod -o wide" | grep "$srv" | grep "$CORTX_SERVER_POD_PREFIX" | awk '{print $1}')
-        containers=$(ssh "$PRIMARY_NODE" "kubectl get pods $pod -o jsonpath='{.spec.containers[*].name}'" | tr ' ' '\n' | grep s3 | grep -v haproxy | grep -v auth | grep -v consumer)
+        pod=$(ssh "$PRIMARY_NODE" "kubectl get pods -n $NAMESPACE -o wide" | grep "$srv" | grep "$CORTX_SERVER_POD_PREFIX" | awk '{print $1}')
+        containers=$(ssh "$PRIMARY_NODE" "kubectl get pods -n $NAMESPACE $pod -o jsonpath='{.spec.containers[*].name}'" | tr ' ' '\n' | grep s3 | grep -v haproxy | grep -v auth | grep -v consumer)
         mkdir -p "$srv"
         pushd "$srv"
 
@@ -72,31 +72,31 @@ function save_s3_configs() {
             pushd "$cont"
 
             # Copy config
-            ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- cat /etc/cortx/s3/conf/s3config.yaml" > s3config.yaml
-            ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- cat /opt/seagate/cortx/s3/s3startsystem.sh" > s3startsystem.sh
-            ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- cat /etc/cortx/cluster.conf" > cluster.conf
-            ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- cat /etc/hosts" > hosts
-            ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- cat /etc/haproxy/haproxy.cfg" > haproxy.cfg
+            ssh "$PRIMARY_NODE" "kubectl exec -n $NAMESPACE $pod -c $cont -- cat /etc/cortx/s3/conf/s3config.yaml" > s3config.yaml
+            ssh "$PRIMARY_NODE" "kubectl exec -n $NAMESPACE $pod -c $cont -- cat /opt/seagate/cortx/s3/s3startsystem.sh" > s3startsystem.sh
+            ssh "$PRIMARY_NODE" "kubectl exec -n $NAMESPACE $pod -c $cont -- cat /etc/cortx/cluster.conf" > cluster.conf
+            ssh "$PRIMARY_NODE" "kubectl exec -n $NAMESPACE $pod -c $cont -- cat /etc/hosts" > hosts
+            ssh "$PRIMARY_NODE" "kubectl exec -n $NAMESPACE $pod -c $cont -- cat /etc/haproxy/haproxy.cfg" > haproxy.cfg
 
             trace_dir=$(cat s3config.yaml | grep S3_DAEMON_WORKING_DIR | awk '{print $2}')
             addb_dir=$(echo "$trace_dir")
             log_dir=$(cat s3config.yaml | grep S3_LOG_DIR | awk '{print $2}')
 
-            echo ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- ps auxww"
+            echo ssh "$PRIMARY_NODE" "kubectl exec -n $NAMESPACE $pod -c $cont -- ps auxww"
 
             # Gather process FID
-            service=$(ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- ps auxww" | grep s3server | grep motr | tr ' ' '\n' | grep -A1 "processfid" | tail -n1)
+            service=$(ssh "$PRIMARY_NODE" "kubectl exec -n $NAMESPACE $pod -c $cont -- ps auxww" | grep s3server | grep motr | tr ' ' '\n' | grep -A1 "processfid" | tail -n1)
             service=$(echo "$service" | tr -d '<' | tr -d '>')
 
             s3mapping="${srv} ${pod} ${cont} ${service} ${trace_dir} ${addb_dir} ${log_dir}\n${s3mapping}"
             popd		# $cont
         done
 
-        containers=$(ssh "$PRIMARY_NODE" "kubectl get pods $pod -o jsonpath='{.spec.containers[*].name}'" | tr ' ' '\n' | grep haproxy)
+        containers=$(ssh "$PRIMARY_NODE" "kubectl get pods -n $NAMESPACE $pod -o jsonpath='{.spec.containers[*].name}'" | tr ' ' '\n' | grep haproxy)
         for cont in $containers ; do
             mkdir -p "$cont"
             pushd "$cont"
-            ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- cat /etc/cortx/s3/haproxy.cfg" > haproxy.cfg
+            ssh "$PRIMARY_NODE" "kubectl exec -n $NAMESPACE $pod -c $cont -- cat /etc/cortx/s3/haproxy.cfg" > haproxy.cfg
             popd
         done
 

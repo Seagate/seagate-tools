@@ -4,35 +4,35 @@
 
 # Seagate-tools
 
-Seagate-tools is a common repository of the tools developed inhouse by the Seagate Engineers for testing object storage. It consists majorly Performance benchmarking, profiling and analytic tools along with multi-utility dashbaords.
+Seagate-tools is a common repository of tools developed in-house by the Seagate Engineers for testing object storage. It consists of majorly Performance benchmarking, profiling, and analytic tools along with multi-utility dashboards.
 
 ## Overview
 
-> Dashboards section carries the source code of web based user interfaces such as Cortx-Companion, Perf-Rest and SuperPerf. This directory consists sub-directories for:
+> Dashboards section carries the source code of web-based user interfaces such as Cortx-Companion, Perf-Rest, and SuperPerf. This directory consists of sub-directories for:
 
 ### Cortx-Companion
 
-[Cortx-companion](https://github.com/Seagate/seagate-tools/blob/main/dashboards/cortx-companion/readme.md) includes Performance tabs that summarizes Benchmark results of all Performance testbed, H/W, custom runs with a wide range of filters. Moreover, Performance graphs tab facilitates comparison of any run data with any previous Perf results. Alongwith, QA tabs that briefs executive and engineering summary of a build executed by CFT.
+[Cortx-companion](https://github.com/Seagate/seagate-tools/blob/main/dashboards/cortx-companion/readme.md) includes Performance tabs that summarize Benchmark results of all Performance testbed, H/W, custom runs with a wide range of filters. Moreover, the Performance graphs tab facilitates the comparison of any run data with any previous Perf results. Along with, QA tabs that brief executive and engineering summary of a build tested by CFT.
 
 ### Perf-Rest
 
-[Perf-Rest](https://github.com/Seagate/seagate-tools/blob/main/dashboards/perf-rest/readme.md) is a REST API providing Performance endpoints for accessing performance metrics, Sanity Data and endpoints needed for SuperPerf.
+[Perf-Rest](https://github.com/Seagate/seagate-tools/blob/main/dashboards/perf-rest/readme.md) is a REST API providing Performance endpoints for accessing performance metrics, Sanity Data, and endpoints needed for SuperPerf.
 
 ### SuperPerf
 
-[SuperPerf](https://github.com/Seagate/seagate-tools/blob/main/dashboards/superperf/readme.md) is a superset of all performance tools. It consists of the source code of Perf-Sanity to begin with. Perf-Sanity is a jenkins based Perf CI/CD that captures performance results for various kinds of builds.
+[SuperPerf](https://github.com/Seagate/seagate-tools/blob/main/dashboards/superperf/readme.md) is a superset of all performance tools. It consists of the source code of Perf-Sanity, to begin with. Perf-Sanity is a Jenkins-based Perf CI/CD that captures performance results for various kinds of builds.
 
 > Performance section holds source code for Performance benchmarking and I/O profiling. It includes:
 
 ### PerfLine
 
-[PerfLine](https://github.com/Seagate/seagate-tools/blob/main/performance/PerfLine/readme.md) is primarily a cortx Profiler. It has extended capabilities of running different benchmarks and microbenchmarks and other custom workloads in multi-user shared environment.
+[PerfLine](https://github.com/Seagate/seagate-tools/blob/main/performance/PerfLine/readme.md) is primarily a cortx Profiler. It has extended capabilities of running different benchmarks and microbenchmarks and other custom workloads in a multi-user shared environment.
 
 There are three parts:
 
 -   wrapper - Executables including report generator, statistic gather scripts
--   webui - Web server based PerfLine UI for interacting with PerfLine
--   ansible playbook - Ansible based PerfLine Installation
+-   WebUI - Web server-based PerfLine UI for interacting with PerfLine
+-   ansible-playbook - Ansible-based PerfLine Installation
 
 ### PerfPro
 

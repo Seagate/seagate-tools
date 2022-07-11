@@ -262,6 +262,43 @@ function do_result_backup()
     popd
 }
 
+function wait_for_action() {
+    set +e
+    while :
+    do
+	inotifywait ./ -e create | grep "$TASK_ID.release"
+	if [ $? -eq 0 ] ; then
+	    echo "Unblock PerfLine"
+	    break
+	fi
+    done
+    set -e
+
+    rm -rf "$TASK_ID".release
+}
+
+function user_actions()
+{
+    local action="$USER_ACTION"
+
+    case "$action" in
+	"wait")
+	    pushd "$LOCK_DIR"
+	    rm -rf "$TASK_ID".lock
+	    touch "$TASK_ID".lock
+	    wait_for_action
+	    popd
+	    ;;
+	"exit")
+	    echo "Exiting task"
+	    exit 0
+	    ;;
+	*)
+	    echo "Skipping unknown action"
+	    ;;
+    esac
+}
+
 function perform_workloads()
 {
     local m0crate_iteration=0
@@ -269,6 +306,11 @@ function perform_workloads()
     length=${#workload_type[@]}
     for (( key=0; key<"$length"; key++ )); do
         case "${workload_type[${key}]}" in
+	    "action")
+                echo "Invoke user action"
+                USER_ACTION=${workloads[${key}]}
+                user_actions
+		;;
              "custom")
                 echo "Start custom workloads"
                 CUSTOM_WORKLOADS=${workloads[${key}]}
@@ -354,8 +396,15 @@ while [[ $# -gt 0 ]]; do
             ((COUNT=COUNT+1))
             shift
             ;;
+        --action)
+            workload_type["$COUNT"]+="action"
+            workloads["$COUNT"]+="$2"
+            ((COUNT=COUNT+1))
+            shift
+            ;;
         -p|--result-path)
             RESULTS_DIR=$2
+	    TASK_ID=$(echo "$RESULTS_DIR" | awk -F'_' '{print $NF}')
             shift
             ;;
         --s3bench)

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
@@ -18,24 +19,50 @@
 #
 # -*- coding: utf-8 -*-
 
----
-# vars file for perfline_setup
+set -e
 
-# Specify PURPOSE value to customize the location of PerfLine (artifacts directory,
-# log file location) or to be able install more than one version of PerfLine
-# on the same cluster.
-# Example:
-# PURPOSE: '-dev'
+SCRIPT_PATH="$(readlink -f "$0")"
+SCRIPT_DIR="${SCRIPT_PATH%/*}"
 
-PURPOSE: ''
-PUBLIC_DATA_INTERFACE_NAME: ''
+TASK_ID="$1"
 
-S3BENCH_COMMIT_ID: 0126b7f
-PERFLINE_DIR: /root/perfline{{ PURPOSE }}
-ARTIFACTS_DIR: '/var/perfline{{ PURPOSE }}'
-NIGHT_ARTIFACTS: '/var/perfline{{ PURPOSE }}/night_builds'
-LOCK_DIR: '/var/perfline{{ PURPOSE }}/lock'
-PERFLINE_LOGFILE: '/var/log/perfline{{ PURPOSE }}.log'
-PERFLINE_SERVICE_NAME: 'perfline{{ PURPOSE }}'
-PERFLINE_UI_SERVICE_NAME: 'perfline-ui{{ PURPOSE }}'
-PERFLINE_DAEMON_SERVICE_NAME: 'perfline-daemon{{ PURPOSE }}'
+source "$SCRIPT_DIR"/../perfline.conf
+source "$SCRIPT_DIR"/scripts/common_wait.sh
+
+function usage() {
+    cat << HEREDOC
+Usage : $0 task_id
+where,
+    task_id - ID of PerfLine task to wait
+HEREDOC
+}
+
+function wait_perfline() {
+    echo "Waiting for Task $TASK_ID"
+
+    pushd "$LOCK_DIR"
+
+    if [ -f "$TASK_ID.lock" ] ; then
+	echo "Task $TASK_ID waiting for user action"
+    else
+	set +e
+	while :
+	do
+	    inotifywait ./ -e create | grep "$TASK_ID.lock"
+	    if [ $? -eq 0 ] ; then
+		echo "Task $TASK_ID waiting for user action"
+		break
+	    fi
+	done
+	set -e
+    fi
+
+    popd
+}
+
+function main() {
+    validate
+    wait_perfline
+}
+
+main

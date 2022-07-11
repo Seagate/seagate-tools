@@ -55,6 +55,9 @@ def parse_options(conf, result_dir):
         if 'custom' in b:
             options.append('-w')
             options.append(b['custom']['cmd'])
+        elif 'user_action' in b:
+            options.append('--action')
+            options.append(b['user_action']['cmd'])
         elif 's3bench' in b:
             options.append('--s3bench')
             # Parameter

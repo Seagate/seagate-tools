@@ -25,12 +25,15 @@ set -e
 SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 
+SOLUTION_CONFIG="$CORTX_K8S_REPO/k8_cortx_cloud/solution.yaml"
+NAMESPACE=$(cat "$SOLUTION_CONFIG" | grep "namespace" | awk '{ print $2}')
+
 _get_cluster_params() {
     local hostname="$1"
-    data_pod=$(kubectl get pod -o wide | grep "${hostname}-" | grep cortx-data | awk '{print $1}')
-    client_pod=$(kubectl get pod -o wide | grep "${hostname}-" | grep cortx-client | awk '{print $1}')
-    CONTAINER=$(kubectl get pods "$data_pod" -o jsonpath='{.spec.containers[*].name}' | tr ' ' '\n' | grep cortx-hax)
-    HCTL_STATUS=$(kubectl exec -it "$data_pod" -c "$CONTAINER" -- hctl status)
+    data_pod=$(kubectl get pods -n "$NAMESPACE" -o wide | grep "${hostname}-" | grep cortx-data | awk '{print $1}')
+    client_pod=$(kubectl get pods -n "$NAMESPACE" -o wide | grep "${hostname}-" | grep cortx-client | awk '{print $1}')
+    CONTAINER=$(kubectl get pods -n "$NAMESPACE" "$data_pod" -o jsonpath='{.spec.containers[*].name}' | tr ' ' '\n' | grep cortx-hax)
+    HCTL_STATUS=$(kubectl exec -n "$NAMESPACE" -it "$data_pod" -c "$CONTAINER" -- hctl status)
 
     HAX_IP_EXT=$(echo "$HCTL_STATUS" \
          | grep "$hostname" | grep cortx-client | grep hax |awk '{print $4}'| tr -d ' ' | tr -d '\r')
@@ -108,8 +111,8 @@ prepare_and_run() {
 
     local src_data_file="/tmp/128M"
     _get_cluster_params "$hostname"
-    kubectl exec -it "$client_pod" -- rm -f $src_data_file
-    kubectl exec -it "$client_pod" -- dd if=/dev/urandom of="$src_data_file" bs=1M count=128 &> /dev/null
+    kubectl exec -n "$NAMESPACE" -it "$client_pod" -- rm -f $src_data_file
+    kubectl exec -n "$NAMESPACE" -it "$client_pod" -- dd if=/dev/urandom of="$src_data_file" bs=1M count=128 &> /dev/null
     _set_default_m0crate_params
     _parse_m0crate_params "$@"
 
@@ -125,12 +128,12 @@ prepare_and_run() {
 
     # create directory for m0crate
     # TODO check if /share/var/log/cortx exists
-    local machine_id=$(kubectl exec "$client_pod" -- bash -c 'cat /etc/machine-id')
+    local machine_id=$(kubectl exec -n "$NAMESPACE" "$client_pod" -- bash -c 'cat /etc/machine-id')
     local m0crate_dir="/share/var/log/cortx/m0crate/$iteration/$machine_id/m0crate-$PROCESS_FID"
-    kubectl exec "$client_pod" -- bash -c "mkdir -p $m0crate_dir"
+    kubectl exec -n "$NAMESPACE" "$client_pod" -- bash -c "mkdir -p $m0crate_dir"
 
     kubectl cp "$m0crate_conf" "$client_pod":"$m0crate_dir"/test_io."$iteration"."$MOTR_PORTS"."$hostname".yaml
-    kubectl exec "$client_pod" -- bash -c "cd $m0crate_dir && m0crate -S test_io.$iteration.$MOTR_PORTS.$hostname.yaml &>> $logfile"
+    kubectl exec -n "$NAMESPACE" "$client_pod" -- bash -c "cd $m0crate_dir && m0crate -S test_io.$iteration.$MOTR_PORTS.$hostname.yaml &>> $logfile"
 }
 
 prepare_and_run "$@"

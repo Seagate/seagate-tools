@@ -22,7 +22,6 @@
 source "$SCRIPT_DIR/$CLUSTER_TYPE/${S3_APP}_artifacts.sh"
 
 K8S_SCRIPTS_DIR="$CORTX_K8S_REPO/k8_cortx_cloud"
-
 HAX_CONTAINER="cortx-hax"
 LOCAL_PODS_FS='/mnt/fs-local-volume/local-path-provisioner'
 LOCAL_MOUNT_POINT='/mnt/fs-local-volume/etc/gluster'
@@ -38,6 +37,8 @@ S3_INIT_PID=10001
 RGW_INIT_PID=10001
 M0CRATE_INIT_PID=20001
 
+SOLUTION_CONFIG="$CORTX_K8S_REPO/k8_cortx_cloud/solution.yaml"
+NAMESPACE=$(cat "$SOLUTION_CONFIG" | grep "namespace" | awk '{ print $2}')
 
 function run_cmd_in_container()
 {
@@ -46,7 +47,7 @@ function run_cmd_in_container()
     shift
     shift
 
-    ssh "$PRIMARY_NODE" "kubectl exec $pod -c $container -- $@"
+    ssh "$PRIMARY_NODE" "kubectl exec -n $NAMESPACE $pod -c $container -- $@"
 }
 
 function is_cluster_online()
@@ -77,7 +78,7 @@ function cleanup_logs() {
 
 function detect_primary_pod()
 {
-    PRIMARY_POD=$(ssh "$PRIMARY_NODE" "kubectl get pod -o wide" \
+    PRIMARY_POD=$(ssh "$PRIMARY_NODE" "kubectl get pods -n $NAMESPACE -o wide" \
          | grep $CORTX_DATA_POD_PREFIX \
          | grep "$PRIMARY_NODE" \
          | head -1 \
@@ -111,7 +112,7 @@ function restart_cluster() {
     detect_primary_pod
     wait_for_cluster_start
 
-    ssh "$PRIMARY_NODE" "kubectl get pod"
+    ssh "$PRIMARY_NODE" "kubectl get pods -n $NAMESPACE"
     sleep 20
 }
 
@@ -212,21 +213,21 @@ function save_motr_configs() {
         mkdir -p "$srv"
         pushd "$srv"
 
- 	    pods=$(ssh "$PRIMARY_NODE" "kubectl get pod -o wide" | grep "$srv" | grep $CORTX_DATA_POD_PREFIX | awk '{print $1}')
-	    
+ 	    pods=$(ssh "$PRIMARY_NODE" "kubectl get pods -n $NAMESPACE -o wide" | grep "$srv" | grep $CORTX_DATA_POD_PREFIX | awk '{print $1}')
+
         for pod in $pods; do
-            containers=$(ssh "$PRIMARY_NODE" "kubectl get pods $pod -o jsonpath='{.spec.containers[*].name}'" | tr ' ' '\n' | grep cortx-motr-io)
+            containers=$(ssh "$PRIMARY_NODE" "kubectl get pods -n $NAMESPACE $pod -o jsonpath='{.spec.containers[*].name}'" | tr ' ' '\n' | grep cortx-motr-io)
 
             for cont in $containers ; do
                 mkdir -p "${pod}_${cont}"
                 pushd "${pod}_${cont}"
 
                 # Copy motr config
-                ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- cat /etc/sysconfig/motr" > motr
-                ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- cat /etc/cortx/cluster.conf" > cluster.conf
+                ssh "$PRIMARY_NODE" "kubectl exec -n $NAMESPACE $pod -c $cont -- cat /etc/sysconfig/motr" > motr
+                ssh "$PRIMARY_NODE" "kubectl exec -n $NAMESPACE $pod -c $cont -- cat /etc/cortx/cluster.conf" > cluster.conf
 
                 # Gather metadata
-                service=$(ssh "$PRIMARY_NODE" "kubectl exec $pod -c $cont -- ps auxww" | grep m0d | tr ' ' '\n' | grep -A1 -- "-f" | tail -n1 | tr -d '<' | tr -d '>')
+                service=$(ssh "$PRIMARY_NODE" "kubectl exec -n $NAMESPACE $pod -c $cont -- ps auxww" | grep m0d | tr ' ' '\n' | grep -A1 -- "-f" | tail -n1 | tr -d '<' | tr -d '>')
 
                 trace_dir=$(cat motr | grep MOTR_M0D_TRACE | grep -v "#")
                 addb_dir=$(cat motr | grep MOTR_M0D_ADDB | grep -v "#")
@@ -235,7 +236,7 @@ function save_motr_configs() {
                 popd		# $pod_$cont
             done
         done
-        
+
         popd			# $srv
     done
 
@@ -243,9 +244,6 @@ function save_motr_configs() {
 
     printf "$mapping" > ioservice_map
 }
-
-
-
 
 function save_cluster_status() {
     run_cmd_in_container "$PRIMARY_POD" $HAX_CONTAINER hctl status > hctl-status.stop
@@ -264,7 +262,7 @@ function prepare_cluster() {
     ssh "$PRIMARY_NODE" 'sed -i "/seagate/d" /etc/hosts'
     for node in ${NODES//,/ };
     do
-        local ip=$(ssh "$PRIMARY_NODE" "kubectl get pod -o wide | grep $node | grep $CORTX_SERVER_POD_PREFIX" | head -1 | awk '{print $6}')
+        local ip=$(ssh "$PRIMARY_NODE" "kubectl get pods -n $NAMESPACE -o wide | grep $node | grep $CORTX_SERVER_POD_PREFIX" | head -1 | awk '{print $6}')
         ((i=i+1))
         if [ -z "$ip" ]; then
            echo "s3 ip detection failed"
@@ -279,10 +277,10 @@ function prepare_cluster() {
 function detect_data_pvc_locations()
 {
 
-    local pods=$(ssh "$PRIMARY_NODE" "kubectl get pods" | grep -E 'cortx-data|cortx-server' | awk '{print $1}')
+    local pods=$(ssh "$PRIMARY_NODE" "kubectl get pods -n $NAMESPACE" | grep -E 'cortx-data|cortx-server' | awk '{print $1}')
 
     for pod in $pods; do
-        local pod_descr_json=$(ssh "$PRIMARY_NODE" "kubectl get pods -o json --field-selector metadata.name=\"$pod\"")
+        local pod_descr_json=$(ssh "$PRIMARY_NODE" "kubectl get pods -n $NAMESPACE -o json --field-selector metadata.name=\"$pod\"")
 
         # PVC 'data' - for multipod configs
         # PVC 'local-path-pv' - for singlepod configs
@@ -297,7 +295,7 @@ EOF
 )
 
         local pvc=$(echo "$pod_descr_json" | python3 -c "$py_script")
-        local pvc_volume=$(ssh "$PRIMARY_NODE" "kubectl get pvc" | grep "$pvc" | awk '{print $3}')
+        local pvc_volume=$(ssh "$PRIMARY_NODE" "kubectl get pvc -n $NAMESPACE" | grep "$pvc" | awk '{print $3}')
         echo "$pod $pvc $pvc_volume" >> pod_pvc_map
     done
 }

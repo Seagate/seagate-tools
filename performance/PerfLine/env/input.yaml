@@ -1,0 +1,15 @@
+specification:
+  config: auto
+  nodes:
+    - hostname: # Specify node1 hostname here
+      username: # Specify node1 username here
+      password: # Specify node1 password here
+    - hostname: # Specify node2 hostname here
+      username: # Specify node2 username here
+      password: # Specify node2 password here
+    - hostname: # Specify node3 hostname here
+      username: # Specify node3 username here
+      password: # Specify node3 password here
+  durability:
+    sns: 1+0+0
+    dix: 1+0+0

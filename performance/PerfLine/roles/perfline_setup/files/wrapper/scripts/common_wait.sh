@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #
 #
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
@@ -18,24 +19,45 @@
 #
 # -*- coding: utf-8 -*-
 
----
-# vars file for perfline_setup
+function validate() {
+    local status
 
-# Specify PURPOSE value to customize the location of PerfLine (artifacts directory,
-# log file location) or to be able install more than one version of PerfLine
-# on the same cluster.
-# Example:
-# PURPOSE: '-dev'
+    if [ -z "$TASK_ID" ] ; then
+	echo "Task ID is not specified"
+	usage
+	exit 1
+    fi
 
-PURPOSE: ''
-PUBLIC_DATA_INTERFACE_NAME: ''
+    pushd "$SCRIPT_DIR"
+    set +e
+    ./perfline.py -r | grep -q "$TASK_ID"
+    status=$?
+    set -e
+    if [ "$status" -eq 0 ] ; then
+	popd
+	echo "Task $TASK_ID has already finished"
+	exit 1
+    fi
 
-S3BENCH_COMMIT_ID: 0126b7f
-PERFLINE_DIR: /root/perfline{{ PURPOSE }}
-ARTIFACTS_DIR: '/var/perfline{{ PURPOSE }}'
-NIGHT_ARTIFACTS: '/var/perfline{{ PURPOSE }}/night_builds'
-LOCK_DIR: '/var/perfline{{ PURPOSE }}/lock'
-PERFLINE_LOGFILE: '/var/log/perfline{{ PURPOSE }}.log'
-PERFLINE_SERVICE_NAME: 'perfline{{ PURPOSE }}'
-PERFLINE_UI_SERVICE_NAME: 'perfline-ui{{ PURPOSE }}'
-PERFLINE_DAEMON_SERVICE_NAME: 'perfline-daemon{{ PURPOSE }}'
+    set +e
+    ./perfline.py -l | grep -q "$TASK_ID"
+    status=$?
+    set -e
+    if [ "$status" -ne 0 ] ; then
+	popd
+	echo "Task $TASK_ID not found"
+	exit 1
+    fi
+
+    set +e
+    ./perfline.py -l | grep "$TASK_ID" | grep "user_action" -A1 | grep -q "wait"
+    status=$?
+    set -e
+    if [ "$status" -ne 0 ] ; then
+	popd
+	echo "Task $TASK_ID is not waiting for user actions"
+	exit 1
+    fi
+
+    popd
+}

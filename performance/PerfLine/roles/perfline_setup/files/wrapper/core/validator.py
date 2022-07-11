@@ -282,8 +282,18 @@ def get_schema_motr():
                                     }
                                 }
                             }
-                }]
-			}
+                },
+                          {
+                            'schema': {
+                                'user_action': {
+                                    'type': 'dict',
+                                    'schema': {
+                                        'cmd': {'type': 'string', 'required': True, 'regex': '^(wait|exit)$'}
+                                    }
+                                }
+                            }
+                          }]
+	     }
         },
         'post_exec_cmds': {
             'type': 'list',

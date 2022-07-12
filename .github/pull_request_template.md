@@ -13,6 +13,7 @@ Describe the feature and tasks you have accomplished in this Pull Request. Also 
 
 -   [ ] Coding conventions are followed and code is consistent
 -   [ ] No new Codacy Issues are added
+-   [ ] Version is updated in the respective VERSION file, format - `<tool>_v<major>.<minor>.<patch>`
 
 ## Documentation
 

@@ -26,11 +26,11 @@
       <v-expansion-panel-content>
         <div>
           <h4>Run ID: {{ run_id }}</h4>
-          <h4 style="display: inline">User:</h4>
+          <h4 style="display: inline">User: </h4>
           <p style="display: inline">{{ configData.User }}</p>
           <div>
             <h4 style="display: inline">
-              Nodes ({{ configData.Count_of_Servers }}):
+              Nodes ({{ configData.Nodes_Count }}):
             </h4>
             <p style="display: inline" v-if="configData && configData.Nodes">
               {{ configData.Nodes.join(", ") }}
@@ -38,15 +38,15 @@
           </div>
           <div>
             <h4 style="display: inline">
-              Clients ({{ configData.Count_of_Clients }}):
+              Clients ({{ configData.Clients_Count }}):
             </h4>
             <p style="display: inline" v-if="configData && configData.Clients">
               {{ configData.Clients.join(", ") }}
             </p>
           </div>
           <div>
-            <h4 style="display: inline">Cluster Fill:</h4>
-            <p style="display: inline">{{ configData.Percentage_full }}%</p>
+            <h4 style="display: inline">Cluster Fill: </h4>
+            <p style="display: inline">{{ configData.Cluster_Fill }}%</p>
           </div>
         </div>
 

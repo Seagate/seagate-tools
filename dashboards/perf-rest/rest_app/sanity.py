@@ -264,7 +264,7 @@ class highConcurrencyData(Resource):
                     results['value'][key], results['baseline'].get(key, 0)) for key in results['value']
             }
         else:
-            results["difference"] = {
+            results["deviation"] = {
                 key: "NA" for key in results['value']
             }
 

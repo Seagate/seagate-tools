@@ -1,4 +1,5 @@
-# Seagate-tools: PerfRest
+#!/usr/bin/env python3
+#
 # Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,26 +17,8 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 #
 # -*- coding: utf-8 -*-
+"""Setup file for Perf-Rest."""
 
-MongoDB:
-  db_hostname:
-  db_name:
-  results_collection: results_2
+from setuptools import setup, find_packages
 
-Sanity:
-  database:
-    results: sanity_results
-    config: sanity_config
-    run_details: sanity_run_details
-
-  workload:
-    primary:
-      object_sizes: ["256KB", "16MB", "128MB"]
-      sessions: 30
-    secondary:
-      object_sizes: "128MB"
-      sessions: 45
-
-Authentication:
-  db_username:
-  db_password:
+setup(name='Perf-Rest', version='0.1.1', packages=find_packages())

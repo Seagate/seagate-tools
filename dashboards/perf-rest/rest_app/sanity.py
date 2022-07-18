@@ -61,7 +61,7 @@ def extract_performance_routine(json_data, metrix):
     results = {"write": deepcopy(schemas.results_format),
                "read": deepcopy(schemas.results_format)}
 
-    _, record_id = sanityapi.get_baseline_index(uri)
+    _, record_id = sanityapi.get_baseline_index(uri, json_data["run_id"])
 
     for obj in read_config.sanity_obj_sizes:
         value_query = {"run_ID": json_data["run_id"],
@@ -236,7 +236,7 @@ class highConcurrencyData(Resource):
 
         results = deepcopy(schemas.results_format)
 
-        _, record_id = sanityapi.get_baseline_index(uri)
+        _, record_id = sanityapi.get_baseline_index(uri, request_runid)
 
         value_query = {"run_ID": json_data["run_id"],
                        "Sessions": read_config.sanity_high_conc_sessions,

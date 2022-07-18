@@ -32,20 +32,22 @@ def get_run_id(uri, query):
         return None
 
 
-def get_run_results_from_id(uri, run_id):
+def get_infra_from_runid(uri, run_id):
     """Get run results data based on run ID."""
-    query_results = mongodbapi.find_documents({"run_id": run_id}, None, uri,
-                                              read_config.db_name, read_config.sanity_run_details)
-    if query_results[0]:
-        return query_results[1][0]
-    else:
-        return None
+    query_results = mongodbapi.get_highest_value_document({"run_ID": run_id},"Baseline", None, uri,
+                                              read_config.db_name, read_config.sanity_config)
+    if query_results[0] and "HW" in query_results[1][0]["Custom_Label"].upper():
+        return "HW"
+
+    return "VM"
 
 
-def get_baseline_index(uri):
+def get_baseline_index(uri, run_id):
     """Get Baseline index of latest baseline in database."""
-    query_results = mongodbapi.get_highest_value_document(
-        {}, "Baseline", None, uri, read_config.db_name, read_config.sanity_config)
+    infra = get_infra_from_runid(uri, run_id)
+
+    query_results = mongodbapi.get_highest_value_document({"Custom_Label": infra},
+        "Baseline", None, uri, read_config.db_name, read_config.sanity_config)
     if query_results[0]:
         return query_results[1][0]["Baseline"], query_results[1][0]["_id"]
     else:
@@ -109,7 +111,6 @@ def get_all_metrics_data(**kwargs):
         query_results = mongodbapi.find_documents(kwargs["query"], None, kwargs["uri"],
                                                   read_config.db_name, read_config.sanity_results)
 
-        print(query_results[1][0])
         _temp["Write Throughput"] = round(query_results[1][0]["Throughput"], 3)
         _temp["Write IOPS"] = round(query_results[1][0]["IOPS"], 3)
         _temp["Write Latency"] = round(

@@ -27,6 +27,8 @@
 
  - include: prepare_setup.yml
 
+ - include: read_docker.yml
+
  - name: Compressing directory files/PerfProBenchmark into files/PerfProBenchmark.tar.gz
    archive:
      path: "{{ role_path }}/files/PerfProBenchmark"

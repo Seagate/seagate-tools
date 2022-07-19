@@ -57,7 +57,6 @@ overwrite = configs_config.get('OVERWRITE')
 custom = configs_config.get('CUSTOM')
 nodes_num = len(nodes_list)
 clients_num = len(clients_list)
-docker_info = configs_config.get('DOCKER_INFO')
 
 
 def makeconnection():  # function for making connection with database
@@ -76,8 +75,7 @@ def get_release_info(variable):
     Function to get the release info from the Docker image.
     It returns the value for the variable which is required by the script.
     '''
-    release_info = os.popen('docker run --rm -it ' +
-                            docker_info + ' cat /opt/seagate/cortx/RELEASE.INFO')
+    release_info = os.popen('cat /root/PerfProBenchmark/RELEASE.INFO')
     lines = release_info.readlines()
     for line in lines:
         if variable in line:

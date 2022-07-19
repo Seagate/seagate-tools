@@ -55,7 +55,6 @@ clients_list = configs_config.get('CLIENTS')
 pc_full = configs_config.get('PC_FULL')
 overwrite = configs_config.get('OVERWRITE')
 custom = configs_config.get('CUSTOM')
-docker_info = configs_config.get('DOCKER_INFO')
 nodes_num = len(nodes_list)
 clients_num = len(clients_list)
 
@@ -76,8 +75,7 @@ It returns the value for the variable which is required by the script.
 
 
 def get_release_info(variable):
-    release_info = os.popen('docker run --rm -it ' +
-                            docker_info + ' cat /opt/seagate/cortx/RELEASE.INFO')
+    release_info = os.popen('cat /root/PerfProBenchmark/RELEASE.INFO')
     lines = release_info.readlines()
     for line in lines:
         if variable in line:

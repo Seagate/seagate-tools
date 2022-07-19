@@ -50,7 +50,6 @@ configs_config = makeconfig(Config_path)
 
 ''' Configuration variables to be used in the script '''
 build_info = configs_config.get('BUILD_INFO')
-docker_info = configs_config.get('DOCKER_INFO')
 nodes_list = configs_config.get('NODES')
 clients_list = configs_config.get('CLIENTS')
 pc_full = configs_config.get('PC_FULL')
@@ -75,8 +74,7 @@ def get_release_info(variable):
     Function to get the release info from the Docker image.
     It returns the value for the variable which is required by the script.
     '''
-    release_info = os.popen('docker run --rm -it ' +
-                            docker_info + ' cat /opt/seagate/cortx/RELEASE.INFO')
+    release_info = os.popen('cat /root/PerfProBenchmark/RELEASE.INFO')
     lines = release_info.readlines()
     for line in lines:
         if variable in line:

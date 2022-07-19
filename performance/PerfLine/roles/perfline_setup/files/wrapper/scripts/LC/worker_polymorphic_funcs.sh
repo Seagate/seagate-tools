@@ -589,18 +589,14 @@ function m0crate_workload()
     local m0crate_params=$@
     START_TIME=$(date +%s000000000)
 
-    local pids=""
+    mkdir "$M0CRATE_ARTIFACTS_DIR"
+    pushd "$M0CRATE_ARTIFACTS_DIR"
+    local hostname_short=$(echo "$PRIMARY_NODE" | awk -F '.' '{print $1}')
+    ssh "$PRIMARY_NODE" "$SCRIPT_DIR/$CLUSTER_TYPE/run_m0crate $iteration $hostname_short $m0crate_params"
+    sleep 10
+    scp -r "$PRIMARY_NODE":/tmp/m0crate/* "$(pwd)"
 
-    for srv in $(echo "$NODES" | tr ',' ' '); do
-        local hostname_short=$(echo "$srv" | awk -F '.' '{print $1}')
-        ssh "$PRIMARY_NODE" "$SCRIPT_DIR/$CLUSTER_TYPE/run_m0crate $iteration $hostname_short $m0crate_params" &
-        pids="$pids $!"
-    done
-
-    wait "$pids"
-
-    # STATUS=$?
-
+    popd
     STATUS=0 #TODO: fix it
 
     STOP_TIME=$(date +%s000000000)

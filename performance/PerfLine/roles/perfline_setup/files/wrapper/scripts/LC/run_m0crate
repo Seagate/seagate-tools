@@ -25,30 +25,32 @@ set -e
 SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 
+source "$SCRIPT_DIR/../../../perfline.conf"
+
 SOLUTION_CONFIG="$CORTX_K8S_REPO/k8_cortx_cloud/solution.yaml"
 NAMESPACE=$(cat "$SOLUTION_CONFIG" | grep "namespace" | awk '{ print $2}')
 
+CONTAINER="cortx-hax"
+MOTR_CLIENT="cortx-motr-client-001"
+
 _get_cluster_params() {
     local hostname="$1"
-    data_pod=$(kubectl get pods -n "$NAMESPACE" -o wide | grep "${hostname}-" | grep cortx-data | awk '{print $1}')
-    client_pod=$(kubectl get pods -n "$NAMESPACE" -o wide | grep "${hostname}-" | grep cortx-client | awk '{print $1}')
-    CONTAINER=$(kubectl get pods -n "$NAMESPACE" "$data_pod" -o jsonpath='{.spec.containers[*].name}' | tr ' ' '\n' | grep cortx-hax)
-    HCTL_STATUS=$(kubectl exec -n "$NAMESPACE" -it "$data_pod" -c "$CONTAINER" -- hctl status)
+    CLIENT_POD=$(kubectl get pods -n "$NAMESPACE" | grep "$hostname" | grep cortx-client | awk '{print $1}')
 
-    HAX_IP_EXT=$(echo "$HCTL_STATUS" \
-         | grep "$hostname" | grep cortx-client | grep hax |awk '{print $4}'| tr -d ' ' | tr -d '\r')
+    HCTL_STATUS=$(kubectl exec -n "$NAMESPACE" -it "$CLIENT_POD" -c "$CONTAINER" -- hctl status)
 
-    APP_IP_EXT=$(echo "$HCTL_STATUS" | grep "$hostname" | grep motr_client \
+    HAX_IP_EXT=$(echo "$HCTL_STATUS" | grep "$hostname" | grep cortx-client \
+         | grep hax | awk '{print $4}'| tr -d ' ' | tr -d '\r')
+
+    MOTR_LOCAL_ADDR_EXT=$(echo "$HCTL_STATUS" | grep "$hostname" | grep motr_client \
          | sed -E "s/:[0-9]+$/:/" |  awk '{print $4}' | head -1 | tr -d ' ' | tr -d '\r')
-
-    CONFD_IP_EXT=$(echo "$HCTL_STATUS" \
-         | grep "$hostname" | grep confd |awk '{print $4}'| tr -d ' ' | tr -d '\r')
 
     CLUSTER_PROFILE=$(echo "$HCTL_STATUS" \
          | grep 'Profile_the_pool' | awk '{ print $1}' | tr -d '\r')
 
     MOTR_PORTS=$(echo "$HCTL_STATUS" | grep "$hostname" | grep motr_client | grep -E 'unknown|offline' \
         | awk '{print $4}' | awk -F@ '{print $NF}' | head -1 | tr -d '\r')
+
 }
 
 _iter_m0crate_params() {
@@ -66,7 +68,6 @@ _iter_m0crate_params() {
 }
 
 _set_default_m0crate_params() {
-    MOTR_CONFD_ADDR=$CONFD_IP_EXT
     MOTR_HA_ADDR=$HAX_IP_EXT
     PROF=$CLUSTER_PROFILE
 
@@ -102,7 +103,7 @@ _set_m0crate_config_file_params() {
 }
 
 prepare_and_run() {
-
+    local TMP_M0CRATE_DIR="/tmp/m0crate"
     local iteration="$1"
     shift
 
@@ -111,30 +112,31 @@ prepare_and_run() {
 
     local src_data_file="/tmp/128M"
     _get_cluster_params "$hostname"
-    kubectl exec -n "$NAMESPACE" -it "$client_pod" -- rm -f $src_data_file
-    kubectl exec -n "$NAMESPACE" -it "$client_pod" -- dd if=/dev/urandom of="$src_data_file" bs=1M count=128 &> /dev/null
+    kubectl exec -n "$NAMESPACE" -it "$CLIENT_POD" -c $MOTR_CLIENT -- rm -f $src_data_file
+    kubectl exec -n "$NAMESPACE" -it "$CLIENT_POD" -c $MOTR_CLIENT -- dd if=/dev/urandom of="$src_data_file" bs=1M count=128 &> /dev/null
     _set_default_m0crate_params
     _parse_m0crate_params "$@"
 
     logfile="m0crate.$iteration.$MOTR_PORTS.$hostname.log"
-    MOTR_LOCAL_ADDR_EXT=${APP_IP_EXT}
-    PROCESS_FID=$(echo "$HCTL_STATUS" | grep motr_client \
-            | grep "${MOTR_LOCAL_ADDR_EXT}" | awk '{print $3}')
 
-    local m0crate_conf="$(pwd)/test_io.$iteration.$MOTR_PORTS.$hostname.yaml"
+    PROCESS_FID=$(echo "$HCTL_STATUS" | grep "${MOTR_LOCAL_ADDR_EXT}" | awk '{print $3}')
+
+    rm -rf "$TMP_M0CRATE_DIR"
+    mkdir "$TMP_M0CRATE_DIR"
+    local m0crate_conf="$TMP_M0CRATE_DIR/test_io.$iteration.$MOTR_PORTS.$hostname.yaml"
     cp "$SCRIPT_DIR"/../test_io.yaml.template "$m0crate_conf"
     _set_m0crate_config_file_params "$m0crate_conf" > "$logfile"
     echo "$m0crate_conf"
 
     # create directory for m0crate
     # TODO check if /share/var/log/cortx exists
-    local machine_id=$(kubectl exec -n "$NAMESPACE" "$client_pod" -- bash -c 'cat /etc/machine-id')
+    local machine_id=$(kubectl exec -n "$NAMESPACE" "$CLIENT_POD" -- bash -c 'cat /etc/machine-id')
     local m0crate_dir="/share/var/log/cortx/m0crate/$iteration/$machine_id/m0crate-$PROCESS_FID"
-    kubectl exec -n "$NAMESPACE" "$client_pod" -- bash -c "mkdir -p $m0crate_dir"
+    kubectl exec -n "$NAMESPACE" "$CLIENT_POD" -c $MOTR_CLIENT -- bash -c "mkdir -p $m0crate_dir"
 
-    kubectl cp "$m0crate_conf" "$client_pod":"$m0crate_dir"/test_io."$iteration"."$MOTR_PORTS"."$hostname".yaml
-    kubectl exec -n "$NAMESPACE" "$client_pod" -- bash -c "cd $m0crate_dir && m0crate -S test_io.$iteration.$MOTR_PORTS.$hostname.yaml &>> $logfile"
+    kubectl -n "$NAMESPACE" -c $MOTR_CLIENT cp "$m0crate_conf" "$CLIENT_POD":"$m0crate_dir"/test_io."$iteration"."$MOTR_PORTS"."$hostname".yaml
+    kubectl exec -n "$NAMESPACE" "$CLIENT_POD" -c $MOTR_CLIENT -- bash -c "cd $m0crate_dir && m0crate -S test_io.$iteration.$MOTR_PORTS.$hostname.yaml" 2>&1 | tee "$TMP_M0CRATE_DIR/$logfile"
+
 }
 
 prepare_and_run "$@"
-

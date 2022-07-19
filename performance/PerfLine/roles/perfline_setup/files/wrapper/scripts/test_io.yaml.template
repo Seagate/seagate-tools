@@ -23,7 +23,6 @@ CrateConfig_Sections: [MOTR_CONFIG, WORKLOAD_SPEC]
 
 MOTR_CONFIG:
    MOTR_LOCAL_ADDR:  ###__MOTR_LOCAL_ADDR_EXT__###
-   MOTR_CONFD_ADDR:  ###__MOTR_CONFD_ADDR__###
    MOTR_HA_ADDR:     ###__MOTR_HA_ADDR__###
    PROF: <###__PROF__###>  # Profile
    LAYOUT_ID: ###__LAYOUT_ID=1__###   # Defines the UNIT_SIZE

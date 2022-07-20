@@ -77,7 +77,7 @@ import json
 
 DB      = SqliteDatabase(None)
 BLOCK   = 32<<10
-DBBATCH = 777
+DBBATCH = 50
 PID     = 0
 
 def die(what: str):

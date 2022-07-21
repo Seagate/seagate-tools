@@ -13,7 +13,6 @@
 # please email opensource@seagate.com or cortx-questions@seagate.com.
 
 name: DCO Check
-
 on: [pull_request]
 
 jobs:

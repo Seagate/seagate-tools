@@ -20,15 +20,31 @@
 ---
  - name: Install latest docker
    shell: yum install -y docker
+   delegate_to: "clientnode-1"
 
  - name : Start docker services and pull docker image
    shell: |
     systemctl start docker
     docker pull {{ DOCKER_INFO }}
+   delegate_to: "clientnode-1"
 
  - name: Collect informartions from RELEASE.INFO
-   shell: docker run {{ DOCKER_INFO }} cat /opt/seagate/cortx/RELEASE.INFO > {{ playbook_dir }}/roles/benchmark/files/PerfProBenchmark/RELEASE.INFO
+   shell: docker run {{ DOCKER_INFO }} cat /opt/seagate/cortx/RELEASE.INFO > /root/PerfProBenchmark/RELEASE.INFO
+   delegate_to: "clientnode-1"
+
+ - name: Copy RELEASE.INFO to Nodes.
+   command: scp -r /root/PerfProBenchmark/RELEASE.INFO  {{ hostvars[item]['ansible_host'] }}:/root/PerfProBenchmark/RELEASE.INFO 
+   delegate_to: "clientnode-1"
+   loop: "{{ groups['nodes'] }}"
+   when: SYSTEM_STATS
+
+ - name: Copy RELEASE.INFO to remaining clients.
+   command: scp -r /root/PerfProBenchmark/RELEASE.INFO  {{ hostvars[item]['ansible_host'] }}:/root/PerfProBenchmark/RELEASE.INFO
+   delegate_to: "clientnode-1"
+   loop: "{{ groups['clients'] }}"
+   when: item != "clientnode-1"
 
  - name: Remove docker image
    shell: docker image rm {{ DOCKER_INFO }} --force
+   delegate_to: "clientnode-1"
 

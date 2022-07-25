@@ -27,8 +27,6 @@
 
  - include: prepare_setup.yml
 
- - include: read_docker.yml
-
  - name: Compressing directory files/PerfProBenchmark into files/PerfProBenchmark.tar.gz
    archive:
      path: "{{ role_path }}/files/PerfProBenchmark"
@@ -95,6 +93,8 @@
    delegate_to: "{{ item }}"
    with_items: "{{ groups['nodes'] }}"
    when: SYSTEM_STATS
+
+ - include: read_docker.yml
 
  - include: update_main_config.yml
    when: EXECUTION_TYPE == "sanity"

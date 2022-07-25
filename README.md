@@ -12,21 +12,21 @@ Seagate-tools is a common repository of tools developed in-house by the Seagate 
 
 ### Cortx-Companion
 
-[Cortx-companion](https://github.com/Seagate/seagate-tools/blob/main/dashboards/cortx-companion/readme.md) includes Performance tabs that summarize Benchmark results of all Performance testbed, H/W, custom runs with a wide range of filters. Moreover, the Performance graphs tab facilitates the comparison of any run data with any previous Perf results. Along with, QA tabs that brief executive and engineering summary of a build tested by CFT.
+[Cortx-companion](https://github.com/Seagate/seagate-tools/blob/main/dashboards/cortx-companion/README.md) includes Performance tabs that summarize Benchmark results of all Performance testbed, H/W, custom runs with a wide range of filters. Moreover, the Performance graphs tab facilitates the comparison of any run data with any previous Perf results. Along with, QA tabs that brief executive and engineering summary of a build tested by CFT.
 
 ### Perf-Rest
 
-[Perf-Rest](https://github.com/Seagate/seagate-tools/blob/main/dashboards/perf-rest/readme.md) is a REST API providing Performance endpoints for accessing performance metrics, Sanity Data, and endpoints needed for SuperPerf.
+[Perf-Rest](https://github.com/Seagate/seagate-tools/blob/main/dashboards/perf-rest/README.md) is a REST API providing Performance endpoints for accessing performance metrics, Sanity Data, and endpoints needed for SuperPerf.
 
 ### SuperPerf
 
-[SuperPerf](https://github.com/Seagate/seagate-tools/blob/main/dashboards/superperf/readme.md) is a superset of all performance tools. It consists of the source code of Perf-Sanity, to begin with. Perf-Sanity is a Jenkins-based Perf CI/CD that captures performance results for various kinds of builds.
+[SuperPerf](https://github.com/Seagate/seagate-tools/blob/main/dashboards/superperf/README.md) is a superset of all performance tools. It consists of the source code of Perf-Sanity, to begin with. Perf-Sanity is a Jenkins-based Perf CI/CD that captures performance results for various kinds of builds.
 
 > Performance section holds source code for Performance benchmarking and I/O profiling. It includes:
 
 ### PerfLine
 
-[PerfLine](https://github.com/Seagate/seagate-tools/blob/main/performance/PerfLine/readme.md) is primarily a cortx Profiler. It has extended capabilities of running different benchmarks and microbenchmarks and other custom workloads in a multi-user shared environment.
+[PerfLine](https://github.com/Seagate/seagate-tools/blob/main/performance/PerfLine/README.md) is primarily a cortx Profiler. It has extended capabilities of running different benchmarks and microbenchmarks and other custom workloads in a multi-user shared environment.
 
 There are three parts:
 
@@ -36,4 +36,4 @@ There are three parts:
 
 ### PerfPro
 
-[PerfPro](https://github.com/Seagate/seagate-tools/blob/main/performance/PerfPro/readme.md) is an ansible orchestrated End-to-End Performance test harness that starts with configuring clients and ends at updating Performance stats into MongoDB that further enables statistical and comparative analysis. It validates and installs the benchmark tools if not present on the client node. Moreover, it runs Performance benchmarks with pre-defined parameters by collecting the S3 performance metrics viz throughput, latency, IOPS, TTFB, etc.
+[PerfPro](https://github.com/Seagate/seagate-tools/blob/main/performance/PerfPro/README.md) is an ansible orchestrated End-to-End Performance test harness that starts with configuring clients and ends at updating Performance stats into MongoDB that further enables statistical and comparative analysis. It validates and installs the benchmark tools if not present on the client node. Moreover, it runs Performance benchmarks with pre-defined parameters by collecting the S3 performance metrics viz throughput, latency, IOPS, TTFB, etc.

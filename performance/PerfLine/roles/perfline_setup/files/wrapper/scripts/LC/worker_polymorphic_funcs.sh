@@ -583,6 +583,9 @@ function collect_artifacts() {
 
 function m0crate_workload()
 {
+    local m0crate_type=$1
+    shift
+
     local iteration=$1
     shift
 
@@ -592,7 +595,7 @@ function m0crate_workload()
     mkdir "$M0CRATE_ARTIFACTS_DIR"
     pushd "$M0CRATE_ARTIFACTS_DIR"
     local hostname_short=$(echo "$PRIMARY_NODE" | awk -F '.' '{print $1}')
-    ssh "$PRIMARY_NODE" "$SCRIPT_DIR/$CLUSTER_TYPE/run_m0crate $iteration $hostname_short $m0crate_params"
+    ssh "$PRIMARY_NODE" "$SCRIPT_DIR/$CLUSTER_TYPE/run_m0crate $m0crate_type $iteration $hostname_short $m0crate_params"
     sleep 10
     scp -r "$PRIMARY_NODE":/tmp/m0crate/* "$(pwd)"
 

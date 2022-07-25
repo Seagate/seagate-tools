@@ -308,8 +308,9 @@ def parse_report_info(report_dir):
             workload_filenames.extend(m0crate_logs)
 
             for f in m0crate_logs:
-                m0crate_log_path = join(dir_path, f)
-                m0crate_rw_stats[f] = m0crate_log_parser.parse_m0crate_log(m0crate_log_path)
+                if "io" in f:
+                    m0crate_log_path = join(dir_path, f)
+                    m0crate_rw_stats[f] = m0crate_log_parser.parse_m0crate_log(m0crate_log_path)
 
     return m0crate_rw_stats, workload_filenames, iperf_rw_stat, csv_report_content
 

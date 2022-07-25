@@ -68,11 +68,25 @@ def parse_options(conf, result_dir):
             options.append(s3bench_params)
 
         elif 'm0crate' in b:
-            options.append('--m0crate')
+            options.append('--m0crate-io')
             params_str = ''
             for param_name, param_val in b['m0crate'].items():
                 params_str += "{}={} ".format(param_name, param_val)
-            options.append('--m0crate-params')
+            options.append('--m0crate-io-params')
+            options.append(params_str)
+        elif 'm0crate_io' in b:
+            options.append('--m0crate-io')
+            params_str = ''
+            for param_name, param_val in b['m0crate_io'].items():
+                params_str += "{}={} ".format(param_name, param_val)
+            options.append('--m0crate-io-params')
+            options.append(params_str)
+        elif 'm0crate_kv' in b:
+            options.append('--m0crate-kv')
+            params_str = ''
+            for param_name, param_val in b['m0crate_kv'].items():
+                params_str += "{}={} ".format(param_name, param_val)
+            options.append('--m0crate-kv-params')
             options.append(params_str)
 
     # Execution options:

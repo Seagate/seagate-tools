@@ -1,0 +1,60 @@
+#
+#
+# Copyright (c) 2022 Seagate Technology LLC and/or its Affiliates
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# For any questions about this software or licensing,
+# please email opensource@seagate.com or cortx-questions@seagate.com.
+#
+# -*- coding: utf-8 -*-
+
+CrateConfig_Sections: [MOTR_CONFIG, WORKLOAD_SPEC]
+
+
+MOTR_CONFIG:
+   MOTR_LOCAL_ADDR:  ###__MOTR_LOCAL_ADDR_EXT__###
+   MOTR_HA_ADDR:     ###__MOTR_HA_ADDR__###
+   PROF: <###__PROF__###>  # Profile
+   LAYOUT_ID: ###__LAYOUT_ID=1__###   # Defines the UNIT_SIZE
+   IS_OOSTORE: 1                    # Is oostore-mode?
+   IS_READ_VERIFY: 0                # Enable read-verify?
+   TM_RECV_QUEUE_MIN_LEN: ###__TM_RECV_QUEUE_MIN_LEN=16__### # Minimum length of the receive queue
+   M0_MAX_RPC_MSG_SIZE: ###__M0_MAX_RPC_MSG_SIZE=65536__###   # Maximum rpc message size
+   PROCESS_FID: <###__PROCESS_FID__###>
+   IDX_SERVICE_ID: 1
+   ADDB_INIT: 1                     # (1) init addb stob on client side
+
+
+LOG_LEVEL: 4  # err(0), warn(1), info(2), trace(3), debug(4)
+
+WORKLOAD_SPEC:                                    # Workload specification section
+   WORKLOAD:                                      # First Workload
+      WORKLOAD_TYPE: 0                            # Index(0), IO(1)
+      WORKLOAD_SEED: tstamp                       # SEED to the random number generator
+      WARMUP_PUT_CNT: ###__WARMUP_PUT_CNT=0__###  # Number of PUT operations in warmup stage or
+                                                  # as "all" meaning to fill all keys in the index
+      WARMUP_DEL_RATIO: ###__WARMUP_DEL_RATIO=0__###        # Ration of keys to be deleted in warmup
+      NUM_KVP: ###__NUM_KVP=1__###                # Number of key/value records for index ops
+      RECORD_SIZE: ###__RECORD_SIZE=64__###       # Size of an key/value record (int [K, M] or random)
+      MAX_RSIZE: ###__MAX_RSIZE=1M__###           # Maximum record size (int [K, M])
+      OP_COUNT: ###__OP_COUNT=10__###             # Total operation count (int [K, M] or
+                                                  # unlimited = (2 ** 31 - 1) / (128 * NUM_KVP)
+      EXEC_TIME: ###__EXEC_TIME=unlimited__###    # Execution time (secs or "unlimited").
+      KEY_PREFIX: ###__KEY_PREFIX=random__###     # Prefix defined for keys (a number of "random")
+      KEY_ORDER: ###__KEY_ORDER=ordered__###               # ordered or random
+      INDEX_FID: <###__INDEX_FID=7800000000000001:0__###>  # fid
+      PUT: ###__PUT=100__###                    # Percentages of PUT, DEL, GET and NEXT ops
+      DEL: ###__DEL=0__###
+      GET: ###__GET=0__###
+      NEXT: ###__NEXT=0__###
+

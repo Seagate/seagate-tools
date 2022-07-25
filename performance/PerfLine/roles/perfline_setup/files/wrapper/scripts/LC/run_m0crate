@@ -54,7 +54,7 @@ _get_cluster_params() {
 }
 
 _iter_m0crate_params() {
-    local all_params=$(cat "${SCRIPT_DIR}"/../test_io.yaml.template \
+    local all_params=$(cat "${SCRIPT_DIR}"/../test_"${m0crate_type}".yaml.template \
        | grep -P -o "###__.+=.+__###"                \
        | sed -E "s/###__(.*=.*)__###/\1/g")
 
@@ -84,8 +84,9 @@ _parse_m0crate_params() {
 
 _set_m0crate_config_file_params() {
     local config_file=$1
+    shift
 
-    local all_params=$(cat "${SCRIPT_DIR}"/../test_io.yaml.template        \
+    local all_params=$(cat "${SCRIPT_DIR}"/../test_"${m0crate_type}".yaml.template        \
                | grep -P -o "###__.+__###"                          \
                | sed -E "s/###__([^=]*?)={0,1}(.*?){0,1}__###/\1/")
 
@@ -104,6 +105,10 @@ _set_m0crate_config_file_params() {
 
 prepare_and_run() {
     local TMP_M0CRATE_DIR="/tmp/m0crate"
+
+    m0crate_type="$1"
+    shift
+
     local iteration="$1"
     shift
 
@@ -117,14 +122,14 @@ prepare_and_run() {
     _set_default_m0crate_params
     _parse_m0crate_params "$@"
 
-    logfile="m0crate.$iteration.$MOTR_PORTS.$hostname.log"
+    logfile="m0crate-$m0crate_type.$iteration.$MOTR_PORTS.$hostname.log"
 
     PROCESS_FID=$(echo "$HCTL_STATUS" | grep "${MOTR_LOCAL_ADDR_EXT}" | awk '{print $3}')
 
     rm -rf "$TMP_M0CRATE_DIR"
     mkdir "$TMP_M0CRATE_DIR"
-    local m0crate_conf="$TMP_M0CRATE_DIR/test_io.$iteration.$MOTR_PORTS.$hostname.yaml"
-    cp "$SCRIPT_DIR"/../test_io.yaml.template "$m0crate_conf"
+    local m0crate_conf="$TMP_M0CRATE_DIR/test_$m0crate_type.$iteration.$MOTR_PORTS.$hostname.yaml"
+    cp "$SCRIPT_DIR"/../test_"${m0crate_type}".yaml.template "$m0crate_conf"
     _set_m0crate_config_file_params "$m0crate_conf" > "$logfile"
     echo "$m0crate_conf"
 
@@ -134,8 +139,8 @@ prepare_and_run() {
     local m0crate_dir="/share/var/log/cortx/m0crate/$iteration/$machine_id/m0crate-$PROCESS_FID"
     kubectl exec -n "$NAMESPACE" "$CLIENT_POD" -c $MOTR_CLIENT -- bash -c "mkdir -p $m0crate_dir"
 
-    kubectl -n "$NAMESPACE" -c $MOTR_CLIENT cp "$m0crate_conf" "$CLIENT_POD":"$m0crate_dir"/test_io."$iteration"."$MOTR_PORTS"."$hostname".yaml
-    kubectl exec -n "$NAMESPACE" "$CLIENT_POD" -c $MOTR_CLIENT -- bash -c "cd $m0crate_dir && m0crate -S test_io.$iteration.$MOTR_PORTS.$hostname.yaml" 2>&1 | tee "$TMP_M0CRATE_DIR/$logfile"
+    kubectl -n "$NAMESPACE" -c $MOTR_CLIENT cp "$m0crate_conf" "$CLIENT_POD":"$m0crate_dir"/test_"$m0crate_type"."$iteration"."$MOTR_PORTS"."$hostname".yaml
+    kubectl exec -n "$NAMESPACE" "$CLIENT_POD" -c $MOTR_CLIENT -- bash -c "cd $m0crate_dir && m0crate -S test_$m0crate_type.$iteration.$MOTR_PORTS.$hostname.yaml" 2>&1 | tee "$TMP_M0CRATE_DIR/$logfile"
 
 }
 

@@ -283,7 +283,51 @@ def get_schema_motr():
                                 }
                             }
                 },
-                          {
+                {
+                            'schema': {
+                                'm0crate_io': {
+                                    'type': 'dict',
+                                    'schema': {
+                                        'NR_INSTANCES_PER_NODE': {'type': 'integer', 'required': False},
+                                        'LAYOUT_ID': {'type': 'integer', 'required': False},
+                                        'OPCODE': {'type': 'integer', 'required': False},
+                                        'IOSIZE': {'type': 'string', 'required': False, 'empty': False},
+                                        'BLOCK_SIZE': {'type': 'string', 'required': False, 'empty': False},
+                                        'BLOCKS_PER_OP': {'type': 'integer', 'required': False},
+                                        'MAX_NR_OPS': {'type': 'integer', 'required': False},
+                                        'NR_OBJS': {'type': 'integer', 'required': False},
+                                        'NR_THREADS': {'type': 'integer', 'required': False},
+                                        'RAND_IO': {'type': 'integer', 'required': False},
+                                        'MODE': {'type': 'integer', 'required': False},
+                                        'THREAD_OPS': {'type': 'string', 'required': False, 'empty': False},
+                                    }
+                                }
+                            }
+                },
+                {
+                            'schema': {
+                                'm0crate_kv': {
+                                    'type': 'dict',
+                                    'schema': {
+                                        'WARMUP_PUT_CNT': {'type': 'integer', 'required': False},
+                                        'WARMUP_DEL_RATIO': {'type': 'integer', 'required': False},
+                                        'NUM_KVP': {'type': 'integer', 'required': False, 'empty': False},
+                                        'RECORD_SIZE': {'type': 'integer', 'required': False, 'empty': False},
+                                        'MAX_RSIZE': {'type': 'string', 'required': False, 'empty': False, 'regex': '(^\d+((M$)|(K$)))'},
+                                        'OP_COUNT': {'type': 'integer', 'required': False, 'empty': False},
+                                        'EXEC_TIME': {'type': 'string', 'required': False, 'default': 'unlimited'},
+                                        'KEY_PREFIX': {'type': 'string', 'required': False, 'default': 'random'},
+                                        'KEY_ORDER': {'type': 'string', 'required': False, 'default': 'ordered'},
+                                        'INDEX_FID': {'type': 'string', 'required': False, 'default': '7800000000000001:0'},
+                                        'PUT': {'type': 'integer', 'required': False, 'default': 100},
+                                        'DEL': {'type': 'integer', 'required': False},
+                                        'GET': {'type': 'integer', 'required': False, 'default': 100},
+                                        'NEXT': {'type': 'integer', 'required': False},
+                                    }
+                                }
+                            }
+                },
+                {
                             'schema': {
                                 'user_action': {
                                     'type': 'dict',
@@ -292,8 +336,9 @@ def get_schema_motr():
                                     }
                                 }
                             }
-                          }]
-	     }
+                }
+                ]
+	        }
         },
         'post_exec_cmds': {
             'type': 'list',

@@ -154,12 +154,15 @@ function save_perf_results() {
                 local motr_port=$(echo "$fname" | awk -F '.' '{print $2}')
                 local hostname=$(echo "$fname" | sed "s/m0crate.$motr_port.//" | sed "s/.log//")
 
-                echo "Benchmark: m0crate" >> "$PERF_RESULTS_FILE"
-                echo "Host: $hostname" >> "$PERF_RESULTS_FILE"
-                echo "Motr port: $motr_port" >> "$PERF_RESULTS_FILE"
-                "$SCRIPT_DIR"/../stat/report_generator/m0crate_log_parser.py \
-                        "$m0crate_log" >> "$PERF_RESULTS_FILE"
-                echo "" >> "$PERF_RESULTS_FILE"
+                if grep -q "io" <<< "$m0crate_log"
+                then
+                    echo "Benchmark: m0crate" >> "$PERF_RESULTS_FILE"
+                    echo "Host: $hostname" >> "$PERF_RESULTS_FILE"
+                    echo "Motr port: $motr_port" >> "$PERF_RESULTS_FILE"
+                    "$SCRIPT_DIR"/../stat/report_generator/m0crate_log_parser.py \
+                    "$m0crate_log" >> "$PERF_RESULTS_FILE"
+                    echo "" >> "$PERF_RESULTS_FILE"
+                fi
             done
         done
     fi
@@ -310,22 +313,27 @@ function perform_workloads()
                 echo "Invoke user action"
                 USER_ACTION=${workloads[${key}]}
                 user_actions
-		;;
-             "custom")
+		        ;;
+        "custom")
                 echo "Start custom workloads"
                 CUSTOM_WORKLOADS=${workloads[${key}]}
                 custom_workloads
                 ;;
-             "s3bench")
+        "s3bench")
                 echo "Start s3bench workload"
                 s3bench_workloads "${workloads[${key}]}"
                 ;;
-             "m0crate")
-                echo "Start m0crate workload (iteration $m0crate_iteration)"
-                m0crate_workload $m0crate_iteration "${workloads[${key}]}"
+        "m0crate-io")
+                echo "Start m0crate-io workload (iteration $m0crate_iteration)"
+                m0crate_workload "io" $m0crate_iteration "${workloads[${key}]}"
                 ((m0crate_iteration=m0crate_iteration+1))
                 ;;
-            *)
+        "m0crate-kv")
+                echo "Start m0crate-kv workload (iteration $m0crate_iteration)"
+                m0crate_workload "kv" $m0crate_iteration "${workloads[${key}]}"
+                ((m0crate_iteration=m0crate_iteration+1))
+                ;;
+        *)
                 echo "Default condition to be executed"
                 ;;
         esac
@@ -440,11 +448,17 @@ while [[ $# -gt 0 ]]; do
         --motr-trace)
             MOTR_TRACE="1"
             ;;
-        --m0crate)
+        --m0crate-io | --m0crate-kv)
             RUN_M0CRATE="1"
             ;;
-        --m0crate-params)
-            workload_type["$COUNT"]+="m0crate"
+        --m0crate-io-params)
+            workload_type["$COUNT"]+="m0crate-io"
+            workloads["$COUNT"]+="$2"
+            ((COUNT=COUNT+1))
+            shift
+            ;;
+        --m0crate-kv-params)
+            workload_type["$COUNT"]+="m0crate-kv"
             workloads["$COUNT"]+="$2"
             ((COUNT=COUNT+1))
             shift

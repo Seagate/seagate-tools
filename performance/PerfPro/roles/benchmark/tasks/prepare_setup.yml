@@ -65,6 +65,7 @@
        - pandas==1.0.5
        - datetime==4.3
        - yq
+       - tabulate==0.8.10
      executable: pip3
      extra_args: --ignore-installed
    delegate_to: "{{ item }}"

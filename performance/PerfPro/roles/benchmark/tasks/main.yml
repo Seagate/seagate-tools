@@ -181,7 +181,7 @@
    delegate_to: "clientnode-1"
 
  - name: Print the Summary for Sanity run.
-   shell: python3 /root/PerfProBenchmark/sanity/sanity_summary.py /root/PerfProBenchmark/sanity_results/
+   shell: python3 /root/PerfProBenchmark/s3bench/s3bench_summary.py /root/PerfProBenchmark/sanity_results/
    when: EXECUTION_TYPE == "sanity"
    delegate_to: "clientnode-1"
 
@@ -237,6 +237,18 @@
    delegate_to: "clientnode-1"
    loop: "{{ groups['clients'] }}"
    when: item != "clientnode-1"
+
+ - name: Print the Summary for S3Bench run.
+   shell: echo "{{ item }}"; python3 /root/PerfProBenchmark/s3bench/s3bench_summary.py  /root/PerfProBenchmark/perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}/{{ item }}/results/s3bench
+   when: EXECUTION_TYPE == "normal"
+   delegate_to: "clientnode-1"
+   loop: "{{ groups['clients'] }}"
+
+ - name: Print the Summary for HSBench run.
+   shell: echo "{{ item }}"; python3 /root/PerfProBenchmark/hsbench/hsbench_summary.py  /root/PerfProBenchmark/perfpro_build{{ build.stdout }}_{{ tstamp.stdout }}/{{ item }}/results/hsbench
+   when: EXECUTION_TYPE == "normal"
+   delegate_to: "clientnode-1"
+   loop: "{{ groups['clients'] }}"
 
  - name: Archiving artifacts to NFS server
    shell: |

@@ -180,6 +180,11 @@
    when: EXECUTION_TYPE == "sanity"
    delegate_to: "clientnode-1"
 
+ - name: Print the Summary for Sanity run.
+   shell: python3 /root/PerfProBenchmark/sanity/sanity_summary.py /root/PerfProBenchmark/sanity_results/
+   when: EXECUTION_TYPE == "sanity"
+   delegate_to: "clientnode-1"
+
 #Performing Degraded IO benchmarking
 
  - include: degraded_IO.yml

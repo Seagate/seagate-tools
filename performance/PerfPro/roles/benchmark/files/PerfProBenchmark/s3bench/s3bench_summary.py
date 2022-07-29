@@ -27,8 +27,8 @@ from tabulate import tabulate
 '''This script takes location of sanity results as argument'''
 sanity_results=sys.argv[1]
 
-headers=['Obj_size','Samples','Sessions','Write Tput(MB/s)','Read Tput(MB/s)','Write IOPS','Read IOPS',
-         'Write Latency(ms)','Read Latency(ms)','Read TTFB(ms)','Read TTFB(99%)(ms)','Write Errors','Read Errors']
+headers=['Obj_size','Samples','Sessions','Write Tput(MB/s)','Read Tput(MB/s)','Write IOPS',
+        'Read IOPS','Read TTFB(ms)','Read TTFB(99%)(ms)','Write Errors','Read Errors']
 
 Data=[]
 
@@ -83,18 +83,18 @@ def return_results(files):
                         write_iops = round((wrt_tpt/Objsize), 2)
                         write_throughput = round(wrt_tpt, 2)
                         write_errors=int(lines[count-2].split(":")[1].replace(",", ""))
-                        write_latency=round(float(lines[count-6].split(":")[1][:-2]),2)
+
                     elif opname == "Read":
                         count += 1
                         rd_tpt=float(lines[count+3].split(":")[1].replace(",", ""))
                         read_iops = round((rd_tpt/Objsize), 2)
                         read_throughput = round(rd_tpt, 2)
                         read_errors=int(lines[count-2].split(":")[1].replace(",", ""))
-                        read_latancy=round(float(lines[count-6].split(":")[1][:-2]),2)
                         read_ttfb=round(float(lines[count+10].split(":")[1][:-2]),2)
                         read_ttfb99p=round(float(lines[count+9].split(":")[1][:-2]),2)
+
                         file_data=[obj,Objects,sessions,write_throughput,read_throughput,write_iops,
-                                  write_latency,read_iops,read_latancy,read_ttfb,read_ttfb99p,write_errors,read_errors]
+                                  read_iops,read_ttfb,read_ttfb99p,write_errors,read_errors]
                         Data.append(file_data)
 
                         count += 9
@@ -106,4 +106,3 @@ def return_results(files):
 
 Data=return_results(files)
 print(tabulate(Data,headers=headers,tablefmt='psql'))
-

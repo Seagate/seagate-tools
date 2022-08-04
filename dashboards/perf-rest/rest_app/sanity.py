@@ -236,7 +236,7 @@ class highConcurrencyData(Resource):
 
         results = deepcopy(schemas.results_format)
 
-        _, record_id = sanityapi.get_baseline_index(uri, request_runid)
+        _, record_id = sanityapi.get_baseline_index(uri, json_data["run_id"])
 
         value_query = {"run_ID": json_data["run_id"],
                        "Sessions": read_config.sanity_high_conc_sessions,
@@ -251,7 +251,7 @@ class highConcurrencyData(Resource):
 
         if rp_status and wp_status:
             results["difference"] = {
-                key: results['value'][key] - results['baseline'].get(key, 0) for key in results['value']
+                key: round(results['value'][key] - results['baseline'].get(key, 0), 3) for key in results['value']
             }
         else:
             results["difference"] = {

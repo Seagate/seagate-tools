@@ -79,6 +79,8 @@
         - fio
         - iperf3
         - inotify-tools
+        - sqlite
+        - pdsh-rcmd-ssh
       state: present
     delegate_to: "{{ item }}"
     with_items: "{{ groups['all'] }}"

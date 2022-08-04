@@ -20,11 +20,9 @@
 ---
 # For host file update : add for more nodes/clients in environment or remove if less nodes/clients .
 NODES:  
-  - 1: node1.example.com
-  - 2: node2.example.com
-  - 3: node3.example.com
+  - 1:
 CLIENTS: 
-  - 1: client1.example.com
+  - 1:
 
 # For Build and SystemUnderTest INFO
 BUILD_INFO: RELEASE.INFO

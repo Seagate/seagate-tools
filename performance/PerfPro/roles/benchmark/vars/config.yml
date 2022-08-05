@@ -20,9 +20,9 @@
 ---
 # For host file update : add for more nodes/clients in environment or remove if less nodes/clients .
 NODES:  
-  - 1:
+  - 1: 
 CLIENTS: 
-  - 1:
+  - 1: 
 
 # For Build and SystemUnderTest INFO
 BUILD_INFO: RELEASE.INFO

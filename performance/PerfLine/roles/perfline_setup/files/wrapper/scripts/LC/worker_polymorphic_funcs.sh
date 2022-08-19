@@ -260,17 +260,8 @@ function prepare_cluster() {
     # update /etc/hosts
     local i=0
     ssh "$PRIMARY_NODE" 'sed -i "/seagate/d" /etc/hosts'
-    for node in ${NODES//,/ };
-    do
-        local ip=$(ssh "$PRIMARY_NODE" "kubectl get pods -n $NAMESPACE -o custom-columns=NAME:.metadata.name,NODE:.spec.nodeName,IP:.status.podIP | grep $node | grep $CORTX_SERVER_POD_PREFIX" | head -1 | awk '{print $3}')
-
-        ((i=i+1))
-        if [ -z "$ip" ]; then
-           echo "s3 ip detection failed"
-           exit 1
-        fi
-        ssh "$PRIMARY_NODE" "echo $ip s3node$i s3.seagate.com sts.seagate.com iam.seagate.com >> /etc/hosts"
-    done
+    S3_ENDPOINT_IP=$(ssh "$PRIMARY_NODE" ip -f inet -br addr | grep -m 2 'UP' | awk '{ print $3 }' | cut -d '/' -f1 | tail -1)
+    ssh "$PRIMARY_NODE" "echo $S3_ENDPOINT_IP s3.seagate.com sts.seagate.com iam.seagate.com >> /etc/hosts"
 
     create_s3_account
 }

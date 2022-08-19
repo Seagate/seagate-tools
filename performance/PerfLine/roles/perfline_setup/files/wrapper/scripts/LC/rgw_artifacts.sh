@@ -90,11 +90,9 @@ function save_rgw_configs() {
                     log_dir="${log_file%/*}"
                     trace_dir="$log_dir/motr_trace_files"
 
-                    # TODO: currently RGW stores addb files in the 'rgw_debug' directory.
-                    # It will be changed in the future. Once it is done below code will
-                    # be changed accordingly.
-                    addb_dir="$log_dir/rgw_debug"
-                    rgw_mapping="${srv} ${pod} ${cont} FID ${trace_dir} ${addb_dir} ${log_dir}\n${rgw_mapping}"
+                    addb_dir_name=$(ssh "$PRIMARY_NODE" "kubectl exec -n $NAMESPACE $pod -c $cont -- ls $log_dir" | grep addb_files)
+                    addb_dir_path="$log_dir/$addb_dir_name"
+                    rgw_mapping="${srv} ${pod} ${cont} FID ${trace_dir} ${addb_dir_path} ${log_dir}\n${rgw_mapping}"
                 fi
 
                 popd		# $cont

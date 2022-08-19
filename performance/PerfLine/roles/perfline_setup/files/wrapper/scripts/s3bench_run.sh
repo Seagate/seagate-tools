@@ -23,8 +23,9 @@ set -x
 SCRIPT_PATH="$(readlink -f "$0")"
 SCRIPT_DIR="${SCRIPT_PATH%/*}"
 source "$SCRIPT_DIR/../../perfline.conf"
-
-
+SOLUTION_CONFIG="$CORTX_K8S_REPO/k8_cortx_cloud/solution.yaml"
+HTTP_REQUEST=$(cat "$SOLUTION_CONFIG" | grep -m 1 -A2 "nodePorts" | grep -w "http" | awk '{ print $2 }' )
+HTTPS_REQUEST=$(cat "$SOLUTION_CONFIG" | grep -m 1 -A2 "nodePorts" | grep -w "https" | awk '{ print $2 }' )
 
 function parse_args()
 {
@@ -69,6 +70,15 @@ function parse_creds()
     if [[ -n "$ACCESS_KEY" && -n "$SECRET_KEY" ]]; then
         return 0
     fi
+
+    if grep -q "s3.seagate.com" <<< "$ENDPOINT"; then
+        if grep -q "https" <<< "$ENDPOINT"; then
+            ENDPOINT="${ENDPOINT}:${HTTPS_REQUEST}"
+        else
+            ENDPOINT="${ENDPOINT}:${HTTP_REQUEST}"
+        fi
+    fi
+
     ACCESS_KEY=$(grep -E ^[^#] ~/.aws/credentials | grep aws_access_key_id | cut -d= -f2 | tr -d " ")
     SECRET_KEY=$(grep -E ^[^#] ~/.aws/credentials | grep aws_secret_access_key | cut -d= -f2 | tr -d " ")
 }

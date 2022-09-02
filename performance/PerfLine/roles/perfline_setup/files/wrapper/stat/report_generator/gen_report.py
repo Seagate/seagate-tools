@@ -346,47 +346,49 @@ def parse_dstat_info(nodes_stat_dirs):
             if ':' in net_columns[0]:
                 # dstat 0.7.3
                 for column in net_columns:
-                    print(column)
-                    # plt.figure()
-                    net = df['net/' + column]
-                    net = [float(n)/10**4 for n in net.tolist()]
-                    plt.plot(net)
+                    if not column.startswith("cali"):
+                        print(column)
+                        # plt.figure()
+                        net = df['net/' + column]
+                        net = [float(n)/10**4 for n in net.tolist()]
+                        plt.plot(net)
 
-                    plt.ylabel('KB')
-                    plt.xlabel('Seconds')
-                    plt.savefig(f'{path}/dstat/{column.replace(":", "_")}.png')
-                    plt.cla()
+                        plt.ylabel('KB')
+                        plt.xlabel('Seconds')
+                        plt.savefig(f'{path}/dstat/{column.replace(":", "_")}.png')
+                        plt.cla()
                 dstat_net_info.append([column.replace(":", "_")
                                        for column in net_columns])
             else:
                 # dstat 0.7.2
                 net_columns_7_2 = []
                 for column in net_columns:
-                    print(column)
-                    net_col_id = df.columns.get_loc('net/' + column)
-                    net_recv = df['net/' + column]
-                    net_send = df[df.columns[net_col_id + 1]]
-                    del net_recv[0]
-                    del net_send[0]
-                    net_recv = [float(n)/10**4 for n in net_recv.tolist()]
-                    net_send = [float(n)/10**4 for n in net_send.tolist()]
+                    if not column.startswith("cali"):
+                        print(column)
+                        net_col_id = df.columns.get_loc('net/' + column)
+                        net_recv = df['net/' + column]
+                        net_send = df[df.columns[net_col_id + 1]]
+                        del net_recv[0]
+                        del net_send[0]
+                        net_recv = [float(n)/10**4 for n in net_recv.tolist()]
+                        net_send = [float(n)/10**4 for n in net_send.tolist()]
 
-                    plt.figure()
-                    plt.plot(net_recv)
-                    plt.ylabel('KB')
-                    plt.xlabel('Seconds')
-                    plt.savefig(f'{path}/dstat/{column}_recv.png')
-                    net_columns_7_2.append(f'{column}_recv')
-                    plt.cla()
+                        plt.figure()
+                        plt.plot(net_recv)
+                        plt.ylabel('KB')
+                        plt.xlabel('Seconds')
+                        plt.savefig(f'{path}/dstat/{column}_recv.png')
+                        net_columns_7_2.append(f'{column}_recv')
+                        plt.cla()
 
-                    plt.figure()
-                    plt.plot(net_send)
+                        plt.figure()
+                        plt.plot(net_send)
 
-                    plt.ylabel('KB')
-                    plt.xlabel('Seconds')
-                    plt.savefig(f'{path}/dstat/{column}_send.png')
-                    net_columns_7_2.append(f'{column}_send')
-                    plt.close()
+                        plt.ylabel('KB')
+                        plt.xlabel('Seconds')
+                        plt.savefig(f'{path}/dstat/{column}_send.png')
+                        net_columns_7_2.append(f'{column}_send')
+                        plt.close()
 
                 dstat_net_info.append(net_columns_7_2)
 

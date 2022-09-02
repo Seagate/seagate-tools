@@ -53,8 +53,8 @@ def get_disks(): # returns disks from cluster config file
 def main():
     disks, md_disks = get_disks()
     if disks:
-        print('IO:' + ' '.join(disks))
-        print('MD:' + ' '.join(md_disks))
+        print('IO:' + ' '.join(set(disks)))
+        print('MD:' + ' '.join(set(md_disks)))
 
 if __name__ == "__main__":
     main()

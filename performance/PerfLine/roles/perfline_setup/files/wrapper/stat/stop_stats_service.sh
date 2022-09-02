@@ -41,17 +41,15 @@ MD_DISKS=$(cat "$DISKS_MAP" | grep 'MD:' | sed 's/MD://')
 
 function iostat_service_stop()
 {
-     iostat_pid=$(pidof iostat)
-     kill "$iostat_pid"
+    iostat_pid=$(pidof iostat)
+    kill "$iostat_pid"
 
-     while kill -0 "$iostat_pid"; do
-         sleep 1
-     done
+    while kill -0 "$iostat_pid"; do
+        sleep 1
+    done
 
-     pushd /var/perfline/iostat."$(hostname -s)"
-
+    pushd /var/perfline/iostat."$(hostname -s)"
     disks_dm=""
-
     for d in $DISKS; do
         dm=$(realpath "$d" | xargs basename)
         disks_dm="$disks_dm $dm"
@@ -64,26 +62,28 @@ function iostat_service_stop()
         echo "MD $d $dm" >> disks.mapping
     done
 
-     iostat-cli --fig-size 20,20 --data iostat.log \
-           --disks $disks_dm \
-           --fig-output iostat.aggregated.png plot
+    iostat-cli --fig-size 20,20 --data iostat.log \
+               --disks ${disks_dm} \
+               --fig-output iostat.aggregated.png plot
 
-     for plot in io_rqm iops io_transfer "%util" avgrq-sz avgqu-sz await svctm; do
-     iostat-cli --fig-size 20,20 --data iostat.log \
-           --disks $disks_dm \
-           --fig-output iostat.$plot.png plot --subplots $plot
-     done
+    # Below code has been commented intensionally, Since it's generating the same graph by above command.
+    # To generate sepearte graph for "io_rqm iops io_transfer "%util" avgrq-sz avgqu-sz await svctm"
 
-     > nodes.mapping
-     echo "$CURRENT_NODE $(hostname)" >> nodes.mapping
+    # for plot in io_rqm iops io_transfer "%util" avgrq-sz avgqu-sz await svctm; do
+    #    iostat-cli --fig-size 20,20 --data iostat.log \
+    #               --disks $disks_dm \
+    #               --fig-output iostat.$plot.png plot --subplots $plot
+    # done
 
-     popd
+    > nodes.mapping
+    echo "$CURRENT_NODE $(hostname)" >> nodes.mapping
+    popd
 }
 
 function dstat_service_stop ()
 {
      pids=$(ps ax | grep dstat | grep -v grep | grep -v worker | grep -v dstat_stop | grep -v dstat_start | awk '{print $1}')
-     for pid in $pids ; do
+     for pid in "$pids" ; do
         kill "$pid"
 
         while kill -0 "$pid"; do
@@ -108,22 +108,23 @@ function blktrace_service_stop()
          blkparse -i "$d.blktrace.*" -d "$d".dump -O
          iowatcher -t "$d".dump -o "$d".aggregated.svg
          for graph in io tput latency queue_depth iops; do
-             iowatcher -t "$d".dump -o "$d".$graph.svg -O $graph
+             iowatcher -t "$d".dump -o "$d"."${graph}".svg -O "${graph}"
          done
      done
 
-     dumps=$(ls -1 | grep "dump" | awk '{print "-t "$1}' | tr '\n' ' ')
-     iowatcher "$dumps" -o node."$(hostname -s)".aggregated.svg
+     dumps=$(ls -1 | grep "dump" | awk '{print "-t "$1}' | tr '\n' ' ' | sed 's/ *$//g')
+     iowatcher ${dumps} -o node."$(hostname -s)".aggregated.svg
      for graph in io tput latency queue_depth iops; do
-         iowatcher "$dumps" -o node."$(hostname -s)".$graph.svg -O $graph
+         iowatcher ${dumps} -o node."$(hostname -s)"."${graph}".svg -O "${graph}"
      done
+     pop
 
 }
 
 function glances_service_stop()
 {
      pids=$(ps ax | grep glances | grep -v worker | grep -v grep | awk '{print $1}')
-     for pid in $pids ; do
+     for pid in "$pids" ; do
         kill -9 "$pid"
 
      done

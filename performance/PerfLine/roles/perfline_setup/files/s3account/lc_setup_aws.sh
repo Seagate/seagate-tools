@@ -21,13 +21,32 @@
 
 set -x
 
+if [ $# -lt 1  ]
+then
+  echo; echo "Usage: $0 <rgw|s3srv>"
+  echo; echo "eg:"
+  echo; echo "    # $0 rgw "
+  echo; echo "or"
+  echo; echo "    # $0 s3srv"
+  exit
+fi
+
+
 AWSKEYID=$(cat s3user.txt |cut -d ',' -f 4 |cut -d ' ' -f 4)
 AWSKEY=$(cat s3user.txt |cut -d ',' -f 5 |cut -d ' ' -f 4)
 aws configure set aws_access_key_id "$AWSKEYID"
-aws configure set aws_secret_access_key "$AWSKEY"
 aws configure set plugins.endpoint awscli_plugin_endpoint
 aws configure set s3.endpoint_url http://s3.seagate.com
 aws configure set s3api.endpoint_url http://s3.seagate.com
 aws configure set ca_bundle '/etc/ssl/ca.crt'
+
+if [ "$1" == "rgw" ]
+then 
+    SKEY=$(sudo kubectl get secrets cortx-secret  --template={{.data.s3_auth_admin_secret}}  | base64 -d)
+    sed -i "s/^aws_secret_access_key.*/aws_secret_access_key = $SKEY/" ~/.aws/credentials
+else
+    aws configure set aws_secret_access_key "$AWSKEY"
+fi
+
 cat ~/.aws/config
 cat ~/.aws/credentials

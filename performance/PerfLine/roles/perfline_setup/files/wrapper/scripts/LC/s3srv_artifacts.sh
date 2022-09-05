@@ -23,10 +23,12 @@
 function create_s3_account()
 {
     # create an s3 account
-    ssh "$PRIMARY_NODE" "$SCRIPT_DIR/../../s3account/lc_create_user.sh"
+    CMD="s3iamcli CreateAccount -n test${RANDOM:0:3} -e cloud${RANDOM:0:3}@seagate.com"
+    ssh "$PRIMARY_NODE" "$CMD --ldapuser sgiamadmin --ldappasswd ldapadmin --no-ssl > s3user.txt"
+    ssh "$PRIMARY_NODE" "cat s3user.txt"    
 
     # configure aws utility
-    ssh "$PRIMARY_NODE" "$SCRIPT_DIR/../../s3account/lc_setup_aws.sh"
+    ssh "$PRIMARY_NODE" "$SCRIPT_DIR/../../s3account/lc_setup_aws.sh $S3_APP"
 }
 
 function save_s3app_configs()

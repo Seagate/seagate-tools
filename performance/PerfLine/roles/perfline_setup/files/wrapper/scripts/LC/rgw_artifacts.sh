@@ -30,7 +30,7 @@ function create_s3_account()
     ssh "$PRIMARY_NODE" 'echo AccountId = 000, CanonicalId = 000, RootUserName = 000, AccessKeyId = sgiamadmin, SecretKey = ldapadmin > s3user.txt'
 
     # configure aws utility
-    ssh "$PRIMARY_NODE" "$SCRIPT_DIR/../../s3account/lc_setup_aws.sh"
+    ssh "$PRIMARY_NODE" "$SCRIPT_DIR/../../s3account/lc_setup_aws.sh $S3_APP"
 }
 
 function save_s3app_configs()

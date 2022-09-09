@@ -43,7 +43,7 @@ aws configure set ca_bundle '/etc/ssl/ca.crt'
 if [ "$1" == "rgw" ]
 then 
     SKEY=$(sudo kubectl get secrets cortx-secret  --template={{.data.s3_auth_admin_secret}}  | base64 -d)
-    sed -i "s/^aws_secret_access_key.*/aws_secret_access_key = $SKEY/" ~/.aws/credentials
+    aws configure set aws_secret_access_key "$SKEY"
 else
     aws configure set aws_secret_access_key "$AWSKEY"
 fi

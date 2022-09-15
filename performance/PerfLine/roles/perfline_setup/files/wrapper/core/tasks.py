@@ -63,7 +63,11 @@ def parse_options(conf, result_dir):
             # Parameter
             s3bench_params = ''
             for param_name, param_val in b['s3bench'].items():
-                s3bench_params += "--{} {} ".format(param_name, param_val)
+                if param_name.startswith("Skip"):
+                    if param_val:
+                       s3bench_params += "--{} ".format(param_name)
+                else:
+                    s3bench_params += "--{} {} ".format(param_name, param_val)
             options.append('--s3bench-params')
             options.append(s3bench_params)
 

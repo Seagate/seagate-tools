@@ -26,30 +26,40 @@ source "$SCRIPT_DIR/../../perfline.conf"
 SOLUTION_CONFIG="$CORTX_K8S_REPO/k8_cortx_cloud/solution.yaml"
 HTTP_REQUEST=$(cat "$SOLUTION_CONFIG" | grep -m 1 -A2 "nodePorts" | grep -w "http" | awk '{ print $2 }' )
 HTTPS_REQUEST=$(cat "$SOLUTION_CONFIG" | grep -m 1 -A2 "nodePorts" | grep -w "https" | awk '{ print $2 }' )
+S3BENCH_RUN="$PERFLINE_DIR/bin/s3bench_perfline -region us-east-1"
 
 function parse_args()
 {
     while [[ $# -gt 0 ]]; do
         case $1 in
             -b|--BucketName)
-                BUCKET_NAME="$2"
+                S3BENCH_RUN="${S3BENCH_RUN} -bucket $2"
                 shift
                 ;;
             -n|--NumSample)
-                NUM_SAMPLES="$2"
+                S3BENCH_RUN="${S3BENCH_RUN} -numSamples $2"
                 shift
                 ;;
             -c|--NumClients)
-                NUM_CLIENTS="$2"
+                S3BENCH_RUN="${S3BENCH_RUN} -numClients $2"
                 shift
                 ;;
             -o|--ObjSize)
-                OBJ_SIZE="$2"
+                S3BENCH_RUN="${S3BENCH_RUN} -objectSize $2"
                 shift
                 ;;
             -e|--EndPoint)
                 ENDPOINT="$2"
                 shift
+                ;;
+            -sc|--SkipCleanup)
+                S3BENCH_RUN="${S3BENCH_RUN} -skipCleanup"
+                ;;
+            -sr|--SkipRead)
+                S3BENCH_RUN="${S3BENCH_RUN} -skipRead"
+                ;;
+            -sw|--SkipWrite)
+                S3BENCH_RUN="${S3BENCH_RUN} -skipWrite"
                 ;;
             -h|--help)
                 echo "help information"
@@ -74,13 +84,16 @@ function parse_creds()
     if grep -q "s3.seagate.com" <<< "$ENDPOINT"; then
         if grep -q "https" <<< "$ENDPOINT"; then
             ENDPOINT="${ENDPOINT}:${HTTPS_REQUEST}"
+            S3BENCH_RUN="${S3BENCH_RUN} -endpoint ${ENDPOINT}"
         else
             ENDPOINT="${ENDPOINT}:${HTTP_REQUEST}"
+            S3BENCH_RUN="${S3BENCH_RUN} -endpoint ${ENDPOINT}"
         fi
     fi
 
-    ACCESS_KEY=$(grep -E ^[^#] ~/.aws/credentials | grep aws_access_key_id | cut -d= -f2 | tr -d " ")
-    SECRET_KEY=$(grep -E ^[^#] ~/.aws/credentials | grep aws_secret_access_key | cut -d= -f2 | tr -d " ")
+    ACCESS_KEY=$(grep -E ^[^\#] ~/.aws/credentials | grep aws_access_key_id | cut -d= -f2 | tr -d " ")
+    SECRET_KEY=$(grep -E ^[^\#] ~/.aws/credentials | grep aws_secret_access_key | cut -d= -f2 | tr -d " ")
+
 }
 
 
@@ -89,11 +102,13 @@ function run_s3bench()
     local format="Parameters:label;Parameters:numClients;Parameters:objectSize (MB);Parameters:copies;-Parameters:sampleReads;-Parameters:readObj;-Parameters:headObj;-Parameters:putObjTag;-Parameters:getObjTag;-Parameters:TLSHandshakeTimeout;-Parameters:bucket;-Parameters:connectTimeout;-Parameters:deleteAtOnce;-Parameters:deleteClients;-Parameters:deleteOnly;-Parameters:endpoints;-Parameters:httpClientTimeout;-Parameters:idleConnTimeout;-Parameters:maxIdleConnsPerHost;-Parameters:multipartSize;-Parameters:numTags;-Parameters:objectNamePrefix;-Parameters:protocolDebug;-Parameters:reportFormat;-Parameters:responseHeaderTimeout;-Parameters:s3Disable100Continue;-Parameters:profile;-Parameters:s3MaxRetries;-Parameters:skipRead;-Parameters:skipWrite;-Parameters:tagNamePrefix;-Parameters:tagValPrefix;-Parameters:validate;-Parameters:zero;-Parameters:outstream;-Parameters:outtype;Tests:Operation;Tests:RPS;Tests:Total Requests Count;Tests:Errors Count;Tests:Total Throughput (MB/s);Tests:Total Duration (s);Tests:Total Transferred (MB);Tests:Duration Max;Tests:Duration Avg;Tests:Duration Min;Tests:Ttfb Max;Tests:Ttfb Avg;Tests:Ttfb Min;-Tests:Duration 25th-ile;-Tests:Duration 50th-ile;-Tests:Duration 75th-ile;-Tests:Ttfb 25th-ile;-Tests:Ttfb 50th-ile;-Tests:Ttfb 75th-ile;-Tests:Errors;-Version;"
 
     if [[ -f "s3bench_report.csv" ]]; then
-        "$PERFLINE_DIR"/bin/s3bench_perfline -region us-east-1 -reportFormat "$format" -accessKey "$ACCESS_KEY" -accessSecret "$SECRET_KEY" -bucket "$BUCKET_NAME" -numSamples "$NUM_SAMPLES" -objectSize "$OBJ_SIZE" -numClients "$NUM_CLIENTS" -endpoint "$ENDPOINT" -o s3bench_report.csv -t csv+
+        S3BENCH_RUN="${S3BENCH_RUN} -accessKey ${ACCESS_KEY} -accessSecret ${SECRET_KEY} -reportFormat ${format} -o s3bench_report.csv -t csv+"
     else
-        "$PERFLINE_DIR"/bin/s3bench_perfline -region us-east-1 -reportFormat "$format" -accessKey "$ACCESS_KEY" -accessSecret "$SECRET_KEY" -bucket "$BUCKET_NAME" -numSamples "$NUM_SAMPLES" -objectSize "$OBJ_SIZE" -numClients "$NUM_CLIENTS" -endpoint "$ENDPOINT" -o s3bench_report.csv -t csv
+        S3BENCH_RUN="${S3BENCH_RUN} -accessKey ${ACCESS_KEY} -accessSecret ${SECRET_KEY} -reportFormat ${format} -o s3bench_report.csv -t csv"
     fi
 
+    # run the command
+    ${S3BENCH_RUN}
 
 }
 

@@ -258,6 +258,9 @@ def get_schema_motr():
                                         'NumSample': {'type': 'integer', 'required': True},
                                         'ObjSize': {'type': 'string', 'required': True, 'empty': False},
                                         'EndPoint': {'type': 'string', 'required': True, 'empty': False},
+                                        'SkipCleanup': {'type': 'boolean', 'required': False},
+                                        'SkipRead': {'type': 'boolean', 'required': False},
+                                        'SkipWrite':  {'type': 'boolean', 'required': False}
                                     }
                                 }
                             }

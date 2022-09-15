@@ -386,7 +386,7 @@ def main(argv):
 
 # insert DB entries
     run_ID = insert_run_details(run_details, list(
-        ast.literal_eval(argv[4])), argv[6])
+        ast.literal_eval(argv[4])), PR_ID)
     Config_ID = insert_config_details(sanity_config, run_ID)
 
     insertOperations(files, db_collection, run_ID, Config_ID)

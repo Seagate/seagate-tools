@@ -38,61 +38,67 @@ benchmarks:
 
 workloads:
 - s3bench:
-    BucketName: mybucket
+    BucketName: mybucket1
     NumClients: 200
     NumSample: 500000
     ObjSize: 4Kb
     EndPoint: http://s3.seagate.com
+    SkipCleanup: true
 
 - custom:
     cmd: sleep 100
 
 - s3bench:
-    BucketName: mybucket
+    BucketName: mybucket2
     NumClients: 200
     NumSample: 500000
     ObjSize: 64Kb
     EndPoint: http://s3.seagate.com
+    SkipCleanup: true
 
 - custom:
     cmd: sleep 100
 
 - s3bench:
-    BucketName: mybucket
+    BucketName: mybucket3
     NumClients: 200
     NumSample: 500000
     ObjSize: 1M
     EndPoint: http://s3.seagate.com
+    SkipCleanup: true
 
 - custom:
     cmd: sleep 100
 
 - s3bench:
-    BucketName: mybucket
+    BucketName: mybucket4
     NumClients: 200
     NumSample: 40000
     ObjSize: 16M
     EndPoint: http://s3.seagate.com
+    SkipCleanup: true
 
 - custom:
     cmd: sleep 100
 
 - s3bench:
-    BucketName: mybucket
+    BucketName: mybucket5
     NumClients: 200
     NumSample: 40000
     ObjSize: 128M
     EndPoint: http://s3.seagate.com
+    SkipCleanup: true
 
 - custom:
     cmd: sleep 100
 
 - s3bench:
-    BucketName: mybucket
+    BucketName: mybucket6
     NumClients: 200
     NumSample: 10000
     ObjSize: 1G
     EndPoint: http://s3.seagate.com
+    SkipCleanup: true
 
 execution_options:
   mkfs: true

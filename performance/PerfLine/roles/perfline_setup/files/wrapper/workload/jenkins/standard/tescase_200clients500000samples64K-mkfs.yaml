@@ -43,6 +43,7 @@ workloads:
     NumSample: 500000
     ObjSize: 64Kb
     EndPoint: http://s3.seagate.com
+    SkipCleanup: true
 
 execution_options:
   mkfs: true

@@ -257,9 +257,13 @@ Manual action request can be specified as a following type workload of perfline 
           NumSample: 100
           ObjSize: 4Mb
           EndPoint: http://s3.seagate.com
+          SkipCleanup: true
+          SkipRead: false
+          SkipWrite: false
       - user_action:
           cmd: wait
 
+**Note : Skip options added as a part of optional parameters. In s3benchbenchmark, these options like SkipCleanup, SkipRead and SkipWrite are not a mandatory params**
 ## Workload
 
 Order of workload definition and multiple iteration of same workload are allowed for benchmarks and workloads sections.
@@ -319,6 +323,7 @@ For ex:
           NumSample: 100
           ObjSize: 32Mb
           EndPoint: http://s3.seagate.com:30080
+          SkipCleanup: true
       - m0crate:
           NR_INSTANCES_PER_NODE: 2
           NR_THREADS: 2

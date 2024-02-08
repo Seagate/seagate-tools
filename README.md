@@ -1,7 +1,7 @@
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/587e3b6c6a214ee3a57cc007d8f97f42)](https://www.codacy.com?utm_source=github.com&utm_medium=referral&utm_content=Seagate/seagate-tools&utm_campaign=Badge_Grade)
 [![license](https://img.shields.io/badge/License-AGPL%203.0-blue.svg)](https://github.com/Seagate/seagate-tools/blob/main/LICENSE.txt)
 [![CORTX inclusive words scan](https://github.com/Seagate/seagate-tools/actions/workflows/alex_reviewdog.yml/badge.svg)](https://github.com/Seagate/seagate-tools/actions/workflows/alex_reviewdog.yml)
 
+# Disclaimer: This project is not maintained anymore
 # Seagate-tools
 
 Seagate-tools is a common repository of tools developed in-house by the Seagate Engineers for testing object storage. It consists of majorly Performance benchmarking, profiling, and analytic tools along with multi-utility dashboards.

@@ -30,11 +30,10 @@ warnings.filterwarnings('ignore')
 
 # Cluster Details
 # ----------------
-# url='https://eos-mgmt-vip-131.colo.seagate.com'
 url = f'https://{sys.argv[1]}'
 node_id = sys.argv[2]
-adminusr = 'cortxadmin'
-adminpwd = 'Cortxadmin@123'
+adminusr = ''
+adminpwd = ''
 
 # API Locations
 # --------------
